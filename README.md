@@ -20,9 +20,18 @@ no Java.
   and WYSIWYG. In WYSIWYG mode, double-click a rendered block to edit its
   AsciiDoc in place. The source text stays the single source of truth.
 - **Synced scrolling** between source and preview.
-- **Outline panel** to jump between sections.
-- **Export** to PDF (portrait or landscape A4 for wide tables), HTML, EPUB and
-  DocBook XML.
+- **Outline panel** to jump between sections, and **project folders** with a
+  file tree.
+- **Export** to PDF (portrait or landscape for wide tables), HTML, EPUB,
+  DocBook XML and a linked static website. **Export profiles** save one-click
+  export settings.
+- **Styles:** load an asciidoctor-pdf theme (`.yml`) once and it styles every
+  PDF, HTML and EPUB export and the live preview, title page included. A
+  document's own `:pdf-theme:` still wins.
+- **Page Preview** shows the document as the exported PDF's pages: title page,
+  table of contents, headers and footers.
+- **Authoring help:** completion, snippets, a visual table editor and a
+  searchable syntax reference (`F1`). Word documents (`.docx`) can be imported.
 - **Tabs and session restore:** reopen a closed tab and pick up where you left
   off. Unsaved work is recovered after a crash.
 - **Light, dark or system theme**, with zoom and word wrap for each pane.
@@ -36,9 +45,13 @@ self-contained, so you don't need to install .NET.
 | System | Archive |
 |---|---|
 | Windows (x64) | `Ascolotl-<version>-win-x64.zip` |
+| Windows (ARM64) | `Ascolotl-<version>-win-arm64.zip` |
 | macOS, Apple Silicon | `Ascolotl-<version>-osx-arm64.tar.gz` |
 | macOS, Intel | `Ascolotl-<version>-osx-x64.tar.gz` |
 | Linux (x64) | `Ascolotl-<version>-linux-x64.tar.gz` |
+| Linux (ARM64) | `Ascolotl-<version>-linux-arm64.tar.gz` |
+
+Each archive holds a single executable.
 
 **Windows:** unzip the archive and run `Ascolotl.exe`. The build is not signed,
 so SmartScreen may warn you the first time. Choose *More info*, then *Run anyway*.
@@ -51,18 +64,18 @@ tar -xzf Ascolotl-0.0.1-osx-arm64.tar.gz
 ```
 
 ```bash
-xattr -dr com.apple.quarantine Ascolotl-0.0.1-osx-arm64
+xattr -d com.apple.quarantine Ascolotl
 ```
 
 ```bash
-./Ascolotl-0.0.1-osx-arm64/Ascolotl
+./Ascolotl
 ```
 
 **Linux:** needs X11, fontconfig and ICU (`libicu`), which standard desktop
 distributions include. Unpack the archive and run `./Ascolotl`:
 
 ```bash
-tar -xzf Ascolotl-0.0.1-linux-x64.tar.gz && ./Ascolotl-0.0.1-linux-x64/Ascolotl
+tar -xzf Ascolotl-0.0.1-linux-x64.tar.gz && ./Ascolotl
 ```
 
 ## Keyboard shortcuts
@@ -93,10 +106,11 @@ dotnet run --project src/Ascolotl.App
 ```
 
 To make release builds, run `publish.ps1` in PowerShell. It runs the tests first,
-then publishes self-contained builds to `publish/<runtime>/`:
+then publishes one self-contained, trimmed executable per runtime to
+`publish/<runtime>/` and the release archives to `publish/dist/`:
 
 ```powershell
-.\publish.ps1                     # win-x64, osx-x64, osx-arm64, linux-x64
+.\publish.ps1                     # win, osx and linux, each x64 and arm64
 .\publish.ps1 -Runtime win-x64    # a single runtime
 ```
 
@@ -112,5 +126,11 @@ then publishes self-contained builds to `publish/<runtime>/`:
 | `example-documents/` | Sample AsciiDoc files for manual testing |
 
 Ascolotl is built on [Avalonia](https://avaloniaui.net/),
-[AvaloniaEdit](https://github.com/AvaloniaUI/AvaloniaEdit) and AdocNet, a
-managed AsciiDoc parser and renderer.
+[AvaloniaEdit](https://github.com/AvaloniaUI/AvaloniaEdit) and
+[AdocNet](https://github.com/sonatique/Adoc.Net), a managed AsciiDoc parser and
+renderer.
+
+## License
+
+Ascolotl is free software, licensed under the
+[GNU General Public License v3.0](LICENSE).

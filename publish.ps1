@@ -13,7 +13,9 @@
 #   - Linux: X11, fontconfig and ICU (libicu), present on standard desktop distros.
 #
 # Output: publish/<runtime>/Ascolotl[.exe] -- one self-contained, trimmed, ReadyToRun
-# executable per platform (native libraries included; no .pdb).
+# executable per platform (native libraries included; no .pdb) -- and release archives
+# in publish/dist/: Ascolotl-<version>-<runtime>.zip (Windows) or .tar.gz (macOS, Linux;
+# the executable bit is kept).
 
 param(
     [string]$Runtime = "all",
@@ -23,9 +25,11 @@ param(
 $ErrorActionPreference = "Stop"
 $Project = "src/Ascolotl.App/Ascolotl.App.csproj"
 $OutputBase = "publish"
+$DistDir = "$OutputBase/dist"
+$Version = ([xml](Get-Content $Project)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
 
 $Runtimes = if ($Runtime -eq "all") {
-    @("win-x64", "osx-x64", "osx-arm64", "linux-x64")
+    @("win-x64", "win-arm64", "osx-x64", "osx-arm64", "linux-x64", "linux-arm64")
 } else {
     @($Runtime)
 }
@@ -63,7 +67,16 @@ foreach ($rid in $Runtimes) {
     }
 
     Write-Host "Published to $outDir" -ForegroundColor Green
+
+    New-Item -ItemType Directory -Force $DistDir | Out-Null
+    $archive = "$DistDir/Ascolotl-$Version-$rid" + $(if ($rid -like "win-*") { ".zip" } else { ".tar.gz" })
+    dotnet run tools/package/pack.cs -- $outDir $archive
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Packaging failed for $rid" -ForegroundColor Red
+        exit 1
+    }
+    Write-Host "Packaged $archive" -ForegroundColor Green
 }
 
 Write-Host "`nPublish complete. Artifacts in ./$OutputBase/" -ForegroundColor Green
-Write-Host "Each runtime folder holds a single executable to distribute." -ForegroundColor DarkGray
+Write-Host "Release archives in ./$DistDir/" -ForegroundColor DarkGray
