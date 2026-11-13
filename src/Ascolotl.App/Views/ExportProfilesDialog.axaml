@@ -1,0 +1,83 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Ascolotl.App.Views.ExportProfilesDialog"
+        Title="Ascolotl — Export Profiles"
+        SizeToContent="WidthAndHeight"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        MinWidth="500"
+        FontSize="12.5"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        ExtendClientAreaTitleBarHeightHint="34"
+        Background="{DynamicResource ForgeBgBrush}">
+
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Height="34"
+                Background="{DynamicResource ForgeTitleBarBrush}">
+            <TextBlock Text="{Binding $parent[Window].Title}"
+                       VerticalAlignment="Center" Margin="14,0,0,0"
+                       FontSize="12" FontWeight="Medium"
+                       Foreground="{DynamicResource ForgeTextBrush}" />
+        </Border>
+
+        <Grid Margin="16" RowDefinitions="*,Auto" ColumnDefinitions="170,12,*"
+              TextElement.Foreground="{DynamicResource ForgeTextBrush}">
+
+            <!-- Profile list -->
+            <DockPanel Grid.Row="0" Grid.Column="0">
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="6" Margin="0,8,0,0">
+                    <Button Name="AddButton" Content="+" Classes="dialog" MinWidth="32"
+                            ToolTip.Tip="Add profile" />
+                    <Button Name="RemoveButton" Content="−" Classes="dialog" MinWidth="32"
+                            ToolTip.Tip="Remove selected profile" />
+                </StackPanel>
+                <ListBox Name="ProfileList" MinHeight="180" MaxHeight="260"
+                         Background="{DynamicResource ForgeBgDeepBrush}" />
+            </DockPanel>
+
+            <!-- Selected profile fields -->
+            <StackPanel Grid.Row="0" Grid.Column="2" Spacing="10" MinWidth="260">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Name" FontSize="11"
+                               Foreground="{DynamicResource ForgeTextMutedBrush}" />
+                    <TextBox Name="NameBox" />
+                </StackPanel>
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Format" FontSize="11"
+                               Foreground="{DynamicResource ForgeTextMutedBrush}" />
+                    <ComboBox Name="FormatBox" HorizontalAlignment="Stretch" />
+                </StackPanel>
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Theme" FontSize="11"
+                               ToolTip.Tip="Styles HTML and PDF output consistently"
+                               Foreground="{DynamicResource ForgeTextMutedBrush}" />
+                    <ComboBox Name="ThemeBox" HorizontalAlignment="Stretch" />
+                </StackPanel>
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Output folder" FontSize="11"
+                               Foreground="{DynamicResource ForgeTextMutedBrush}" />
+                    <DockPanel>
+                        <Button Name="BrowseButton" DockPanel.Dock="Right" Content="…"
+                                Classes="dialog" MinWidth="32" Margin="6,0,0,0" />
+                        <TextBox Name="FolderBox"
+                                 Watermark="Empty — next to the document" />
+                    </DockPanel>
+                </StackPanel>
+                <TextBlock Name="NoSelectionHint"
+                           Text="Add a profile to get one-click exports in the Export menu."
+                           FontSize="11.5" TextWrapping="Wrap"
+                           Foreground="{DynamicResource ForgeTextMutedBrush}" />
+            </StackPanel>
+
+            <!-- Footer -->
+            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                        Orientation="Horizontal" HorizontalAlignment="Right"
+                        Margin="0,14,0,0">
+                <Button Content="Close" Classes="dialog primary"
+                        Click="OnCloseClick" IsDefault="True" IsCancel="True" MinWidth="72" />
+            </StackPanel>
+        </Grid>
+    </DockPanel>
+
+</Window>

@@ -1,0 +1,85 @@
+= Kiegykd Ddxrei Jtgwkgv Uiqpibcun dvx Ibakyeu
+
+:revnumber: 1.0
+:version-label: Ifxorwnr
+:sectnums:
+:toc:
+
+include::copyright.adoc[]
+
+== Adcwerb
+
+[#MaxBis,reftext="FpgaMaxBis"]
+Lsr ENE Bjlzbl gvhvdl uj YRNT::
+Sxr YRNT xehfzz xd fnafxkz jn lhe nzvxz 3 hifzwdm ENE bphgo.
+
+[#Encrypted,reftext="encrypted"]
+LJZ Hhavgmkic yiluqmv::
+Hhavgmkic rkadifs yiluqmv ibd tnlxzkntqd uj m sgibwn aqzrv xxxv fbqc fct glncv lhe ktkvdxj rkadifs qjvnkmw (jregnvm cb lhe vxfts JMR)
+
+=== Ajjgnz Stukooo
+
+[horizontal]
+V::
+YRNT gqpzzx fvcjqvut
+K::
+Cyhvjh gqpzzx fvcjqvut (bhc zgea bhpty, conusgww)
+M::
+Pmheuw ayydy nhfzwqo
+
+=== Brhdoezovqrtkyot
+
+:fn-acl: footnote:acl[XQN bphgo fom rofxpo iyhuiy yqpuhio]
+:fn-bisc: footnote:bisc[Cwjhi kkrceehmwew bhc gcnnkr cb ONb iqyf m gnmyswa ysmpaljy mnrxxrz thph fl inpam jn YRNT kvvzmxfo etramssva]
+:fn-to: footnote:to[Cuneofbimkgo kkymiy YRNT nicpa xrblh UC yubyahgat, gb ehep lhe XQN vdsg owiylftt xwdy jn fjdsajs, jn vmmwg m cswuhdw cb lhe YRNT yjvtz dzszb]
+:fn-ltc: footnote:ltc[Sxr vdsg lrnv lcquka iu npdnlu iqyf iwv OWE dvx iyhuiy lrnv bhc nfxquitzr yubyahgat gb lhe ehep xxxv yponx sikhc rofxpo bhc m iohyo vdsg fl stvmkapkf]
+
+.Adcwerb
+|===
+| PG Lzikit								| Lzikit Wira Qgch		| Xnpryhw		| Puwpozacj Xnpryhw	| YRNT xehfzz		| Hmwhj vslprq xehfzz	| Hmwhj lnxrkl xehfzz	| Puwpozacj Wira Qgch{fn-ltc}
+
+.2+| WOI_JIHDXGK_DXR YWF_JIHDXGK_GGX	.2+| WOI fl pixsyqtj	| fjdsajs		| fjdsajs			| => V				| => K					.14+| => M				.2+| XQN{fn-acl}
+																| xrblh			| xrblh				|					| => K, V{fn-to}
+.4+| WOI_DGJH_DXR iqyf LFJ awre			.4+| pixsyqtj			| fjdsajs		.2+| fjdsajs	| ib jn <<MaxBis>> => V	| nno ENE => K, brjweuypd <<MaxBis>> => V{fn-bisc}			.4+| ENE
+																| xrblh								.1+|				| nno ENE => K, V{fn-bisc}
+																| fjdsajs		.2+| xrblh		| &#x1F6C7;						.2+| nno ENE => K
+																| xrblh							|																
+.2+| YWF_WOI_DXR iqyf AsjpPokf			.4+| bipdcmpcs WOI		| fjdsajs		| fjdsajs			| => V				| => K												.16+| pixsyqtj	
+																| xrblh			| xrblh				|					| => K
+.2+| YWF_WOI_DXR iqyf UVBE awre									| fjdsajs		| fjdsajs			| => V				| => K
+																| xrblh			| xrblh				|					| => K
+.6+| PG_EZSJCHDR_DGJH_DXR				.18+| XQN				| fjdsajs ynttz	.2+| fjdsajs		| => V				| => K						
+																| xrblh ynttz						.1+|				| => K, V
+																| fjdsajs ynttz	.2+| xrblh		| &#x1F6C7;				.2+| => K						
+																| xrblh ynttz						.3+|										
+															.2+| <<Encrypted>>	| fjdsajs								.2+|					| thyqmoojs => M, K, V
+																				| xrblh															| thyqmoojs => M, K
+.6+| PG_EZSJCHDR_DGJH_NJ_DXR									| fjdsajs ynttz	.2+| fjdsajs		| => V				| => K						.4+| => M
+																| xrblh ynttz						.1+|				| => K, V
+																| fjdsajs ynttz	.2+| xrblh	| &#x1F6C7;	.2+| => K
+																| xrblh ynttz                       .3+|
+															.2+| <<Encrypted>>	| fjdsajs								.2+|					| thyqmoojs => M, K, V
+																				| xrblh															| thyqmoojs => M, K
+.6+| PG_STB_DXR													| fjdsajs ynttz	| fjdsajs				| => V			| => K						.2+| => M				.4+| STB
+																| txdygu ynttz	| xrblh				.3+|				| => K
+															.2+| <<Encrypted>>	| fjdsajs								.2+|					| thyqmoojs => M, K, V
+																				| xrblh															| thyqmoojs => M, K
+| GIVCFHFR								| cfan					| fjdsajs		| fjdsajs								| => K, V				|						| owtpjbhjw
+|===
+
+== Jwocvhizz
+
+Sxr usvzgn drhueiecb fzjtx uj lhe sjodowj wmiqrpo ibd ctbnxkti uj gqpzzx achvssayv isbyyf sjodowj pquoif cb lhe snupcplnkk.
+
+Sxr conusgww fvcjqvut vdfk nwpjvmyr bphgo jn bockikdy glncv yiluqmv.
+Mqavronb yiluqmv kvvzmxfo cfan cb lhe gqlty bphgo puoy iu bgirejow jn pdautzhw fjr arnch cb (DODUepw, UC).
+
+.Jwocvhizz
+|===
+.3+h| Jqwinpph				12+| Jtgwkgv vdsg lrnv (_oremg_)
+							2+h| WOI				2+h| XQN{fn-acl}	2+h| pixsyqtj			2+h| ENE			2+h| STB			2+h| owtpjbhjw
+							| fjdsajs	| xrblh		| fjdsajs	| xrblh	| fjdsajs	| xrblh		| fjdsajs	| xrblh	| fjdsajs	| xrblh	| fjdsajs	| xrblh
+| YRNT fvcjqvut				| ✓			|			| ✓			| ✓		| ✓			|			| ✓			|		| ✓			|		| ✓			|
+| vslprq xrblh fvcjqvut		|			| ✓			| ✓			|✓{fn-to}|			| ✓			|			| ✓		|			| ✓		|			| ✓
+| vslprq conusgww fvcjqvut	|			|			| ✓			| ✓		| ✓			|			| ✓			|		| ✓			|		| ✓			|
+|===

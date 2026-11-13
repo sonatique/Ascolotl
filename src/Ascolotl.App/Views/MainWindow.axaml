@@ -1,0 +1,605 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Ascolotl.Core.ViewModels"
+        xmlns:models="using:Ascolotl.Core.Models"
+        xmlns:assist="using:Ascolotl.Core.Editing.Assist"
+        xmlns:views="using:Ascolotl.App.Views"
+        xmlns:converters="using:Ascolotl.App.Converters"
+        x:Class="Ascolotl.App.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Ascolotl"
+        Width="1280" Height="800"
+        MinWidth="600" MinHeight="400"
+        DragDrop.AllowDrop="True"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        ExtendClientAreaTitleBarHeightHint="32"
+        Background="{DynamicResource ForgeBgBrush}">
+
+    <Window.Resources>
+        <converters:LevelToMarginConverter x:Key="LevelToMarginConverter" />
+    </Window.Resources>
+
+    <!-- Root Panel for z-order (command palette floats on top) -->
+    <Panel>
+        <!-- OffScreenMargin compensates the resize border that goes off-screen
+             when maximized, so the title bar isn't clipped at the top (which made
+             its items look top-biased with extra space below). -->
+        <DockPanel x:Name="ContentDockPanel"
+                   Margin="{Binding $parent[Window].OffScreenMargin}">
+            <!-- Segmented status bar -->
+            <Border DockPanel.Dock="Bottom"
+                    Height="24"
+                    Background="{DynamicResource ForgeBgDeepBrush}"
+                    BorderBrush="{DynamicResource ForgeBorderBrush}"
+                    BorderThickness="0,1,0,0">
+                <Grid ColumnDefinitions="*,Auto" Margin="12,0">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding StatusText}"
+                                   FontSize="11.5"
+                                   Foreground="{DynamicResource ForgeTextMutedBrush}"
+                                   VerticalAlignment="Center" />
+                        <!-- Authoring-assist syntax hint for the caret context. -->
+                        <TextBlock Text="{Binding SelectedDocument.SyntaxHint}"
+                                   IsVisible="{Binding SelectedDocument.HasSyntaxHint}"
+                                   FontSize="11.5"
+                                   FontStyle="Italic"
+                                   Foreground="{DynamicResource ForgeTextMutedBrush}"
+                                   VerticalAlignment="Center" />
+                        <!-- Parser diagnostics count (errors / warnings); hover
+                             for the messages. -->
+                        <StackPanel Orientation="Horizontal" Spacing="4"
+                                    IsVisible="{Binding SelectedDocument.HasErrors}"
+                                    ToolTip.Tip="{Binding SelectedDocument.DiagnosticsSummary}"
+                                    VerticalAlignment="Center">
+                            <Path Classes="icon" Data="{StaticResource IconErrorGeometry}"
+                                  Width="13" Height="13" Stroke="#C0241F" />
+                            <TextBlock Text="{Binding SelectedDocument.ErrorCount}"
+                                       FontSize="11.5" FontWeight="SemiBold" Foreground="#C0241F"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="4"
+                                    IsVisible="{Binding SelectedDocument.HasWarnings}"
+                                    ToolTip.Tip="{Binding SelectedDocument.DiagnosticsSummary}"
+                                    VerticalAlignment="Center">
+                            <Path Classes="icon" Data="{StaticResource IconWarningGeometry}"
+                                  Width="13" Height="13" Stroke="#E5322B" />
+                            <TextBlock Text="{Binding SelectedDocument.WarningCount}"
+                                       FontSize="11.5" FontWeight="SemiBold" Foreground="#E5322B"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </StackPanel>
+                    <!-- Right segments: spacing, not hairlines; tabular figures so
+                         Ln/Col and zoom don't jitter as digits change width. -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="18" VerticalAlignment="Center">
+                        <!-- Prose word count; reading time + characters on hover
+                             (tooltip keeps the bar quiet — screen estate). -->
+                        <TextBlock Text="{Binding SelectedDocument.WordCountText}"
+                                   ToolTip.Tip="{Binding SelectedDocument.StatsTooltip}"
+                                   FontSize="11.5"
+                                   FontFeatures="tnum=1"
+                                   Foreground="{DynamicResource ForgeTextMutedBrush}"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Name="EditorModeText"
+                                   Text="Split"
+                                   FontSize="11.5"
+                                   Foreground="{DynamicResource ForgeTextMutedBrush}"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Name="CursorPositionText"
+                                   Text="Ln 1, Col 1"
+                                   FontSize="11.5"
+                                   FontFeatures="tnum=1"
+                                   Foreground="{DynamicResource ForgeTextMutedBrush}"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Text="UTF-8"
+                                   FontSize="11.5"
+                                   Foreground="{DynamicResource ForgeTextMutedBrush}"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Name="ZoomText"
+                                   Text="100%"
+                                   FontSize="11.5"
+                                   FontFeatures="tnum=1"
+                                   Foreground="{DynamicResource ForgeTextMutedBrush}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Outer Grid: Outline + Document Area -->
+            <Grid Name="OuterGrid">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Sidebar: Outline, plus the project file tree when a folder
+                     is open. The header doubles as the section switcher — two
+                     quiet text tabs, no chrome (screen estate). -->
+                <Border Grid.Column="0"
+                        Name="OutlinePane"
+                        Width="220"
+                        IsVisible="{Binding ShowOutlinePane}"
+                        Background="{DynamicResource ForgeBgDeepBrush}">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="12"
+                                    Margin="14,10,12,8">
+                            <TextBlock Name="SidebarOutlineTab"
+                                       Text="Outline"
+                                       FontSize="11"
+                                       Cursor="Hand"
+                                       Foreground="{DynamicResource ForgeTextMutedBrush}" />
+                            <TextBlock Name="SidebarFilesTab"
+                                       Text="Files"
+                                       FontSize="11"
+                                       Cursor="Hand"
+                                       IsVisible="{Binding HasProject}"
+                                       Foreground="{DynamicResource ForgeTextMutedBrush}" />
+                        </StackPanel>
+                        <Panel>
+                            <ListBox Name="OutlineList"
+                                     Classes="outline"
+                                     ItemsSource="{Binding OutlineItems}"
+                                     SelectionMode="Single"
+                                     IsVisible="{Binding !SidebarFilesActive}"
+                                     Padding="0">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="models:OutlineItem">
+                                        <TextBlock Text="{Binding Title}"
+                                                   Margin="{Binding Level, Converter={StaticResource LevelToMarginConverter}}"
+                                                   FontSize="12"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTip.Tip="{Binding Title}" />
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <TreeView Name="ProjectTree"
+                                      ItemsSource="{Binding ProjectRoots}"
+                                      IsVisible="{Binding SidebarFilesActive}"
+                                      SelectionMode="Single"
+                                      Padding="4,0,0,0">
+                                <TreeView.ItemTemplate>
+                                    <TreeDataTemplate ItemsSource="{Binding Children}"
+                                                      x:DataType="models:ProjectNode">
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontSize="12"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTip.Tip="{Binding FullPath}" />
+                                    </TreeDataTemplate>
+                                </TreeView.ItemTemplate>
+                            </TreeView>
+                        </Panel>
+                    </DockPanel>
+                </Border>
+
+                <!-- Outline Splitter -->
+                <GridSplitter Grid.Column="1"
+                              Width="4"
+                              IsVisible="{Binding ShowOutlinePane}"
+                              Background="{DynamicResource ForgeBorderBrush}" />
+
+                <!-- Document Area -->
+                <DockPanel Grid.Column="2">
+                    <!-- App icon + menu + tabs all share the top row (this row
+                         also replaces the OS title bar). The menu is reparented
+                         in code-behind between a single ☰ item (hamburger) and
+                         inline File/View, driven by the HamburgerMenu setting. -->
+                    <Grid DockPanel.Dock="Top"
+                          Height="32"
+                          Background="{DynamicResource ForgeTitleBarBrush}"
+                          ColumnDefinitions="Auto,Auto,*">
+                        <Image Grid.Column="0"
+                               Source="avares://Ascolotl/Assets/app-icon.png"
+                               Width="16" Height="16"
+                               RenderOptions.BitmapInterpolationMode="HighQuality"
+                               VerticalAlignment="Center"
+                               Margin="9,0,3,0" />
+                        <Menu x:Name="MainMenu"
+                              Grid.Column="1"
+                              VerticalAlignment="Stretch"
+                              MinHeight="0"
+                              Margin="0,0,2,0">
+                            <MenuItem x:Name="HamburgerMenuItem"
+                                      VerticalAlignment="Stretch"
+                                      Padding="0"
+                                      MinHeight="0"
+                                      ToolTip.Tip="Menu"
+                                      AutomationProperties.Name="Main menu">
+                                <MenuItem.Header>
+                                    <!-- The menu item top-biases its content; position
+                                         the icon with an explicit top margin (tunable). -->
+                                    <Panel Width="38" Height="32">
+                                        <Path Classes="icon"
+                                              Data="{StaticResource IconMenuGeometry}"
+                                              Width="16" Height="16"
+                                              VerticalAlignment="Top"
+                                              HorizontalAlignment="Center"
+                                              Margin="0,10,0,0"
+                                              Stroke="{DynamicResource ForgeTextBrush}" />
+                                    </Panel>
+                                </MenuItem.Header>
+                            </MenuItem>
+                            <MenuItem x:Name="FileMenuItem" Header="_File">
+                                <MenuItem Header="_New"
+                                          Command="{Binding NewDocumentCommand}"
+                                          InputGesture="Ctrl+N" />
+                                <MenuItem Header="_Open..."
+                                          Command="{Binding OpenDocumentCommand}"
+                                          InputGesture="Ctrl+O" />
+                                <MenuItem Header="Open Fol_der..."
+                                          Command="{Binding OpenFolderCommand}"
+                                          InputGesture="Ctrl+Shift+O" />
+                                <MenuItem Header="Close Folder"
+                                          Command="{Binding CloseFolderCommand}"
+                                          IsVisible="{Binding HasProject}" />
+                                <MenuItem Header="_Import from Word..."
+                                          Command="{Binding ImportDocxCommand}"
+                                          ToolTip.Tip="Convert a .docx to AsciiDoc (images extracted beside it)" />
+                                <MenuItem Header="Recent _Files" Name="RecentFilesMenu" />
+                                <MenuItem Header="Reopen C_losed Tab"
+                                          Command="{Binding ReopenClosedTabCommand}"
+                                          InputGesture="Ctrl+Shift+T" />
+                                <Separator />
+                                <MenuItem Header="_Save"
+                                          Command="{Binding SaveDocumentCommand}"
+                                          InputGesture="Ctrl+S" />
+                                <MenuItem Header="Save _As..."
+                                          Command="{Binding SaveDocumentAsCommand}"
+                                          InputGesture="Ctrl+Shift+S" />
+                                <MenuItem Header="Save A_ll"
+                                          Command="{Binding SaveAllCommand}"
+                                          InputGesture="Ctrl+Alt+S" />
+                                <Separator />
+                                <MenuItem Header="_Export" Name="ExportMenu">
+                                    <!-- Export-profile items are inserted at the
+                                         top in code-behind (RebuildExportMenu). -->
+                                    <MenuItem Header="_PDF..."
+                                              Command="{Binding ExportCommand}"
+                                              CommandParameter="{x:Static models:ExportFormat.Pdf}"
+                                              InputGesture="Ctrl+E" />
+                                    <MenuItem Header="PDF (_Landscape)..."
+                                              Command="{Binding ExportCommand}"
+                                              CommandParameter="{x:Static models:ExportFormat.PdfLandscape}" />
+                                    <MenuItem Header="_HTML..."
+                                              Command="{Binding ExportCommand}"
+                                              CommandParameter="{x:Static models:ExportFormat.Html}" />
+                                    <MenuItem Header="_DocBook..."
+                                              Command="{Binding ExportCommand}"
+                                              CommandParameter="{x:Static models:ExportFormat.DocBook}" />
+                                    <MenuItem Header="_EPUB..."
+                                              Command="{Binding ExportCommand}"
+                                              CommandParameter="{x:Static models:ExportFormat.Epub}" />
+                                    <MenuItem Header="_Website..."
+                                              Command="{Binding ExportWebsiteCommand}"
+                                              IsVisible="{Binding HasProject}"
+                                              ToolTip.Tip="Export the whole project folder as a linked HTML site" />
+                                    <Separator />
+                                    <MenuItem Header="_Manage Profiles..."
+                                              Name="ManageExportProfilesItem" />
+                                    <Separator />
+                                    <MenuItem Header="PDF _Title">
+                                        <MenuItem Header="_Full Title"
+                                                  Command="{Binding SetPdfTitleRuleCommand}"
+                                                  CommandParameter="{x:Static models:PdfTitleRule.FullTitle}"
+                                                  ToggleType="Radio"
+                                                  IsChecked="{Binding IsPdfTitleFull, Mode=OneWay}" />
+                                        <MenuItem Header="_Up to First Colon"
+                                                  Command="{Binding SetPdfTitleRuleCommand}"
+                                                  CommandParameter="{x:Static models:PdfTitleRule.UpToFirstColon}"
+                                                  ToggleType="Radio"
+                                                  IsChecked="{Binding IsPdfTitleUpToColon, Mode=OneWay}" />
+                                        <Separator />
+                                        <MenuItem Header="_Edit Before Each PDF Export"
+                                                  Command="{Binding ToggleAskPdfTitleCommand}"
+                                                  ToggleType="CheckBox"
+                                                  IsChecked="{Binding AskPdfTitle, Mode=OneWay}" />
+                                    </MenuItem>
+                                    <MenuItem Header="With Another _Style">
+                                        <MenuItem Header="_PDF..."
+                                                  Command="{Binding ExportWithStyleCommand}"
+                                                  CommandParameter="{x:Static models:ExportFormat.Pdf}" />
+                                        <MenuItem Header="PDF (_Landscape)..."
+                                                  Command="{Binding ExportWithStyleCommand}"
+                                                  CommandParameter="{x:Static models:ExportFormat.PdfLandscape}" />
+                                        <MenuItem Header="_HTML..."
+                                                  Command="{Binding ExportWithStyleCommand}"
+                                                  CommandParameter="{x:Static models:ExportFormat.Html}" />
+                                        <MenuItem Header="_EPUB..."
+                                                  Command="{Binding ExportWithStyleCommand}"
+                                                  CommandParameter="{x:Static models:ExportFormat.Epub}" />
+                                    </MenuItem>
+                                </MenuItem>
+                                <Separator />
+                                <MenuItem Header="_Close Tab"
+                                          Command="{Binding CloseTabCommand}"
+                                          InputGesture="Ctrl+W" />
+                                <Separator />
+                                <MenuItem Header="E_xit"
+                                          Click="OnExitClick" />
+                            </MenuItem>
+                            <MenuItem x:Name="ViewMenuItem" Header="_View">
+                                <MenuItem Header="_Source Mode"
+                                          Command="{Binding SetEditorModeCommand}"
+                                          CommandParameter="{x:Static models:EditorMode.Source}"
+                                          ToggleType="Radio"
+                                          IsChecked="{Binding IsSourceMode, Mode=OneWay}" />
+                                <MenuItem Header="S_plit Mode"
+                                          Command="{Binding SetEditorModeCommand}"
+                                          CommandParameter="{x:Static models:EditorMode.Split}"
+                                          ToggleType="Radio"
+                                          IsChecked="{Binding IsSplitMode, Mode=OneWay}" />
+                                <MenuItem Header="_WYSIWYG Mode"
+                                          Command="{Binding SetEditorModeCommand}"
+                                          CommandParameter="{x:Static models:EditorMode.Wysiwyg}"
+                                          ToggleType="Radio"
+                                          IsChecked="{Binding IsWysiwygMode, Mode=OneWay}" />
+                                <Separator />
+                                <MenuItem Header="Show _Title &amp; TOC"
+                                          Command="{Binding ToggleShowTitleAndTocCommand}"
+                                          ToggleType="CheckBox"
+                                          IsChecked="{Binding ShowTitleAndToc, Mode=OneWay}" />
+                                <MenuItem Header="Page Pre_view"
+                                          Command="{Binding TogglePagePreviewCommand}"
+                                          ToggleType="CheckBox"
+                                          IsChecked="{Binding PagePreview, Mode=OneWay}"
+                                          ToolTip.Tip="Flow the preview into A4 pages, matching the PDF export" />
+                                <MenuItem Header="Sync _Scrolling"
+                                          Command="{Binding ToggleSyncScrollingCommand}"
+                                          ToggleType="CheckBox"
+                                          IsChecked="{Binding SyncScrolling, Mode=OneWay}" />
+                                <MenuItem Header="_Editor Word Wrap"
+                                          Command="{Binding ToggleEditorWordWrapCommand}"
+                                          ToggleType="CheckBox"
+                                          IsChecked="{Binding EditorWordWrap, Mode=OneWay}" />
+                                <MenuItem Header="_Preview Word Wrap"
+                                          Command="{Binding TogglePreviewWordWrapCommand}"
+                                          ToggleType="CheckBox"
+                                          IsChecked="{Binding PreviewWordWrap, Mode=OneWay}" />
+                                <MenuItem Header="Toggle _Outline"
+                                          Command="{Binding ToggleOutlinePaneCommand}"
+                                          InputGesture="Ctrl+B"
+                                          ToggleType="CheckBox"
+                                          IsChecked="{Binding ShowOutlinePane, Mode=OneWay}" />
+                                <MenuItem Header="_Hamburger Menu"
+                                          Command="{Binding ToggleHamburgerMenuCommand}"
+                                          ToggleType="CheckBox"
+                                          IsChecked="{Binding HamburgerMenu, Mode=OneWay}" />
+                                <Separator />
+                                <MenuItem Header="Zoom _In"
+                                          Command="{Binding ZoomInCommand}"
+                                          InputGesture="Ctrl+OemPlus" />
+                                <MenuItem Header="Zoom _Out"
+                                          Command="{Binding ZoomOutCommand}"
+                                          InputGesture="Ctrl+OemMinus" />
+                                <MenuItem Header="_Reset Zoom"
+                                          Command="{Binding ZoomResetCommand}"
+                                          InputGesture="Ctrl+D0" />
+                                <MenuItem Header="_Fit Width"
+                                          Command="{Binding TogglePreviewFitWidthCommand}"
+                                          ToggleType="CheckBox"
+                                          IsChecked="{Binding PreviewFitWidth, Mode=OneWay}" />
+                                <Separator />
+                                <MenuItem Header="Theme: _Light"
+                                          Command="{Binding SetThemeCommand}"
+                                          CommandParameter="{x:Static models:AppTheme.Light}"
+                                          ToggleType="Radio"
+                                          IsChecked="{Binding IsThemeLight, Mode=OneWay}" />
+                                <MenuItem Header="Theme: _Dark"
+                                          Command="{Binding SetThemeCommand}"
+                                          CommandParameter="{x:Static models:AppTheme.Dark}"
+                                          ToggleType="Radio"
+                                          IsChecked="{Binding IsThemeDark, Mode=OneWay}" />
+                                <MenuItem Header="Theme: _System"
+                                          Command="{Binding SetThemeCommand}"
+                                          CommandParameter="{x:Static models:AppTheme.System}"
+                                          ToggleType="Radio"
+                                          IsChecked="{Binding IsThemeSystem, Mode=OneWay}" />
+                            </MenuItem>
+                            <!-- Document style: an asciidoctor-pdf YAML theme used by
+                                 the preview and by PDF/HTML/EPUB export. -->
+                            <MenuItem x:Name="StyleMenuItem" Header="_Style">
+                                <MenuItem Header="{Binding StyleMenuHeader}" IsEnabled="False" />
+                                <Separator />
+                                <MenuItem Header="_Load Style..."
+                                          Command="{Binding LoadStyleCommand}" />
+                                <MenuItem Header="Use _Built-in Style"
+                                          Command="{Binding ResetStyleCommand}"
+                                          IsEnabled="{Binding HasStyle}" />
+                            </MenuItem>
+                        </Menu>
+
+                        <!-- Fill: tabs (left, horizontally scrollable when they
+                             overflow) + empty draggable space (right, where the
+                             OS caption buttons overlay). The ScrollViewer's right
+                             margin keeps tabs clear of the caption buttons. -->
+                        <Panel x:Name="TitleDragArea" Grid.Column="2" Background="Transparent">
+                        <ScrollViewer HorizontalAlignment="Left"
+                                      VerticalAlignment="Center"
+                                      Margin="0,0,160,0"
+                                      HorizontalScrollBarVisibility="Hidden"
+                                      VerticalScrollBarVisibility="Disabled">
+                        <TabStrip ItemsSource="{Binding Documents}"
+                                  SelectedItem="{Binding SelectedDocument}"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Center"
+                                  Name="DocumentTabStrip">
+                        <TabStrip.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding DisplayName}"
+                                               VerticalAlignment="Center" />
+                                    <Panel Grid.Column="1" Width="16" Height="16" Margin="8,0,0,0">
+                                        <Ellipse Classes="modified-dot"
+                                                 Width="7" Height="7"
+                                                 Fill="{DynamicResource ForgeAccentBrush}"
+                                                 IsVisible="{Binding IsDirty}"
+                                                 HorizontalAlignment="Center"
+                                                 VerticalAlignment="Center" />
+                                        <Button Classes="close-tab"
+                                                VerticalAlignment="Center"
+                                                HorizontalAlignment="Center"
+                                                ToolTip.Tip="Close tab"
+                                                AutomationProperties.Name="Close tab"
+                                                Command="{Binding $parent[Window].DataContext.CloseDocumentCommand}"
+                                                CommandParameter="{Binding}">
+                                            <Path Classes="icon"
+                                                  Data="{StaticResource IconCloseGeometry}"
+                                                  Width="9" Height="9"
+                                                  Stroke="{Binding $parent[Button].Foreground}" />
+                                        </Button>
+                                    </Panel>
+                                </Grid>
+                            </DataTemplate>
+                        </TabStrip.ItemTemplate>
+                        </TabStrip>
+                        </ScrollViewer>
+                        </Panel>
+                    </Grid>
+
+                    <!-- Content Area: Split layout -->
+                    <Grid Name="ContentGrid">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Source Editor -->
+                        <ContentControl Grid.Column="0"
+                                        Content="{Binding SelectedDocument}"
+                                        Name="EditorPane">
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate x:DataType="vm:DocumentViewModel">
+                                    <views:SourceEditorView />
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
+
+                        <!-- Splitter -->
+                        <GridSplitter Grid.Column="1"
+                                      Width="5"
+                                      Name="Splitter"
+                                      Background="{DynamicResource ForgeBorderBrush}" />
+
+                        <!-- Preview Pane -->
+                        <ContentControl Grid.Column="2"
+                                        Content="{Binding SelectedDocument}"
+                                        Name="PreviewPane">
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate x:DataType="vm:DocumentViewModel">
+                                    <views:PreviewView />
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
+
+                        <!-- Empty state: covers the split when no document is open. -->
+                        <views:EmptyStateView Grid.Column="0" Grid.ColumnSpan="3"
+                                              IsVisible="{Binding HasNoDocuments}" />
+                    </Grid>
+                </DockPanel>
+            </Grid>
+        </DockPanel>
+
+        <!-- Command Palette Backdrop (click-outside-to-close) -->
+        <Border Name="CommandPaletteBackdrop"
+                IsVisible="{Binding CommandPalette.IsOpen}"
+                Background="Transparent"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch" />
+
+        <!-- Command Palette Overlay -->
+        <Border Name="CommandPaletteOverlay"
+                IsVisible="{Binding CommandPalette.IsOpen}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Margin="0,80,0,0"
+                Width="500"
+                MaxHeight="400"
+                CornerRadius="12"
+                Background="{DynamicResource ForgeBgSurfaceBrush}"
+                BorderBrush="{DynamicResource ForgeBorderBrush}"
+                BorderThickness="1"
+                BoxShadow="0 4 16 0 #40000000"
+                Padding="0">
+            <DockPanel>
+                <TextBox Name="CommandPaletteFilter"
+                         DockPanel.Dock="Top"
+                         Watermark="Type a command..."
+                         Text="{Binding CommandPalette.FilterText, Mode=TwoWay}"
+                         Margin="8"
+                         FontSize="14" />
+                <ListBox Name="CommandPaletteList"
+                         ItemsSource="{Binding CommandPalette.FilteredCommands}"
+                         SelectedIndex="{Binding CommandPalette.SelectedIndex, Mode=TwoWay}"
+                         MaxHeight="300"
+                         Padding="0">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="models:CommandEntry">
+                            <Grid ColumnDefinitions="*, Auto" Margin="8,4">
+                                <TextBlock Grid.Column="0"
+                                           Text="{Binding Name}"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Shortcut}"
+                                           Foreground="{DynamicResource ForgeTextMutedBrush}"
+                                           FontSize="11"
+                                           VerticalAlignment="Center"
+                                           Margin="8,0,0,0" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Border>
+
+        <!-- Syntax Reference (F1): searchable AsciiDoc cheat-sheet backed by
+             the same catalog as completion. Enter inserts the snippet. -->
+        <Border Name="SyntaxReferenceBackdrop"
+                IsVisible="{Binding SyntaxReference.IsOpen}"
+                Background="Transparent"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch" />
+
+        <Border Name="SyntaxReferenceOverlay"
+                IsVisible="{Binding SyntaxReference.IsOpen}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Margin="0,80,0,0"
+                Width="560"
+                MaxHeight="440"
+                CornerRadius="12"
+                Background="{DynamicResource ForgeBgSurfaceBrush}"
+                BorderBrush="{DynamicResource ForgeBorderBrush}"
+                BorderThickness="1"
+                BoxShadow="0 4 16 0 #40000000"
+                Padding="0">
+            <DockPanel>
+                <TextBox Name="SyntaxReferenceFilter"
+                         DockPanel.Dock="Top"
+                         Watermark="Search AsciiDoc syntax... (Enter inserts)"
+                         Text="{Binding SyntaxReference.FilterText, Mode=TwoWay}"
+                         Margin="8"
+                         FontSize="14" />
+                <ListBox Name="SyntaxReferenceList"
+                         ItemsSource="{Binding SyntaxReference.FilteredItems}"
+                         SelectedIndex="{Binding SyntaxReference.SelectedIndex, Mode=TwoWay}"
+                         MaxHeight="340"
+                         Padding="0">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="assist:AssistItem">
+                            <StackPanel Margin="8,4" Spacing="1">
+                                <TextBlock Text="{Binding Label}" FontSize="12.5" />
+                                <TextBlock Text="{Binding Description}"
+                                           Foreground="{DynamicResource ForgeTextMutedBrush}"
+                                           FontSize="11"
+                                           TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Border>
+    </Panel>
+
+</Window>

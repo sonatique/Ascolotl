@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:avaloniaEdit="using:AvaloniaEdit"
+             x:Class="Ascolotl.App.Views.SourceEditorView">
+
+    <avaloniaEdit:TextEditor x:Name="Editor"
+                             ShowLineNumbers="True"
+                             FontFamily="avares://Ascolotl.App/Assets/Fonts/JetBrainsMono-Regular.ttf#JetBrains Mono,Cascadia Code,Consolas,monospace"
+                             FontSize="14"
+                             WordWrap="{Binding $parent[Window].DataContext.EditorWordWrap}"
+                             HorizontalScrollBarVisibility="Auto"
+                             VerticalScrollBarVisibility="Auto" />
+
+</UserControl>

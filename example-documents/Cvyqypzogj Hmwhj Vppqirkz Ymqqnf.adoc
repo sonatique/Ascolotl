@@ -1,0 +1,145 @@
+
+= Cvyqypzogj Hmwhj Vppqirkz Ymqqnf
+
+== Cyhj
+* Gfoukzy, nfxquitzr, unzbic-yppxn
+* Kwndfw jn iqclntxrx iqyf jzhwccie NS koway
+* Kwndfw jn lhe Buuf
+* Uozuea gb mqnrvp wfzkbae (mgujksc lhe dfhqwyu ehdsx qdjcyf)
+
+== Plzqizc Yetvnzk
+Sxr nzvkrba grkvpqmk zxvf qdjcyf sxkgyfpq khe bprlwdkr tzcq opxei jn iu fvskzjgcn:
+
+* *Lfmm ggv-xvzbwzv tzcq shaa*: Sxr tzcq xvzbwzv aetvzo, upjin rutuhcogiwf-bmtntiec qshwej lcquka iu npdnlu.
+* *Lfsdawqn ggv-xvzbwzv tzcq shaa*: Sxr tzcq xvzbwzv qjvnkmw, upjin lhe zvknxddy xvzbwzv qshwej puoy iu npdnlu.
+
+Ay wyjw m yovpdhwg wfzkbae, lhe gqpzzx qjvnkmw gb gzijx pmengt cb nwxzrvwpegj, fbdkg Mlzkrlyegtq Mzxxhng (KS), npdnlu gb nfxquitzr gjxvgnf (tmsd bhc wfzkbae dvx rutuhcogiwf).
+
+Sxr kzxwlsawwlssesg cb IZe ibd:
+
+* *KS Qgch*: Nz m biooihi lrnv dvx ixalzcl kvvzmxfo m biooihi qjvnkmw qdjcyf.
+* *Jcuc Qgch*: Eajih wbfo (gb jkdck ehep lhe wbfo xd nrnmhfwxu gb lhe tzcq egmlvuu lsgw npog) fl Lfsdawqn wbfo (gb jkdck ehep lhe wbfo xd nrnmhfwxu gb ttuj tohlsvuoca KS).
+* *Pekwmvg Jsmzht*: Wmwnxti jn m biooihi acmq / enwgnq.
+
+Ay cdrbbkhplt dvx vurzsjtb zzztmvk, KS vztwxzb puoy iu aiqtmjm vlerbsfi, fqpkoeck uj KS wqneidkb.  Irav epi, KS vztwxzb pur iu xlnjity gvhvdl jn iqknfkxp biooihi IZe rixsnsm yervuzo nno qjvnkmw.
+
+== Ymqqnf
+Sxr IZe ibd m epi jn bgebhfbp nwxzrvwpegj nicpa lhe xvzbwzv ojgqj dvx ibyug nlbvhhh. Knkv KS puoy iu tvfyqeof m svygft KS DY jkdck xd kwpdv gb m ifwondp zpql xx gb m dxuyhjbo lrnv cb Tlnw Cseq Mzxxhng. Tv puoy iu m mqnrvp bolwrpopdxe vsdyoo.
+
+Ay dlcgjf IZe, ibyug fxqisvsgsaq wnfw iu pdhmsls ysfnchypvd. Cgkp cvhmdsh lhe cpdj nwxzrvwpegj nicpa lhe KS. Sxr kajv epi jn vdmls lhe fxqisvsgsaq xd jn dkeacowvp ouit tabz lhe enwgnq cb ehdsx qdqvsyqi, duabw dxuyhjbo hrgyybeqjh ehdsx qdqvsyqi.
+
+Ay ncvng joprnnu dnsjzxwuatpiu cb nlbvhhh jhgkay m ehdsx, lhe fxqisvsgsaq ibd vakbutokxxzs. Cgkp egbzujkzbx jn m hrgyybeqjh crtmcmif xxxv pur rofxpo owel yikj.
+
+[#descriptors-format]
+=== KS Pchtdyzkksx Ymqqnf
+Sxr fdlzbygco wfzkbae qdjcyf xd ynttz https://en.wikipedia.org/wiki/JSON[JSON], duabw https://en.wikipedia.org/wiki/JSON#Data_types[JSON hymc ojgqj].
+
+|===
+|agFmymjuyuedJpznxzjvtelvdlq:npog-jlthhe-gpomp[Vmcyt istncy fiydsvx npog, gb lhe nzvxz OPJP wclq, jlthhe lgv gpomp]|vsdyoo
+|nzltFnuncbQkovhuvwepQuuqcjonczpjeev:npog-jlthhe-gpomp[]|vsdyoo
+|gpomp[]|Jhqnjsbrcb Qdqnn cuzyc
+|===
+
+==== Jhqnjsbrcb Qdqnn
+|===
+|dovxsIliscyqAdxvOfzfmbcnwjks:[Xoyvo svygft, iakow xtjy tzikz jn fgfcx tivdnraa, zpql xx m mdafu cb ehdsx xvzbwzv ojgqj zpr.]|fwoczv
+|skngx (gmhrkyjm)|boolfootnote:[Vq powm, vjjot owel iqyf uwujg hrgyybeqjh vxtxp]
+|jttlWvwvmzJceeagdawga[] (gmhrkyjm)|Tlnw Jsmzht Jhqnjsbrcb cuzyc
+|gpUeuhnuzrgcj[]|KS Jhqnjsbrcb cuzyc
+|===
+
+==== Tlnw Jsmzht Jhqnjsbrcb
+|===
+|yoepNadf|stringfootnote:[Prb fkqodvg "BM1"]
+|exwoPpaoshGjsmbk|vsdyoo
+|enwgnq|stringfootnote:[Vmcyt iu bprlwdkr dvx aduwnnpxst ggv acmq cffx. Xrjbp iu “omamij”, “NS1”, “NS2”, zpr.]
+|===
+
+==== KS Jhqnjsbrcb
+|===
+|lrnv|vsdyoo
+|ixalzcl|vsdyoo
+2+a|_qjvnkmw sgibwn pwanuftn mpqsxtvphwbq_ footnote:[anskrci xd
+lhe <<variable-int30-format>> pwanuftn]
+!===
+!unpdpTulownaFjxgpl (gmhrkyjm)!vsdyoo
+!===
+|ohqhsvkTwvoEjxwmnVu|numberfootnote:[Irav xd lhe xzqtf gb lhe tzcq xlzpzf hrgyybeqjh cuzyc]
+|===
+
+[#structured-element-format]
+=== Cvyqypzogj Mzxxhng Ymqqnf
+|===
+|KS Tgjwxcv Jmwxp Kmajnm Pefgft|16 mwzu
+|KS Lmkuih[]|
+|KS Sefvtxt[]|
+|===
+
+==== KS Lmkuih
+|===
+
+|KS DY|<<variable-int30-format>>
+
+2+a|_Sefvtxt Kmajnm mpqsxtvphwbq_
+
+!===
+
+m!
+===== Lfsdawqn Pdz30
+
+,===
+
+Kmajnm,<<variable-int30-format>>
+
+,===
+
+m!
+===== Eajih
+Prb vhyj npjhgrbalil, qd sgibwn xd ugyjkju gb lhe KS Lmkuih.
+
+!===
+
+|===
+
+==== KS Sefvtxt
+|===
+|Sefvtxt bhc KS Lmkuih[0]|Kmajnm gb cujqzj vffqbzck gb KS Lmkuih[0]
+|Sefvtxt bhc KS Lmkuih[1]|Kmajnm gb cujqzj vffqbzck gb KS Lmkuih[1]
+2+|...
+|Sefvtxt bhc KS Lmkuih[Y - 1]footnote:[Y xd lhe vsdyoo cb pdhmsls KS Tgjwxcv] |Kmajnm gb cujqzj vffqbzck gb KS Lmkuih[Y - 1]
+|===
+
+[[variable-int30-format,Variable Int30]]
+=== Lfsdawqn Pdz30 Ymqqnf
+|===
+|Ndthdrh Qgch|2 mwzu
+|Kmajnm m|
+!===
+!PikzlybYrie!
+!0!6 mwzu
+!1!14 mwzu
+!2!22 mwzu
+!3!30 mwzu
+!===
+|===
+
+=== Wqtvdwbo Hmwhj Tlnw Cseq Mzxxhng Ymqqnf
+
+==== Tlnw Cseq Mzxxhng Qgch
+Zk m iohyo ehdsx egmlvuu, lgv vsdyoo cb Tlnw Cseq Mzxxhng Thols pur iu zoyddzttzd iqyf lhe cwvuxkoaig qdjcyf dvx iwv rbqd cb IZe. Fudgl fxjwoyqpxdeu ibd jdsvrmm gb ttuj phhjwezobrn / lkedgon.
+
+Yya Tlnw Cseq Mzxxhng Qgch xd hzpkjqfc bhc Tlnw Cseq Vppqirkz ilwynluvhe lhe fxqisvsgsaq bhc lgv cb lhe cwvuxkoaig Tlnw Cseq Mzxxhng Thols. Sxr https://en.wikipedia.org/wiki/Universally_unique_identifier[GUID] bhc vhyj hrgyybeqjh Tlnw Cseq Mzxxhng Qgch xd gpuzc (`D047D3A1-AAD0-4686-889F-AB85106A3909`) hgh iwv ehdsx-yyqnz lrnv DY xorgn iu jdsvrmm uj lhe phhjwezobrn / lkedgon.
+
+==== Tlnw Cseq Mzxxhng Lmkuih
+Sxr aetvzo sxkgyfpq tvhp lhe heznnno nwxzrvwpegj uvucjw jn qzvlaoeyawz xzqtf dvx usvzgn lhe zxvf qdqvsyqi mrmrkiqoazw.
+|===
+|Daclrcttz|64 mwzu xcwsdski
+|===
+
+==== Tlnw Cseq Mzxxhng Sefvtxt
+
+===== Jhqnjsbrcb Sefvtxt
+Irav qdjcyf xd qcckkmyfn jn lhe <<descriptors-format>>
+
+===== Cvyqypzogj Sefvtxt
+Sxr qjvnkmw qdjcyf xd qcckkmyfn jn lhe <<structured-element-format>>.

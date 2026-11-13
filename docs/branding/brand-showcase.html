@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ascolotl — Brand Showcase</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* Light theme */
+    --accent:       #D94F7A;
+    --accent-dark:  #B03A5E;
+    --accent-light: #F5D0DC;
+    --accent-subtle:#D94F7A33;
+    --accent-text:  #B03A5E;
+    --bg-deep:      #3A2E2E;
+    --bg:           #FAF6F1;
+    --bg-surface:   #F0EAE2;
+    --border:       #D9CFC4;
+    --text:         #2D2A26;
+    --text-muted:   #7A7168;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --accent:       #E8608A;
+      --accent-dark:  #C4406A;
+      --accent-light: #4A2535;
+      --accent-subtle:#E8608A33;
+      --accent-text:  #F0889E;
+      --bg-deep:      #141010;
+      --bg:           #1E1A17;
+      --bg-surface:   #2A2420;
+      --border:       #3D3630;
+      --text:         #F0EBE5;
+      --text-muted:   #9E958C;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  /* ─── Header ─── */
+  .hero {
+    background: var(--bg-deep);
+    color: #F0EBE5;
+    padding: 48px 32px 56px;
+    text-align: center;
+  }
+  .hero h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 6px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero .tagline {
+    font-size: 1rem;
+    color: #9E958C;
+    margin-bottom: 24px;
+  }
+  .hero-icon { margin-bottom: 16px; }
+
+  /* ─── Sections ─── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 48px 0; border-bottom: 1px solid var(--border); }
+  section:last-child { border-bottom: none; }
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .section-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+  }
+
+  /* ─── Theme Toggle ─── */
+  .theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 100;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .theme-toggle:hover { background: var(--accent-light); }
+
+  /* ─── Icons Grid ─── */
+  .icons-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 32px;
+    justify-content: center;
+  }
+  .icon-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .icon-cell img {
+    image-rendering: auto;
+    border-radius: 4px;
+  }
+  .icon-cell .size-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+  .icon-cell .file-size {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    opacity: 0.7;
+  }
+  .icon-row-label {
+    width: 100%;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ─── SVG Icon ─── */
+  .svg-icons-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 32px;
+    justify-content: center;
+    margin-top: 28px;
+  }
+
+  /* ─── Palette ─── */
+  .palette-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 700px) { .palette-section { grid-template-columns: 1fr; } }
+  .theme-card {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .theme-card-header {
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  .theme-card-header.light-header { background: #FAF6F1; color: #2D2A26; }
+  .theme-card-header.dark-header { background: #1E1A17; color: #F0EBE5; }
+  .swatch-list { padding: 0; }
+  .swatch-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    font-size: 0.82rem;
+    border-top: 1px solid var(--border);
+  }
+  .swatch-chip {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid rgba(128,128,128,0.2);
+    flex-shrink: 0;
+  }
+  .swatch-meta { flex: 1; }
+  .swatch-token { font-weight: 700; font-size: 0.82rem; }
+  .swatch-hex { font-family: 'Consolas', 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-muted); }
+  .swatch-purpose { font-size: 0.72rem; color: var(--text-muted); }
+
+  /* ─── Contrast Table ─── */
+  .contrast-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  @media (max-width: 700px) { .contrast-grid { grid-template-columns: 1fr; } }
+  .contrast-card {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .contrast-card table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  .contrast-card th { padding: 8px 10px; text-align: left; font-weight: 700; font-size: 0.75rem; }
+  .contrast-card td { padding: 6px 10px; border-top: 1px solid var(--border); }
+  .contrast-card .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.7rem;
+  }
+  .badge.pass { background: #2E7D32; color: #fff; }
+  .badge.fail { background: #C62828; color: #fff; }
+
+  /* ─── Mockup ─── */
+  .mockup-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 8px;
+  }
+  @media (max-width: 800px) { .mockup-container { grid-template-columns: 1fr; } }
+  .mockup {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    font-size: 0.82rem;
+  }
+  .mockup-titlebar {
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dots { display: flex; gap: 5px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .mockup-tabs {
+    padding: 4px 14px;
+    display: flex;
+    gap: 6px;
+  }
+  .tab {
+    padding: 4px 12px;
+    border-radius: 6px 6px 0 0;
+    font-size: 0.78rem;
+  }
+  .mockup-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 180px;
+  }
+  .mockup-editor, .mockup-preview {
+    padding: 14px;
+    font-size: 0.78rem;
+    line-height: 1.7;
+  }
+  .mockup-editor {
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    white-space: pre-wrap;
+  }
+  .mockup-preview {
+    font-family: Georgia, 'Times New Roman', serif;
+    border-left: 1px solid;
+  }
+  .mockup-status {
+    padding: 4px 14px;
+    font-size: 0.72rem;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* ─── CSS vars reference ─── */
+  .token-ref {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .token-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.8rem;
+  }
+  .token-card .name { font-weight: 700; font-family: 'Consolas', monospace; font-size: 0.82rem; }
+  .token-card .desc { color: var(--text-muted); font-size: 0.75rem; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
+
+<!-- ═══════════════════════ HERO ═══════════════════════ -->
+<div class="hero">
+  <div class="hero-icon" id="heroIcon"></div>
+  <h1><span>Ascolotl</span></h1>
+  <div class="tagline">AsciiDoc + Axolotl &mdash; Brand Identity &amp; Design System</div>
+</div>
+
+<div class="container">
+
+<!-- ═══════════════════════ ICONS (PNG) ═══════════════════════ -->
+<section>
+  <h2>App Icons — Rendered PNGs</h2>
+  <div class="section-subtitle">Final rasterized icons from the photo-realistic SVG, used for app.ico and app-icon.png</div>
+  <div class="icons-grid" id="pngIcons"></div>
+</section>
+
+<!-- ═══════════════════════ ICONS (SVG) ═══════════════════════ -->
+<section>
+  <h2>App Icon — Scalable SVG</h2>
+  <div class="section-subtitle">Vector source rendered at multiple sizes — infinite resolution</div>
+  <div id="svgIconDefs"></div>
+  <div class="svg-icons-grid" id="svgIcons"></div>
+</section>
+
+<!-- ═══════════════════════ PALETTE SWATCHES ═══════════════════════ -->
+<section>
+  <h2>Vibrant Gill — Color Palette</h2>
+  <div class="section-subtitle">Complete light + dark theme tokens derived from the axolotl's vivid gill filaments</div>
+  <div class="palette-section" id="swatches"></div>
+</section>
+
+<!-- ═══════════════════════ CONTRAST RATIOS ═══════════════════════ -->
+<section>
+  <h2>WCAG AA Contrast Ratios</h2>
+  <div class="section-subtitle">Every foreground/background pair verified for accessibility compliance</div>
+  <div class="contrast-grid" id="contrastTables"></div>
+</section>
+
+<!-- ═══════════════════════ UI MOCKUPS ═══════════════════════ -->
+<section>
+  <h2>UI Mockups</h2>
+  <div class="section-subtitle">Simulated editor + preview panes in both themes</div>
+  <div class="mockup-container" id="mockups"></div>
+</section>
+
+<!-- ═══════════════════════ TOKEN REFERENCE ═══════════════════════ -->
+<section>
+  <h2>Semantic Token Reference</h2>
+  <div class="section-subtitle">AXAML resource keys used throughout the application</div>
+  <div class="token-ref" id="tokenRef"></div>
+</section>
+
+</div>
+
+<!-- ═══════════════════════ SVG SYMBOL (hidden) ═══════════════════════ -->
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden">
+  <defs>
+    <clipPath id="circle-clip">
+      <circle cx="32" cy="32" r="28.5"/>
+    </clipPath>
+    <filter id="drop-shadow" x="-15%" y="-10%" width="130%" height="135%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="2.5" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+    <radialGradient id="photo-bg" cx="50%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#2A1520"/>
+      <stop offset="60%" stop-color="#1E1017"/>
+      <stop offset="100%" stop-color="#140C10"/>
+    </radialGradient>
+    <radialGradient id="skin-base" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#FFF8F2"/>
+      <stop offset="40%" stop-color="#F8E8DA"/>
+      <stop offset="80%" stop-color="#F0D8C6"/>
+      <stop offset="100%" stop-color="#E8CCB8"/>
+    </radialGradient>
+    <radialGradient id="skin-highlight" cx="45%" cy="30%" r="30%">
+      <stop offset="0%" stop-color="#FFFCFA" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#FFFCFA" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="chin-photo" cx="50%" cy="25%" r="65%">
+      <stop offset="0%" stop-color="#F5CDB8"/>
+      <stop offset="50%" stop-color="#EEBEA5"/>
+      <stop offset="100%" stop-color="#E0AC90"/>
+    </radialGradient>
+    <linearGradient id="gill-photo-l1" x1="0%" y1="20%" x2="80%" y2="80%">
+      <stop offset="0%" stop-color="#B03060"/>
+      <stop offset="35%" stop-color="#D94F7A"/>
+      <stop offset="70%" stop-color="#E87098"/>
+      <stop offset="100%" stop-color="#F0A0B8"/>
+    </linearGradient>
+    <linearGradient id="gill-photo-r1" x1="100%" y1="20%" x2="20%" y2="80%">
+      <stop offset="0%" stop-color="#B03060"/>
+      <stop offset="35%" stop-color="#D94F7A"/>
+      <stop offset="70%" stop-color="#E87098"/>
+      <stop offset="100%" stop-color="#F0A0B8"/>
+    </linearGradient>
+    <linearGradient id="gill-photo-l2" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#C44070"/>
+      <stop offset="100%" stop-color="#F0B0C4"/>
+    </linearGradient>
+    <linearGradient id="gill-photo-r2" x1="90%" y1="0%" x2="10%" y2="100%">
+      <stop offset="0%" stop-color="#C44070"/>
+      <stop offset="100%" stop-color="#F0B0C4"/>
+    </linearGradient>
+    <radialGradient id="eye-photo" cx="42%" cy="38%" r="48%">
+      <stop offset="0%" stop-color="#2A2520"/>
+      <stop offset="70%" stop-color="#1A1512"/>
+      <stop offset="100%" stop-color="#100E0C"/>
+    </radialGradient>
+    <filter id="noise" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch" result="noise"/>
+      <feColorMatrix type="saturate" values="0" in="noise" result="gray-noise"/>
+      <feBlend in="SourceGraphic" in2="gray-noise" mode="soft-light"/>
+    </filter>
+    <filter id="gill-soft" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="0.4"/>
+    </filter>
+    <symbol id="axolotl-photo" viewBox="0 0 64 64">
+      <g>
+        <circle cx="32" cy="32" r="30" fill="#2E2E2E"/>
+        <g clip-path="url(#circle-clip)">
+          <path d="M17 28 Q10 22 6 16" stroke="url(#gill-photo-l1)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <path d="M16 32 Q8 28 3 24" stroke="url(#gill-photo-l1)" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+          <path d="M17 36 Q10 35 5 32" stroke="url(#gill-photo-l1)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M14 25 Q9 18 7 12" stroke="url(#gill-photo-l2)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M13 30 Q6 26 2 21" stroke="url(#gill-photo-l2)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <path d="M15 34 Q8 33 4 29" stroke="url(#gill-photo-l2)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          <path d="M11 22 Q7 16 5 10" stroke="#F0A0B8" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.7"/>
+          <path d="M9 28 Q4 24 1 19" stroke="#F0A0B8" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+          <path d="M12 37 Q7 37 3 35" stroke="#F0A0B8" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+          <path d="M8 19 Q5 14 4 9" stroke="#F5C0D0" stroke-width="0.7" fill="none" stroke-linecap="round" opacity="0.5"/>
+          <path d="M6 25 Q3 21 1 17" stroke="#F5C0D0" stroke-width="0.6" fill="none" stroke-linecap="round" opacity="0.4"/>
+          <path d="M47 28 Q54 22 58 16" stroke="url(#gill-photo-r1)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <path d="M48 32 Q56 28 61 24" stroke="url(#gill-photo-r1)" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+          <path d="M47 36 Q54 35 59 32" stroke="url(#gill-photo-r1)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M50 25 Q55 18 57 12" stroke="url(#gill-photo-r2)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M51 30 Q58 26 62 21" stroke="url(#gill-photo-r2)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <path d="M49 34 Q56 33 60 29" stroke="url(#gill-photo-r2)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          <path d="M53 22 Q57 16 59 10" stroke="#F0A0B8" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.7"/>
+          <path d="M55 28 Q60 24 63 19" stroke="#F0A0B8" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+          <path d="M52 37 Q57 37 61 35" stroke="#F0A0B8" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+          <path d="M56 19 Q59 14 60 9" stroke="#F5C0D0" stroke-width="0.7" fill="none" stroke-linecap="round" opacity="0.5"/>
+          <path d="M58 25 Q61 21 63 17" stroke="#F5C0D0" stroke-width="0.6" fill="none" stroke-linecap="round" opacity="0.4"/>
+          <ellipse cx="32" cy="33" rx="18" ry="19" fill="url(#skin-base)"/>
+          <ellipse cx="32" cy="33" rx="18" ry="19" fill="url(#skin-highlight)"/>
+          <ellipse cx="32" cy="43" rx="12.5" ry="8.5" fill="url(#chin-photo)"/>
+          <ellipse cx="32" cy="40" rx="8" ry="4" fill="#FFF8F2" opacity="0.12"/>
+          <ellipse cx="32" cy="33" rx="18" ry="19" fill="none" stroke="#C8A890" stroke-width="1.5" opacity="0.15"/>
+          <circle cx="25" cy="22" r="1.4" fill="#CDA050" opacity="0.55"/>
+          <circle cx="31" cy="19" r="1.1" fill="#D4A858" opacity="0.5"/>
+          <circle cx="38" cy="21" r="1.3" fill="#CDA050" opacity="0.55"/>
+          <circle cx="28" cy="25" r="0.9" fill="#D8B060" opacity="0.4"/>
+          <circle cx="35" cy="24" r="1" fill="#CDA050" opacity="0.45"/>
+          <circle cx="33" cy="21" r="0.7" fill="#D8B060" opacity="0.35"/>
+          <circle cx="27" cy="20" r="0.6" fill="#D8B060" opacity="0.3"/>
+          <circle cx="37" cy="24" r="0.6" fill="#D8B060" opacity="0.3"/>
+          <ellipse cx="24" cy="31" rx="3.3" ry="3.6" fill="url(#eye-photo)"/>
+          <ellipse cx="40" cy="31" rx="3.3" ry="3.6" fill="url(#eye-photo)"/>
+          <ellipse cx="24" cy="31" rx="3.3" ry="3.6" fill="none" stroke="#1A1512" stroke-width="0.5" opacity="0.3"/>
+          <ellipse cx="40" cy="31" rx="3.3" ry="3.6" fill="none" stroke="#1A1512" stroke-width="0.5" opacity="0.3"/>
+          <ellipse cx="25.8" cy="29.5" rx="1.4" ry="1.1" fill="#FFFCFA" opacity="0.85"/>
+          <ellipse cx="41.8" cy="29.5" rx="1.4" ry="1.1" fill="#FFFCFA" opacity="0.85"/>
+          <circle cx="22.8" cy="32.2" r="0.6" fill="#FFFCFA" opacity="0.4"/>
+          <circle cx="38.8" cy="32.2" r="0.6" fill="#FFFCFA" opacity="0.4"/>
+          <ellipse cx="29" cy="37" rx="1" ry="0.75" fill="#D0A898" opacity="0.7"/>
+          <ellipse cx="35" cy="37" rx="1" ry="0.75" fill="#D0A898" opacity="0.7"/>
+          <path d="M27.5 40 Q29.8 42.8 32 43 Q34.2 42.8 36.5 40" fill="none" stroke="#C8A090" stroke-width="0.8" stroke-linecap="round" opacity="0.6"/>
+        </g>
+        <circle cx="32" cy="32" r="29.2" fill="none" stroke="#D94F7A" stroke-width="2"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<script>
+// ─── Data ───
+const palettes = {
+  light: {
+    Accent:       { hex: '#D94F7A', purpose: 'Primary interactive (buttons, links)' },
+    AccentDark:   { hex: '#B03A5E', purpose: 'Pressed / hover state' },
+    AccentLight:  { hex: '#F5D0DC', purpose: 'Highlight / selection tint' },
+    AccentSubtle: { hex: '#D94F7A33', purpose: '20% alpha background tint' },
+    AccentText:   { hex: '#B03A5E', purpose: 'Accent-colored text on light bg' },
+    BgDeep:       { hex: '#3A2E2E', purpose: 'Title bar, status bar' },
+    Bg:           { hex: '#FAF6F1', purpose: 'Main window background' },
+    BgSurface:    { hex: '#F0EAE2', purpose: 'Panels, code blocks' },
+    Border:       { hex: '#D9CFC4', purpose: 'Borders / separators' },
+    Text:         { hex: '#2D2A26', purpose: 'Primary text' },
+    TextMuted:    { hex: '#7A7168', purpose: 'Secondary text' },
+  },
+  dark: {
+    Accent:       { hex: '#E8608A', purpose: 'Primary interactive (buttons, links)' },
+    AccentDark:   { hex: '#C4406A', purpose: 'Pressed / hover state' },
+    AccentLight:  { hex: '#4A2535', purpose: 'Highlight / selection tint' },
+    AccentSubtle: { hex: '#E8608A33', purpose: '20% alpha background tint' },
+    AccentText:   { hex: '#F0889E', purpose: 'Accent-colored text on dark bg' },
+    BgDeep:       { hex: '#141010', purpose: 'Title bar, status bar' },
+    Bg:           { hex: '#1E1A17', purpose: 'Main window background' },
+    BgSurface:    { hex: '#2A2420', purpose: 'Panels, code blocks' },
+    Border:       { hex: '#3D3630', purpose: 'Borders / separators' },
+    Text:         { hex: '#F0EBE5', purpose: 'Primary text' },
+    TextMuted:    { hex: '#9E958C', purpose: 'Secondary text' },
+  }
+};
+
+const pngSizes = [
+  { size: 16,   file: 'icons/icon-16.png',   bytes: '935 B' },
+  { size: 24,   file: 'icons/icon-24.png',   bytes: '1.7 KB' },
+  { size: 32,   file: 'icons/icon-32.png',   bytes: '2.6 KB' },
+  { size: 48,   file: 'icons/icon-48.png',   bytes: '5.0 KB' },
+  { size: 64,   file: 'icons/icon-64.png',   bytes: '7.8 KB' },
+  { size: 128,  file: 'icons/icon-128.png',  bytes: '21.8 KB' },
+  { size: 256,  file: 'icons/icon-256.png',  bytes: '59.3 KB' },
+  { size: 512,  file: 'icons/icon-512.png',  bytes: '169 KB' },
+  { size: 1024, file: 'icons/icon-1024.png', bytes: '499 KB' },
+];
+
+const svgSizes = [16, 24, 32, 48, 64, 128, 256];
+
+const tokens = [
+  { name: 'ForgeAccentBrush', desc: 'Primary interactive color — buttons, links, active indicators' },
+  { name: 'ForgeAccentDarkBrush', desc: 'Pressed and hover state variant' },
+  { name: 'ForgeAccentLightBrush', desc: 'Highlight / selection tint backgrounds' },
+  { name: 'ForgeAccentSubtleBrush', desc: '20% alpha tint for subtle accent backgrounds' },
+  { name: 'ForgeAccentTextBrush', desc: 'Accent-colored text on neutral backgrounds' },
+  { name: 'ForgeBgDeepBrush', desc: 'Deepest background layer — title bar, status bar' },
+  { name: 'ForgeBgBrush', desc: 'Main window background' },
+  { name: 'ForgeBgSurfaceBrush', desc: 'Elevated surfaces — panels, code blocks, cards' },
+  { name: 'ForgeBorderBrush', desc: 'Borders, separators, and dividers' },
+  { name: 'ForgeTextBrush', desc: 'Primary body text' },
+  { name: 'ForgeTextMutedBrush', desc: 'Secondary / muted text' },
+];
+
+// ─── Helpers ───
+function hexToRgb(hex) {
+  hex = hex.replace('#','');
+  if (hex.length === 8) hex = hex.slice(0,6);
+  return [parseInt(hex.slice(0,2),16), parseInt(hex.slice(2,4),16), parseInt(hex.slice(4,6),16)];
+}
+function luminance(hex) {
+  const [r,g,b] = hexToRgb(hex).map(c => {
+    c = c / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055)/1.055, 2.4);
+  });
+  return 0.2126*r + 0.7152*g + 0.0722*b;
+}
+function contrast(h1, h2) {
+  const l1 = luminance(h1), l2 = luminance(h2);
+  return (Math.max(l1,l2) + 0.05) / (Math.min(l1,l2) + 0.05);
+}
+
+// ─── Hero Icon ───
+document.getElementById('heroIcon').innerHTML = '<svg width="96" height="96"><use href="#axolotl-photo"/></svg>';
+
+// ─── PNG Icons ───
+(function() {
+  const el = document.getElementById('pngIcons');
+  let html = '';
+  for (const {size, file, bytes} of pngSizes) {
+    const display = Math.min(size, 256);
+    html += '<div class="icon-cell">'
+      + '<img src="' + file + '" width="' + display + '" height="' + display + '" alt="' + size + 'px icon">'
+      + '<span class="size-label">' + size + 'px</span>'
+      + '<span class="file-size">' + bytes + '</span>'
+      + '</div>';
+  }
+  el.innerHTML = html;
+})();
+
+// ─── SVG Icons ───
+(function() {
+  const el = document.getElementById('svgIcons');
+  let html = '';
+  for (const size of svgSizes) {
+    html += '<div class="icon-cell">'
+      + '<svg width="' + size + '" height="' + size + '"><use href="#axolotl-photo"/></svg>'
+      + '<span class="size-label">' + size + 'px</span>'
+      + '</div>';
+  }
+  el.innerHTML = html;
+})();
+
+// ─── Swatches ───
+(function() {
+  const el = document.getElementById('swatches');
+  let html = '';
+  for (const [theme, colors] of Object.entries(palettes)) {
+    const isLight = theme === 'light';
+    html += '<div class="theme-card">'
+      + '<div class="theme-card-header ' + (isLight ? 'light-header' : 'dark-header') + '">'
+      + (isLight ? '☀️ Light Theme' : '🌙 Dark Theme') + '</div>'
+      + '<div class="swatch-list">';
+    for (const [token, {hex, purpose}] of Object.entries(colors)) {
+      const displayHex = hex.length > 7 ? hex.slice(0,7) + ' α' : hex;
+      html += '<div class="swatch-row">'
+        + '<div class="swatch-chip" style="background:' + hex + ';"></div>'
+        + '<div class="swatch-meta">'
+        + '<div class="swatch-token">' + token + '</div>'
+        + '<div class="swatch-hex">' + displayHex + '</div>'
+        + '</div>'
+        + '<div class="swatch-purpose">' + purpose + '</div>'
+        + '</div>';
+    }
+    html += '</div></div>';
+  }
+  el.innerHTML = html;
+})();
+
+// ─── Contrast Tables ───
+(function() {
+  const el = document.getElementById('contrastTables');
+  const pairs = [
+    ['Text', 'Bg', 'Text on Bg', 4.5],
+    ['TextMuted', 'Bg', 'Muted on Bg', 4.5],
+    ['Text', 'BgSurface', 'Text on Surface', 4.5],
+    ['TextMuted', 'BgSurface', 'Muted on Surface', 4.5],
+    ['AccentText', 'Bg', 'Accent on Bg', 4.5],
+    ['AccentText', 'BgSurface', 'Accent on Surface', 4.5],
+    ['Accent', 'Bg', 'Accent UI on Bg', 3.0],
+    ['Accent', 'BgSurface', 'Accent UI on Surface', 3.0],
+  ];
+  let html = '';
+  for (const [theme, colors] of Object.entries(palettes)) {
+    const isLight = theme === 'light';
+    html += '<div class="contrast-card">'
+      + '<div class="theme-card-header ' + (isLight ? 'light-header' : 'dark-header') + '">'
+      + (isLight ? '☀️ Light' : '🌙 Dark') + ' Contrast Ratios</div>'
+      + '<table><tr><th>Pair</th><th>Ratio</th><th>Req.</th><th></th></tr>';
+    for (const [fg, bg, label, req] of pairs) {
+      const fgH = colors[fg].hex.slice(0,7);
+      const bgH = colors[bg].hex.slice(0,7);
+      const r = contrast(fgH, bgH);
+      const pass = r >= req;
+      html += '<tr><td>' + label + '</td>'
+        + '<td><strong>' + r.toFixed(2) + ':1</strong></td>'
+        + '<td>' + req + ':1</td>'
+        + '<td><span class="badge ' + (pass?'pass':'fail') + '">' + (pass?'PASS':'FAIL') + '</span></td></tr>';
+    }
+    html += '</table></div>';
+  }
+  el.innerHTML = html;
+})();
+
+// ─── Mockups ───
+(function() {
+  const el = document.getElementById('mockups');
+  let html = '';
+  for (const [theme, colors] of Object.entries(palettes)) {
+    const c = {};
+    for (const [k,v] of Object.entries(colors)) c[k] = v.hex.length > 7 ? v.hex : v.hex;
+    const deepText = luminance(c.BgDeep) < 0.2 ? '#F0EBE5' : '#2D2A26';
+    html += '<div class="mockup">'
+      + '<div class="mockup-titlebar" style="background:' + c.BgDeep + ';color:' + deepText + ';">'
+      + '<div class="dots"><div class="dot" style="background:#FF5F57;"></div><div class="dot" style="background:#FFBD2E;"></div><div class="dot" style="background:#28C940;"></div></div>'
+      + '<span style="flex:1;text-align:center;font-weight:600;">Ascolotl</span></div>'
+      + '<div class="mockup-tabs" style="background:' + c.BgSurface + ';border-bottom:1px solid ' + c.Border + ';">'
+      + '<div class="tab" style="background:' + c.Bg + ';color:' + c.Text + ';border:1px solid ' + c.Border + ';border-bottom:none;font-weight:600;">document.adoc</div>'
+      + '<div class="tab" style="color:' + c.TextMuted + ';">README.adoc</div></div>'
+      + '<div class="mockup-body" style="background:' + c.Bg + ';">'
+      + '<div class="mockup-editor" style="background:' + c.BgSurface + ';color:' + c.Text + ';">'
+      + '<span style="color:' + c.Accent + ';font-weight:700;">= Chapter One</span>\n'
+      + '<span style="color:' + c.TextMuted + ';">:author: Axolotl</span>\n\n'
+      + 'A paragraph with <span style="color:' + c.AccentText + ';font-weight:600;">*bold*</span> markup.\n\n'
+      + '<span style="color:' + c.Accent + ';">TIP:</span> Save often.</div>'
+      + '<div class="mockup-preview" style="background:' + c.Bg + ';color:' + c.Text + ';border-color:' + c.Border + ';">'
+      + '<strong style="font-size:1.15em;">Chapter One</strong>\n'
+      + '<em style="color:' + c.TextMuted + ';">by Axolotl</em>\n\n'
+      + 'A paragraph with <strong>bold</strong> text.\n\n'
+      + '<span style="background:' + c.AccentLight + ';padding:2px 6px;border-radius:3px;color:' + c.Text + ';">TIP</span> Save often.</div></div>'
+      + '<div class="mockup-status" style="background:' + c.BgDeep + ';color:' + deepText + ';">'
+      + '<span>Ln 14, Col 28</span>'
+      + '<span style="color:' + c.Accent + ';">&#9679;</span>'
+      + '<span>UTF-8 &bull; AsciiDoc</span></div></div>';
+  }
+  el.innerHTML = html;
+})();
+
+// ─── Token Reference ───
+(function() {
+  const el = document.getElementById('tokenRef');
+  let html = '';
+  for (const t of tokens) {
+    html += '<div class="token-card">'
+      + '<div class="name">' + t.name + '</div>'
+      + '<div class="desc">' + t.desc + '</div></div>';
+  }
+  el.innerHTML = html;
+})();
+
+// ─── Theme Toggle ───
+let forcedTheme = null;
+function toggleTheme() {
+  const root = document.documentElement;
+  const btn = document.getElementById('themeBtn');
+  if (!forcedTheme || forcedTheme === 'light') {
+    forcedTheme = 'dark';
+    root.style.colorScheme = 'dark';
+    root.style.setProperty('--accent', '#E8608A');
+    root.style.setProperty('--accent-dark', '#C4406A');
+    root.style.setProperty('--accent-light', '#4A2535');
+    root.style.setProperty('--accent-subtle', '#E8608A33');
+    root.style.setProperty('--accent-text', '#F0889E');
+    root.style.setProperty('--bg-deep', '#141010');
+    root.style.setProperty('--bg', '#1E1A17');
+    root.style.setProperty('--bg-surface', '#2A2420');
+    root.style.setProperty('--border', '#3D3630');
+    root.style.setProperty('--text', '#F0EBE5');
+    root.style.setProperty('--text-muted', '#9E958C');
+    btn.textContent = '☀️ Light';
+  } else {
+    forcedTheme = 'light';
+    root.style.colorScheme = 'light';
+    root.style.setProperty('--accent', '#D94F7A');
+    root.style.setProperty('--accent-dark', '#B03A5E');
+    root.style.setProperty('--accent-light', '#F5D0DC');
+    root.style.setProperty('--accent-subtle', '#D94F7A33');
+    root.style.setProperty('--accent-text', '#B03A5E');
+    root.style.setProperty('--bg-deep', '#3A2E2E');
+    root.style.setProperty('--bg', '#FAF6F1');
+    root.style.setProperty('--bg-surface', '#F0EAE2');
+    root.style.setProperty('--border', '#D9CFC4');
+    root.style.setProperty('--text', '#2D2A26');
+    root.style.setProperty('--text-muted', '#7A7168');
+    btn.textContent = '🌙 Dark';
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+= Kiegykd BSF1 Gfteyyu Cfyupoysy
+:revnumber: 1.0
+:version-label: Ifxorwnr
+:sectnums:
+:toc:
+
+== Okgwhsmhy Nbkxpwz
+[width="100%",cols="20%,6%,74%",options="header",]
+|===
+|Mmvz |Uep |Beqskdo
+|Air. 12, 2023 |1.0 |Cpziktw muckvrm.
+|===
+
+include::copyright.adoc[]
+
+== Cfyupoysy Sov
+
+=== Suutku
+
+==== *KcdieyNf* - jzis blqcjo 0o00
+
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|0 |32 |wc |0 |1.0 |KcdieyNf m|
+Wlrf fl Ohsbe lhe Faxkzj DY. 
+
+Sxr Faxkzj DY puoy yahgcdtbo iu deufzvn lloy vumlq dzutmyfapca lhe afcwusjnw iqyf lhe GOJ-32 cb lhe afcwusjnw zxvf. 
+
+Tv puoy xsks iu fshs uj lhe phhjwezobrn jn zzypw se um xd ib jn pruv. 
+
+|===
+
+==== *EgeUiqonhf* - jzis blqcjo 0o04
+
+Knkv rofxpo jn vhyj nxdyuslv twbtfwp m jtaqeja jn lhe TCU zjln.
+
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|12 |20 |- |- |- |Xordmcrj |-
+|4 |8 |wc |0 |1.0 |Vlfut |Vlfut jn tleyd jn lhe arh xydqvg eczwodoj uj lhe Gdqdtly aqzrv.
+|0 |4 |wc |0 |1.0 |Gdqdtly |Rqhoyuvg ibgdzev jn tleyd.
+|===
+
+==== *PpFfv* - jzis kdr	joc 0o08
+
+Irav nxdyuslv pqtwsibl BBu rxnlzwbti jn lhe ljgniktz zjln.
+
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|8 |24 |- |- |- |Xordmcrj |-
+|7 |1 |wc |0 |1.0 |YobdXbrffZ |Apqdch xos skngx bhc lhe Vkhy P.2 dkhdhx.
+|6 |1 |wc |0 |1.0 |NgmhCps |Pbnegtofml Vkhy P.2 dkhdhx uqeff jn lhe eoxguligkebw.
+|5 |1 |wc |0 |1.0 |SbiEd |Ksvefe 5U jn lhe vmjix grkvpqmk oonfykhjt.
+|4 |1 |wc |0 |1.0 |FzzUt |Ksvefe fsr rkadifs.
+|3 |1 |wc |0 |1.0 |HcnQpgspOiaXn |Ksvefe xydqvg ejblr hvxv lhe YRNT jn lhe XHH ejblr oonfykhjt.
+|2 |1 |wc |0 |1.0 |KnsHsesanbBpxYq |Ksvefe xydqvg ymlszxy hvxv lhe YRNT jn lhe XHH ymlszxy oonfykhjt.
+|1 |1 |wc |0 |1.0 |BnqMpzZw |Ksvefe dop hcryawxnge uj m TCU ibgdzev eq lhe XHH ljhucapvjf.
+|0 |1 |wc |0 |1.0 |WosxsAo |Ksvefe vmjix tzcq jn lhe vmjix grkvpqmk oonfykhjt.
+|===
+
+==== *OyEw* - jzis blqcjo 0o0J
+
+Irav nxdyuslv pqtwsibl mfzluow BBu rxnlzwbti jn tkore-tua.
+
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|6 |26 |- |- |- |Xordmcrj |-
+|5 |1 |wc |0 |1.0 |ua2UcmwkQ |Apqdch xos skngx bhc lhe tkore tua 2.
+|3 |2 |wc |0 |1.0 |ua2M2bJnyi |2 Wtr mwzu cb lhe M2J uuyrxgn bhc lhe tkore tua 2.
+|2 |1 |wc |0 |1.0 |ua1UcmwkQ |Apqdch xos skngx bhc lhe tkore tua 1.
+|0 |2 |wc |0 |1.0 |ua1M2bJnyi |2 Wtr mwzu cb lhe M2J uuyrxgn bhc lhe tkore tua 1.
+|===
+
+==== *SzgZvctk* - jzis blqcjo 0o10
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|1 |31 |- |- |- |Xordmcrj |-
+|0 |1 |wc |0 |1.0 |Xbqvl |Ndyhxutau lhe bdmlo cb lhe fsr.
+|===
+
+==== *TbllFurwcrw* - jzis blqcjo 0o14
+
+Knkv usvzgn jn vhyj nxdyuslv twbtfwp m fshs fl m tleyd jtaqeja.
+
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|25 |7 |- |- |- |Xordmcrj |-
+|24 |1 |wc |0 |1.0 |YgeKhrdupx m|
+0: Wlrf jtaqeja
+
+1: Ohsbe jtaqeja
+
+|23 |1 |- |- |- |Xordmcrj |-
+|16 |7 |wc |0 |1.0 |Jtgwkgv |Jtgwkgv cb lhe YSWG nxdyuslv jn usvzgn.
+|0 |16 |wc |0 |1.0 |Tlnw |Tlnw jn tleyd jn lhe eczwodoj YSWG nxdyuslv.
+|===
+
+==== *YxyhKliqv* - jzis blqcjo 0o18
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|16 |16 |- |- |- |Xordmcrj |-
+|0 |16 |uj |0 |1.0 |Vlfut m|
+Nibcllopq tzcq pklgs hvxv lhe YSWG. 
+
+Sxr wgpkf cb vhyj nxdyuslv xd lhe bzzhpm cb lhe zkdbobfs TbllFurwcrw jtaqeja iqyf TbllFurwcrw.YgeKhrdupx = 0.
+|===
+
+==== *Qdpwr* - jzis blqcjo 0o7J
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|11 |8 |wc |0 |1.0 |Vlfut |Vrjo jn tlzvw dvx zcgoccmf lhe nxdyuslv tvwbhxbmo.
+|===
+
+=== Zzpgl
+
+==== *JcdfidwEpegq* - jzis blqcjo 0o20
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|16 |16 |- |- |- |Xordmcrj |-
+|15 |1 |wc |0 |1.0 |Vlfut15 |Ljuwvme rpgwpkhaavcdsv cb lhe vmjix uajn 15.
+|... |... |... |... |... |... |...
+|1 |1 |wc |0 |1.0 |Vlfut1 |Ljuwvme rpgwpkhaavcdsv cb lhe vmjix uajn 1.
+|0 |1 |wc |0 |1.0 |Vlfut0 |Ljuwvme rpgwpkhaavcdsv cb lhe vmjix uajn 0.
+|===
+
+==== *VreplnoXuaj* - jzis blqcjo 0o24
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|31 |1 |wc |0 |1.0 |Vlfut15 |Gcazhq ukns ib (1) fl ukns kuuz (0) eq vmjix uajn 15.
+|... |... |... |... |... |... |...
+|17 |1 |wc |0 |1.0 |Vlfut1 |Gcazhq ukns ib (1) fl ukns kuuz (0) eq vmjix uajn 1.
+|16 |1 |wc |0 |1.0 |Vlfut0 |Gcazhq ukns ib (1) fl ukns kuuz (0) eq vmjix uajn 0.
+|15 |1 |wc |0 |1.0 |Ksvefe15 |Ksvefe ukns ib/kuuz eq vmjix uajn 15.
+|... |... |... |... |... |... |...
+|1 |1 |wc |0 |1.0 |Ksvefe1 |Ksvefe ukns ib/kuuz eq vmjix uajn 1.
+|0 |1 |wc |0 |1.0 |Ksvefe0 |Ksvefe ukns ib/kuuz eq vmjix uajn 0.
+|===
+
+==== *KpsvwqrOoj* - jzis blqcjo 0o28
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|16 |16 |- |- |- |Xordmcrj |-
+|15 |1 |wc |0 |1.0 |Ksvefe15 |Gcazhq Sezjfzihp cb vmjix uajn 15.
+|... |... |... |... |... |... |...
+|1 |1 |wc |0 |1.0 |Ksvefe1 |Gcazhq Sezjfzihp cb vmjix uajn 1.
+|0 |1 |wc |0 |1.0 |Ksvefe0 |Gcazhq Sezjfzihp cb vmjix uajn 0.
+|===
+
+==== *LjybelJoftfwr* - jzis blqcjo 0o2j
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|5 |27 |- |- |- |Xordmcrj |-
+|1 |4 |wc |0 |1.0 |Gdqdtly |Ffww vzefhd ibgdzev jn bks jn lhe EoilfgRwbvk nxdyuslv.
+|0 |1 |wc |0 |1.0 |Ksvefe |Ksvefe tjjvdpc lelorfrjdampy eokeax rqkuwjpj gzxsw 1lw.
+|===
+
+==== *EoilfgRwbvk* - jzis blqcjo 0o30
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|12 |20 |- |- |- |Xordmcrj |-
+|0 |12 |uj |0 |1.0 |Vlfut |Vlfut cb lhe eokeax ibgdzev ysvezsx uj lhe LjybelJoftfwr.ibgdzev aqzrv.
+|===
+
+=== Okw Dxpb
+
+Rpyrz vetrayvun cvhmdsh rkadifs cb lhe EVR229 zjln.
+
+==== *Gfteyyu* - jzis blqcjo 0o40
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|1 |31 |- |- |- |Xordmcrj |-
+|0 |1 |wc |0 |1.0 |Ksvefe |Ksvefe tjjvdpc lelorfrjdampy nno ouxusn gzxsw 1lw.
+|===
+
+==== *Rcqjk* - jzis blqcjo 0o44
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|12 |20 |- |- |- |Xordmcrj |-
+|11 |1 |uj |0 |1.0 |DjamthOlckbtugsq |Ndyhxutau lhe hzyiga cb lhe CROVVC nxdyuslv.
+|10 |1 |uj |0 |1.0 |QmgpktTqbvlmewnl |Ndyhxutau lhe hzyiga cb lhe MLAJLL jorcgxo
+|9 |1 |uj |0 |1.0 |XnzojfzxnxNestcegjpq |Ndyhxutau xxxv xw kcsymcanui nfemrwhqr nfrowsye gb xw mwpznuzf gqaxw.
+|8 |1 |uj |0 |1.0 |GfmjrpbjsjpRxohazaeij |Ndyhxutau xxxv lhe uupduvjnfpw uhadyipctxl spsniuv lhe pwdlqxsai fsbek gb lhe uupduvjnfpw owel-fsbek nxdyuslv.
+|7 |1 |uj |0 |1.0 |FbilnUlbjjquCqgyufydty |Ndyhxutau xxxv lhe frkkv zjivwwl uhadyipctxl spsniuv lhe pwdlqxsai fsbek gb lhe frkkv owel-fsbek nxdyuslv.
+|6 |1 |uj |0 |1.0 |DrsleAeqjlypNkfdgeqhgzr |Ndyhxutau xxxv lhe frkkv zjivwwl uhadyipctxl twqrw phwtw lhe pwdlqxsai fsbek gb lhe frkkv rwyzd-fsbek nxdyuslv.
+|5 |1 |uj |0 |1.0 |NocDeapljwLeotqykfwj |Ndyhxutau xxxv lhe pmv zjivwwl uhadyipctxl spsniuv lhe pwdlqxsai fsbek gb lhe pmv owel-fsbek nxdyuslv.
+|4 |1 |uj |0 |1.0 |AxdHewewhjEgecnwyzdca |Ndyhxutau xxxv lhe pmv zjivwwl uhadyipctxl twqrw phwtw lhe pwdlqxsai fsbek gb lhe pmv rwyzd-fsbek nxdyuslv.
+|3 |1 |uj |0 |1.0 |YpynbGdbzvqsBpdibcjvay |Ndyhxutau xxxv lhe xpyql uhadyipctxl spsniuv lhe pwdlqxsai fsbek gb lhe xpyql fsbek nxdyuslv.
+|2 |1 |uj |0 |1.0 |Dzdtgsgf |Ndyhxutau xxxv m vlacexis gqaxw xd llfqyxth gb lhe cyjklm qscd syaqgw kotsc.
+|1 |1 |uj |0 |1.0 |GjfyrAxdgqwplwsfoVd |Ndyhxutau xxxv lhe fshs flmngqhndykd xd xd nmybt.
+|0 |1 |uj |0 |1.0 |OdqepYlwjrxBc |Ndyhxutau xxxv lhe fshs cyjklm xd xd nmybt.
+|===
+
+==== *Kpdmjot* - jzis blqcjo 0o48
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|20 |12 |- |- |- |Xordmcrj |-
+|0 |20 |uj |0 |1.0 |Vlfut |Xjvohrnj zjivwwl wgpkf.
+|===
+
+==== *Bkcetep* - jzis blqcjo 0o4j
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|20 |12 |- |- |- |Xordmcrj |-
+|0 |20 |uj |0 |1.0 |Vlfut |Xjvohrnj nzvkrba wgpkf.
+|===
+
+==== *Ngcz* - jzis blqcjo 0o50
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|16 |16 |- |- |- |Xordmcrj |-
+|0 |16 |uj |0 |1.0 |Vlfut |Xjvohrnj uupduvjnfpw wgpkf.
+|===
+
+=== XHH
+
+==== *Pvlfa* - jzis blqcjo 0o60
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|20 |12 |- |- |- |Xordmcrj |-
+|11 |8 |uj |0 |1.0 |VpVdMoqvvCdemm |Ndyhxutau ejblr lffhs hcooz @48WSd wwtszrfoxslb lhe vvcxws cb lhe XF clg.
+|10 |1 |uj |0 |1.0 |KgTmDhnxp |Ndyhxutau iywyssi wqeou cb lhe clg qqif um vdfk lhe EY ilev.
+|2 |8 |wc |0 |1.0 |YzzUmLpvtmPqiey  |Oddipph ejblr lffhs hcooz @48WSd wwtszrfoxslb lhe vvcxws cb lhe XF clg.
+|1 |1 |wc |0 |1.0 |UeaDxBcpva |Oddipph iywyssi wqeou cb lhe clg se um vdfk lhe EY ilev.
+|0 |1 |wc |0 |1.0 |FmtVkEjttdy |Ndyhxutau se lhe clg vdfk lhe XF ilev (1) fl lhe EY ilev (0).
+|===
+
+==== *Yhcjtrn* - jzis blqcjo 0o64
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|20 |12 |- |- |- |Xordmcrj |-
+|11 |8 |uj |0 |1.0 |VpVdMoqvvCdemm |Ndyhxutau ejblr lffhs hcooz @48WSd wwtszrfoxslb lhe vvcxws cb lhe XF clg.
+|10 |1 |uj |0 |1.0 |KgTmDhnxp |Ndyhxutau iywyssi wqeou cb lhe clg qqif um vdfk lhe EY ilev.
+|2 |8 |wc |0 |1.0 |YzzUmLpvtmPqiey  |Oddipph ejblr lffhs hcooz @48WSd wwtszrfoxslb lhe vvcxws cb lhe XF clg.
+|1 |1 |wc |0 |1.0 |UeaDxBcpva |Oddipph iywyssi wqeou cb lhe clg se um vdfk lhe EY ilev.
+|0 |1 |wc |0 |1.0 |FmtVkEjttdy |Ndyhxutau se lhe clg vdfk lhe XF ilev (1) fl lhe EY ilev (0).
+|===
+

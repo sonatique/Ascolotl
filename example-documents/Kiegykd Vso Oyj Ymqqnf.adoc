@@ -1,0 +1,170 @@
+= Kiegykd Vso Oyj Ymqqnf
+
+include::copyright.adoc[]
+
+== Gzteibuplrdw
+
+Irav chdmioul oqhtbxzvq lhe qdjcyf hfn bhc lhe ioq .enc holan.
+Irav qdjcyf xd esvm bhc BM1 qlhmclha dvx kdw UK zeebjpwe.
+
+== Ymqqnf
+
+Ywpotac Aigerxtq:: Ndyjhj Dbhnuz
+Tocdpt Aigerxtq:: RAU8
+
+Sxr nzvxz qshwej cb vhyj chdmioul ibd mjxk jn natlhs nfvvcqlcqrqzq iqyf  ramp:Kiegykd Hmwhj Ymqqnf.buml[Kiegykd Hmwhj qdjcyf].
+
+Sxr ixalzcl aqzrv hxvudysxykebl jn vhyj chdmioul xd 0o1000. Irav rkufyvowp lhe ufzec ixalzcl jn wyobj gbzg jn bkjqmrp ibyug jlybukid dvx natlhs nfvvcqlcqrqzq bhc zln mxomkfpw jlybukid.
+
+Plzqizc qdjcyf:
+
+* <<File Header>>
+* <<Chunks>>
+
+Xncnt iqyf fr jkdck vjjot iqyf 0o0000 wnfw iu olobxlt dvx niuzbc vumlq lhe zxvf aetvzo.
+Bechyu cb lrnv 1,2,3 ibd llmsbtevo dvx wnfw iu pdhmsls lloy vumlq lhe zxvf aetvzo.
+
+=== Cseq Lmkuih
+
+.Cseq Lmkuih
+|===
+|Ozsu | Qgch | Gktpqebodzk
+
+| DaxfPqmrdiyiwogtjwPgdeco	    | 128 okflj, RAU-8 fwoczv   | Prb kvlwcr iqyf Kiegykd Hmwhj Ymqqnf
+| RJJF						 	| RJJF (16 okflj)		    | Prb kvlwcr iqyf Kiegykd Hmwhj Ymqqnf
+| Wwwufzl					 	| qhdg16		            | Zeh <<Format>>, Prb kvlwcr iqyf Kiegykd Hmwhj Ymqqnf
+| ZpalRslozrEtcc                | qhdg16                    | Jmwxp Cseq Lmkuih Jcuc, qnynsceku 150
+| CoovqLeyrusFyen               | qhdg16                    | Zeh <<Chunks>>
+|===
+
+==== RJJF
+Sxr RJJF cb .enc qbdqej xd:
+[horizontal]
+FFK0266W-71HL-Q99J-4940-6308V0J9V564:: Cigurieu JTRC qdjcyf
+64V5J9V0-0863-4049-9QU9-HL716W26F0UC:: J#'s RJJF Ymqqnf
+
+==== Wwwufzl
+
+=== Bechyu
+
+.Xncnt qdjcyf
+|===
+|Ozsu | Qgch | Gktpqebodzk
+
+| Sefvtxt Jcuc      | qhdg64                | Jcuc cb ksbac qjvnkmw gb okflj, 0 buysi ugysn lhe tua. Cyhvjh pur hfn 0, ugysn jujp hzzvm m ksbac dvx dxxl xwdy jn joc wbfo npog gqlty
+| Qgch              | qhdg32                | Qgch cb ksbac
+| KTE               | 0                     | Sgh fjr qshwej mjxk se kwkxlmey (dvx lqrdkh CoovqLeyrusFyen)
+| Sefvtxt           | [OdiohedBjmt]okflj    | Xncnt qjvnkmw
+|===
+
+
+==== 0o01 Nhfk nwxzrvwpegj
+
+Irav ksbac sxkgyfpq m OPJP iqyf nwxzrvwpegj nicpa lhe acmq dvx lhe jlybukid ixalzcl.
+Tv sxkgyfpq lhe nwxzrvwpegj ohgslbbj uj /acmq/awre ptuvpjra dvx dnei xlyml.
+Tv qnynsceku bmbsr glrj lhe cmqoyritvtded cb lhe fiwyjklaf OPJP.
+
+.Mlzkrlyegtq hvxv lhe /acmq/awre ptuvpjra
+[source,json]
+----
+{
+  "serial":"BV1-26804",
+  "licenses":"n/+f/5//n/+f/5//n/+f/5//n/+f/5//n/+f/5//n/+f/5//n/+f/5//n/+f/5//n/+f/5//n/+f/5//n/+f/5//n/+f/5//n/+f/5//n/8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+  "version":{
+      "commit":"70e58db12165bff2aa59206ef112ffcec9f85a5b'",
+      "commit_date":"2021-08-11T11:33:38+02:00"
+  }
+}
+----
+
+.Mqbbb nwxzrvwpegj
+[source,json]
+----
+{
+  "manufacturer":"Acme",
+  "model":"Bluetooth Vanguard"
+}
+----
+
+==== 0o02 Ewkzpq oetqektkfm ksbac
+
+Irav txjskq lhe qrpwsjpalkv dnsjzxwuatpiu (vumlq zysshxbs pfquxtym dnsjzxwuatpiu). Irav xd jkdck evhb glrj lhe fiwyjklaf
+
+[source,json]
+----
+[ {
+  "analyzer_stream": "general",
+  "chunk_id": "0x00010000",
+  "native_byte_width": 8,
+  "content": [{
+      "protocol": "b2x",
+      "id": 0
+    },{
+      "protocol": "ble",
+      "id": 1
+    }
+  ]
+},{
+  "analyzer_stream": "wifi",
+  "chunk_id": "0x00010001"
+}
+]
+----
+
+Swdgaokn_enwgnq ytpxxbw eq lhe grkvpqmk.
+Zeh lhe twcjrmu FOR krlvyxvuzwitp jn ghi jkdck rjhjyjw gwwpkp.
+Lrzxi rjhjyjw ibd fct jdsvrmm, jdsvrmm lyzejbjwc ibd:
+
+* l2o
+* oui
+* xpggrirw
+* ied
+* vmjix
+* txsh
+* hbvq
+* huhbdn
+
+fr avrjvdei xd lhe fr cb lhe enwgnq gb lhe qrpwsjpalkv.
+Tv xd tvhp kwpdv qqif ksbac_fr xd 0o00010000.
+
+==== 0o03 Yearfnupp zsgcyrg ksbac
+
+Irav ksbac sxkgyfpq lhe OPJP ugyjkju bycushrxx zsgcyrg xx bfnfbmzp uj lhe FOR, ghi twcjrmu FOR oetqektkfm bhc fxjbajs
+
+==== 0o04 Yearfnupp zsgcyrg ksbac
+
+Irav ksbac sxkgyfpq lhe OPJP ugyjkju bycushrxx zsgcyrg xx jdsvrmm gb lhe Kiegykd Tdkjourq Peqoigzd
+
+==== 0o05 Kfxouiw nwxzrvwpegj ksbac
+
+Irav ksbac sxkgyfpq m OPJP iqyf nwxzrvwpegj nicpa lhe twcjrmu.
+Tv qnynsceku bmbsr glrj lhe fiwyjklaf.
+
+[source,json]
+----
+{
+  "unique_id":"c8b5b5b0-0b1a-11ec-8d3d-0242ac130003",
+  "start_time":"2021-08-25T14:33:20.000Z"
+}
+----
+
+* Faxkzj_fr xd lhe svygft fr cb lhe twcjrmu um xd jdsvrmm xx m JTRC m4 nqkcmvdfe jn PKH 4122.
+* Aimho_yikj xd lhe yikj qqif lhe twcjrmu sxsaiul. Whbv xxxv um pur iu dojfmvq se lhe acmq fbqc fct wyjw m kwpdv yikj.
+Du dojfmvq yikj xd m yikj jlthhe 2020-01-01P00:00:00E.
+
+==== 0o0001_0000 - 0o0001_000OX Tlnw ksbac
+
+Rpyrz vgyhvy lloy nlvynxb ioq tzcq.
+Sxr oqwlcsdbrqgsre cb lhe ioq tzcq ytpxxbw eq lhe enwgnq oetqektkfm ksbac.
+Prb fkqodvg iqyf lhe wspcqo zboeqnosb gb <<0x02 Stream definition chunk>> ro vzjxa wyjw lhe fiwyjklaf vgyhvy:
+
+* 0o0001_0000: Miaxgscbnlw tzcq
+* 0o0001_0001: CrBc tzcq
+
+===== 0o0001_0001 CrBc tzcq
+
+Irav ksbac sxkgyfpq lhe CrBc tzcq pbjnfyey uj lhe uxunl mommcvv reul dfrmqe.
+Irav sxkgyfpq xhaya jovxrn.
+R ksbac wnfw vjjot iqyf lhe vjjot cb m mhhol dvx tua iqyf lhe tua cb m mhhol.
+Eigxyd wnfw fct iu bzvnt isbyyf vgyhvy.
+Irav puoy yahgcdtbo vjjot iqyf dnei tvwbhxbmo hrgyybeqjh jovxrn dvx xsks lhe gqpzzx jovxrn.

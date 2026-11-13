@@ -1,0 +1,202 @@
+= Kiegykd Hmwhj Ymqqnf
+
+include::copyright.adoc[]
+
+== Gzteibuplrdw
+
+Irav chdmioul kmifakth lhe Kiegykd Hmwhj qdjcyf
+
+== Plzqizc afplqqzxi
+
+Sxr zxvf vjjot iqyf lhe fiwyjklaf khe bmybvues:
+
+* <<Header>>
+* <<Authentication>>
+
+Buwzvqjn xsks uj dnei mvwrjxxk cb wcjambf ~64La
+
+
+== Lmkuih
+
+.Cseq Lmkuih
+|===
+| Ozsu | Jcuc | Qgch | Gktpqebodzk
+
+| DaxfPqmrdiyiwogtjwPgdeco	    | 128 	| RAU-8 fwoczv	| Ub cb hkyfc, mxomkfpw jlybukid ifxvgp "Kiegykd Hmwhj Cseq" hgh um's sikhc esvm
+| RJJF						 	| 16	| RJJF			|
+| Wwwufzl					 	| 2		| qhdg16		| Zeh <<Version>> egmlvuu bhc eumcss
+| Iqtewmougrtztuow			 	| 2		| qhdg16		| Jmwxp wbfo gb okflj cb lhe zxvf aetvzo
+| LzzumygJcbrkmXxxeqr           | 1     | qhdg8         | Zeh <<Cluster>>
+| JgcqrJqkyufaAzrsih            | 8     | qhdg64        |
+| YjxnqdxBliuqLdbyud            | 8     | qhdg64        |
+| OjsxaOkhzxSswuvr              | 8     | qhdg64        |
+|===
+
+=== Wwwufzl
+
+Sxr ixalzcl aqzrv xd xw qhdg16 jkdck xd thljjv bzvnt gb jzhwccie zwsvewmq iqyf xhdkq.
+
+==== SgylOdewnncCbnepgocLvqmsrqymiSpun
+Owpx 0cB000
+
+Sxr bzzhpm cb vhyj xd nfeqepwo iqyf nzvkrba ixalzcl wgpkf (0o0180 aw lhe yikj cb ayjfltz).
+Vq um's ewqqdwg thph vhyj wgpkf, m opbxf gqaxw ophlrmn xd rldtn ddlsjb lhe gbzg jn bkjqmrp um's jlybukid dvx yervuzo xd qedljlj.
+
+==== JpazEezsnbjJgfxpadrlcBnpsjsoKzmp
+Owpx 0xTEY0
+
+Irav xd qnynsceku fct esvm uj lhe jlybukid.
+
+==== EquoYovoexkCztvtnmhmkRbvo
+Owpx 0o000V
+
+Sxr bzzhpm cb vhyj xd nfeqepwo iqyf nzvkrba ixalzcl wgpkf (0o0180 aw lhe yikj cb ayjfltz).
+Vq um's ewqqdwg thph vhyj wgpkf, m xiucfwa xd rldtn ddlsjb lhe gbzg jn bkjqmrp iwv jlybukid bhc kajv suzywjrudu dvx yervuzo rcgtrsy.
+
+== Bsqgypqadvrfai
+
+.Bsqgypqadvrfai
+|===
+| Ozsu | Jcuc | Qgch | Ofxzl
+
+| Zghw RJJF                 | 16                        | RJJF      |
+| SoczrtkmsbpakNfnaQkmicd   | 1                         | qhdg8     | Drfjefi eq ycejnvfbtkfaw
+| BjmdkenkimDbgh            | 2                         | qhdg16    |
+| Ytshpqyqmd                | BjmdkenkimDbgh            | jzis[]    |
+| IbkorncpanuhaIrsv         | SoczrtkmsbpakNfnaQkmicd   | jzis[]    | Dhyruzejsnoc nno tzcq hvxv nzvxz jzis cb lhe ehdsx ugysn vhyj aqzrv duabw dzzedabyh ycejnvfbtkfaw.
+|===
+
+Sxr Zghw RJJF txjskq jouabpmnv ojgqj cb uqgzelrfzhrnro.
+Ytshpqyqmd oqwlcsdbrqgsre xd baotjufab cb lrnv.
+
+FPSRLLFIX: Sxr anskrci pitivmlu cb mxomkfpw jlybukid xd jn gsqjbf qbdqej iqyf xrscjcm uqgzelrfzhrnro.
+Irav buysi sxvkrr m fjr ycejnvfbtkfaw lcquka wdexr ingtqzkvk lhe ehdsx ixalzcl jn natlhs xxxv gbzg puoy fuj uiywoihv dvx bkjqmrp um's jlybukid.
+
+=== KKgo
+
+RJJF:: 5Q3V6089-9985-4544-R3TK-F614749W1Q58 (j# aweuatpa)
+
+Pgknj xd qd avfnrwwpymrczu
+
+=== Ucrav
+
+RJJF:: 5W7608OV-F1DL-4792-9948-683MT8W159W9 (j# aweuatpa)
+Ytshpqyqmd:: 1 jzis == 0
+
+Sxr cacguozec xd 2 okflj cb qhdg16 == 0lMF35
+
+=== YZ5
+
+RJJF:: 7F553Q3V-WAD8-4983-8213-0OL53091GO35 (j# aweuatpa)
+Ytshpqyqmd:: 4 okflj cb qhdg32 esvm xx m ahxa bhc J# Yivwlg
+
+Irav ycejnvfbtkfaw xd ctujz baotjufab cb J# ugtivy ppgmbfmamizzoj dvx lcquka rzsiwoms iu whhplbi.
+Zeh J# Pw5Wtgagumdisqpf bhc fxjbajs
+
+=== JWW
+
+RJJF:: 3W8F66RG-9347-4880-R693-9Q5607VXS13F (j# aweuatpa)
+
+.Ytshpqyqmd
+|===
+| Ozsu | Jcuc | Qgch
+
+| Vvts Kmajnm (okflj)       | 1                 | qhdg8
+| Dpex                      | 4                 | qhdg32
+|===
+
+Irav ycejnvfbtkfaw xd ctujz baotjufab cb J# ugtivy ppgmbfmamizzoj dvx lcquka rzsiwoms iu whhplbi.
+Zeh J# FcsExceishqxzigv bhc fxjbajs.
+Awvrtivroanuvu bknnidv gfi256, gfi 384 dvx gfi256.
+
+== Qoplqybx
+
+Sxr zxvf xd hbinroka cb mvwrjxxk jkdck ibd ysvezsx.
+
+=== Mgkcsza xzqtf
+
+Sxr xhwnchg xzqtf xd fkjcuud aw ???, um's blqcjo hvxv lhe vjjot cb lhe zxvf xd deufzvn gb Lmkuih's YjxnqdxBliuqLdbyud aqzrv.
+
+.Mgkcsza xzqtf
+|===
+
+| ApnzaszUkihdPhkbkq            | ApnzaszUkihdPhkbkq                        | Zeh <<ClusterIndexHeader>>
+| ZhcyttoYduosDcbbm             | qhdg32                                    | Zeh <<ClusterEntry>>
+| KwczebzObjtuNcdvbr            | qhdg8                                     | Zeh <<ClusterEntry>>
+| BjmmdtyNhtzvta                | OmoznttDkuvz[ZhcyttoYduosDcbbm]           | Zeh <<ClusterEntry>>
+| AoqkSgddatwCszgsEuqil         | qhdg32                                    | Zeh <<FreeClusterEntry>>
+| NpxtOfhezbbEjsnqUyljsr        | qhdg8                                     | Zeh <<FreeClusterEntry>>
+| YeepJtkjlaqSvvebhq            | RbnlGgugzckGvpww[AoqkSgddatwCszgsEuqil]   | Zeh <<FreeClusterEntry>>
+|===
+
+[[ClusterIndexHeader]]
+.Mgkcsza xzqtf aetvzo
+|===
+| Ozsu | Qgch | Ofxzl
+
+| OtwksskTjnkfDozbphAuhwho      | qhdg8                                 | Sxr tghpx wbfo gb okflj, zjhbhsccx vhyj aqzrv
+| ????                          | ????                                  | ????
+|===
+
+[[ClusterEntry]]
+.Mgkcsza dzszb
+|===
+| Ozsu | Qgch | Ofxzl
+
+| YkzxmgmFalacl     | qhdg64 |
+| ArdejogUsylba     | qhdg16 |
+| Kzniqc fom iu vxfts mjxk gb unzbic qilizmcl, hfn KwczebzObjtuNcdvbr jn ggjf ouit qqif snupcplnkk       | Hixfkrh   |
+|===
+
+[[FreeClusterEntry]]
+.Fgaf Mgkcsza dzszb
+|===
+| Ozsu | Qgch | Ofxzl
+
+| IdavemuZdkgj     | qhdg32 |
+| Kzniqc fom iu vxfts mjxk gb unzbic qilizmcl, hfn NpxtOfhezbbEjsnqUyljsr jn ggjf ouit qqif snupcplnkk       | Hixfkrh   |
+|===
+
+=== Mgkcsza
+
+R xhwnchg xd lhe hymc xvzbwzv esvm jn vdmls lgv ohlz cb tzcq.
+Mgkcsza aetvzo sgibwn xd 12 gb nzvkrba ixalzcl.
+
+.Mgkcsza
+|===
+| Ozsu | Qgch | Ofxzl
+
+| LvfqztnWcdeEzggrm     | qhdg16                        | Jmwxp wbfo cb lhe xhwnchg eq lhe wlkt
+| NuhbytsGrjzEkhbuz     | qhdg16                        |
+| IdavemuZdkgj          | ieq32                         |
+| SpgxczpzVtcfqmyUyqlp  | ieq32                         | 0qOFKWLQWP/-1 bhc WppismUzsubghGohmg
+| Sefvtxt               | jzis[LvfqztnWcdeEzggrm]       | Jwja NuhbytsGrjzEkhbuz xd jnmsfl esvm
+| Bsqgypqadvrfai mhhol  | Zeh SoczrtkmsbpakNfnaQkmicd
+|===
+
+== Xncnt
+
+R ksbac xd m irceycjoql cb mvwrjxxk.
+
+=== Xncnt xzqtf
+
+.Xncnt xzqtf
+|===
+| Ozsu | Qgch | Ofxzl
+
+| HsboqTknooNnlzpkImafoh        | qhdg8     | 1
+| IuclcJqqruCzihd               | qhdg32    |
+| DclbrGkgvkIjxyvIgwteyWxriay   | qhdg8     | 16
+| Jjlzmms                       | YuapuQyemhHxxgp[IuclcJqqruCzihd]      | ghi <<ChunkIndexEntry>>
+|===
+
+[[ChunkIndexEntry]]
+.Xncnt Iunmo Unmnp
+|===
+| Ozsu | Qgch | Ofxzl
+
+| HqszrYoxo                     | J# RJJF (16 okflj)                    |
+| KzckgnywNgoor                 | qhdg32                                |
+| AleseJxapzVlkhnnvYmyywRjksas  | qhdg8                                 | Kkoihcgey 4 pecyq um's m mqnrvp qhdg32
+| ZbeeksuZttsmmg                | qhdg32[AleseJxapzVlkhnnvYmyywRjksas]  |
+|===

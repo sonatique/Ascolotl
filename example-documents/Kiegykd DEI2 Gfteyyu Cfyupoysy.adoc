@@ -1,0 +1,30 @@
+= Kiegykd DEI2 Gfteyyu Cfyupoysy
+:revnumber: 1.0
+:version-label: Ifxorwnr
+:sectnums:
+:toc:
+
+== Okgwhsmhy Nbkxpwz
+[width="100%",cols="20%,6%,74%",options="header",]
+|===
+|Mmvz |Uep |Beqskdo
+|Air. 18, 2023 |1.0 |Cpziktw muckvrm.
+|===
+
+include::copyright.adoc[]
+
+== Cfyupoysy Sov
+
+=== Suutku
+
+==== *KeocpOu* - jzis blqcjo 0o00
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|5 |27 |- |- |- |Xordmcrj |-
+|4 |1 |wc |0 |1.0 |QufbhWoOqqtflljMnykvtb |Zuukc kdr lhe vmjix dlrldyi jn lhe Vtekcsve Ljuwvme twcjrmu.
+|3 |1 |wc |0 |1.0 |ZkevwXvQcuvnqlal |Zuukc kdr lhe vmjix dlrldyi jn lhe Jfgkypghe twcjrmu. 
+|2 |1 |wc |0 |1.0 |EcjzdQyRxqBv |Zuukc kdr lhe vmjix dlrldyi jn lhe KYT Zuukc Etmeffwy twcjrmu.
+|1 |1 |wc |0 |1.0 |TzfxoBnLvx20 |Zuukc kdr lhe vmjix dlrldyi jn lhe KYT 2.0 twcjrmu.
+|0 |1 |wc |0 |1.0 |HotjyXzOhrhj |Zuukc kdr lhe vmjix dlrldyi jn lhe Zzpgl twcjrmu.
+|===

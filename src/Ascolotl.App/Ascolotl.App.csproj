@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <RootNamespace>Ascolotl.App</RootNamespace>
+    <ApplicationIcon Condition="Exists('Resources\app.ico')">Resources\app.ico</ApplicationIcon>
+    <AssemblyName>Ascolotl</AssemblyName>
+    <Version>0.0.1</Version>
+    <Product>Ascolotl</Product>
+    <Description>AsciiDoc source editor with live preview and PDF export</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.12" />
+    <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.12" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.12" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.12" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="AdocNet.Avalonia" Version="1.0.29" />
+    <PackageReference Include="AdocNet.Layout" Version="1.0.29" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.12" Condition="'$(Configuration)' == 'Debug'" />
+    <!-- Security override: Avalonia's Linux/X11 backend pulls Tmds.DBus.Protocol 0.21.2,
+         which has GHSA-xrw6-gwf8-vvr9 (CVE-2026-39959). Pin the patched 0.21.3 (same
+         line, no API drift). D-Bus is Linux-only, so this is inert on the Windows build. -->
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.3" />
+</ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\Fonts\JetBrainsMono-Regular.ttf" />
+    <AvaloniaResource Include="Assets\app-icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ascolotl.Core\Ascolotl.Core.csproj" />
+    <ProjectReference Include="..\Ascolotl.Infrastructure\Ascolotl.Infrastructure.csproj" />
+    <ProjectReference Include="..\Ascolotl.Export\Ascolotl.Export.csproj" />
+  </ItemGroup>
+
+</Project>

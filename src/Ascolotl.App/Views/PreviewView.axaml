@@ -1,0 +1,38 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Ascolotl.App.Views.PreviewView">
+
+    <Panel Background="{DynamicResource ForgeBgBrush}">
+        <!-- Horizontal padding only. Avalonia subtracts ScrollViewer *vertical*
+             padding from the scroll extent (verified: a 16px top padding made
+             extent = desired − 16), which clips the last line at max scroll. So
+             the top/bottom insets live inside the scrolled content instead — a
+             top Margin on the host and a bottom spacer in the panel — where they
+             count toward the extent. -->
+        <ScrollViewer x:Name="PreviewScroll"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto"
+                      Padding="20,0">
+            <ContentControl x:Name="PreviewHost"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Top"
+                            Margin="0,16,0,0" />
+        </ScrollViewer>
+
+        <!-- Error overlay — shown instead of preview on render error -->
+        <Border x:Name="StatusOverlay"
+                IsVisible="False"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                Padding="24,16"
+                Margin="16"
+                CornerRadius="6"
+                Background="{DynamicResource ForgeAccentDarkBrush}">
+            <TextBlock x:Name="StatusText"
+                       Foreground="White"
+                       TextWrapping="Wrap"
+                       FontSize="13" />
+        </Border>
+    </Panel>
+
+</UserControl>

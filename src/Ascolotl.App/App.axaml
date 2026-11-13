@@ -1,0 +1,402 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:cc="using:AvaloniaEdit.CodeCompletion"
+             x:Class="Ascolotl.App.App"
+             RequestedThemeVariant="Default">
+
+    <Application.Resources>
+        <!-- Dark theme colors -->
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Dark">
+                    <!-- Override Fluent system accent — Vibrant Gill (magenta-pink) -->
+                    <Color x:Key="SystemAccentColor">#E8608A</Color>
+                    <Color x:Key="SystemAccentColorDark1">#C4406A</Color>
+                    <Color x:Key="SystemAccentColorDark2">#A03355</Color>
+                    <Color x:Key="SystemAccentColorDark3">#802845</Color>
+                    <Color x:Key="SystemAccentColorLight1">#F0889E</Color>
+                    <Color x:Key="SystemAccentColorLight2">#F5A0B2</Color>
+                    <Color x:Key="SystemAccentColorLight3">#F8B8C6</Color>
+
+                    <SolidColorBrush x:Key="ForgeAccentBrush" Color="#E8608A" />
+                    <SolidColorBrush x:Key="ForgeAccentDarkBrush" Color="#C4406A" />
+                    <SolidColorBrush x:Key="ForgeAccentLightBrush" Color="#4A2535" />
+                    <SolidColorBrush x:Key="ForgeAccentSubtleBrush" Color="#20E8608A" />
+                    <SolidColorBrush x:Key="ForgeAccentTextBrush" Color="#F0889E" />
+                    <SolidColorBrush x:Key="ForgeBgDeepBrush" Color="#141010" />
+                    <SolidColorBrush x:Key="ForgeBgBrush" Color="#1E1A17" />
+                    <SolidColorBrush x:Key="ForgeBgSurfaceBrush" Color="#2A2420" />
+                    <SolidColorBrush x:Key="ForgeBorderBrush" Color="#3D3630" />
+                    <SolidColorBrush x:Key="ForgeTextBrush" Color="#F0EBE5" />
+                    <SolidColorBrush x:Key="ForgeTextMutedBrush" Color="#9E958C" />
+                    <!-- Warm "ember" tint for the title bar — a whisper of the forge, flat. -->
+                    <SolidColorBrush x:Key="ForgeTitleBarBrush" Color="#241D17" />
+                    <SolidColorBrush x:Key="ForgeHighlightBrush" Color="#14FFFFFF" />
+
+                    <!-- Menu dropdowns: retheme Fluent's default gray flyout surface,
+                         text, hover, submenu chevron and separators to the Forge palette. -->
+                    <SolidColorBrush x:Key="MenuFlyoutPresenterBackground" Color="#241F1B" />
+                    <SolidColorBrush x:Key="MenuFlyoutPresenterBorderBrush" Color="#3D3630" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPointerOver" Color="#352E28" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPressed" Color="#352E28" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemForeground" Color="#F0EBE5" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemForegroundPointerOver" Color="#F0EBE5" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemForegroundPressed" Color="#F0EBE5" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemKeyboardAcceleratorTextForeground" Color="#8C837A" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemKeyboardAcceleratorTextForegroundPointerOver" Color="#9E958C" />
+                    <SolidColorBrush x:Key="MenuFlyoutSubItemChevron" Color="#9E958C" />
+                    <SolidColorBrush x:Key="MenuFlyoutSeparatorBackground" Color="#3D3630" />
+                    <SolidColorBrush x:Key="MenuBarItemBackgroundPointerOver" Color="#2A2420" />
+                    <SolidColorBrush x:Key="MenuBarItemBackgroundPressed" Color="#2A2420" />
+                    <SolidColorBrush x:Key="MenuBarItemBackgroundSelected" Color="#2A2420" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Light">
+                    <!-- Override Fluent system accent — Vibrant Gill (magenta-pink) -->
+                    <Color x:Key="SystemAccentColor">#D94F7A</Color>
+                    <Color x:Key="SystemAccentColorDark1">#B03A5E</Color>
+                    <Color x:Key="SystemAccentColorDark2">#8C2D4A</Color>
+                    <Color x:Key="SystemAccentColorDark3">#6E2238</Color>
+                    <Color x:Key="SystemAccentColorLight1">#E87A98</Color>
+                    <Color x:Key="SystemAccentColorLight2">#F5D0DC</Color>
+                    <Color x:Key="SystemAccentColorLight3">#F8E0E8</Color>
+
+                    <SolidColorBrush x:Key="ForgeAccentBrush" Color="#D94F7A" />
+                    <SolidColorBrush x:Key="ForgeAccentDarkBrush" Color="#B03A5E" />
+                    <SolidColorBrush x:Key="ForgeAccentLightBrush" Color="#F5D0DC" />
+                    <SolidColorBrush x:Key="ForgeAccentSubtleBrush" Color="#33D94F7A" />
+                    <SolidColorBrush x:Key="ForgeAccentTextBrush" Color="#B03A5E" />
+                    <SolidColorBrush x:Key="ForgeBgDeepBrush" Color="#E7DDD0" />
+                    <SolidColorBrush x:Key="ForgeBgBrush" Color="#FAF6F1" />
+                    <SolidColorBrush x:Key="ForgeBgSurfaceBrush" Color="#F0EAE2" />
+                    <SolidColorBrush x:Key="ForgeBorderBrush" Color="#D9CFC4" />
+                    <SolidColorBrush x:Key="ForgeTextBrush" Color="#2D2A26" />
+                    <SolidColorBrush x:Key="ForgeTextMutedBrush" Color="#7A7168" />
+                    <!-- Warm "ember" tint for the title bar — a whisper of the forge, flat. -->
+                    <SolidColorBrush x:Key="ForgeTitleBarBrush" Color="#EDE3D4" />
+                    <SolidColorBrush x:Key="ForgeHighlightBrush" Color="#30FFFFFF" />
+
+                    <!-- Menu dropdowns: retheme Fluent's default gray flyout surface,
+                         text, hover, submenu chevron and separators to the Forge palette. -->
+                    <SolidColorBrush x:Key="MenuFlyoutPresenterBackground" Color="#FAF6F1" />
+                    <SolidColorBrush x:Key="MenuFlyoutPresenterBorderBrush" Color="#D9CFC4" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPointerOver" Color="#EADFD1" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPressed" Color="#EADFD1" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemForeground" Color="#2D2A26" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemForegroundPointerOver" Color="#2D2A26" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemForegroundPressed" Color="#2D2A26" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemKeyboardAcceleratorTextForeground" Color="#8C837A" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemKeyboardAcceleratorTextForegroundPointerOver" Color="#7A7168" />
+                    <SolidColorBrush x:Key="MenuFlyoutSubItemChevron" Color="#7A7168" />
+                    <SolidColorBrush x:Key="MenuFlyoutSeparatorBackground" Color="#D9CFC4" />
+                    <SolidColorBrush x:Key="MenuBarItemBackgroundPointerOver" Color="#F0EAE2" />
+                    <SolidColorBrush x:Key="MenuBarItemBackgroundPressed" Color="#F0EAE2" />
+                    <SolidColorBrush x:Key="MenuBarItemBackgroundSelected" Color="#F0EAE2" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+
+            <!-- ── Icon geometries (theme-independent): one consistent outline set,
+                 stroked via Path.icon. Replaces ad-hoc unicode glyphs. ── -->
+            <StreamGeometry x:Key="IconMenuGeometry">M4 7 H20 M4 13 H20 M4 19 H20</StreamGeometry>
+            <StreamGeometry x:Key="IconCloseGeometry">M6 6 L18 18 M18 6 L6 18</StreamGeometry>
+            <StreamGeometry x:Key="IconWarningGeometry">M12 3 L22 21 H2 Z M12 9 V14 M12 17.3 v0.2</StreamGeometry>
+            <StreamGeometry x:Key="IconErrorGeometry">M3 12 A9 9 0 1 1 21 12 A9 9 0 1 1 3 12 Z M8 8 L16 16 M16 8 L8 16</StreamGeometry>
+
+            <!-- ── Design tokens: type scale + spacing grid (4/8px). ── -->
+            <x:Double x:Key="FontSizeSmall">11</x:Double>
+            <x:Double x:Key="FontSizeChrome">11.5</x:Double>
+            <x:Double x:Key="FontSizeBody">12.5</x:Double>
+            <x:Double x:Key="FontSizeLarge">14</x:Double>
+            <x:Double x:Key="FontSizeHeading">18</x:Double>
+            <Thickness x:Key="SpaceXs">4</Thickness>
+            <Thickness x:Key="SpaceSm">8</Thickness>
+            <Thickness x:Key="SpaceMd">12</Thickness>
+            <Thickness x:Key="SpaceLg">20</Thickness>
+        </ResourceDictionary>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
+
+        <!-- Outline icon glyphs: consistent stroke + caps; size via Width/Height. -->
+        <Style Selector="Path.icon">
+            <Setter Property="Stroke" Value="{DynamicResource ForgeTextMutedBrush}" />
+            <Setter Property="StrokeThickness" Value="1.6" />
+            <Setter Property="StrokeLineCap" Value="Round" />
+            <Setter Property="StrokeJoin" Value="Round" />
+            <Setter Property="Fill" Value="Transparent" />
+            <Setter Property="Stretch" Value="Uniform" />
+        </Style>
+
+        <!-- Consistent keyboard focus ring on buttons (accent). -->
+        <Style Selector="Button:focus-visible /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="BorderBrush" Value="{DynamicResource ForgeAccentTextBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+        <!-- ── Tabs: flat, recessed inactive; the active tab "connects" to the
+             editor with a 2px accent top-bar + rounded top corners. Motion:
+             background/foreground and the accent bar ease in (~140ms). ── -->
+        <Style Selector="TabStrip">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="TabStripItem">
+            <Setter Property="Foreground" Value="{DynamicResource ForgeTextMutedBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="12,5" />
+            <Setter Property="MinHeight" Value="30" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.14" Easing="CubicEaseOut" />
+                    <BrushTransition Property="Foreground" Duration="0:0:0.14" Easing="CubicEaseOut" />
+                </Transitions>
+            </Setter>
+            <!-- Custom template: the Fluent default paints a "selected pipe"
+                 under the active tab — we replace it with our own top accent bar
+                 (PART_Accent) and let the state setters drive the look. -->
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Name="PART_Root"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="6,6,0,0"
+                            TextElement.Foreground="{TemplateBinding Foreground}">
+                        <Panel>
+                            <Rectangle Name="PART_Accent"
+                                       Height="2" Fill="Transparent"
+                                       VerticalAlignment="Top" HorizontalAlignment="Stretch">
+                                <Rectangle.Transitions>
+                                    <Transitions>
+                                        <BrushTransition Property="Fill" Duration="0:0:0.14" Easing="CubicEaseOut" />
+                                    </Transitions>
+                                </Rectangle.Transitions>
+                            </Rectangle>
+                            <ContentPresenter Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              Padding="{TemplateBinding Padding}"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Stretch" />
+                        </Panel>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+        <!-- Keyboard focus ring (the custom template above dropped Fluent's).
+             :focus-visible only triggers for keyboard focus, not mouse. -->
+        <Style Selector="TabStripItem:focus-visible /template/ Border#PART_Root">
+            <Setter Property="BorderBrush" Value="{DynamicResource ForgeAccentBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style Selector="TabStripItem:pointerover">
+            <Setter Property="Foreground" Value="{DynamicResource ForgeTextBrush}" />
+            <Setter Property="Background" Value="{DynamicResource ForgeBgSurfaceBrush}" />
+        </Style>
+        <Style Selector="TabStripItem:selected">
+            <Setter Property="Foreground" Value="{DynamicResource ForgeTextBrush}" />
+            <Setter Property="Background" Value="{DynamicResource ForgeBgBrush}" />
+        </Style>
+        <Style Selector="TabStripItem:selected /template/ Rectangle#PART_Accent">
+            <Setter Property="Fill" Value="{DynamicResource ForgeAccentBrush}" />
+        </Style>
+
+        <!-- Per-tab close button + modified dot: dot shows when dirty, the
+             close ✕ fades in on hover and takes the dot's place. -->
+        <Style Selector="Button.close-tab">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="{DynamicResource ForgeTextMutedBrush}" />
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="Width" Value="16" />
+            <Setter Property="Height" Value="16" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="CornerRadius" Value="3" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.12" Easing="CubicEaseOut" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="TabStripItem:pointerover Button.close-tab">
+            <Setter Property="Opacity" Value="1" />
+        </Style>
+        <Style Selector="Button.close-tab:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ForgeAccentLightBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource ForgeTextBrush}" />
+        </Style>
+        <Style Selector="Ellipse.modified-dot">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.12" Easing="CubicEaseOut" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="TabStripItem:pointerover Ellipse.modified-dot">
+            <Setter Property="Opacity" Value="0" />
+        </Style>
+
+        <!-- ── Outline sidebar: tight rows, full-row hover, accent active ── -->
+        <Style Selector="ListBox.outline">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="ListBox.outline ListBoxItem">
+            <Setter Property="Padding" Value="12,4" />
+            <Setter Property="MinHeight" Value="24" />
+            <Setter Property="Foreground" Value="{DynamicResource ForgeTextMutedBrush}" />
+            <Setter Property="BorderThickness" Value="2,0,0,0" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="CornerRadius" Value="0" />
+        </Style>
+        <Style Selector="ListBox.outline ListBoxItem:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ForgeBgSurfaceBrush}" />
+        </Style>
+        <Style Selector="ListBox.outline ListBoxItem:selected">
+            <Setter Property="Foreground" Value="{DynamicResource ForgeAccentTextBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ForgeAccentBrush}" />
+        </Style>
+        <Style Selector="ListBox.outline ListBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ForgeAccentSubtleBrush}" />
+        </Style>
+
+        <!-- ── Thin, low-contrast scrollbars; accent on hover ── -->
+        <Style Selector="ScrollBar">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="ScrollBar:vertical">
+            <Setter Property="Width" Value="10" />
+        </Style>
+        <Style Selector="ScrollBar:horizontal">
+            <Setter Property="Height" Value="10" />
+        </Style>
+        <Style Selector="ScrollBar /template/ Thumb">
+            <Setter Property="Background" Value="{DynamicResource ForgeBorderBrush}" />
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.18" Easing="CubicEaseOut" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="ScrollBar /template/ Thumb:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ForgeAccentBrush}" />
+        </Style>
+
+        <!-- Top-level menus (now hosted in the title bar): flat + compact -->
+        <Style Selector="Menu">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="Menu > MenuItem">
+            <Setter Property="Padding" Value="9,4" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Foreground" Value="{DynamicResource ForgeTextBrush}" />
+        </Style>
+        <!-- Compact menu text (top-level + all submenu items). The ☰ glyph
+             keeps its own larger inline FontSize. -->
+        <Style Selector="MenuItem">
+            <Setter Property="FontSize" Value="11.5" />
+        </Style>
+        <Style Selector="Menu > MenuItem:pointerover /template/ Border#PART_LayoutRoot">
+            <Setter Property="Background" Value="{DynamicResource ForgeBgSurfaceBrush}" />
+        </Style>
+        <Style Selector="Menu > MenuItem:selected /template/ Border#PART_LayoutRoot">
+            <Setter Property="Background" Value="{DynamicResource ForgeAccentSubtleBrush}" />
+        </Style>
+
+        <!-- Menu toggle glyphs: pink check/radio indicators.
+             Fluent template glyphs bind Fill to $parent[MenuItem].Foreground
+             (a local binding that beats style setters on the glyph itself).
+             The only way to color the glyph is to set Foreground on MenuItem. -->
+        <Style Selector="MenuItem:checked">
+            <Setter Property="Foreground" Value="{DynamicResource ForgeAccentBrush}" />
+        </Style>
+
+        <!-- Menu dropdown popups: rounded + padded; surface/text/chevron colours
+             come from the MenuFlyout* resource overrides in the theme dictionaries. -->
+        <Style Selector="MenuFlyoutPresenter">
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="3" />
+        </Style>
+
+        <!-- ── Modal dialog action buttons: centered text, compact padding,
+             consistent font; the default action carries the pink accent ── -->
+        <Style Selector="Button.dialog">
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Padding" Value="12,5" />
+            <Setter Property="MinHeight" Value="28" />
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="Background" Value="{DynamicResource ForgeBgSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ForgeBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource ForgeTextBrush}" />
+        </Style>
+        <Style Selector="Button.dialog /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.14" Easing="CubicEaseOut" />
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.14" Easing="CubicEaseOut" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button.dialog:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ForgeBgSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ForgeAccentDarkBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource ForgeTextBrush}" />
+        </Style>
+        <Style Selector="Button.dialog.primary">
+            <Setter Property="Background" Value="{DynamicResource ForgeAccentBrush}" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="Button.dialog.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ForgeAccentDarkBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ForgeAccentDarkBrush}" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+
+        <!-- Splitter: thin hairline, accent on hover -->
+        <Style Selector="GridSplitter">
+            <Setter Property="Background" Value="{DynamicResource ForgeBorderBrush}" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.18" Easing="CubicEaseOut" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="GridSplitter:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ForgeAccentLightBrush}" />
+        </Style>
+
+        <!-- Authoring-assist completion popup: match the Forge palette instead
+             of AvaloniaEdit's default gray. -->
+        <Style Selector="cc|CompletionList">
+            <Setter Property="Background" Value="{DynamicResource ForgeBgSurfaceBrush}" />
+        </Style>
+        <Style Selector="cc|CompletionListBox">
+            <Setter Property="Background" Value="{DynamicResource ForgeBgSurfaceBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource ForgeTextBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ForgeBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style Selector="cc|CompletionListBox ListBoxItem">
+            <Setter Property="Foreground" Value="{DynamicResource ForgeTextBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="8,3" />
+        </Style>
+        <Style Selector="cc|CompletionListBox ListBoxItem:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ForgeHighlightBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource ForgeTextBrush}" />
+        </Style>
+        <Style Selector="cc|CompletionListBox ListBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ForgeAccentSubtleBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource ForgeTextBrush}" />
+        </Style>
+    </Application.Styles>
+
+</Application>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Icon Cleanup — Before / After</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1E1A17;
+    color: #F0EBE5;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 40px 24px;
+    min-height: 100vh;
+  }
+  h1 { text-align: center; font-size: 1.6rem; font-weight: 600; margin-bottom: 8px; }
+  .subtitle { text-align: center; font-size: 0.9rem; color: #9E958C; margin-bottom: 48px; }
+  .compare { display: flex; gap: 80px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+  .panel { text-align: center; }
+  .panel h2 { font-size: 1.1rem; margin-bottom: 16px; }
+  .panel h2.before { color: #E85050; }
+  .panel h2.after { color: #50C878; }
+  .icon-wrap { position: relative; display: inline-block; }
+  /* Red annotation circles for "BEFORE" */
+  .annotate-shadow {
+    position: absolute;
+    top: -14px; left: -14px; right: -14px; bottom: -14px;
+    border: 3px dashed #E85050;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .annotate-shadow::after {
+    content: "❌ DROP SHADOW";
+    position: absolute;
+    top: -28px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: #E85050;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .annotate-bg {
+    position: absolute;
+    top: 15%; left: 15%; width: 70%; height: 55%;
+    border: 3px dashed #E85050;
+    pointer-events: none;
+  }
+  .annotate-bg::after {
+    content: "❌ GRADIENT BG RECT";
+    position: absolute;
+    bottom: -22px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: #E85050;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  /* Green check for "AFTER" */
+  .check-clean::after {
+    content: "✅ Clean — no shadow, flat dark gray bg";
+    position: absolute;
+    bottom: -28px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: #50C878;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .check-clean { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
+
+  .legend { margin-top: 60px; max-width: 700px; margin-inline: auto; }
+  .legend h3 { font-size: 1rem; margin-bottom: 12px; color: #D94F7A; }
+  .legend table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .legend td, .legend th { padding: 8px 12px; text-align: left; border-bottom: 1px solid #3A3530; }
+  .legend th { color: #9E958C; font-weight: 500; }
+  .legend .remove { color: #E85050; }
+  .legend .keep { color: #50C878; }
+  code { background: #2A2520; padding: 2px 6px; border-radius: 3px; font-size: 0.8rem; }
+
+  /* Checkerboard bg to show transparency */
+  .checker {
+    background-image:
+      linear-gradient(45deg, #2A2520 25%, transparent 25%),
+      linear-gradient(-45deg, #2A2520 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #2A2520 75%),
+      linear-gradient(-45deg, transparent 75%, #2A2520 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+    background-color: #1E1A17;
+    display: inline-block;
+    padding: 20px;
+    border-radius: 12px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Icon Cleanup — Before / After</h1>
+<p class="subtitle">Removing the drop shadow, replacing the gradient background rect with flat dark gray</p>
+
+<!-- ===== SHARED SVG DEFS ===== -->
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden">
+  <defs>
+    <clipPath id="circle-clip"><circle cx="32" cy="32" r="28.5"/></clipPath>
+    <filter id="drop-shadow" x="-15%" y="-10%" width="130%" height="135%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="2.5" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+    <radialGradient id="photo-bg" cx="50%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#2A1520"/><stop offset="60%" stop-color="#1E1017"/><stop offset="100%" stop-color="#140C10"/>
+    </radialGradient>
+    <radialGradient id="skin-base" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#FFF8F2"/><stop offset="40%" stop-color="#F8E8DA"/>
+      <stop offset="80%" stop-color="#F0D8C6"/><stop offset="100%" stop-color="#E8CCB8"/>
+    </radialGradient>
+    <radialGradient id="skin-highlight" cx="45%" cy="30%" r="30%">
+      <stop offset="0%" stop-color="#FFFCFA" stop-opacity="0.6"/><stop offset="100%" stop-color="#FFFCFA" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="chin-photo" cx="50%" cy="25%" r="65%">
+      <stop offset="0%" stop-color="#F5CDB8"/><stop offset="50%" stop-color="#EEBEA5"/><stop offset="100%" stop-color="#E0AC90"/>
+    </radialGradient>
+    <linearGradient id="gill-photo-l1" x1="0%" y1="20%" x2="80%" y2="80%">
+      <stop offset="0%" stop-color="#B03060"/><stop offset="35%" stop-color="#D94F7A"/>
+      <stop offset="70%" stop-color="#E87098"/><stop offset="100%" stop-color="#F0A0B8"/>
+    </linearGradient>
+    <linearGradient id="gill-photo-r1" x1="100%" y1="20%" x2="20%" y2="80%">
+      <stop offset="0%" stop-color="#B03060"/><stop offset="35%" stop-color="#D94F7A"/>
+      <stop offset="70%" stop-color="#E87098"/><stop offset="100%" stop-color="#F0A0B8"/>
+    </linearGradient>
+    <linearGradient id="gill-photo-l2" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#C44070"/><stop offset="100%" stop-color="#F0B0C4"/>
+    </linearGradient>
+    <linearGradient id="gill-photo-r2" x1="90%" y1="0%" x2="10%" y2="100%">
+      <stop offset="0%" stop-color="#C44070"/><stop offset="100%" stop-color="#F0B0C4"/>
+    </linearGradient>
+    <radialGradient id="eye-photo" cx="42%" cy="38%" r="48%">
+      <stop offset="0%" stop-color="#2A2520"/><stop offset="70%" stop-color="#1A1512"/><stop offset="100%" stop-color="#100E0C"/>
+    </radialGradient>
+    <filter id="noise" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch" result="noise"/>
+      <feColorMatrix type="saturate" values="0" in="noise" result="gray-noise"/>
+      <feBlend in="SourceGraphic" in2="gray-noise" mode="soft-light"/>
+    </filter>
+
+    <!-- ===== BEFORE: original with shadow + bg rect ===== -->
+    <symbol id="icon-before" viewBox="0 0 64 64">
+      <g filter="url(#drop-shadow)">
+        <circle cx="32" cy="32" r="30" fill="#D94F7A"/>
+        <g clip-path="url(#circle-clip)">
+          <rect x="0" y="0" width="64" height="64" fill="url(#photo-bg)"/>
+          <path d="M17 28 Q10 22 6 16" stroke="url(#gill-photo-l1)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <path d="M16 32 Q8 28 3 24" stroke="url(#gill-photo-l1)" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+          <path d="M17 36 Q10 35 5 32" stroke="url(#gill-photo-l1)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M14 25 Q9 18 7 12" stroke="url(#gill-photo-l2)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M13 30 Q6 26 2 21" stroke="url(#gill-photo-l2)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <path d="M15 34 Q8 33 4 29" stroke="url(#gill-photo-l2)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          <path d="M11 22 Q7 16 5 10" stroke="#F0A0B8" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.7"/>
+          <path d="M9 28 Q4 24 1 19" stroke="#F0A0B8" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+          <path d="M12 37 Q7 37 3 35" stroke="#F0A0B8" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+          <path d="M8 19 Q5 14 4 9" stroke="#F5C0D0" stroke-width="0.7" fill="none" stroke-linecap="round" opacity="0.5"/>
+          <path d="M6 25 Q3 21 1 17" stroke="#F5C0D0" stroke-width="0.6" fill="none" stroke-linecap="round" opacity="0.4"/>
+          <path d="M47 28 Q54 22 58 16" stroke="url(#gill-photo-r1)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <path d="M48 32 Q56 28 61 24" stroke="url(#gill-photo-r1)" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+          <path d="M47 36 Q54 35 59 32" stroke="url(#gill-photo-r1)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M50 25 Q55 18 57 12" stroke="url(#gill-photo-r2)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M51 30 Q58 26 62 21" stroke="url(#gill-photo-r2)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <path d="M49 34 Q56 33 60 29" stroke="url(#gill-photo-r2)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          <path d="M53 22 Q57 16 59 10" stroke="#F0A0B8" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.7"/>
+          <path d="M55 28 Q60 24 63 19" stroke="#F0A0B8" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+          <path d="M52 37 Q57 37 61 35" stroke="#F0A0B8" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+          <path d="M56 19 Q59 14 60 9" stroke="#F5C0D0" stroke-width="0.7" fill="none" stroke-linecap="round" opacity="0.5"/>
+          <path d="M58 25 Q61 21 63 17" stroke="#F5C0D0" stroke-width="0.6" fill="none" stroke-linecap="round" opacity="0.4"/>
+          <ellipse cx="32" cy="33" rx="18" ry="19" fill="url(#skin-base)"/>
+          <ellipse cx="32" cy="33" rx="18" ry="19" fill="url(#skin-highlight)"/>
+          <ellipse cx="32" cy="33" rx="18" ry="19" fill="url(#skin-base)" filter="url(#noise)" opacity="0.15"/>
+          <ellipse cx="32" cy="43" rx="12.5" ry="8.5" fill="url(#chin-photo)"/>
+          <ellipse cx="32" cy="40" rx="8" ry="4" fill="#FFF8F2" opacity="0.12"/>
+          <ellipse cx="32" cy="33" rx="18" ry="19" fill="none" stroke="#C8A890" stroke-width="1.5" opacity="0.15"/>
+          <circle cx="25" cy="22" r="1.4" fill="#CDA050" opacity="0.55"/>
+          <circle cx="31" cy="19" r="1.1" fill="#D4A858" opacity="0.5"/>
+          <circle cx="38" cy="21" r="1.3" fill="#CDA050" opacity="0.55"/>
+          <circle cx="28" cy="25" r="0.9" fill="#D8B060" opacity="0.4"/>
+          <circle cx="35" cy="24" r="1" fill="#CDA050" opacity="0.45"/>
+          <circle cx="33" cy="21" r="0.7" fill="#D8B060" opacity="0.35"/>
+          <circle cx="27" cy="20" r="0.6" fill="#D8B060" opacity="0.3"/>
+          <circle cx="37" cy="24" r="0.6" fill="#D8B060" opacity="0.3"/>
+          <ellipse cx="24" cy="31" rx="3.3" ry="3.6" fill="url(#eye-photo)"/>
+          <ellipse cx="40" cy="31" rx="3.3" ry="3.6" fill="url(#eye-photo)"/>
+          <ellipse cx="24" cy="31" rx="3.3" ry="3.6" fill="none" stroke="#1A1512" stroke-width="0.5" opacity="0.3"/>
+          <ellipse cx="40" cy="31" rx="3.3" ry="3.6" fill="none" stroke="#1A1512" stroke-width="0.5" opacity="0.3"/>
+          <ellipse cx="25.8" cy="29.5" rx="1.4" ry="1.1" fill="#FFFCFA" opacity="0.85"/>
+          <ellipse cx="41.8" cy="29.5" rx="1.4" ry="1.1" fill="#FFFCFA" opacity="0.85"/>
+          <circle cx="22.8" cy="32.2" r="0.6" fill="#FFFCFA" opacity="0.4"/>
+          <circle cx="38.8" cy="32.2" r="0.6" fill="#FFFCFA" opacity="0.4"/>
+          <ellipse cx="29" cy="37" rx="1" ry="0.75" fill="#D0A898" opacity="0.7"/>
+          <ellipse cx="35" cy="37" rx="1" ry="0.75" fill="#D0A898" opacity="0.7"/>
+          <path d="M27.5 40 Q29.8 42.8 32 43 Q34.2 42.8 36.5 40" fill="none" stroke="#C8A090" stroke-width="0.8" stroke-linecap="round" opacity="0.6"/>
+          <ellipse cx="32" cy="33" rx="19" ry="20" fill="none" stroke="#3A3530" stroke-width="2" opacity="0.08"/>
+        </g>
+        <circle cx="32" cy="32" r="29.2" fill="none" stroke="#D94F7A" stroke-width="2"/>
+      </g>
+    </symbol>
+
+    <!-- ===== AFTER: cleaned — no shadow, flat dark gray bg ===== -->
+    <symbol id="icon-after" viewBox="0 0 64 64">
+      <!-- NO filter="url(#drop-shadow)" on this group -->
+      <g>
+        <!-- Flat dark gray background circle (replaces gradient rect) -->
+        <circle cx="32" cy="32" r="30" fill="#2E2E2E"/>
+        <g clip-path="url(#circle-clip)">
+          <path d="M17 28 Q10 22 6 16" stroke="url(#gill-photo-l1)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <path d="M16 32 Q8 28 3 24" stroke="url(#gill-photo-l1)" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+          <path d="M17 36 Q10 35 5 32" stroke="url(#gill-photo-l1)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M14 25 Q9 18 7 12" stroke="url(#gill-photo-l2)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M13 30 Q6 26 2 21" stroke="url(#gill-photo-l2)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <path d="M15 34 Q8 33 4 29" stroke="url(#gill-photo-l2)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          <path d="M11 22 Q7 16 5 10" stroke="#F0A0B8" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.7"/>
+          <path d="M9 28 Q4 24 1 19" stroke="#F0A0B8" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+          <path d="M12 37 Q7 37 3 35" stroke="#F0A0B8" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+          <path d="M8 19 Q5 14 4 9" stroke="#F5C0D0" stroke-width="0.7" fill="none" stroke-linecap="round" opacity="0.5"/>
+          <path d="M6 25 Q3 21 1 17" stroke="#F5C0D0" stroke-width="0.6" fill="none" stroke-linecap="round" opacity="0.4"/>
+          <path d="M47 28 Q54 22 58 16" stroke="url(#gill-photo-r1)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <path d="M48 32 Q56 28 61 24" stroke="url(#gill-photo-r1)" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+          <path d="M47 36 Q54 35 59 32" stroke="url(#gill-photo-r1)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M50 25 Q55 18 57 12" stroke="url(#gill-photo-r2)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M51 30 Q58 26 62 21" stroke="url(#gill-photo-r2)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <path d="M49 34 Q56 33 60 29" stroke="url(#gill-photo-r2)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          <path d="M53 22 Q57 16 59 10" stroke="#F0A0B8" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.7"/>
+          <path d="M55 28 Q60 24 63 19" stroke="#F0A0B8" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+          <path d="M52 37 Q57 37 61 35" stroke="#F0A0B8" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+          <path d="M56 19 Q59 14 60 9" stroke="#F5C0D0" stroke-width="0.7" fill="none" stroke-linecap="round" opacity="0.5"/>
+          <path d="M58 25 Q61 21 63 17" stroke="#F5C0D0" stroke-width="0.6" fill="none" stroke-linecap="round" opacity="0.4"/>
+          <ellipse cx="32" cy="33" rx="18" ry="19" fill="url(#skin-base)"/>
+          <ellipse cx="32" cy="33" rx="18" ry="19" fill="url(#skin-highlight)"/>
+          <!-- Removed: noise-filter ellipse (rectangular filter artifact visible against gray bg) -->
+          <ellipse cx="32" cy="43" rx="12.5" ry="8.5" fill="url(#chin-photo)"/>
+          <ellipse cx="32" cy="40" rx="8" ry="4" fill="#FFF8F2" opacity="0.12"/>
+          <ellipse cx="32" cy="33" rx="18" ry="19" fill="none" stroke="#C8A890" stroke-width="1.5" opacity="0.15"/>
+          <circle cx="25" cy="22" r="1.4" fill="#CDA050" opacity="0.55"/>
+          <circle cx="31" cy="19" r="1.1" fill="#D4A858" opacity="0.5"/>
+          <circle cx="38" cy="21" r="1.3" fill="#CDA050" opacity="0.55"/>
+          <circle cx="28" cy="25" r="0.9" fill="#D8B060" opacity="0.4"/>
+          <circle cx="35" cy="24" r="1" fill="#CDA050" opacity="0.45"/>
+          <circle cx="33" cy="21" r="0.7" fill="#D8B060" opacity="0.35"/>
+          <circle cx="27" cy="20" r="0.6" fill="#D8B060" opacity="0.3"/>
+          <circle cx="37" cy="24" r="0.6" fill="#D8B060" opacity="0.3"/>
+          <ellipse cx="24" cy="31" rx="3.3" ry="3.6" fill="url(#eye-photo)"/>
+          <ellipse cx="40" cy="31" rx="3.3" ry="3.6" fill="url(#eye-photo)"/>
+          <ellipse cx="24" cy="31" rx="3.3" ry="3.6" fill="none" stroke="#1A1512" stroke-width="0.5" opacity="0.3"/>
+          <ellipse cx="40" cy="31" rx="3.3" ry="3.6" fill="none" stroke="#1A1512" stroke-width="0.5" opacity="0.3"/>
+          <ellipse cx="25.8" cy="29.5" rx="1.4" ry="1.1" fill="#FFFCFA" opacity="0.85"/>
+          <ellipse cx="41.8" cy="29.5" rx="1.4" ry="1.1" fill="#FFFCFA" opacity="0.85"/>
+          <circle cx="22.8" cy="32.2" r="0.6" fill="#FFFCFA" opacity="0.4"/>
+          <circle cx="38.8" cy="32.2" r="0.6" fill="#FFFCFA" opacity="0.4"/>
+          <ellipse cx="29" cy="37" rx="1" ry="0.75" fill="#D0A898" opacity="0.7"/>
+          <ellipse cx="35" cy="37" rx="1" ry="0.75" fill="#D0A898" opacity="0.7"/>
+          <path d="M27.5 40 Q29.8 42.8 32 43 Q34.2 42.8 36.5 40" fill="none" stroke="#C8A090" stroke-width="0.8" stroke-linecap="round" opacity="0.6"/>
+          <!-- Removed: ambient occlusion ellipse (stroke artifact) -->
+        </g>
+        <circle cx="32" cy="32" r="29.2" fill="none" stroke="#D94F7A" stroke-width="2"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="compare">
+  <!-- BEFORE -->
+  <div class="panel">
+    <h2 class="before">BEFORE (Current)</h2>
+    <div class="icon-wrap">
+      <div class="checker">
+        <svg width="256" height="256"><use href="#icon-before"/></svg>
+      </div>
+      <div class="annotate-shadow"></div>
+      <div class="annotate-bg"></div>
+    </div>
+  </div>
+
+  <!-- AFTER -->
+  <div class="panel">
+    <h2 class="after">AFTER (Cleaned)</h2>
+    <div class="icon-wrap">
+      <div class="checker">
+        <svg width="256" height="256"><use href="#icon-after"/></svg>
+      </div>
+      <div class="check-clean"></div>
+    </div>
+  </div>
+</div>
+
+<div class="legend">
+  <h3>What's Being Removed</h3>
+  <table>
+    <tr>
+      <th>Element</th>
+      <th>SVG Line</th>
+      <th>Action</th>
+    </tr>
+    <tr>
+      <td class="remove">Drop shadow filter reference</td>
+      <td><code>&lt;g filter="url(#drop-shadow)"&gt;</code></td>
+      <td class="remove">Remove <code>filter="url(#drop-shadow)"</code> — change to plain <code>&lt;g&gt;</code></td>
+    </tr>
+    <tr>
+      <td class="remove">Dark gradient background rect</td>
+      <td><code>&lt;rect … fill="url(#photo-bg)"/&gt;</code></td>
+      <td class="remove">Delete — replaced by flat dark gray circle fill</td>
+    </tr>
+    <tr>
+      <td class="keep" style="color:#E8A030">Base circle fill</td>
+      <td><code>&lt;circle cx="32" r="30" fill="#D94F7A"/&gt;</code></td>
+      <td class="keep" style="color:#E8A030">Change fill to <code>#3A3A3A</code> (dark gray)</td>
+    </tr>
+    <tr>
+      <td class="keep">Circular border ring</td>
+      <td><code>&lt;circle cx="32" r="29.2" stroke="#D94F7A"/&gt;</code></td>
+      <td class="keep">Keep ✓</td>
+    </tr>
+    <tr>
+      <td class="keep">All gills, face, eyes, etc.</td>
+      <td>All other elements</td>
+      <td class="keep">Keep ✓</td>
+    </tr>
+  </table>
+</div>
+
+</body>
+</html>

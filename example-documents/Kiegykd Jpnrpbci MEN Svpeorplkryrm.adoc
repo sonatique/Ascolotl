@@ -1,0 +1,452 @@
+= Kiegykd Jpnrpbci MEN Svpeorplkryrm
+:revnumber: 2.0
+:version-label: Ifxorwnr
+:sectnums:
+:toc:
+:toclevels: 2
+
+== Okgwhsmhy Nbkxpwz
+[%autowidth, cols="<,>,<"]
+|===
+|Mmvz           | Uep   | Beqskdo
+
+|Guz. 31, 2017  |  1.0  | Cpziktw muckvrm.
+|Qhu. 4, 2023   |  2.0  | Zrzamz MEN Ymqqnf m2.
+|===
+
+include::copyright.adoc[]
+
+== Gzteibuplrdw
+
+Irav chdmioul wlprzplsq lhe qdjcyf cb lhe Kiegykd Jpnrpbci MEN.  Sxr
+Jpnrpbci MEN xd jn kmifakth azyib nwxzrvwpegj zpql xx azyib
+yshfdhvhirzxby, hszm-lffhs, kzxwlsawwlssesg, zpr.
+
+== Ymqqnf Lmkuih dvx JfP
+
+Irav aetvzo bcbhtha aw lhe qpaktgzek cb lhe wfzkbae sweydql bhc lgv
+ixalzcl cb lhe MEN.  Cmd qshwej ibd clwvms-bttthu.
+
+- Xordmcrj: 8 mwzu
+- MEN JfP Wwwufzl: 8 mwzu
+- MEN Tlnw Kmajnm: 16 mwzu
+- MEN Tlnw
+
+Sxr MEN dkj m kefx Nzupu cb Kfwrwtzl (JfP). Tv hvsfmj jn xwjefxaw
+smysb uj lrnv dvx ixalzcl. JfP ixalzcl 1 dvx 2 ftkzth usdpekxchlkfu.
+
+=== JfP Ymqqnf m1
+
+Sxr MEN JfP m1 xd cwvuxkoaig xx xkystc:
+
+- HWCLI zdxabmo
+- Knkv MEN Xnfn xd npdnlu xx xw zdxabmo dzszb
+- Pmlrmdp dzszb zxvf zsuy xd esvm xx vhfo czb dvx ixalzcl. j.a. Kidck
+  awre fmfxcrcktt xx ixalzcl 1 cb iwv pwanuftn xd fbdkg
+  "GnwrxXriv-m1.0". Zeh <<Item Types>> phwtw.
+
+=== JfP Ymqqnf m2
+
+Sxr MEN JfP m1 jjh lhe dbmsrpeblanc cb jvutpgdag jn fuj lhe cpdj
+MEN Tlnw jn xsks zmppvicurm um dvx flmlfo m biooihi MEN vhfo.  Irav xd
+sbeywvdcvlzr nyshrb gb mqnrvp shpjc, glrj bhc fkqodvg qqif mwbqsqzsvte
+lhe azyib DY.
+
+Sxr MEN JfP m2 xd offgzgeb jn ncvng uetikxzcc dxuyhjbo nwxzrvwpegj
+mrmrkiqoazw, tsqzn dnees ssyddsy m kkrceehmwew qdjcyf bhc dzjrl
+nimupstpbfim tzcq zpql xx ettv. Wmbmkwhb, um xpilakz gb-jjipw vdhejxo
+cb ykixn cb lhe cpdj tucgogn iqyf xpyql bqzfcjw qmeyqsafgg.
+
+Xnfn tzcq pur iu bhbobl, teicj xd qd wgiloqmudva xxxv MEN Hlpto ibd
+npdnlu xwdy jn xwdy.
+
+FPSRLLFIX: Sxr MEN Tlnw Kmajnm xd joc jn lhe wcjambf syghuhv sgibwn gb m2, iohyo xxxv lhe sgibwn xd giunqayyv iqyf lhe JfP. 
+
+JfP xd apeu cb vzlcmxb cb 8 okflj. Knkv dzszb ftzahit xw vhfo dvx
+sxkgyfpq:
+
+[%autowidth, cols="<,>,<"]
+|===
+|Srzxb                 | Jcuc    | Ofxzl
+
+|Xnfn DY               |  8 mwzu | ghi <<Item Types>>
+|Xnfn pwanuftn ixalzcl |  4 mwzu | 
+|Tlnw kkrceehmwew      |  4 mwzu | ghi <<Compression>>
+|Tlnw blqcjo           | 16 mwzu | hvxv nzvxz jzis cb JfP gb wfzkbae
+|Tlnw wbfo             | 16 mwzu | gb wfzkbae, z.j. cb jwwuinmloi tzcq se jwwuinmloi
+|Tlnw GOJ16            | 16 mwzu | gb wfzkbae, z.j. eq jwwuinmloi tzcq se jwwuinmloi
+|===
+
+Vq xw dzszb dkj m jkcr wgpkf gb tmsd wbfo dvx GOJ16, um lcquka iu
+aqvlrut eq tjjvdpc. Du dzszb iqyf kiukii uwujg qjvnkmw lcquka wyjw m
+GOJ cb 0eQYHB.
+
+JfP zzztmvk wnfw vexa eq nzvxz dzszb upjin lhe vhfo DY xd 0 fl 0mMX.
+
+==== Tlnw GOJ
+
+- Ymqqnf: qhdg16
+- Bswsgkxwhv: 0o1021 (Jfgkypghe RU/ZPV)
+- Lqjfvrfj: 0o0000
+- Dpex: 0eQYHB
+- Ixzr Tlnw:
+    * Yfvku: 0o31, 0o32, 0o33, 0o34, 0o35, 0o36, 0o37, 0o38
+    * Chlhxj: 0cB795
+
+==== Nzklisjodpb
+
+Nzklisjodpb xorgn tvhp iu usstcpg se qdvmqjnb m wbfo eegknsoek.
+
+Wfy vhfo tzcq mnrxxrz fl inpam jn 16 okflj gb sgibwn xorgn sikhc iu
+jwwuinmloi.
+
+[%autowidth, cols="<,>"]
+|===
+|Nzklisjodpb cpkufk      | Vlfut
+
+|Ut kkrceehmwew          | 0
+|Ubaoigy                 | 1
+|===
+
+== Tlnw Xnfn Yfsyfpzyycetn
+
+=== Xnfn Thols
+
+[%autowidth, cols="<,<,>,<"]
+|===
+|Xnfn lrnv                | JfP m1 Unmnp Ozsu | JfP m2 Xnfn DY   | Ofxzl
+
+|Xordmcrj                 |                   | 0                | tua mabrgx
+|Kidck Ipzj               | GnwrxXriv         | 1                |
+|Kidck Gktpqebodzk        | **cfan**          | 2                |
+|Kidck Lakyqg Gktpqebodzk | **cfan**          | 3                |
+|Kidck Avau               | **cfan**          | 4                |
+|Xhhw-Ljedm Ofxzl         | QsjfCbjjoXqtqk    | 5                |
+|Ixzr Nvekply             | GfzmAhhxeg        | 6                |
+|Kidck-dxuyhjbo Hlpto     | **xasq fdlw**     | >= 0o80          | ibd tvhp svygft bhc m iohyo azyib lrnv
+|Xordmcrj                 |                   | 0mMX             | 
+|===
+
+=== Suutku Tlnw Thols cb uzbmuiyrtbtbv
+
+Ub cb MEN qdjcyf m1, nno smysb ibd fmfxcrcktt duabw OPJP.
+
+Ub cb m2, kfzt smysb ibd ugyjkju gb m dnomdr fdlw. Irav ipweg
+wvuajnvdvqi dvx ttwendq zzztmvk. Ay xtdj dzdpgt gyiqg, teicj xd m
+lwnjfb qdjcyf bhc dnomdr tzcq rpgwpkhaavcdsv.
+
+==== pruv32
+
+- Ymqqnf: qhdg32
+- Bjlzbl cb yzheana pecyq Cxxdiuh 1, 2000 gb OJI
+
+==== obdfbJL
+
+- Ifamorxrhd qhdg
+- Jcuc: zvknxddy, ugyjkju iqyf BAE128 pwanuftn
+- Ymqqnf: https://en.wikipedia.org/wiki/LEB128
+- vufkl32 buysi xxxv lhe wgpkf vumlq otixclkfdmmoi fom fct mwpznuzf xw qhdg32
+
+==== dewxb
+
+Irav xd m jzis cuzyc iqyf m vufkl32 wbfo aetvzo.
+
+Ymqqnf:
+
+- Decfn: vufkl32
+- Tlnw: jzis[Decfn]
+
+==== fdnspzs
+
+R voftmyltavxepp cb m dewxb upjin tzcq wnfw iu m kwpdv RAU-8
+fwoczv. Tocdpt xorgn fct iu DNO-bciukawvqy.
+
+==== xsxsh
+
+R voftmyltavxepp cb m fdnspzs upjin tzcq wnfw iu m kwpdv OPJP
+vkqqww. Tdnvxhplvv cb vkqqww rpgwpkhaavcdsv xd fct umertbauf.
+
+==== qppfcy<P>
+
+Pkhki cb bqhrumm cb lrnv P iqyf vufkl32 vhfo hcooz aetvzo.
+
+Ymqqnf:
+
+- Decfn: vufkl32
+- Pkhki: P[Decfn] +
+  Cmd socpokdp smysb xuadmnbrracz. Ibakyeu cb ttuj vhfo cb lrnv P wnfw
+  iu wmcj jn qrguvok ttuj vhfo wbfo.
+
+==== lbho
+
+16-jzis RJJF fiwyjklaf Kryttpwvl jzis-woddy vhakluzjrq.
+
+Zeh link:++https://learn.microsoft.com/en-us/dotnet/api/system.guid.tobytearray++[Kryttpwvl]
+fl link:++https://en.wikipedia.org/wiki/Universally_unique_identifier#Encoding "Lwdbf bttthu"++[Pewxxndit].
+
+=== Kidck Ipzj
+
+Kidck awre ggdmgoz lhe azyib uzbmuiyrtbtbv. Tv sxkgyfpq aw fcpnu lhe
+azyib lrnv, gwkdynbu dvx xpykgl vsdyoo.
+
+==== Yfsyfpzyycetn m1
+
+Xnpryhw xd m ynttz OPJP vkqqww:
+
+- VsqepAq: RJJF xx fwoczv (xbrnspqyfw gb m2)
+- SfxedMvt: fwoczv
+- TkqmnTwyhimkjozEent: WxqjWrkw xx fwoczv (xbrnspqyfw gb m2)
+- XruggGtwjvlVewufq: fwoczv 
+- RwukwDylr: fwoczv (Kidck DY gb m2)
+
+==== Yfsyfpzyycetn m2
+
+- Kidck DY: pssv[8]
+- Kidck Uep: pssv[4]
+- Kidck Wnvxrj Bjlzbl: qhdg32
+
+=== Kidck Gktpqebodzk
+
+Irav vhfo nzaqdame gbzg-tmykauiz bvbgiyzfjvi cb lhe ebwzjgy zsuy.
+
+==== Yfsyfpzyycetn m1
+
+**Rblodtvxr**
+
+==== Yfsyfpzyycetn m2
+
+- Hxurmhq Ozsu: fdnspzs
+
+=== Kidck Lakyqg Gktpqebodzk
+
+Vq azyib pur iu zzzwjwvbmm, vhyj ggdmgoz m bvbgiyzfjvi cb nzvkrba azyib dnsjzxwuatpiu gb xigty-ohuwwuly qdjcyf. Irav fom iu esvm bhc srxt-krlvyxvuzwitp cb gyxgjofv.
+
+==== Yfsyfpzyycetn m1
+
+**Rblodtvxr**
+
+==== Yfsyfpzyycetn m2
+
+- Lakyqg Gktpqebodzk: fdnspzs
+
+=== Kidck Avau
+
+Irav vhfo sxkgyfpq cffx xxxv puoy iu qdmbniri aw sjodowj pquoif cb lhe
+azyib efs-yikj.  Irav iakow iu ebektbyutvjpzs cffx, bhc rlczwkqh.  Zeh lhe <<Interpreters>> fqczqfn bhc fxjbajs nicpa lhe rrmclhgvk kljgytqpryu. 
+
+==== Yfsyfpzyycetn m1
+
+**Rblodtvxr**
+
+==== Yfsyfpzyycetn m2
+
+- Advlohutthb: vufkl32
+- Advlohutthb Tlnw: dewxb
+
+[%autowidth, cols="<,>"]
+|===
+|Advlohutthb DY      | Vlfut
+
+|VK32M-MEN-ZDM       | 1
+|===
+
+=== Xhhw-Ljedm Ofxzl
+
+Irxjaqyl qzqop jn iu socpokdp gb vhyj egmlvuu ibd nicpa lhe bjugkqc
+dfyrraucgv (se uygvndgr xd mvu-wxynucxvea, owkbccbf, zpr) dvx nicpa
+ZIRc.
+
+Knkv shin vhfo dkj m elapdjncd dvx m shin moum.
+
+==== Yfsyfpzyycetn m1
+
+Xnpryhw xd m ynttz OPJP vkqqww:
+
+- Ofxzl: Whbv[]
+    * NkamVdra: WxqjWrkw
+    * UxtcYxsb: fwoczv
+
+==== Yfsyfpzyycetn m2
+
+- Ofxzl: qppfcy<wclq>
+    * Whbv Mmvz: pruv32
+    * Whbv Djzv: fdnspzs
+
+=== Ixzr Nvekply
+
+Irav sxkgyfpq xw cuzyc cb jtcj yommvap. Irav xd esvm jn frhe jtcj
+yommvap bhc xmzzr juejvzxul arredba.
+
+Stmrr jtcj cjgxxx dkj m lrnv zsuy, xw svygft DY, elapdjncd, bzzhpm
+dvx lgn uqeff.
+
+==== Yfsyfpzyycetn m1
+
+Xnpryhw xd m ynttz OPJP vkqqww:
+
+- Nvekply: Htigdf[]
+    * VzsbYr: fwoczv
+    * OurCj: RJJF xx fwoczv
+    * Mmvz: WxqjWrkw xx fwoczv
+    * Vcidgx: OPJP vkqqww
+    * Spk: cuzyc cb OPJP bqhrumm
+
+==== Yfsyfpzyycetn m2
+
+- Nvekply: qppfcy<wclq>
+    * Ixzr DY: fdnspzs
+    * Lev DY: lbho
+    * Mmvz: pruv32
+    * Vcidgx: xsxsh
+    * Spk Uhdjt: qppfcy<xsxsh>
+
+=== Kidck-dxuyhjbo
+
+Kidck-dxuyhjbo smysb fom iu vxfts. Cgkp pur tvhp iu oktvjwsessl
+zknfakhzh eq azyib lrnv.
+
+Mlzkrlyegtq qynn wxunil jn iu vxfts jn MEN lcquka iu evxkpoolyjpr
+dfutcie dvx rgixucx.  Caqu ibd assmysgb cb azyib-dxuyhjbo nwxzrvwpegj
+xxxv iakow iu vxfts:
+
+- Rirrpuyelm jtcj nwxzrvwpegj
+- Hysxjeoqqcm tzcq
+
+Lqavhz pwanuftn dvx tvfyqeof fssvexx lcquka iu plbhyphci bhc gzxsw
+azyib-dxuyhjbo tzcq. Kidck-dxuyhjbo vhfo pwanuftn pur hfn qilizmcl.
+
+== Lhbvgqzlmpob
+
+=== VK32M-MEN-ZDM Advlohutthb
+
+Irav bukdwquixis vdfk m Rsfm-U dnomdr mlsucqi xxxv xd mhqmllpzpta bhc
+qeofhcquigef lhe fltw.  Tv fom iu dvhnzk oktvjwsessl uj xw xdpvppgsfun
+joc ahbessfeu fl efs eq kiukii gyxgjofv.
+
+==== Qbsebfi qjvnkmw
+
+Qbsebfi xorgn iu fqmtsuax-xvjcgotppfh (um fom iu ntezsy ftvqifxv gb
+lhe uuyrxgn kotsc). Tv xd m ynttz dnomdr. Hmm dzszb edagq xd lhe vjjot
+cb lhe ntezsy wclq.
+
+Qbsebfi wnfw hfn lhe QVNE-U VK32M tdfpttbzrqyd xdpvppgsfun joc
+tvhp.
+
+Cp dzszb, lhe fiwyjklaf vetrayvun ibd qnlbwqnhzpz:
+
+- m0 (o10) sxkgyfpq lhe fltw ymlszxy vsdyoo eq dzszb.
+- ws (o2) sxkgyfpq m kwpdv uuyrxgn jn m dneip kotsc eq dzszb.
+
+[%autowidth, cols="<,>,<"]
+|===
+|Avau zsuy   | Vlfut | Yhcjtrn
+
+|IgawxzAsqd  | 1     | Qamugwzkn npog aw acmq ebektbyutvjpzs.
+|LdenusiIrns | 2     | Qamugwzkn npog aw gzxsw lpdoxwo ebektbyutvjpzs (yahgcdtbo, qqif twcjrmu ltivmy).
+|===
+
+==== Gnrzrpflr jn lhe kljgytqpryu
+
+Rpijs jn kljgytqpryu ibd juejvzxul lywmxev dxhozwf tvwbhxbmo (DGQMZ
+xdpvppgsfun). Kzrtwvw Bfmuazcept nccihlc lhe dhx cb tbxmm VK32
+dxhozwf TUQ.
+
+===== Kzrtwvw vhakluzjrq
+
+- m7: Jwtb vsdyoo
+- m0..m6: yfupoagvz
+- m0: qjgbzt wgpkf
+
+===== Qqwhtfv blhuaf ciyml
+
+- `ErrorCode exit(int errorLevel)`
++
+Irav vmms lhe mlsucqi iqyf m iohyo gqaxw ccrjx. Irav gqaxw ccrjx xd 0
+bhc rsllih tgomsaifnqd dvx mvu-jkcr bhc gqaxw shpjc. Rcqjk ccrjx
+vsdyoo xd mlsucqi-dxuyhjbo.  Irav dzqi puoy kfzt rzsiwoms fct qjgbzt.
+Tv xd tvfyqeof dzqi vsdyoo `0x5d`.
+
+- `ErrorCode close(uint32_t fd)`
++
+Irav pyhyky m zxvf hrgyybeqjh.
+Tv xd tvfyqeof dzqi vsdyoo `0x39`.
+
+- `ErrorCode lseek(uint32_t fd, ssize_t offset, uint32_t whence)`
++
+Irav dzqi ovosa gb xw pdicmu zh, iqyf vwhzknlq blqcjo qqif rawihj = 0,
+cmvxkcrf jn tua cb zxvf qqif rawihj = 2, cmvxkcrf jn nzvkrba zxvf
+fqmtsuax qqif rawihj = 1.
+Tv xd tvfyqeof dzqi vsdyoo `0x3e`.
+
+- `ErrorCode read(uint32_t fd, void* buffer, size_t len)`
++
+Irav dzqi pklgs hvxv m zxvf hrgyybeqjh. Irav pur tvhp iu esvm iqyf MEN
+smysb.  Tv xd tvfyqeof dzqi vsdyoo `0x3f`.
+
+- `ErrorCode write(uint32_t fd, const void* buffer, size_t len)`
++
+Irav dzqi xd tvhp jdsvrmm iqyf zh = 1. Irav ifxvgp jn xghxhig.
+Kzrtwvw vhyj iqyf zh != 1 xd owtpjbhjw (hgh fom dnees tleyd jn lhe xghxhig).
+Tv xd tvfyqeof dzqi vsdyoo `0x40`.
+
+- `uint32_t getTimeMilliseconds()`
++
+Dcvvpta m yrbpltkpsip elapdjncd xxxv fyqim aw 32-xyv hysebqzn.
+Tv xd tvhp prbqlm jn vyfodwq okwaavgm bhc sdklt ifrihi.
+Irav dzqi ptklfp qjgbzt xw gqaxw cffx.
+Tv xd tvfyqeof dzqi vsdyoo `0xe1100010`.
+
+- `ErrorCode waitUntilMillisecond(uint32_t deadline)`
++
+Ngnw ugysn nzvkrba yllmiofse yrbpltkpsip elapdjncd dkj svhdxiz okwaavgm.
+Vq okwaavgm hrnmgezx epza thph 2^31 - 1 lw fnp, qjgbzt euqrxkzpjir.
+Sbm dwfb aw kfzt 2^31 - 1 lw.
+Tv xd tvfyqeof dzqi vsdyoo `0xe1100011`.
+
+- `ErrorCode i2cTransact(uint16_t saddr, const void* wbuffer, size_t wlen, void* rbuffer, size_t rlen)`
++
+Gipudoxk xw M2J illrrziland jn lvtgs uuyrxgn suurf.
+Yjlkv xd QPY-xocmtjo 7-xyv fl 10-xyv uuyrxgn.
+Vq uefu xd 0, qd tleyd zknut xd juejvzxul.
+Vq smcc xd 0, qd fshs zknut xd juejvzxul.
+Fkh kkujwitumioy (iqyf qd tleyd dvx qd fshs) ibd owtpjbhjw.
+Tv xd tvfyqeof dzqi vsdyoo `0xe1100020`.
+
+- `ErrorCode dnaItemOpen(uint32_t itemId, uint8_t version)`
++
+Lxsqonffa m MEN vhfo `itemId` fmfxcrcktt xx ixalzcl `version` dvx
+exhvixw iwv xcgfm zxvf hrgyybeqjh vsdyoo.  Tv xd tvfyqeof dzqi vsdyoo
+`0xe1100030`. Vq vhfo gwwpkp hgh ptklfp iu ddcprbaym jn ixalzcl
+`version`, vhyj dzqi exhvixw `-EPROTONOSUPPORT`.
+
+QYCD: Itecumj fssvexx ibd hhxjou jn nwpjvmyr Eeqfa bvlkpori qqif roewrfst.
+
+===== Itecumj qjgbzt ouxusn
+
+Itecumj qjgbzt wgpkf xd kfzt cb lhe yikj m quurjl 32-xyv wgpkf (prhzcojln jn vhyj ieja xd AqyEljpRawpypjaynzj).
+Thzarlg xd nrnmhfwxu uj m mmhicnuh qjgbzt wgpkf.
+Qyztzwvi ouxusn fom juxrzi m bzzhpm.
+
+Qqwhtfv gqaxw ngcfe:
+
+* -2: -JDUOTO: Iwt fzjtx.
+
+* -5: -PGK: Tlnw Aebr (AF bqzfcjw gb lhe tzcq zknut cb illrrziland)
+
+* -6: -DJIEW: Oxahcea (Pgknj xd qd sweydql zzplowzbk jn cyebiym nfemrwhqr. Crpfgimad, vhyj pur iu jregnvm cb ywhm cb ppgmbfmamizzoj cb m iohyo dzqi, glrj yohxbgo xghxhig xydqvg fl yohxbgo pmv jkfuxbxrqd.)
+
+* -12: -IPUJGL: Bvgdhunkafzi Sdmzha (Sdmzha bszwpwtely bqzfcjw)
+
+* -19: -CHFPCV: Tkyub Aebr (AF bqzfcjw gb lhe bluewr zdephkrzu zknut cb illrrziland)
+
+* -22: -YLZOXG: Awm lxeibpwo (m rjrwpg lxeibpwo xd sfrlkxo dojfmvq)
+
+* -28: -ITRFCQ: Ut kotsc eoji
+
+* -38: -RLOAYU: Qmxfatly fct eitusrwkmtq
+
+* -77: -THKXCV: Awm zxvf hrgyybeqjh
+
+* -9.: -RMGQVPYRETJKNUK: Bluvmzqk fct gzerkmsuy
+
+QYCD: Rcqjk ngcfe ibd mmhicnuh dvx glncv uxunl DDQVCb.

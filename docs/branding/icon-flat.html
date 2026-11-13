@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdocForge Icon Preview — Flat / Minimal</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1C1B1A;
+    color: #E0DDD8;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 40px 24px;
+    min-height: 100vh;
+  }
+  h1 {
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #F5E6D8;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #8A8580;
+    margin-bottom: 48px;
+  }
+  .grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 36px;
+  }
+  .icon-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .icon-cell .size-label {
+    font-size: 0.75rem;
+    color: #8A8580;
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+</head>
+<body>
+
+<h1>Flat / Minimal Geometric</h1>
+<p class="subtitle">Solid fills, simple geometric shapes, no gradients</p>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden">
+  <defs>
+    <symbol id="axolotl-flat" viewBox="0 0 64 64">
+      <!-- Background circle -->
+      <circle cx="32" cy="32" r="30" fill="#2E2B28"/>
+
+      <!-- Left gills (3 feathery branches) -->
+      <ellipse cx="11" cy="18" rx="4.5" ry="1.8" transform="rotate(-45 11 18)" fill="#D94F7A"/>
+      <ellipse cx="8"  cy="24" rx="5"   ry="1.8" transform="rotate(-20 8 24)"  fill="#E85B8A"/>
+      <ellipse cx="9"  cy="30" rx="4.5" ry="1.6" transform="rotate(10 9 30)"   fill="#D94F7A"/>
+      <ellipse cx="13" cy="14" rx="3.5" ry="1.4" transform="rotate(-60 13 14)" fill="#E85B8A"/>
+      <ellipse cx="7"  cy="27" rx="3"   ry="1.2" transform="rotate(-5 7 27)"   fill="#E85B8A"/>
+
+      <!-- Right gills (mirrored) -->
+      <ellipse cx="53" cy="18" rx="4.5" ry="1.8" transform="rotate(45 53 18)"  fill="#D94F7A"/>
+      <ellipse cx="56" cy="24" rx="5"   ry="1.8" transform="rotate(20 56 24)"  fill="#E85B8A"/>
+      <ellipse cx="55" cy="30" rx="4.5" ry="1.6" transform="rotate(-10 55 30)" fill="#D94F7A"/>
+      <ellipse cx="51" cy="14" rx="3.5" ry="1.4" transform="rotate(60 51 14)"  fill="#E85B8A"/>
+      <ellipse cx="57" cy="27" rx="3"   ry="1.2" transform="rotate(5 57 27)"   fill="#E85B8A"/>
+
+      <!-- Head / face — wide rounded shape -->
+      <ellipse cx="32" cy="32" rx="18" ry="19" fill="#FFF5EE"/>
+
+      <!-- Chin / lower face area -->
+      <ellipse cx="32" cy="42" rx="12" ry="8" fill="#F0C4B0"/>
+
+      <!-- Golden speckles on head -->
+      <circle cx="26" cy="22" r="1.2" fill="#D4A55A"/>
+      <circle cx="32" cy="19" r="1"   fill="#D4A55A"/>
+      <circle cx="38" cy="22" r="1.2" fill="#D4A55A"/>
+      <circle cx="29" cy="25" r="0.8" fill="#D4A55A"/>
+      <circle cx="35" cy="24" r="0.9" fill="#D4A55A"/>
+
+      <!-- Eyes -->
+      <circle cx="24" cy="30" r="2.8" fill="#2A2520"/>
+      <circle cx="40" cy="30" r="2.8" fill="#2A2520"/>
+
+      <!-- Tiny eye highlights -->
+      <circle cx="25" cy="29" r="0.8" fill="#FFF5EE"/>
+      <circle cx="41" cy="29" r="0.8" fill="#FFF5EE"/>
+
+      <!-- Nostrils -->
+      <circle cx="29" cy="36" r="0.8" fill="#D9B8A8"/>
+      <circle cx="35" cy="36" r="0.8" fill="#D9B8A8"/>
+
+      <!-- Small smile -->
+      <path d="M28 39 Q32 42 36 39" fill="none" stroke="#D9B8A8" stroke-width="1" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="grid">
+  <div class="icon-cell">
+    <svg width="16" height="16"><use href="#axolotl-flat"/></svg>
+    <span class="size-label">16</span>
+  </div>
+  <div class="icon-cell">
+    <svg width="24" height="24"><use href="#axolotl-flat"/></svg>
+    <span class="size-label">24</span>
+  </div>
+  <div class="icon-cell">
+    <svg width="32" height="32"><use href="#axolotl-flat"/></svg>
+    <span class="size-label">32</span>
+  </div>
+  <div class="icon-cell">
+    <svg width="48" height="48"><use href="#axolotl-flat"/></svg>
+    <span class="size-label">48</span>
+  </div>
+  <div class="icon-cell">
+    <svg width="64" height="64"><use href="#axolotl-flat"/></svg>
+    <span class="size-label">64</span>
+  </div>
+  <div class="icon-cell">
+    <svg width="128" height="128"><use href="#axolotl-flat"/></svg>
+    <span class="size-label">128</span>
+  </div>
+  <div class="icon-cell">
+    <svg width="256" height="256"><use href="#axolotl-flat"/></svg>
+    <span class="size-label">256</span>
+  </div>
+  <div class="icon-cell">
+    <svg width="512" height="512"><use href="#axolotl-flat"/></svg>
+    <span class="size-label">512</span>
+  </div>
+</div>
+
+</body>
+</html>

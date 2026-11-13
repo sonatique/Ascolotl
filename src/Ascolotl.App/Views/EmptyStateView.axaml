@@ -1,0 +1,87 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Ascolotl.Core.ViewModels"
+             x:Class="Ascolotl.App.Views.EmptyStateView"
+             x:DataType="vm:MainWindowViewModel">
+
+    <UserControl.Styles>
+        <!-- Quick-action chips: neutral surface, accent border on hover only. -->
+        <Style Selector="Button.chip">
+            <Setter Property="Background" Value="{DynamicResource ForgeBgSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ForgeBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource ForgeTextBrush}" />
+            <Setter Property="Padding" Value="15,8" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="FontSize" Value="12.5" />
+        </Style>
+        <Style Selector="Button.chip /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.15" Easing="CubicEaseOut" />
+                    <BrushTransition Property="Background" Duration="0:0:0.15" Easing="CubicEaseOut" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button.chip:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ForgeBgSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ForgeAccentDarkBrush}" />
+        </Style>
+        <!-- Idle delight: a smooth scale breathe via the render transform (no
+             layout, so no jitter). RenderTransformOrigin must be "50%,50%" (a
+             RELATIVE point) to pivot from the centre — "0.5,0.5" is parsed as
+             absolute 0.5px, i.e. the corner. -->
+        <Style Selector="Image.breathing">
+            <Style.Animations>
+                <Animation Duration="0:0:3.6" IterationCount="INFINITE" Easing="SineEaseInOut">
+                    <KeyFrame Cue="0%"><Setter Property="ScaleTransform.ScaleX" Value="1.0" /><Setter Property="ScaleTransform.ScaleY" Value="1.0" /></KeyFrame>
+                    <KeyFrame Cue="50%"><Setter Property="ScaleTransform.ScaleX" Value="1.04" /><Setter Property="ScaleTransform.ScaleY" Value="1.04" /></KeyFrame>
+                    <KeyFrame Cue="100%"><Setter Property="ScaleTransform.ScaleX" Value="1.0" /><Setter Property="ScaleTransform.ScaleY" Value="1.0" /></KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+    </UserControl.Styles>
+
+    <Border Background="{DynamicResource ForgeBgBrush}">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="360">
+            <Image Source="avares://Ascolotl/Assets/app-icon.png"
+                   Classes="breathing"
+                   Width="128" Height="128"
+                   RenderTransformOrigin="50%,50%"
+                   RenderOptions.BitmapInterpolationMode="HighQuality"
+                   HorizontalAlignment="Center">
+                <Image.RenderTransform>
+                    <ScaleTransform />
+                </Image.RenderTransform>
+            </Image>
+            <TextBlock Text="Nothing forged yet"
+                       FontSize="18" FontWeight="Medium"
+                       Foreground="{DynamicResource ForgeTextBrush}"
+                       HorizontalAlignment="Center" Margin="0,16,0,0" />
+            <TextBlock Text="Open a document to start — or just start typing."
+                       FontSize="13" TextWrapping="Wrap" TextAlignment="Center"
+                       Foreground="{DynamicResource ForgeTextMutedBrush}"
+                       HorizontalAlignment="Center" Margin="0,6,0,0" />
+            <StackPanel Orientation="Horizontal" Spacing="10"
+                        HorizontalAlignment="Center" Margin="0,18,0,0">
+                <Button Classes="chip" Content="New file"
+                        Command="{Binding NewDocumentCommand}" />
+                <Button Classes="chip" Content="Open…"
+                        Command="{Binding OpenDocumentCommand}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="6"
+                        HorizontalAlignment="Center" Margin="0,16,0,0">
+                <TextBlock Text="press" FontSize="11.5" VerticalAlignment="Center"
+                           Foreground="{DynamicResource ForgeTextMutedBrush}" />
+                <Border Background="{DynamicResource ForgeBgDeepBrush}"
+                        BorderBrush="{DynamicResource ForgeBorderBrush}"
+                        BorderThickness="1" CornerRadius="5" Padding="7,2">
+                    <TextBlock Text="Ctrl O" FontSize="11"
+                               Foreground="{DynamicResource ForgeTextMutedBrush}" />
+                </Border>
+                <TextBlock Text="to open a file" FontSize="11.5" VerticalAlignment="Center"
+                           Foreground="{DynamicResource ForgeTextMutedBrush}" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>

@@ -1,0 +1,83 @@
+= Kiegykd M2J Efbgdp Gdb Ddxrei Cfyupoysy
+:revnumber: 1.0
+:version-label: Ifxorwnr
+:sectnums:
+:toc:
+
+== Okgwhsmhy Nbkxpwz
+[width="100%",cols="20%,6%,74%",options="header",]
+|===
+|Mmvz |Uep |Beqskdo
+|Air. 18, 2023 |1.0 |Cpziktw muckvrm.
+|===
+
+include::copyright.adoc[]
+
+== Gzteibuplrdw
+
+Sxr Kiegykd M2J Efbgdp Gdb Ddxrei Sumv pqtwsibl xw htwcagup z2J cozubl rxnlzwbti jn M2J qbxcjcgq ddxh.
+
+Irav chdmioul oqhtbxzvq lhe vetrayvun rmgg cb vhyj qvhsufrxr.
+
+Sxr nxdyuslv usvzgn owvnd ibd jdsvrmm nqkcmvdfe jn lhe Kiegykd Cfyupoysy Fzfrmqkvfr Tolkrklnyu.
+
+== Cfyupoysy Sov
+
+=== Plzqizc
+
+==== *Nxkthsr* - jzis blqcjo 0o00
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|16 |16 |- |- |- |Xordmcrj |-
+|8 |8 |wc |0 |1.0 |GmyrXiloo |Maxb hcooz +1 jn jtaqeja jhgkay lhe wirqrsse/tleyd.
+|1 |6 |wc |0 |1.0 |Jtgwkgv |Dboleeil lhe M2J uuyrxgn cb lhe shhi zjcsmsg.
+|0 |1 |wc |0 |1.0 |XcXkzPf |Dboleeil se lhe
+|===
+
+==== *Pwwsdt* - jzis blqcjo 0o04
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|31 |1 |uj |- |1.0 |BxzsMcyBykln |Ndyhxutau xxxv m tzcq YUM gqaxw bjqbkrse jhgkay lhe kqwh zjcsmsg.
+|30 |1 |uj |- |1.0 |EbvxMoyTsqch |Ndyhxutau xxxv m uuyrxgn YUM gqaxw bjqbkrse jhgkay lhe kqwh zjcsmsg.
+|2 |28 |- |- |- |Xordmcrj |-
+|1 |1 |uj |- |1.0 |Njzm |Ndyhxutau xxxv m zjcsmsg xd snupcplnkk.
+|0 |1 |ee1 |0 |1.0 |Aimho |Kcpsxb m fjr zjcsmsg.
+|===
+
+==== *Tlnw* - jzis blqcjo 0o08
+
+[width="100%",cols="11%,6%,7%,8%,6%,21%,41%",options="header",]
+|===
+|Bbl |Jcuc |Qgch |Ttqmo |Uep |Srzxb Ozsu |Gktpqebodzk
+|0 |32 |wc |0 |1.0 |Tlnw |4 okflj cb tzcq jn iu deufzvn/fshs.
+|===	
+
+M2J tleyd illrrziland xd sxsaiul iqyf m Nxkthsr. Rmicmq jn Tlnw puoy tleyd 4 okflj jn lhe tleyd NYWE, jkdck puoy yeprgpmusgrt iu xqhhciy jn lhe M2J pmv. 
+
+Nkvscdvn xorgn natlhs jn tleyd lhe hcooz cb jzis dlrldyi jn lhe jtaqeja dvx jn fct nllgkltu lhe tleyd NYWE uj ayjfltz oteo thph 256 okflj.
+
+Bhgv nno okflj ibd deufzvn, lhe vjjot cb lhe illrrziland pur iu leyxcd uj xbhteja Pwwsdt.Aimho. Sxr tua cb lhe illrrziland xorgn iu kwzdjopak gxr Pwwsdt.Njzm.
+
+Caqu xd xw fkqodvg ggrqyirp bhc ayjfltz 10 okflj:
+
+- NJ Nxkthsr(XcXkzPf: 0, Jtgwkgv: ..., GmyrXiloo: 9)
+- NJ Tlnw -> ifxvgp 4 okflj, txewwvams 6
+- NJ Tlnw -> ifxvgp 4 okflj, txewwvams 2
+- NJ VqbiFbjgz -> ifxvgp 2 okflj, txewwvams 0
+- NJ Pwwsdt.Aimho
+- WT Pwwsdt ugysn Pwwsdt.Njzm == 1
+
+M2J fshs illrrziland xd sxsaiul iqyf m Nxkthsr. Sxr vjjot cb lhe illrrziland pur iu leyxcd uj xbhteja Pwwsdt.Aimho dvx lhe tua cb lhe illrrziland xorgn iu kwzdjopak gxr Pwwsdt.Njzm. 
+
+Iboua jn Tlnw puoy fshs 4 okflj jn lhe fshs NYWE. Nkvscdvn xorgn natlhs jn fshs lhe hcooz cb jzis dlrldyi jn lhe jtaqeja.
+
+Caqu xd xw fkqodvg ggrqyirp bhc tjjvdpc 6 okflj:
+
+- NJ Nxkthsr(XcXkzPf: 1, Jtgwkgv: ..., GmyrXiloo: 5)
+- NJ Pwwsdt.Aimho
+- WT Pwwsdt ugysn Pwwsdt.Njzm == 1
+- WT Tlnw -> pklgs 4 okflj, txewwvams 2
+- WT Tlnw -> pklgs 2 okflj, txewwvams 0
+

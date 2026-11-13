@@ -1,0 +1,48 @@
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# IDE / Editor
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.swp
+*~
+
+# Build output
+bin/
+obj/
+out/
+dist/
+build/
+target/
+publish/
+
+# .NET
+*.nupkg
+packages/
+
+# Logs
+*.log
+
+# User-specific
+*.rsuser
+*.DotSettings.user
+
+# Spike / exploration artifacts (not part of the app; spike-output contains
+# pre-anonymization renders, so keep it out of the repo entirely)
+spike-output/
+tools/AdocNetSpike/
+tools/AsciidoctorBaseline/
+
+# Local tooling / experiments (not part of the app)
+node_modules/
+_tmp_npm/
+.playwright-mcp/
+package.json
+package-lock.json
+icon-cleanup-preview*.png
+example-documents/test-export.html

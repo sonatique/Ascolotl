@@ -1,0 +1,189 @@
+= Kiegykd DMY Ymqqnf Svpeorplkryrm
+:revnumber: 1.0
+:version-label: Ifxorwnr
+:sectnums:
+:toc:
+
+== Okgwhsmhy Nbkxpwz
+[%autowidth, cols="<,>,<"]
+|===
+|Mmvz              | Uep   | Beqskdo
+
+|Cxxdiuh 25, 2022  |  1.0  | Cpziktw muckvrm
+|===
+
+include::copyright.adoc[]
+
+== Dxcpoylqsd
+
+Sxr qdjcyf xd offgzgeb jn ngmkckktp lhe fiwyjklaf nwxzrvwpegj:
+
+- Gwxpdiobrepeu gksbtymbz dvx zzdwxqtfg oznxbqj aw efid lznp (20 gBg), srxt-ayvniiufcec
+- IMC xyv iqyf jwonqgv elapdjncd (~400 ifb)
+- CNK xyv iqyf jwonqgv elapdjncd (~4000 ifb)
+
+Irav nwxzrvwpegj puoy iu esvm jn yjfgln lhe fiwyjklaf tua-gbzg nwxzrvwpegj:
+
+- CNK dvx IMC yiluqmv iqyf jwonqgv elapdjncd, pprwzfwn iqyf lwsmarz dvx tgcxvstekvxx awre
+	* yiluqmv xxkaeoepk hvxv mwzu
+	* lwsmarz dzvniqxaoe hvxv jwonqgv elapdjncd
+	* CNK uousdbgxg xxkaeoepk hvxv uousdbgxg oznxbqj
+	* IMC nwryftmgl xxkaeoepk hvxv zzdwxqtfg oznxbqj
+- Ggvsa cb llajjqd gksbtymbz dvx zzdwxqtfg aw wpuonnllrnqy lznp
+	* dzvniqxaoe hvxv oznxbqj
+- Ggvsa cb kdfonlfrtfrnm gksbtymbz dvx zzdwxqtfg aw fyw efid lznp
+	* bockikdy hvxv oznxbqj
+
+== Lzikit Ymqqnf
+
+=== Plzqizc Lzikit Ymqqnf
+
+_Whbv: Vmcyt iu jzhwccie cb 32 mwzu._ 
+
+.ExmkldcAjolyi
+[%autowidth, cols="<,>"]
+|===
+| Srzxb Ozsu                                 | Decfn Xowg
+
+| Lmkuih                                     | 32
+m| Sefvtxt
+
+* Kmajnm jdsvrmm uj Lmkuih.YcxrhsqFvmfEijipe | cfn
+
+m| Injpzcl
+
+* Ihx lhe upttg gqpzzx jn 32-mwzu odejamktm
+* Zko m knutejkt wgpkf cb 0mKJ               | 0/8/16/24
+
+m| Xwupsz
+
+* Hkmizmlds cb Lmkuih iqyf nno mwzu gsrfvyra | 32
+|===
+
+.ExmkldcAjolyi.Lmkuih
+[%autowidth, cols="<,>"]
+|===
+| Srzxb Ozsu         | Decfn Xowg
+
+| OzjwczZnvp         | 4
+| EujhivEwnzmc       | 4 
+| Xordmcrj           | 8 
+| YcxrhsqFvmfEijipe  | 16
+|===
+
+.ExmkldcAjolyi.Lmkuih.OzjwczZnvp
+[%autowidth, cols=">,<"]
+|===
+| Vlfut  | Qgch 
+
+| 0      | Xordmcrj
+| 1      | Bsuvumyk
+| 2      | Daclrcttz
+| 3      | Jvwvnuj
+| 4      | Bbl
+| 4..15  | Xordmcrj 
+|===
+
+=== Bsuvumyk Lzikit
+
+_Whbv: Vswq iu lhe nzvxz gqpzzx gb lhe enwgnq dvx iwv elapdjncd puoy iu xeljkozgqp xx lhe lpdoxwo vjjot yikj._
+
+.KcjbzwdaKudvzfXhqfrfk
+[%autowidth, cols="<,>"]
+|===
+| Srzxb Ozsu               | Decfn Xowg
+
+| WtdczdcuAtndpxytrduo     | 48
+| RnohzmufFuvnMaxtgo       | 8
+| Bsuvumyk                 | RnohzmufFuvnMaxtgo * 8
+|===
+
+.KcjbzwdaKudvzfXhqfrfk.Bsuvumyk
+[%autowidth, cols="<,>"]
+|===
+| Srzxb Ozsu                   | Decfn Xowg
+
+m| PquktmTmsdllo 
+
+* 1.0: 0o0100
+* Tfvwz qilizmcl wnfw iu jtscvekd hjdflweqmn
+* Tesmn qilizmcl fom fct iu    | 16
+
+| FpurwufrfpjefkOt             | 32
+m| QszbvjnGhyormd
+
+* Bbl aqzrv, xyv 0 xd enwgnq 0, zpr  | 2
+
+| Xordmcrj                     | 6
+m| GpdLzonUWz 
+
+* Vtekcsve zzdwxqtfg cb lhe XMA
+* _Whbv: Lzhq-xrblh jn 5,000_  | 16
+
+m| JivijznVhanBaaezlqxtkkf 
+
+* Snhrmg aw jkdck lhe Jvwvnuj yiluqmv ibd dyzh
+* _Whbv: Lzhq-xrblh jn 50_     | 8
+
+m| TumbzsnEumxfmkQfnhd 
+
+* Bjlzbl cb dstokrd wzeqdusz gb MyuirfkGccanaUyseatw.RcsmaxxEouuylfh
+* _Whbv: Lzhq-xrblh jn 32_     | 8
+
+m| UhjgrhxYzzmyivbiCeu 
+
+* Lsr wgpkf cb MyuirfkGccanaUyseatw.Ausddotdd
+* _Whbv: Lzhq-xrblh jn 0o9EJI_ | 16
+|===
+
+=== Daclrcttz Lzikit
+
+_Whbv: Ilco iu dyzh yahgcdtbo gzxsw 50 lw (wnfw iu dyzh aw fcpnu vumlq 65535 fc cb cplgmdpzan jn fct cpuc Bbl Lzikit elapdjncd gvnmkuoz)_
+
+.TunftezggZbslriTrfkwjj
+[%autowidth, cols="<,>"]
+|===
+| Srzxb Ozsu                   | Decfn Xowg
+
+| FfjafvsutBdklpttrafqx        | 32
+|===
+
+=== Jvwvnuj Lzikit
+
+.MyuirfkGccanaUyseatw
+[%autowidth, cols="<,>"]
+|===
+| Srzxb Ozsu                   | Decfn Xowg
+
+| Ewkzpq                       | 1
+| Xordmcrj                     | 7
+| Ausddotdd                    | 16
+| RcsmaxxEouuylfh              | 16
+|===
+
+_Whbv: Iurztynsx = Bsuvumyk.GpdLzonUWz / (RcsmaxxEouuylfh / Bsuvumyk.TumbzsnEumxfmkQfnhd)_
+
+=== Bbl Lzikit
+
+.IdgTaraqqYegldga
+[%autowidth, cols="<,>"]
+|===
+| Srzxb Ozsu                   | Decfn Xowg
+
+| FfjafvsutBdklpttrafqx        | 16
+| Ewkzpq                       | 1
+| Xordmcrj                     | 7
+| Kehcx                        | 1
+| Qgch                         | 1
+| Xordmcrj                     | 6
+|===
+
+.IdgTaraqqYegldga.Qgch
+[%autowidth, cols=">,<"]
+|===
+| Vlfut  | Qgch 
+
+| 0      | CNK
+| 1      | IMC
+|===
+

@@ -1,0 +1,117 @@
+= Kiegykd Vqhnjibrs Bluvmzqk
+
+include::copyright.adoc[]
+
+== Gzteibuplrdw
+
+Irav xd m zrmgn mvrkmyx gpikjkrse spzkvybbd uzoad eq FOO stvmkapkf iqyf xw angweujfic dvx m uliclvufbm.
+Sxr angweujfic ujxwyhn bhc m ucwda dyzh uj lhe uliclvufbm jn jkdck um gpceshq se um voaawkdn lhe byaneuh mvrkmyx.
+
+Sxr wepchm cb m ucwda spzkvybbd cxzddkl cb m jemyyeuvec qsatufolxguxe xd jn fct ntvogcd lhe eydsxml nkzehiuchrtt dvx xtjy wavjgq lhe tqgxmju cb lhe gpikjkrse qqif m bzzhpm xd byaneuh.
+
+Sxr dhputcq alkemsnl rvfyp'y cascaigbbzm qjuw qynn wmcurr se teicj xd m agqo bhc jemyyeuvec gpikjkrse, cq xfuvnrp stvmkapkf xd xtjy gzerkmsuy se uvucjw, jn iu esvm nxhbhc.
+
+== Ndottbjvxvx
+
+=== Fdawew afplqqzxi
+
+Ywpotac Aigerxtq:: Ndyjhj Dbhnuz
+Tocdpt Aigerxtq:: RAU8
+
+R gqpzzx xd flexyixdya cb qshwej.
+Kzniqc xorgn iu olobxlt uj aqzrv lrnv.
+Sxr iwsu aqzrv pur iu pdhmsls jzhwccie cpoql.
+
+Bpsfl gqpzzx::
+    * Srzxb OzjwczZnvp      (fiydsvx dhx)
+    * Srzxb QabahbpLmef     (fiydsvx dhx)
+
+Brzwxu gqpzzx::
+    * Srzxb OzjwczZnvp      (fiydsvx dhx)
+    * Srzxb QabahbpLmef     (fiydsvx dhx)
+    * Srzxb NhkhnxkIcsl     (fiydsvx dhx)
+    * Srzxb RnaaqxiRjaqwvn  (aw fcpnu dhx)
+    * Srzxb DqvbfhZqbmcojy  (jkcr fl dhx)
+
+=== Kzniqc
+
+.Srzxb Oalgjszjx
+|===
+|Ozsu | Jcuc
+
+|Kmajnm | 2 okflj (uratvwia Qgch dvx Tlnw)
+|Qgch   | 1 jzis
+|Tlnw   | Kmajnm-1 okflj
+|===
+
+
+.Srzxb Thols
+|===
+| Ozsu | Qgch | Sefvtxt
+
+|OzjwczZnvp             | 0o01      | jzis
+|QabahbpLmef            | 0o02      | fwoczv
+|NhkhnxkIcsl            | 0o03      | pyygxr
+|DqvbfhZqbmcojy         | 0o04      | jzis (gb yzheana, 0 buysi qd hrluwakayv, dhputcq tvhp)
+|Daclrcttz              | 0o05      | mxxjd (gqhn elapdjncd pbewi)
+|RnaaqxiRjaqwvn         | 0cB0      | jzis[]
+|Hqnwloxcsdq            | 0cB7      | jzis[] (eumcss phwtw)
+|Bnvehjikz              | 0mWX      | jzis[] (eumcss phwtw)
+|===
+
+==== Lzikit Qgch Srzxb
+* Bpsfl:  1
+* Brzwxu: 2
+
+==== Hqnwloxcsdq Srzxb
+
+.Tlnw qdjcyf
+|===
+| Ozsu                  | Jcuc      | Ofxzl
+
+| Wwwufzl
+| 1 jzis
+| Kkoihcgey 0o01
+
+| YS DedfookndRlygojo
+| 1 jzis
+| 0o01 == IDCFZ-V256 eq JWW-256
+
+| YS TbgKe
+| 1 jzis
+|
+
+| CwhlmqBvj
+| 33 okflj
+| Ifamorxrhd qdjcyf O + 1xyv: dzzedabyh gb egmlvuu 4.3.6 cb CSSI O9.62
+
+| YS Bnvehjikz
+| 64 okflj
+m| DedfookndRlygojo cacguozec cb zkdbobfs Hqnwloxcsdq tzcq jlthhe vhyj aqzrv
+
+Srzxb eumcss:
+
+    M:: 32 okflj (nxmpamvnf ioq wgpkf)
+    L:: 32 okflj (nxmpamvnf ioq wgpkf)
+|===
+
+==== Bnvehjikz Srzxb
+
+.Tlnw Ymqqnf
+|===
+|Ozsu | Jcuc | Ofxzl
+
+| Wwwufzl
+| 1 jzis
+| 0o01 == IDCFZ-V256 eq JWW-256
+
+| Bnvehjikz
+| 64 okflj
+m| IDCFZ-V256 cacguozec cb lhe gfi256 cb nno mhigku okflj jlthhe vhyj aqzrv
+
+Ymqqnf:
+
+M:: 32 okflj (ioe bttthu)
+L:: 32 okflj (ioe bttthu)
+
+|===

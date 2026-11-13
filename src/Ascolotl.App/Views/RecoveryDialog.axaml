@@ -1,0 +1,49 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Ascolotl.App.Views.RecoveryDialog"
+        Title="Ascolotl — Recover Documents"
+        SizeToContent="WidthAndHeight"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        MinWidth="420"
+        FontSize="12.5"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        ExtendClientAreaTitleBarHeightHint="34"
+        Background="{DynamicResource ForgeBgBrush}">
+
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Height="34"
+                Background="{DynamicResource ForgeTitleBarBrush}">
+            <TextBlock Text="{Binding $parent[Window].Title}"
+                       VerticalAlignment="Center" Margin="14,0,0,0"
+                       FontSize="12" FontWeight="Medium"
+                       Foreground="{DynamicResource ForgeTextBrush}" />
+        </Border>
+
+        <StackPanel Spacing="20" Margin="24"
+                    TextElement.Foreground="{DynamicResource ForgeTextBrush}">
+            <TextBlock x:Name="MessageText"
+                       TextWrapping="Wrap"
+                       MaxWidth="440" />
+
+            <TextBlock Text="Would you like to recover these documents?"
+                       Foreground="{DynamicResource ForgeTextMutedBrush}" />
+
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Spacing="8">
+                <Button Content="Recover"
+                        Classes="dialog primary"
+                        Click="OnRecoverClick"
+                        IsDefault="True"
+                        MinWidth="80" />
+                <Button Content="Discard"
+                        Classes="dialog"
+                        Click="OnDiscardClick"
+                        MinWidth="80" />
+            </StackPanel>
+        </StackPanel>
+    </DockPanel>
+
+</Window>

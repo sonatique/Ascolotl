@@ -1,0 +1,51 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Ascolotl.App.Views.SaveConfirmationDialog"
+        Title="Ascolotl"
+        SizeToContent="WidthAndHeight"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        MinWidth="380"
+        FontSize="12.5"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        ExtendClientAreaTitleBarHeightHint="34"
+        Background="{DynamicResource ForgeBgBrush}">
+
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Height="34"
+                Background="{DynamicResource ForgeTitleBarBrush}">
+            <TextBlock Text="{Binding $parent[Window].Title}"
+                       VerticalAlignment="Center" Margin="14,0,0,0"
+                       FontSize="12" FontWeight="Medium"
+                       Foreground="{DynamicResource ForgeTextBrush}" />
+        </Border>
+
+        <StackPanel Spacing="20" Margin="24"
+                    TextElement.Foreground="{DynamicResource ForgeTextBrush}">
+            <TextBlock x:Name="MessageText"
+                       TextWrapping="Wrap"
+                       MaxWidth="400" />
+
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Spacing="8">
+                <Button Content="Save"
+                        Classes="dialog primary"
+                        Click="OnSaveClick"
+                        IsDefault="True"
+                        MinWidth="72" />
+                <Button Content="Don't Save"
+                        Classes="dialog"
+                        Click="OnDontSaveClick"
+                        MinWidth="72" />
+                <Button Content="Cancel"
+                        Classes="dialog"
+                        Click="OnCancelClick"
+                        IsCancel="True"
+                        MinWidth="72" />
+            </StackPanel>
+        </StackPanel>
+    </DockPanel>
+
+</Window>

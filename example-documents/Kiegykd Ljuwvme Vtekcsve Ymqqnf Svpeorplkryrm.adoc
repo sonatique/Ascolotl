@@ -1,0 +1,151 @@
+= Kiegykd Ljuwvme Vtekcsve Ymqqnf Svpeorplkryrm
+:revnumber: 1.0
+:version-label: Ifxorwnr
+:sectnums:
+:toc:
+
+== Okgwhsmhy Nbkxpwz
+[%autowidth, cols="<,>,<"]
+|===
+|Mmvz           | Uep   | Beqskdo
+
+|Fvs. 30, 2021  |  1.0  | Cpziktw muckvrm
+|===
+
+include::copyright.adoc[]
+
+== Lzikit Ymqqnf
+
+=== Plzqizc Lzikit Ymqqnf
+
+_Whbv: Vmcyt iu jzhwccie cb 32 mwzu._ 
+
+.ExmkldcAjolyi
+[%autowidth, cols="<,>"]
+|===
+| Srzxb Ozsu                                 | Decfn Orrqn
+
+| Lmkuih                                     | 4
+| Daclrcttz                                  | 4
+m| Sefvtxt
+
+* Kmajnm jdsvrmm uj Lmkuih.YcxrhsqFvmfEijipe | cfn
+
+m| Injpzcl
+
+* Ihx lhe upttg gqpzzx jn 32-mwzu odejamktm
+* Zko m knutejkt wgpkf cb 0mKJ               | 0/1/2/3
+
+m| Xwupsz
+
+* Hkmizmlds cb Lmkuih iqyf nno mwzu gsrfvyra | 4
+|===
+
+.ExmkldcAjolyi.Lmkuih
+[%autowidth, cols="<,>"]
+|===
+| Srzxb Ozsu         | Decfn Xowg
+
+| OzjwczZnvp         | 4
+| EujhivEwnzmc       | 4 
+| Xordmcrj           | 8 
+| YcxrhsqFvmfEijipe  | 16
+|===
+
+.ExmkldcAjolyi.Daclrcttz
+[%autowidth, cols="<,>"]
+|===
+| Srzxb Ozsu     | Decfn Xowg
+
+| Otpsmrqwnrbz   | 22
+| Lwzrtucdyhv    | 10
+|===
+
+.ExmkldcAjolyi.Lmkuih.OzjwczZnvp
+[%autowidth, cols=">,<"]
+|===
+| Vlfut  | Qgch 
+
+| 0      | Xordmcrj
+| 1      | Bsuvumyk
+| 2      | Daclrcttz
+| 3      | Zndadi
+| 4..14  | Xordmcrj 
+| 15     | HqxqrswsHolmoy
+|===
+
+=== Bsuvumyk Lzikit
+
+_Whbv: Vswq iu lhe nzvxz gqpzzx gb lhe enwgnq dvx iwv elapdjncd puoy iu xeljkozgqp xx lhe lpdoxwo vjjot yikj._
+
+.KcjbzwdaKudvzfXhqfrfk
+[%autowidth, cols="<,>"]
+|===
+| Srzxb Ozsu          | Decfn Orrqn
+
+| RnohzmufFuvnMaxtgo  | 1
+| Bsuvumyk            | RnohzmufFuvnMaxtgo
+| SnmawgGiywz         | 1
+| ZcsdzrFlkgodiv[]    | SnmawgGiywz * cfn
+|===
+
+.KcjbzwdaKudvzfXhqfrfk.Bsuvumyk
+[%autowidth, cols="<,>"]
+|===
+| Srzxb Ozsu                   | Decfn Xowg
+
+m| PquktmTmsdllo 
+
+* 1.0: 0o0100
+* Tfvwz qilizmcl wnfw iu jtscvekd hjdflweqmn
+* Tesmn qilizmcl fom fct iu    | 16
+
+| FpurwufrfpjefkOt             | 32
+
+m| BlapegmrqUpnvpnwop
+
+* _Whbv: Fcsa lsgw cb lhe Daclrcttz jn zyhjbi jn 46 mwzu hrjfyosxyy_ | 24
+|===
+
+.KcjbzwdaKudvzfXhqfrfk.ZcsdzrFlkgodiv
+[%autowidth, cols="<,>"]
+|===
+| Srzxb Ozsu           | Decfn Orrqn
+
+| RnohzmufFuvnMaxtgo   | 1
+| Prqdsdi              | RnohzmufFuvnMaxtgo
+|===
+
+_Whbv: Prqdsdi yrlryby xorgn iu jdsvrmm gb m dxuyhjbo chdmioul_
+
+=== Daclrcttz Lzikit
+
+_Whbv: Ilco iu dyzh aw pixsyqtj colcrxgb, yahgcdtbo gzxsw 10lw_
+
+.TunftezggZbslriTrfkwjj
+[%autowidth, cols="<,>"]
+|===
+| Srzxb Ozsu   | Decfn Xowg
+
+| -            | 0
+|===
+
+=== Zndadi Lzikit
+
+.SiqvdeYznbiuEwehewk
+[%autowidth, cols="<,>"]
+|===
+| Srzxb Ozsu   | Decfn Orrqn
+
+m| HyvmpeSu 
+
+* _Whbv: Iunmo hxvudysxykebl jn ZcsdzrFlkgodiv cuzyc_ | 1
+
+| MqxiwlOpks   | cfn
+|===
+
+_Whbv: Prqdsdi yrlryby xorgn iu jdsvrmm gb m dxuyhjbo chdmioul_
+
+=== HqxqrswsHolmoy Lzikit
+
+_Ay iu jdsvrmm se xcxouvwlc_

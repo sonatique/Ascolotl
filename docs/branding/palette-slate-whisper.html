@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slate Whisper — Ascolotl Palette Proposal</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #ECEEF0; color: #242A30; line-height: 1.6; padding: 2rem; }
+  h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+  .subtitle { font-size: 1.1rem; color: #5E6870; margin-bottom: 2rem; }
+  h2 { font-size: 1.4rem; margin: 2.5rem 0 1rem; border-bottom: 2px solid #6B7B8A; padding-bottom: 0.4rem; }
+  .theme-section { margin-bottom: 3rem; }
+  .theme-label { font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem; padding: 0.4rem 1rem; border-radius: 6px; display: inline-block; }
+  .theme-label.light { background: #F6F7F8; color: #242A30; border: 1px solid #C8CED4; }
+  .theme-label.dark { background: #14181C; color: #E0E4E8; border: 1px solid #303840; }
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  .swatch { border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.10); }
+  .swatch-color { height: 64px; display: flex; align-items: flex-end; padding: 0.3rem 0.6rem; }
+  .swatch-color span { font-size: 0.75rem; font-family: 'Consolas', monospace; background: rgba(0,0,0,0.45); color: #fff; padding: 0.1rem 0.4rem; border-radius: 4px; }
+  .swatch-info { padding: 0.5rem 0.7rem; background: #fff; }
+  .swatch-info .token { font-weight: 700; font-size: 0.85rem; }
+  .swatch-info .purpose { font-size: 0.75rem; color: #5E6870; }
+  .contrast-table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 0.85rem; }
+  .contrast-table th, .contrast-table td { padding: 0.5rem 0.7rem; border: 1px solid #C8CED4; text-align: left; }
+  .contrast-table th { background: #EEF0F2; font-weight: 700; }
+  .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700; font-size: 0.75rem; }
+  .badge.pass { background: #2E7D32; color: #fff; }
+  .badge.fail { background: #C62828; color: #fff; }
+  .mockup { border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin-bottom: 2rem; font-size: 0.85rem; }
+  .mockup-titlebar { padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.5rem; }
+  .mockup-titlebar .dots { display: flex; gap: 5px; }
+  .mockup-titlebar .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .mockup-tabs { padding: 0.3rem 1rem; display: flex; gap: 0.5rem; }
+  .mockup-tabs .tab { padding: 0.3rem 0.9rem; border-radius: 6px 6px 0 0; font-size: 0.8rem; }
+  .mockup-body { display: grid; grid-template-columns: 1fr 1fr; min-height: 220px; }
+  .mockup-editor, .mockup-preview { padding: 1rem; }
+  .mockup-editor { font-family: 'Consolas', 'Courier New', monospace; font-size: 0.8rem; line-height: 1.7; white-space: pre-wrap; }
+  .mockup-preview { font-family: 'Georgia', 'Times New Roman', serif; font-size: 0.85rem; line-height: 1.7; border-left: 1px solid; }
+  .mockup-status { padding: 0.3rem 1rem; font-size: 0.75rem; display: flex; justify-content: space-between; }
+  .palette-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+  .palette-badge { width: 48px; height: 48px; border-radius: 50%; }
+</style>
+</head>
+<body>
+
+<div class="palette-header">
+  <div class="palette-badge" style="background: linear-gradient(135deg, #6B7B8A, #B88A94);"></div>
+  <div>
+    <h1>Slate Whisper</h1>
+    <div class="subtitle">Cool gray-blue from the gravel substrate with a subtle blush warmth. Minimal, sophisticated, and quietly elegant.</div>
+  </div>
+</div>
+
+<div id="app"></div>
+
+<script>
+const palettes = {
+  light: {
+    Accent:      { hex: '#5A6E7E', purpose: 'Primary interactive (buttons, links)' },
+    AccentDark:  { hex: '#455868', purpose: 'Pressed / hover state' },
+    AccentLight: { hex: '#DCE4EA', purpose: 'Highlight / selection tint' },
+    AccentSubtle:{ hex: '#5A6E7E33', purpose: '20% alpha background tint' },
+    AccentText:  { hex: '#A85A68', purpose: 'Warm accent text (blush)' },
+    BgDeep:      { hex: '#242C34', purpose: 'Title bar, status bar' },
+    Bg:          { hex: '#F6F7F8', purpose: 'Main window background' },
+    BgSurface:   { hex: '#ECEFF2', purpose: 'Panels, code blocks' },
+    Border:      { hex: '#C8CED4', purpose: 'Borders / separators' },
+    Text:        { hex: '#242A30', purpose: 'Primary text' },
+    TextMuted:   { hex: '#64707A', purpose: 'Secondary text' },
+  },
+  dark: {
+    Accent:      { hex: '#8AAABE', purpose: 'Primary interactive (buttons, links)' },
+    AccentDark:  { hex: '#6B8EA5', purpose: 'Pressed / hover state' },
+    AccentLight: { hex: '#1E2830', purpose: 'Highlight / selection tint' },
+    AccentSubtle:{ hex: '#8AAABE33', purpose: '20% alpha background tint' },
+    AccentText:  { hex: '#D4909A', purpose: 'Warm accent text (blush)' },
+    BgDeep:      { hex: '#0E1216', purpose: 'Title bar, status bar' },
+    Bg:          { hex: '#14181C', purpose: 'Main window background' },
+    BgSurface:   { hex: '#1E2428', purpose: 'Panels, code blocks' },
+    Border:      { hex: '#303840', purpose: 'Borders / separators' },
+    Text:        { hex: '#E0E4E8', purpose: 'Primary text' },
+    TextMuted:   { hex: '#8A949E', purpose: 'Secondary text' },
+  }
+};
+
+function hexToRgb(hex) { hex=hex.replace('#',''); if(hex.length===8) hex=hex.slice(0,6); return [parseInt(hex.slice(0,2),16),parseInt(hex.slice(2,4),16),parseInt(hex.slice(4,6),16)]; }
+function luminance(hex) { const [r,g,b]=hexToRgb(hex).map(c=>{c=c/255;return c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4);}); return 0.2126*r+0.7152*g+0.0722*b; }
+function contrast(h1,h2) { const l1=luminance(h1),l2=luminance(h2); return (Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05); }
+function renderSwatches(theme,colors) {
+  let h='<div class="swatch-grid">';
+  for (const [t,{hex,purpose}] of Object.entries(colors)) { const d=hex.length>7?hex.slice(0,7)+' (alpha)':hex; h+=`<div class="swatch"><div class="swatch-color" style="background:${hex};"><span>${d}</span></div><div class="swatch-info"><div class="token">${t}</div><div class="purpose">${purpose}</div></div></div>`; }
+  return h+'</div>';
+}
+function renderContrastTable(colors) {
+  const pairs=[['Text','Bg','Normal text on Bg',4.5],['TextMuted','Bg','Muted text on Bg',4.5],['Text','BgSurface','Normal text on Surface',4.5],['TextMuted','BgSurface','Muted text on Surface',4.5],['AccentText','Bg','Accent text on Bg',4.5],['AccentText','BgSurface','Accent text on Surface',4.5],['Accent','Bg','Accent UI on Bg',3.0],['Accent','BgSurface','Accent UI on Surface',3.0],['Text','BgDeep','Text on BgDeep',4.5]];
+  let h='<table class="contrast-table"><tr><th>Pair</th><th>Foreground</th><th>Background</th><th>Ratio</th><th>Required</th><th>Result</th></tr>';
+  for (const [fg,bg,label,req] of pairs) { const fh=colors[fg].hex.slice(0,7),bh=colors[bg].hex.slice(0,7),r=contrast(fh,bh),p=r>=req; h+=`<tr><td>${label}</td><td><span style="display:inline-block;width:14px;height:14px;background:${fh};border-radius:3px;vertical-align:middle;border:1px solid #ccc;"></span> ${fh}</td><td><span style="display:inline-block;width:14px;height:14px;background:${bh};border-radius:3px;vertical-align:middle;border:1px solid #ccc;"></span> ${bh}</td><td><strong>${r.toFixed(2)}:1</strong></td><td>${req}:1</td><td><span class="badge ${p?'pass':'fail'}">${p?'PASS':'FAIL'}</span></td></tr>`; }
+  return h+'</table>';
+}
+function renderMockup(colors) {
+  const c={}; for (const [k,v] of Object.entries(colors)) c[k]=v.hex;
+  const dt=luminance(c.BgDeep)<0.2?'#E0E4E8':'#242A30';
+  return `<div class="mockup"><div class="mockup-titlebar" style="background:${c.BgDeep};color:${dt};"><div class="dots"><div class="dot" style="background:#FF5F57;"></div><div class="dot" style="background:#FFBD2E;"></div><div class="dot" style="background:#28C940;"></div></div><span style="flex:1;text-align:center;font-weight:600;">Ascolotl &mdash; document.adoc</span></div><div class="mockup-tabs" style="background:${c.BgSurface};border-bottom:1px solid ${c.Border};"><div class="tab" style="background:${c.Bg};color:${c.Text};border:1px solid ${c.Border};border-bottom:none;font-weight:600;">document.adoc</div><div class="tab" style="background:transparent;color:${c.TextMuted};">README.adoc</div></div><div class="mockup-body" style="background:${c.Bg};"><div class="mockup-editor" style="background:${c.BgSurface};color:${c.Text};"><span style="color:${c.Accent};font-weight:700;">= Chapter One</span>
+<span style="color:${c.TextMuted};">:author: Axolotl</span>
+
+This is a paragraph in the
+editor pane with <span style="color:${c.AccentText};font-weight:600;">*bold markup*</span>
+and normal text flow.
+
+<span style="color:${c.Accent};">TIP:</span> Save often.</div><div class="mockup-preview" style="background:${c.Bg};color:${c.Text};border-color:${c.Border};"><strong style="font-size:1.2em;">Chapter One</strong>
+<em style="color:${c.TextMuted};">by Axolotl</em>
+
+This is a paragraph in the
+preview pane rendered with
+<strong>bold text</strong> and
+normal text flow.
+
+<span style="background:${c.AccentLight};padding:0.15rem 0.4rem;border-radius:3px;color:${c.Text};">TIP</span> Save often.</div></div><div class="mockup-status" style="background:${c.BgDeep};color:${dt};"><span>Ln 14, Col 28</span><span style="color:${c.Accent};">&#9679;</span><span>UTF-8 &bull; AsciiDoc</span></div></div>`;
+}
+function render() {
+  let h='';
+  for (const [theme,colors] of Object.entries(palettes)) h+=`<div class="theme-section"><div class="theme-label ${theme}">${theme==='light'?'Light Theme':'Dark Theme'}</div><h2>Color Swatches</h2>${renderSwatches(theme,colors)}<h2>WCAG AA Contrast Ratios</h2>${renderContrastTable(colors)}<h2>Sample UI Mockup</h2>${renderMockup(colors)}</div>`;
+  document.getElementById('app').innerHTML=h;
+}
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Ascolotl.App/Ascolotl.App.csproj" />
+    <Project Path="src/Ascolotl.Core/Ascolotl.Core.csproj" />
+    <Project Path="src/Ascolotl.Infrastructure/Ascolotl.Infrastructure.csproj" />
+    <Project Path="src/Ascolotl.Export/Ascolotl.Export.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Ascolotl.Tests.Unit/Ascolotl.Tests.Unit.csproj" />
+  </Folder>
+</Solution>

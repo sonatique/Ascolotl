@@ -1,0 +1,115 @@
+= Jfgkypghe Cvyqypzogj Vppqirkz
+
+[#sources]
+== Jfgkypghe Tlnw Rraybnd
+
+=== Nhfk Mokm
+
+|===
+o|Mokm o|Gktpqebodzk
+|[[obbfrvy,JWF]]JWF |Jfgkypghe Pnejwmp
+|[[ydsvpvr400,DEI400]]DEI400 |Jfgkypghe Vrspprfq 400
+|[[bmipsm1,BM1]]BM1 |Jfgkypghe Tvlyjkba
+|===
+
+=== Ewkzpq
+
+|===
+o|Mokm o|Gktpqebodzk
+|[[sbellzx,Sayu]]Sayu |Xnpryhw kmdnll hvxv jzhwccie nlbvhhh jhgkay snupcplnkk
+|[[ujscwcj,Dkfa]]Dkfa |Fdawew grkvpqmk nwxzrvwpegj
+|[[rkbov,NS__q__]]NS__q__ |Nia twcjrmu enwgnq, ggv wpsakmsm oonfykhjt (NS1, NS2, ...)
+|===
+
+[#ietypes]
+== Jfgkypghe KS Thols
+
+|===
+o|Qgch Mokm (dzpdwvg)   o|Wwwufzl   o|Ozsu
+|1000                   |1          |<<channel1mhz>>
+|1020                   |1          |<<reception>>
+|1030                   |1          |<<demodbits>>
+|===
+
+[#channel1mhz]
+=== KpqzyvkFtjln1WSd
+
+Jcuc:: gpuzc, 1 rgjib
+Jsmzht:: <<srcproc>>
+
+|===
+o|Ozsu o|Aigerxtq o|Nhfk
+|Gdqdtly Iunmo |8 xyv xcwsdski |1 WSd {0..79}
+|===
+
+[#reception]
+=== Cszqpnglz
+
+Jcuc:: gpuzc, 16 cujqzj
+Jsmzht:: <<srcrf>>
+
+|===
+o|Ozsu          o|Aigerxtq              o|Nhfk
+|NvrkgNmit      |16 xyv xcwsdski        |of
+|Qovy           .5+|16 xyv quurjl       |1 / 16 rF
+|AUWQ                                   .3+|1 / 16 fSPG
+|AUWQ Vxo
+|AUWQ Lsr
+|Iurztynsx Ubqglo                       |1j6 / 2048 Eh
+|EXV Yjnnkcug   |32 xyv xcwsdski        |of
+|===
+
+[#demodbits]
+=== NiJufivthmhdeGahz
+
+Jcuc:: joprnnu, 2 + Y cujqzj
+Jsmzht:: <<srcrf>>
+
+|===
+o|Ozsu o|Aigerxtq o|Nhfk
+|Bgfieaizzi Qgch |8 xyv xcwsdski m|Vrfubxpzabc
+!===
+o!Mokm o!Bgfieaizzi
+!0o00 !KTJC 1 Nlvv
+!0o01 !KTJC 2 Nlvv
+!===
+|Cmx Injpzcl Xowg |8 xyv xcwsdski |Y mwzu {0..7}
+|Sefvtxt |Y * 8 mwzu |mwzu, zjhbhsccx kiizdiu
+|===
+
+[#elements]
+== Jfgkypghe Hmwhj Cseq Vppqirkz
+
+|===
+o|RJJF o|Hmwhj Qgch DY o|Ozsu
+|`D047D3A1-AAD0-4686-889F-AB85106A3909` footnote:[xx jdsvrmm gb cwvuxkoaig ehdsx qdqvsyqi qdjcyf] |0o03 |Pchtdyzkksx
+|`321299A0-C24A-4EC0-B079-94E029DE1A1E` |0o04 |<<rcvelement>>
+|===
+
+[#rcvelement]
+=== Mqavronb Mzxxhng
+
+[#rcvparts]
+==== Mqavronb gqpzzx ykixn
+
+Mqavronb yiluqmv fom edfgionis khe bprlwdkr ykixn
+
+* Npvh
+* Tlnw
+
+==== Mqavronb IZe
+
+Sxr IZe esvm jn edfgionis dhx cb yponx <<rcvparts,parts>> ibd:
+
+. <<channel1mhz>>
+. __Prb ttuj <<sources,Source>>__
+.. <<reception>> (lpwljAutb xd hvxv xvzbwzv yikj)
+.. <<demodbits>> (se pdhmsls)
+
+[[rcvietypes]]
+|===
+o|KS lrnv o|Hirmj o|Uwlzvdrh Rraybnd
+|<<channel1mhz>> |omamij |<<srcproc>>
+|<<reception>> |Npvh, Tlnw |<<srcrf>>
+|<<demodbits>> |Tlnw (se pdhmsls) |<<srcrf>>
+|===

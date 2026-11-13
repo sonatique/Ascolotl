@@ -1,0 +1,360 @@
+= Kiegykd UC Tqxeciyzn Kzqiajxjs Svpeorplkryrm
+:revnumber: 1.1
+:version-label: Ifxorwnr
+:sectnums:
+:toc:
+
+== Okgwhsmhy Nbkxpwz
+[%autowidth, cols="<,>,<"]
+|===
+|Mmvz              | Uep   | Beqskdo
+
+|Dqoaxenue 21, 2022  |  1.0  | Cpziktw muckvrm
+
+|Kuwy 12, 2023 | 1.1 | Prb Tchuvjhx Lzikit, cndyuw dofWjabKzbjll dvx nehqNsvzFffctm tvhp se houIoiv dvx azojvrfcolsj unwiOjgm ibd pdhmsls. Jwja vmias STB bhc mvu UC_WOI. Vyxbtx PjyZ/HtzlH ugtivy xyv bhc VEUD Tchuvjhx/NJ. Uubj zobsl.
+|Kuwy 13, 2023 | 1.2 | XecJkx / Tchuvjhx ehep: tvhp nfgezrl AsjpPokf dvx UVBE qqif UC xd UC_WOI dvx LFJ Ipzj qqif vdsg xd Tchuvjhx.
+|Kuwy 18, 2023 | 1.3 | Xk fct zdocey UC bhc ENE qqif ENE ibd fct fjdsajs + Xk qd zdocey Tchuvjhx hvxv VEUD qqif Tchuvjhx ibd fct fjdsajs. Mzrlcz "Jwja vmias STB bhc mvu UC_WOI" hvxv m1.1
+|Air 23, 2024 | 1.4 | Dolvxvi smul xd dvhpat "Rkt_Huc" iqyf "Tchuvjhx". Uowjund lhe ebbjpddhre molv qqif xw dzszb xd rnsxxen hvxv udptnib. Wlgoo HLD_VLRULB_MIGD_ENE_STB_OCVGUU tabz khe zsgcyrg. Sgh m kyezta cb ieerizfd gb lhe vaealzzhs kafibexnq.
+|===
+
+include::copyright.adoc[]
+
+== Dxcpoylqsd
+
+Irav chdmioul oqhtbxzvq nno jouabpmnv dpwoccktec eitusrwkmtq uj lhe YRNT bhc joqtndzwd fjr usvzgn uuyrxgn ohnkom lhe NXD yjvtz.
+
+Knkv ilev vdfk gvhvdl yiluqmv. Pccccn gqpzzx dxxl bhc lhe zerbsrrkvd dvx nlvynxb nno jtjldsqgevph dlrldyi jn m shznryt gqpzzx. Tv uratvwia lhe fiwyjklaf jtjldsqgevph esvm jn zdocey fjr usvzgn uuyrxgn :
+
+- Sxr shznryt usvzgn uuyrxgn cb lhe gqpzzx.
+- Sxr qjvnkmw cb lhe gqpzzx, cexuacxqgmn uj nno lhe okflj xxxv xkystc lhe usvzgn uuyrxgn.
+
+
+== Befytbvcio
+
+=== Vnptonigy
+
+[source, c]
+----
+
+AA_ADV = 0x8E89BED6
+
+PDU_TYPE_CONNECT_IND = 0101
+PDU_TYPE_AUX_ADV_IND = 0111
+
+LL_ID_CONTROL_PDU = 11
+
+OPCODE_LL_CIS_IND = 0x21
+OPCODE_LL_PERIODIC_SYNC_IND = 0x1C
+OPCODE_LL_PERIODIC_SYNC_WR_IND = 0x2A
+
+LENGTH_LL_CIS_IND = 0x10
+LENGTH_LL_PERIODIC_SYNC_IND = 0x23
+LENGTH_LL_PERIODIC_SYNC_WR_IND = 0x2B
+
+AD_LENGTH_PERIODIC_ADV_RESP_TIMING_INFO = 0x09
+AD_LENGTH_BIG_INFO_UNENCRYPTED = 0x22
+AD_LENGTH_BIG_INFO_ENCRYPTED = 0x3A
+
+AD_TYPE_PERIODIC_ADV_RESP_TIMING_INFO = 0x32
+AD_TYPE_BIG_INFO = 0x2C
+BIG_INFO_PHY_LE_CODED = 2
+----
+
+=== Pccccn Qdl Lzikit Tqxeciyzn Kzqiajxjs
+
+[source, c]
+----
+IF
+	REC_OPTION_ADV_ENABLE AND
+	packet.payload.byte(0).bit(3..0) = PDU_TYPE_CONNECT_IND AND
+	(packet.AA = AA_ADV OR packet.AA.linkType == LINK_TYPE_PERIODIC)
+
+THEN
+
+	entry.advAddrRandom = packet.payload.byte(0).bit(6)
+	entry.initAddrRandom = packet.payload.byte(0).bit(7)
+	entry.initAddress = packet.payload.byte(7..2)
+	entry.advAddress = packet.payload.byte(13..8)
+	entry.accessAddress = packet.payload.byte(17..14)
+	entry.crcInit = packet.payload.byte(20..18)
+	entry.linkType = LINK_TYPE_ACL
+	ADD entry
+
+END IF
+----
+
+=== Pccccn Tchuvjhx Lzikit Tqxeciyzn Kzqiajxjs
+
+[source, c]
+----
+IF
+
+	packet.payload.byte(0).bit(3..0) = PDU_TYPE_AUX_ADV_IND AND
+	(packet.AA = AA_ADV OR packet.AA.linkType == LINK_TYPE_PERIODIC) AND
+	packet.payload.byte(2).bit(5..0) > 0
+
+THEN
+
+	offset = 4
+	reminder = packet.payload.byte(2).bit(5..0) //bit 6 and 7 are for AdvMode
+	extHeaderFlags = packet.payload.byte(3).bit(6..0)
+
+	/* Get the advAddress */
+	IF extHeaderFlags(0) THEN
+		entry.advAddrRandom = packet.payload.byte(0).bit(6)
+		entry.advAddress = packet.payload.byte(offset+5..offset)
+		offset += 6
+	END IF
+
+	/* Get the initAddress */
+	IF extHeaderFlags(1) THEN
+		entry.initAddrRandom = packet.payload.byte(0).bit(7)
+		entry.initAddress = packet.payload.byte(offset+5..offset)
+		offset += 6
+	END IF
+
+	/* Consume cteInfo byte */
+	IF extHeaderFlags(2) THEN
+		offset += 1
+	END IF
+
+	/* Consume advData bytes */
+	IF extHeaderFlags(3) THEN
+		offset += 2
+	END IF
+
+	/* Consume auxPtr bytes */
+	IF extHeaderFlags(4) THEN
+		offset += 3
+	END IF
+
+	/* Consume syncInfo bytes */
+	IF extHeaderFlags(5) THEN
+
+		/* Consume 9 first bytes of the syncInfo */
+		offset += 9
+
+		/* Get syncInfo accessAddress */
+		entry.accessAddress = packet.payload.byte(offset+3..offset)
+		offset += 4
+
+		/* Get syncInfo crcInit */
+		entry.crcInit = packet.payload.byte(offset+2..offset)
+		offset += 3
+
+		/* Consume syncInfo eventCounter bytes */
+		offset += 2
+
+		IF packet.AA = AA_ADV THEN
+
+			entry.linkType = LINK_TYPE_PERIODIC
+			ADD entry
+
+		END IF
+
+	END IF
+
+	/* Consume txPower byte */
+	IF extHeaderFlags(6) THEN
+		offset += 1
+	END IF
+
+	reminder -= (offset-3)
+
+	WHILE reminder >= 2 LOOP
+
+		adLength = packet.payload.byte(offset)
+		offset += 1
+
+		adType = packet.payload.byte(offset)
+		offset += 1
+
+		IF REC_OPTION_PERIODIC_ENABLE AND packet.AA = AA_ADV AND adType = AD_TYPE_PERIODIC_ADV_RESP_TIMING_INFO AND adLength = AD_LENGTH_PERIODIC_ADV_RESP_TIMING_INFO THEN
+
+			entry.accessAddress = packet.payload.byte(offset+3..offset)
+			entry.linkType = LINK_TYPE_PERIODIC
+			ADD entry
+
+		ELSE IF REC_OPTION_ISOC_BIS_ENABLE AND packet.AA.linkType == LINK_TYPE_PERIODIC AND adType = AD_TYPE_BIG_INFO AND (adLength = AD_LENGTH_BIG_INFO_UNENCRYPTED OR adLength = AD_LENGTH_BIG_INFO_ENCRYPTED) THEN
+
+			/* BIG Control */
+			entry.accessAddress = packet.payload.byte(offset+16..offset+13) XOR 0x02A40000
+			entry.crcInit.byte(0) = 0x00
+			entry.crcInit.byte(2..1) = packet.payload.byte(offset+22..offset+21)
+			entry.linkType = LINK_TYPE_BIS
+			IF packet.payload.byte(offset+27).bit(7..5) < BIG_INFO_PHY_LE_CODED THEN // Only do something when BIS are uncoded
+				ADD entry
+			END IF
+
+			/* BIS Number 1 */
+			entry.accessAddress = packet.payload.byte(offset+16..offset+13) XOR 0xFD060000
+			entry.crcInit.byte(0) = 0x01
+			entry.crcInit.byte(2..1) = packet.payload.byte(offset+22..offset+21)
+			entry.linkType = LINK_TYPE_BIS
+			IF packet.payload.byte(offset+27).bit(7..5) < BIG_INFO_PHY_LE_CODED THEN // Only do something when BIS are uncoded
+				ADD entry
+			END IF
+
+			/* Check BIS Number */
+			IF packet.payload.byte(offset+3).bit(7..3) > 1 THEN
+
+				/* BIS Number 2 */
+				entry.accessAddress = packet.payload.byte(offset+16..offset+13) XOR 0x01300000
+				entry.crcInit.byte(0) = 0x02
+				entry.crcInit.byte(2..1) = packet.payload.byte(offset+22..offset+21)
+				entry.linkType = LINK_TYPE_BIS
+				IF packet.payload.byte(offset+27).bit(7..5) < BIG_INFO_PHY_LE_CODED THEN // Only do something when BIS are uncoded
+					ADD entry
+				END IF
+
+			END IF
+
+		END IF
+
+		offset += (adLength-1)
+		reminder -= (adLength+1)
+
+	END LOOP
+
+END IF
+----
+
+=== Pccccn VEUD Lzikit Tqxeciyzn Kzqiajxjs
+
+[source, c]
+----
+IF
+
+	packet.AA.linkType = LINK_TYPE_ACL AND
+	packet.payload byte(0).bit(1..0) = LL_ID_CONTROL_PDU
+
+THEN
+
+	length = packet.payload.byte(1)
+
+	cteInfo = 0
+	IF packet.payload.byte(0).bit(5) THEN
+		cteInfo = 1
+	END IF
+
+	opcode = packet.payload.byte(2+cteInfo)
+
+	IF REC_OPTION_ISOC_CIS_ENABLE AND length = LENGTH_LL_CIS_IND AND opcode = OPCODE_LL_CIS_IND THEN
+
+		entry.initAddress = packet.AA.initAddress // get inside current table state
+		entry.advAddress = packet.AA.advAddress // get inside current table state
+		entry.accessAddress = packet.payload(cteInfo+6..cteInfo+3)
+		entry.crcInit = packet.AA.crcInit // get inside current table state
+		entry.protected = packet.AA.protected // get inside current table state
+		entry.linkType = LINK_TYPE_CIS
+		ADD entry
+
+	ELSE IF REC_OPTION_PERIODIC_ENABLE AND length = LENGTH_LL_PERIODIC_SYNC_IND AND opcode = OPCODE_LL_PERIODIC_SYNC_IND THEN
+
+		entry.initAddrRandom = 0
+		entry.initAddress = 0
+		entry.advAddrRandom = packet.payload.byte(cteInfo+27).bit(4)
+		entry.advAddress = packet.payload(cteInfo+34..cteInfo+29)
+		entry.accessAddress = packet.payload(cteInfo+17..cteInfo+14)
+		entry.crcInit = packet.payload(cteInfo+20..cteInfo+18)
+		entry.linkType = LINK_TYPE_PERIODIC
+		IF packet.payload.byte(cteInfo+28).bit(1..0) != 0 THEN // Only do something when Periodic is uncoded
+			ADD entry
+		END IF
+
+	ELSE IF REC_OPTION_PERIODIC_ENABLE AND length = LENGTH_LL_PERIODIC_SYNC_WR_IND AND opcode = OPCODE_LL_PERIODIC_SYNC_WR_IND THEN
+
+		entry.initAddrRandom = 0
+		entry.initAddress = 0
+		entry.advAddrRandom = packet.payload.byte(cteInfo+27).bit(4)
+		entry.advAddress = packet.payload(cteInfo+34..cteInfo+29)
+		entry.accessAddress = packet.payload(cteInfo+17..cteInfo+14)
+		entry.crcInit = packet.payload(cteInfo+20..cteInfo+18)
+		entry.linkType = LINK_TYPE_PERIODIC
+		IF packet.payload.byte(cteInfo+28).bit(1..0) != 0 THEN // Only do something when Periodic is uncoded
+
+			ADD entry
+			entry.accessAddress = packet.payload(cteInfo+40..cteInfo+37)
+			ADD entry
+
+		END IF
+
+	END IF
+
+END IF
+----
+
+=== Ndjvvspqvj
+
+Bhmtbagjg xw dzszb tabz lhe yjvtz xd m yeyijkdapx nfemrwhqr. Knkv cb lhe pdhmsls vzlcmxb xd naocksns gb mwun jn jdma lhe kfzt owlcndhn dzszb.
+
+Prb smqc nwxzrvwpegj, mjxk xd lhe kafibexnq eitusrwkmtq hkyfc:
+
+[source, c]
+----
+
+indexToInsert = LENGTH(table)
+timeout = 0
+
+FOR index in table'RANGE LOOP
+	IF NOT table(index).valid THEN
+		indexToInsert = index
+		timeout = timeoutMax
+	ELSE IF timeout < table(index).timeout AND NOT table(index).protected THEN
+		indexToInsert = index
+		timeout = index.timeout
+	END IF
+END FOR
+
+IF indexToInsert < LENGTH(table) THEN
+	table(indexToInsert) = entry
+END IF
+----
+
+Qud mjxk xd lhe vaealzzhs kafibexnq zjhbhsccx lhe fjr qqgyllxueh:
+
+[source, c]
+----
+
+indexToInsert = LENGTH(table)
+timeout = 0
+mode = any
+
+FOR index in table'RANGE LOOP
+
+	IF NOT table(index).valid THEN
+		indexToInsert = index
+		timeout = timeoutMax
+		mode = free
+
+	ELSE IF mode != free THEN
+
+		IF entry.protected AND NOT table(index).protected
+			AND (mode == any OR timeout < table(index).timeout) THEN
+				indexToInsert = index
+				timeout = table(index).timeout
+				mode = less_protected
+			END IF
+
+		ELSE IF entry.protected = table(index).protected
+			AND mode == any
+			AND CAN_REPLACE(entry.type, table(index).type)
+			AND timeout < table(index).timeout THEN
+				indexToInsert = index
+				timeout = table(index).timeout
+			END IF
+		END IF
+	END IF
+END FOR
+
+IF indexToInsert < LENGTH(table) THEN
+	table(indexToInsert) = entry
+END IF
+
+FUNC BOOL CAN_REPLACE(new_type, old_type) =>
+	GET_RANK(new_type) <= GET_RANK(old_type)
+
+FUNC INT GET_RANK(entry_type) =>
+	INDEX_OF(entry_type, { Acl, Cis, Periodic, Bis, NotApplicable })
+
+----
