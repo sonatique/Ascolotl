@@ -984,6 +984,30 @@ public sealed class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public async Task Export_Failure_ShowsErrorDialog()
+    {
+        var vm = VmWithTitledDocument("Manual");
+        _exportService.ExportResult = ExportResult.Failure("out.pdf is open in another program.");
+
+        await vm.ExportCommand.ExecuteAsync(ExportFormat.Pdf);
+
+        var (title, message) = Assert.Single(_dialogService.Errors);
+        Assert.Equal("Export Failed", title);
+        Assert.Equal("out.pdf is open in another program.", message);
+        Assert.Equal("out.pdf is open in another program.", vm.StatusText);
+    }
+
+    [Fact]
+    public async Task Export_Success_ShowsNoDialog()
+    {
+        var vm = VmWithTitledDocument("Manual");
+
+        await vm.ExportCommand.ExecuteAsync(ExportFormat.Pdf);
+
+        Assert.Empty(_dialogService.Errors);
+    }
+
+    [Fact]
     public async Task ExportHtml_NeverAsksPdfTitle()
     {
         var vm = VmWithTitledDocument("Manual: Sub");

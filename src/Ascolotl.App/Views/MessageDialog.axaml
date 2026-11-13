@@ -1,0 +1,40 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Ascolotl.App.Views.MessageDialog"
+        Title="Ascolotl"
+        SizeToContent="WidthAndHeight"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        MinWidth="420"
+        FontSize="12.5"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        ExtendClientAreaTitleBarHeightHint="34"
+        Background="{DynamicResource ForgeBgBrush}">
+
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Height="34"
+                Background="{DynamicResource ForgeTitleBarBrush}">
+            <TextBlock Text="{Binding $parent[Window].Title}"
+                       VerticalAlignment="Center" Margin="14,0,0,0"
+                       FontSize="12" FontWeight="Medium"
+                       Foreground="{DynamicResource ForgeTextBrush}" />
+        </Border>
+
+        <StackPanel Spacing="20" Margin="24"
+                    TextElement.Foreground="{DynamicResource ForgeTextBrush}">
+            <SelectableTextBlock x:Name="MessageText"
+                                 TextWrapping="Wrap"
+                                 MaxWidth="440" />
+
+            <Button Content="OK"
+                    Classes="dialog primary"
+                    HorizontalAlignment="Right"
+                    Click="OnOkClick"
+                    IsDefault="True"
+                    IsCancel="True"
+                    MinWidth="90" />
+        </StackPanel>
+    </DockPanel>
+
+</Window>

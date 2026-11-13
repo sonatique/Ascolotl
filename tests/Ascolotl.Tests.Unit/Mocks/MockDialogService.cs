@@ -38,6 +38,14 @@ public sealed class MockDialogService : IDialogService
         return Task.FromResult(PdfTitleAnswer(title));
     }
 
+    public List<(string Title, string Message)> Errors { get; } = [];
+
+    public Task ShowErrorAsync(string title, string message)
+    {
+        Errors.Add((title, message));
+        return Task.CompletedTask;
+    }
+
     public Task<bool> ShowRecoveryDialogAsync(int documentCount)
     {
         ShowRecoveryDialogCalled++;

@@ -205,6 +205,25 @@ public sealed class PdfThemeTests : IDisposable
     }
 
     [Fact]
+    public async Task Export_OutputOpenElsewhere_SaysSoPlainly()
+    {
+        // Sharing violations are Windows behaviour; other systems let the write through.
+        if (!OperatingSystem.IsWindows())
+            return;
+        var output = Path.Combine(_root, "open.pdf");
+        await File.WriteAllTextAsync(output, "old");
+        // Hold the file open the way a PDF viewer does.
+        using var viewer = new FileStream(output, FileMode.Open, FileAccess.Read, FileShare.None);
+
+        var result = await new ExportService().ExportAsync(
+            "= Doc\n\nText.\n", _docDir, output, ExportFormat.Pdf, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal("open.pdf is open in another program, so it can't be replaced. Close it there, then export again.",
+            result.ErrorMessage);
+    }
+
+    [Fact]
     public async Task Export_IncludeOutsideDocumentFolder_IsExpanded()
     {
         await File.WriteAllTextAsync(Path.Combine(_root, "shared.adoc"), "Shared copyright text.\n");

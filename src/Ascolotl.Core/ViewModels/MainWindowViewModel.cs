@@ -693,7 +693,7 @@ public partial class MainWindowViewModel : ObservableObject
         else
         {
             _log?.Error($"Website export failed: {result.ErrorMessage}");
-            StatusText = result.ErrorMessage ?? "Website export failed";
+            await ReportExportFailureAsync(result.ErrorMessage ?? "Website export failed");
         }
     }
 
@@ -917,8 +917,18 @@ public partial class MainWindowViewModel : ObservableObject
         else
         {
             _log?.Error($"{format.DisplayName()} export failed: {result.ErrorMessage}");
-            StatusText = $"{format.DisplayName()} export failed: {result.ErrorMessage}";
+            await ReportExportFailureAsync(result.ErrorMessage ?? $"{format.DisplayName()} export failed.");
         }
+    }
+
+    /// <summary>
+    /// Export failures get a dialog: the status line alone is overwritten by
+    /// the next render, so the failure would go unnoticed.
+    /// </summary>
+    private async Task ReportExportFailureAsync(string message)
+    {
+        StatusText = message;
+        await _dialogService.ShowErrorAsync("Export Failed", message);
     }
 
     // --- Export profiles (single-source publishing) ---
@@ -977,7 +987,7 @@ public partial class MainWindowViewModel : ObservableObject
         else
         {
             _log?.Error($"Profile '{profile.Name}' export failed: {result.ErrorMessage}");
-            StatusText = $"{profile.Name} export failed: {result.ErrorMessage}";
+            await ReportExportFailureAsync($"{profile.Name}: {result.ErrorMessage}");
         }
     }
 

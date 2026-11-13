@@ -103,10 +103,19 @@ public sealed class ExportService : IExportService
             {
                 throw;
             }
+            catch (IOException ex) when (IsInUse(ex))
+            {
+                return ExportResult.Failure(
+                    $"{Path.GetFileName(outputPath)} is open in another program, so it can't be replaced. " +
+                    "Close it there, then export again.");
+            }
             catch (Exception ex)
             {
                 return ExportResult.Failure($"{format.DisplayName()} export failed: {ex.Message}");
             }
         }, cancellationToken);
     }
+
+    /// <summary>Windows sharing or lock violation: another program holds the file open.</summary>
+    private static bool IsInUse(IOException ex) => (ex.HResult & 0xFFFF) is 32 or 33;
 }

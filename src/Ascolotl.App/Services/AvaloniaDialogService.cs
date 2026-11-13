@@ -35,6 +35,9 @@ public sealed class AvaloniaDialogService : IDialogService
         return dialog.ShouldRecover;
     }
 
+    public async Task ShowErrorAsync(string title, string message)
+        => await new MessageDialog(title, message).ShowDialog(_owner);
+
     public async Task<string?> AskPdfTitleAsync(string title)
     {
         var dialog = new PdfTitleDialog(title);
