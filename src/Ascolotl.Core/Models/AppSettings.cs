@@ -14,7 +14,7 @@ public sealed class AppSettings
     /// <summary>asciidoctor-pdf YAML theme for PDF export; null = built-in look.</summary>
     public string? StylePath { get; set; }
     /// <summary>How PDF exports derive their Title metadata from the document title.</summary>
-    public PdfTitleRule PdfTitleRule { get; set; }
+    public PdfTitleRule PdfTitleRule { get; set; } = PdfTitleRule.UpToFirstColon;
     /// <summary>Show the PDF title for editing before each PDF export.</summary>
     public bool AskPdfTitle { get; set; }
     public List<string> RecentFiles { get; set; } = [];

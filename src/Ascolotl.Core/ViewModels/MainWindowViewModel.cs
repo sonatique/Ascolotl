@@ -73,7 +73,7 @@ public partial class MainWindowViewModel : ObservableObject
     /// <summary>How PDF exports derive their Title metadata.</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsPdfTitleFull), nameof(IsPdfTitleUpToColon))]
-    private PdfTitleRule _pdfTitleRule;
+    private PdfTitleRule _pdfTitleRule = PdfTitleRule.UpToFirstColon;
 
     public bool IsPdfTitleFull => PdfTitleRule == PdfTitleRule.FullTitle;
     public bool IsPdfTitleUpToColon => PdfTitleRule == PdfTitleRule.UpToFirstColon;

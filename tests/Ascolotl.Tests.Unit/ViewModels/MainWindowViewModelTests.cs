@@ -934,15 +934,27 @@ public sealed class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
-    public async Task ExportPdf_AppliesTitleRule()
+    public async Task ExportPdf_DefaultRule_StopsAtFirstColon()
     {
         var vm = VmWithTitledDocument("Manual: The long subtitle");
-        vm.SetPdfTitleRuleCommand.Execute(PdfTitleRule.UpToFirstColon);
+        Assert.True(vm.IsPdfTitleUpToColon);
+        Assert.Equal(PdfTitleRule.UpToFirstColon, new AppSettings().PdfTitleRule);
 
         await vm.ExportCommand.ExecuteAsync(ExportFormat.Pdf);
 
         Assert.Equal("Manual", _exportService.LastPdfTitle);
         Assert.Equal(0, _dialogService.AskPdfTitleCalled);
+    }
+
+    [Fact]
+    public async Task ExportPdf_FullTitleRule_KeepsSubtitle()
+    {
+        var vm = VmWithTitledDocument("Manual: The long subtitle");
+        vm.SetPdfTitleRuleCommand.Execute(PdfTitleRule.FullTitle);
+
+        await vm.ExportCommand.ExecuteAsync(ExportFormat.Pdf);
+
+        Assert.Equal("Manual: The long subtitle", _exportService.LastPdfTitle);
     }
 
     [Fact]
@@ -954,7 +966,7 @@ public sealed class MainWindowViewModelTests : IDisposable
 
         await vm.ExportCommand.ExecuteAsync(ExportFormat.PdfLandscape);
 
-        Assert.Equal("Manual: The long subtitle", _dialogService.LastPdfTitleShown);
+        Assert.Equal("Manual", _dialogService.LastPdfTitleShown);
         Assert.Equal("Edited", _exportService.LastPdfTitle);
     }
 

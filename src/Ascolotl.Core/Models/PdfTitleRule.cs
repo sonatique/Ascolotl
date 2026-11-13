@@ -6,7 +6,7 @@ public enum PdfTitleRule
     /// <summary>The whole title, subtitle included (asciidoctor-pdf's behaviour).</summary>
     FullTitle,
 
-    /// <summary>The title up to its first ':', dropping the subtitle.</summary>
+    /// <summary>The title up to its first ':', dropping the subtitle (the default).</summary>
     UpToFirstColon,
 }
 
