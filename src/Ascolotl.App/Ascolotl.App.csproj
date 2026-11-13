@@ -24,6 +24,8 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="AdocNet.Avalonia" Version="1.0.29" />
     <PackageReference Include="AdocNet.Layout" Version="1.0.29" />
+    <!-- SVG title-page images (logos, backgrounds) in the styled preview. -->
+    <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.9.5" />
     <PackageReference Include="Avalonia.Diagnostics" Version="11.3.12" Condition="'$(Configuration)' == 'Debug'" />
     <!-- Security override: Avalonia's Linux/X11 backend pulls Tmds.DBus.Protocol 0.21.2,
          which has GHSA-xrw6-gwf8-vvr9 (CVE-2026-39959). Pin the patched 0.21.3 (same

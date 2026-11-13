@@ -12,6 +12,7 @@ using Ascolotl.Core.Editing.Assist;
 using Ascolotl.Core.Models;
 using Ascolotl.Core.Services;
 using Ascolotl.Core.ViewModels;
+using Ascolotl.Export;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
@@ -335,15 +336,21 @@ public partial class PreviewView : UserControl
             // emitting it here when the toggle is off. (The TOC itself is
             // dropped upstream by omitting the toc parse attribute.)
             var showTitleAndToc = _mainVm?.ShowTitleAndToc ?? true;
-            if (showTitleAndToc && !string.IsNullOrWhiteSpace(layout.Title))
+            // A styled document that asks for a title page gets the theme's
+            // title sheet above the body, as the PDF prints it; otherwise the
+            // title is one heading line, like the PDF without a title page.
+            var titlePage = showTitleAndToc && style is not null && TitlePageLayout.Wanted(doc.RenderedDocument)
+                ? PreviewTitlePage.Build(style, doc.RenderedDocument)
+                : null;
+            if (titlePage is null && showTitleAndToc && !string.IsNullOrWhiteSpace(layout.Title))
             {
                 panel.Children.Add(new TextBlock
                 {
-                    Text = layout.Title,
-                    FontWeight = FontWeight.Bold,
+                    Text = TitlePageLayout.PlainTitle(layout.Title),
+                    FontWeight = style is null ? FontWeight.Bold : FontWeight.Normal,
                     FontSize = _avaloniaRenderer.Theme.DocumentTitleFontSize,
                     TextWrapping = TextWrapping.Wrap,
-                    Margin = new Thickness(0, 0, 0, 12),
+                    Margin = new Thickness(0, 0, 0, style is null ? 12 : style.TitleMarginBottom * PreviewStyle.DipPerPoint),
                     Foreground = _avaloniaRenderer.Theme.HeadingForeground(0),
                     FontFamily = _avaloniaRenderer.Theme.HeadingFont ?? FontFamily.Default,
                 });
@@ -397,7 +404,8 @@ public partial class PreviewView : UserControl
             {
                 LayoutTransform = new ScaleTransform(zoom, zoom),
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Child = content,
+                // The title sheet is its own page, like the PDF's page 1.
+                Child = titlePage is null ? content : new StackPanel { Spacing = 16, Children = { titlePage, content } },
             };
             _renderedRoot = panel;
 
