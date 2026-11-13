@@ -12,6 +12,7 @@
     <AssemblyName>Ascolotl</AssemblyName>
     <Version>0.0.1</Version>
     <Product>Ascolotl</Product>
+    <Copyright>Copyright (C) 2026 sylvain@sonatique.net</Copyright>
     <Description>AsciiDoc source editor with live preview and PDF export</Description>
     <!-- Settings and recovery files use reflection-based System.Text.Json, which a
          trimmed publish disables by default (settings would silently reset). -->

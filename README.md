@@ -132,5 +132,7 @@ renderer.
 
 ## License
 
+Copyright (C) 2026 sylvain@sonatique.net
+
 Ascolotl is free software, licensed under the
 [GNU General Public License v3.0](LICENSE).
