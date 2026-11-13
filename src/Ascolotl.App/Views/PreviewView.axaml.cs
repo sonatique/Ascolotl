@@ -3,6 +3,7 @@ using System.ComponentModel;
 using AdocNet;
 using AdocNet.Ast;
 using AdocNet.Avalonia;
+using AdocNet.Converters.Pdf;
 using AdocNet.Layout;
 using AdocNet.Layout.Builders;
 using Ascolotl.App.Views.Assist;
@@ -68,7 +69,9 @@ public partial class PreviewView : UserControl
     // Page preview: shares the block renderer; A4 geometry mirrors the PDF
     // export's default page setup (595×842 pt) exactly, via points→DIPs.
     private static readonly PagedAvaloniaRenderer _pagedRenderer = new(_avaloniaRenderer);
-    private static readonly PageLayoutOptions _pageOptions = PageLayoutOptions.FromPdfPoints(595, 842);
+    // Page Preview lays pages out off the UI thread; a render started later
+    // supersedes one still running (its result is dropped).
+    private int _renderGeneration;
     // Authoritative 1:1 map of each rendered top-level block visual to its
     // BlockLayout (whose .Source is the ABSOLUTE document source range).
     // Built by rendering block-by-block via AvaloniaRenderer.Render(BlockLayout),
@@ -315,9 +318,10 @@ public partial class PreviewView : UserControl
             // inert (guarded at the pointer handler) and scroll-sync degrades
             // to its ratio fallback. The title always shows, matching what
             // the exported PDF prints.
+            var generation = ++_renderGeneration;
             if (_mainVm?.PagePreview == true)
             {
-                RenderPagePreview(layout);
+                RenderPagePreview(doc, layout, style ?? new PdfRenderOptions(), generation);
                 return;
             }
 
@@ -393,20 +397,10 @@ public partial class PreviewView : UserControl
                 TextElement.SetForeground(content, Brushes.Black);
                 TextElement.SetFontSize(content, style.FontSize * dip);
             }
-            // Zoom scales the whole preview (page width included), so a
-            // larger zoom also uses more of the window's width. Fit Width
-            // scales the page to the pane instead, keeping its line breaks.
-            var zoom = doc.ZoomLevel / 100.0;
-            if (_mainVm?.PreviewFitWidth == true && PreviewScroll.Viewport.Width > 0)
-                zoom = Math.Clamp((PreviewScroll.Viewport.Width - 2 * FitWidthGap) / content.MaxWidth, 0.25, 4);
-            _renderedViewportWidth = PreviewScroll.Viewport.Width;
-            PreviewHost.Content = new LayoutTransformControl
-            {
-                LayoutTransform = new ScaleTransform(zoom, zoom),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                // The title sheet is its own page, like the PDF's page 1.
-                Child = titlePage is null ? content : new StackPanel { Spacing = 16, Children = { titlePage, content } },
-            };
+            // The title sheet is its own page, like the PDF's page 1.
+            PreviewHost.Content = Zoomed(
+                titlePage is null ? content : new StackPanel { Spacing = 16, Children = { titlePage, content } },
+                content.MaxWidth, doc);
             _renderedRoot = panel;
 
             InvalidateMeasureAll(content);
@@ -469,16 +463,54 @@ public partial class PreviewView : UserControl
     }
 
     /// <summary>
-    /// Render the document as fixed-size A4 pages (print-like preview). The
+    /// Zoom scales the whole preview (page width included), so a larger zoom
+    /// also uses more of the window's width. Fit Width scales the page to the
+    /// pane instead, keeping its line breaks.
+    /// </summary>
+    private LayoutTransformControl Zoomed(Control child, double pageWidth, DocumentViewModel doc)
+    {
+        var zoom = doc.ZoomLevel / 100.0;
+        if (_mainVm?.PreviewFitWidth == true && PreviewScroll.Viewport.Width > 0)
+            zoom = Math.Clamp((PreviewScroll.Viewport.Width - 2 * FitWidthGap) / pageWidth, 0.25, 4);
+        _renderedViewportWidth = PreviewScroll.Viewport.Width;
+        return new LayoutTransformControl
+        {
+            LayoutTransform = new ScaleTransform(zoom, zoom),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Child = child,
+        };
+    }
+
+    /// <summary>
+    /// Render the document as the PDF export's pages (print-like preview):
+    /// AdocNet lays the pages out with the active style (title page, running
+    /// content, TOC page numbers), off the UI thread, then draws them. The
     /// interactive state (block map, line map) is cleared — this is a reading
     /// mode — and the scroll offset is preserved across re-renders so typing
     /// in Split mode doesn't snap the pages back to the top.
     /// </summary>
-    private void RenderPagePreview(DocumentLayout layout)
+    private async void RenderPagePreview(DocumentViewModel doc, DocumentLayout layout, PdfRenderOptions pdf, int generation)
     {
         var savedOffset = PreviewScroll.Offset.Y;
-
-        PreviewHost.Content = _pagedRenderer.Render(layout, _pageOptions);
+        var document = doc.RenderedDocument!;
+        try
+        {
+            var pages = await Task.Run(() => new PdfRenderer().LayoutPages(document, pdf));
+            if (generation != _renderGeneration)
+                return;
+            PreviewHost.Content = Zoomed(
+                _pagedRenderer.Render(layout, pages, PageLayoutOptions.FromPdf(pdf)),
+                pdf.PageWidth * PreviewStyle.DipPerPoint, doc);
+        }
+        catch (Exception ex)
+        {
+            // async void: an escaping exception would end the app.
+            if (generation != _renderGeneration) return;
+            PreviewHost.Content = null;
+            StatusOverlay.IsVisible = true;
+            StatusText.Text = $"Page preview failed: {ex.Message}";
+            return;
+        }
         _renderedRoot = null;
         _blockMap = [];
         _lineMap = null;

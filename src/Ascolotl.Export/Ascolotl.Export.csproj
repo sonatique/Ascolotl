@@ -11,12 +11,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AdocNet.Parser" Version="1.0.29" />
-    <PackageReference Include="AdocNet.Converters.Pdf" Version="1.0.29" />
-    <PackageReference Include="AdocNet.Converters.Html" Version="1.0.29" />
-    <PackageReference Include="AdocNet.Converters.Docbook" Version="1.0.29" />
-    <PackageReference Include="AdocNet.Converters.Epub" Version="1.0.29" />
-    <PackageReference Include="AdocNet.Importers.Docx" Version="1.0.29" />
+    <PackageReference Include="AdocNet.Parser" Version="1.0.30" />
+    <PackageReference Include="AdocNet.Converters.Pdf" Version="1.0.30" />
+    <PackageReference Include="AdocNet.Converters.Html" Version="1.0.30" />
+    <PackageReference Include="AdocNet.Converters.Docbook" Version="1.0.30" />
+    <PackageReference Include="AdocNet.Converters.Epub" Version="1.0.30" />
+    <PackageReference Include="AdocNet.Importers.Docx" Version="1.0.30" />
   </ItemGroup>
 
 </Project>

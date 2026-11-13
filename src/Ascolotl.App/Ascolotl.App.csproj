@@ -22,8 +22,8 @@
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.12" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.12" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="AdocNet.Avalonia" Version="1.0.29" />
-    <PackageReference Include="AdocNet.Layout" Version="1.0.29" />
+    <PackageReference Include="AdocNet.Avalonia" Version="1.0.30" />
+    <PackageReference Include="AdocNet.Layout" Version="1.0.30" />
     <!-- SVG title-page images (logos, backgrounds) in the styled preview. -->
     <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.9.5" />
     <PackageReference Include="Avalonia.Diagnostics" Version="11.3.12" Condition="'$(Configuration)' == 'Debug'" />

@@ -8,10 +8,10 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="AdocNet.Parser" Version="1.0.29" />
-    <PackageReference Include="AdocNet.Converters.Html" Version="1.0.29" />
-    <PackageReference Include="AdocNet.Ast" Version="1.0.29" />
-    <PackageReference Include="AdocNet.Core" Version="1.0.29" />
+    <PackageReference Include="AdocNet.Parser" Version="1.0.30" />
+    <PackageReference Include="AdocNet.Converters.Html" Version="1.0.30" />
+    <PackageReference Include="AdocNet.Ast" Version="1.0.30" />
+    <PackageReference Include="AdocNet.Core" Version="1.0.30" />
   </ItemGroup>
 
   <ItemGroup>
