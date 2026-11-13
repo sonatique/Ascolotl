@@ -12,7 +12,8 @@
 #   - No .NET install or WebView: builds are self-contained; rendering and export are pure-managed via AdocNet.
 #   - Linux: X11, fontconfig and ICU (libicu), present on standard desktop distros.
 #
-# Output: publish/<runtime>/ -- zip or tar to distribute.
+# Output: publish/<runtime>/Ascolotl[.exe] -- one self-contained, trimmed, ReadyToRun
+# executable per platform (native libraries included; no .pdb).
 
 param(
     [string]$Runtime = "all",
@@ -41,6 +42,8 @@ Write-Host "Tests passed." -ForegroundColor Green
 foreach ($rid in $Runtimes) {
     Write-Host "`nPublishing for $rid..." -ForegroundColor Cyan
     $outDir = "$OutputBase/$rid"
+    # Start clean: a previous multi-file publish would otherwise linger beside the single executable.
+    if (Test-Path $outDir) { Remove-Item $outDir -Recurse -Force }
 
     dotnet publish $Project `
         -c $Configuration `
@@ -48,8 +51,11 @@ foreach ($rid in $Runtimes) {
         --self-contained true `
         -o $outDir `
         -p:PublishReadyToRun=true `
-        -p:PublishSingleFile=false `
-        -p:IncludeNativeLibrariesForSelfExtract=true
+        -p:PublishSingleFile=true `
+        -p:IncludeNativeLibrariesForSelfExtract=true `
+        -p:PublishTrimmed=true `
+        -p:TrimMode=partial `
+        -p:DebugType=none
 
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Publish failed for $rid" -ForegroundColor Red
@@ -60,4 +66,4 @@ foreach ($rid in $Runtimes) {
 }
 
 Write-Host "`nPublish complete. Artifacts in ./$OutputBase/" -ForegroundColor Green
-Write-Host "Zip each runtime folder to distribute." -ForegroundColor DarkGray
+Write-Host "Each runtime folder holds a single executable to distribute." -ForegroundColor DarkGray
