@@ -1,0 +1,202 @@
+<!-- The application menus (File, Import, Export, View, Style), defined once and
+     built twice: inside the hamburger button and as the menu bar. The window shows
+     one set or the other; nothing is moved between them at runtime. -->
+<MenuItem xmlns="https://github.com/avaloniaui"
+          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+          xmlns:vm="using:Ascolotl.Core.ViewModels"
+          xmlns:models="using:Ascolotl.Core.Models"
+          x:Class="Ascolotl.App.Views.AppMenus"
+          x:DataType="vm:MainWindowViewModel">
+    <MenuItem Header="_File">
+        <MenuItem Header="_New"
+                  Command="{Binding NewDocumentCommand}"
+                  InputGesture="Ctrl+N" />
+        <MenuItem Header="_Open..."
+                  Command="{Binding OpenDocumentCommand}"
+                  InputGesture="Ctrl+O" />
+        <MenuItem Header="Open Fol_der..."
+                  Command="{Binding OpenFolderCommand}"
+                  InputGesture="Ctrl+Shift+O" />
+        <MenuItem Header="Close Folder"
+                  Command="{Binding CloseFolderCommand}"
+                  IsVisible="{Binding HasProject}" />
+        <MenuItem Header="Recent _Files" Name="RecentFilesMenu" />
+        <MenuItem Header="Reopen C_losed Tab"
+                  Command="{Binding ReopenClosedTabCommand}"
+                  InputGesture="Ctrl+Shift+T" />
+        <Separator />
+        <MenuItem Header="_Save"
+                  Command="{Binding SaveDocumentCommand}"
+                  InputGesture="Ctrl+S" />
+        <MenuItem Header="Save _As..."
+                  Command="{Binding SaveDocumentAsCommand}"
+                  InputGesture="Ctrl+Shift+S" />
+        <MenuItem Header="Save A_ll"
+                  Command="{Binding SaveAllCommand}"
+                  InputGesture="Ctrl+Alt+S" />
+        <Separator />
+        <MenuItem Header="_Close Tab"
+                  Command="{Binding CloseTabCommand}"
+                  InputGesture="Ctrl+W" />
+        <Separator />
+        <MenuItem Header="E_xit"
+                  Click="OnExitClick" />
+    </MenuItem>
+    <MenuItem Header="_Import">
+        <MenuItem Header="_Word Document..."
+                  Command="{Binding ImportCommand}"
+                  CommandParameter="{x:Static models:ImportFormat.Word}"
+                  ToolTip.Tip="Convert a .docx to AsciiDoc (images extracted beside it)" />
+        <MenuItem Header="_Plain Text..."
+                  Command="{Binding ImportCommand}"
+                  CommandParameter="{x:Static models:ImportFormat.PlainText}" />
+    </MenuItem>
+    <MenuItem x:Name="ExportMenu" Header="_Export">
+        <!-- Export-profile items are inserted at the
+             top in code-behind (RebuildExportMenu). -->
+        <MenuItem Header="_PDF..."
+                  Command="{Binding ExportCommand}"
+                  CommandParameter="{x:Static models:ExportFormat.Pdf}"
+                  InputGesture="Ctrl+E" />
+        <MenuItem Header="PDF (_Landscape)..."
+                  Command="{Binding ExportCommand}"
+                  CommandParameter="{x:Static models:ExportFormat.PdfLandscape}" />
+        <MenuItem Header="_HTML..."
+                  Command="{Binding ExportCommand}"
+                  CommandParameter="{x:Static models:ExportFormat.Html}" />
+        <MenuItem Header="_DocBook..."
+                  Command="{Binding ExportCommand}"
+                  CommandParameter="{x:Static models:ExportFormat.DocBook}" />
+        <MenuItem Header="_EPUB..."
+                  Command="{Binding ExportCommand}"
+                  CommandParameter="{x:Static models:ExportFormat.Epub}" />
+        <MenuItem Header="_Website..."
+                  Command="{Binding ExportWebsiteCommand}"
+                  IsVisible="{Binding HasProject}"
+                  ToolTip.Tip="Export the whole project folder as a linked HTML site" />
+        <Separator />
+        <MenuItem Header="_Manage Profiles..."
+                  Name="ManageExportProfilesItem" />
+        <Separator />
+        <MenuItem Header="PDF _Title">
+            <MenuItem Header="_Full Title"
+                      Command="{Binding SetPdfTitleRuleCommand}"
+                      CommandParameter="{x:Static models:PdfTitleRule.FullTitle}"
+                      ToggleType="Radio"
+                      IsChecked="{Binding IsPdfTitleFull, Mode=OneWay}" />
+            <MenuItem Header="_Up to First Colon"
+                      Command="{Binding SetPdfTitleRuleCommand}"
+                      CommandParameter="{x:Static models:PdfTitleRule.UpToFirstColon}"
+                      ToggleType="Radio"
+                      IsChecked="{Binding IsPdfTitleUpToColon, Mode=OneWay}" />
+            <Separator />
+            <MenuItem Header="_Edit Before Each PDF Export"
+                      Command="{Binding ToggleAskPdfTitleCommand}"
+                      ToggleType="CheckBox"
+                      IsChecked="{Binding AskPdfTitle, Mode=OneWay}" />
+        </MenuItem>
+        <MenuItem Header="With Another _Style">
+            <MenuItem Header="_PDF..."
+                      Command="{Binding ExportWithStyleCommand}"
+                      CommandParameter="{x:Static models:ExportFormat.Pdf}" />
+            <MenuItem Header="PDF (_Landscape)..."
+                      Command="{Binding ExportWithStyleCommand}"
+                      CommandParameter="{x:Static models:ExportFormat.PdfLandscape}" />
+            <MenuItem Header="_HTML..."
+                      Command="{Binding ExportWithStyleCommand}"
+                      CommandParameter="{x:Static models:ExportFormat.Html}" />
+            <MenuItem Header="_EPUB..."
+                      Command="{Binding ExportWithStyleCommand}"
+                      CommandParameter="{x:Static models:ExportFormat.Epub}" />
+        </MenuItem>
+    </MenuItem>
+    <MenuItem Header="_View">
+        <MenuItem Header="_Source Mode"
+                  Command="{Binding SetEditorModeCommand}"
+                  CommandParameter="{x:Static models:EditorMode.Source}"
+                  ToggleType="Radio"
+                  IsChecked="{Binding IsSourceMode, Mode=OneWay}" />
+        <MenuItem Header="S_plit Mode"
+                  Command="{Binding SetEditorModeCommand}"
+                  CommandParameter="{x:Static models:EditorMode.Split}"
+                  ToggleType="Radio"
+                  IsChecked="{Binding IsSplitMode, Mode=OneWay}" />
+        <MenuItem Header="_WYSIWYG Mode"
+                  Command="{Binding SetEditorModeCommand}"
+                  CommandParameter="{x:Static models:EditorMode.Wysiwyg}"
+                  ToggleType="Radio"
+                  IsChecked="{Binding IsWysiwygMode, Mode=OneWay}" />
+        <Separator />
+        <MenuItem Header="Show _Title &amp; TOC"
+                  Command="{Binding ToggleShowTitleAndTocCommand}"
+                  ToggleType="CheckBox"
+                  IsChecked="{Binding ShowTitleAndToc, Mode=OneWay}" />
+        <MenuItem Header="Page Pre_view"
+                  Command="{Binding TogglePagePreviewCommand}"
+                  ToggleType="CheckBox"
+                  IsChecked="{Binding PagePreview, Mode=OneWay}"
+                  ToolTip.Tip="Flow the preview into A4 pages, matching the PDF export" />
+        <MenuItem Header="Sync _Scrolling"
+                  Command="{Binding ToggleSyncScrollingCommand}"
+                  ToggleType="CheckBox"
+                  IsChecked="{Binding SyncScrolling, Mode=OneWay}" />
+        <MenuItem Header="_Editor Word Wrap"
+                  Command="{Binding ToggleEditorWordWrapCommand}"
+                  ToggleType="CheckBox"
+                  IsChecked="{Binding EditorWordWrap, Mode=OneWay}" />
+        <MenuItem Header="_Preview Word Wrap"
+                  Command="{Binding TogglePreviewWordWrapCommand}"
+                  ToggleType="CheckBox"
+                  IsChecked="{Binding PreviewWordWrap, Mode=OneWay}" />
+        <MenuItem Header="Toggle _Outline"
+                  Command="{Binding ToggleOutlinePaneCommand}"
+                  InputGesture="Ctrl+B"
+                  ToggleType="CheckBox"
+                  IsChecked="{Binding ShowOutlinePane, Mode=OneWay}" />
+        <MenuItem Header="_Hamburger Menu"
+                  Command="{Binding ToggleHamburgerMenuCommand}"
+                  ToggleType="CheckBox"
+                  IsChecked="{Binding HamburgerMenu, Mode=OneWay}" />
+        <Separator />
+        <MenuItem Header="Zoom _In"
+                  Command="{Binding ZoomInCommand}"
+                  InputGesture="Ctrl+OemPlus" />
+        <MenuItem Header="Zoom _Out"
+                  Command="{Binding ZoomOutCommand}"
+                  InputGesture="Ctrl+OemMinus" />
+        <MenuItem Header="_Reset Zoom"
+                  Command="{Binding ZoomResetCommand}"
+                  InputGesture="Ctrl+D0" />
+        <MenuItem Header="_Fit Width"
+                  Command="{Binding TogglePreviewFitWidthCommand}"
+                  ToggleType="CheckBox"
+                  IsChecked="{Binding PreviewFitWidth, Mode=OneWay}" />
+        <Separator />
+        <MenuItem Header="Theme: _Light"
+                  Command="{Binding SetThemeCommand}"
+                  CommandParameter="{x:Static models:AppTheme.Light}"
+                  ToggleType="Radio"
+                  IsChecked="{Binding IsThemeLight, Mode=OneWay}" />
+        <MenuItem Header="Theme: _Dark"
+                  Command="{Binding SetThemeCommand}"
+                  CommandParameter="{x:Static models:AppTheme.Dark}"
+                  ToggleType="Radio"
+                  IsChecked="{Binding IsThemeDark, Mode=OneWay}" />
+        <MenuItem Header="Theme: _System"
+                  Command="{Binding SetThemeCommand}"
+                  CommandParameter="{x:Static models:AppTheme.System}"
+                  ToggleType="Radio"
+                  IsChecked="{Binding IsThemeSystem, Mode=OneWay}" />
+    </MenuItem>
+    <!-- Document style: an asciidoctor-pdf YAML theme used by
+         the preview and by PDF/HTML/EPUB export. -->
+    <MenuItem Header="_Style">
+        <MenuItem Header="{Binding StyleMenuHeader}" IsEnabled="False" />
+        <Separator />
+        <MenuItem Header="_Load Style..."
+                  Command="{Binding LoadStyleCommand}" />
+        <MenuItem Header="Use _Built-in Style"
+                  Command="{Binding ResetStyleCommand}"
+                  IsEnabled="{Binding HasStyle}" />
+    </MenuItem>
+</MenuItem>

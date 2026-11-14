@@ -69,8 +69,20 @@ public partial class MainWindow : Window
         SidebarFilesTab.PointerPressed += (_, _) => SetSidebarFilesActive(true);
         ProjectTree.DoubleTapped += OnProjectTreeDoubleTapped;
 
+        // The menu-bar set of the application menus (the hamburger holds the
+        // other). Its menus join the bar here, before they've ever been shown.
+        var bar = new AppMenus();
+        foreach (var menu in bar.Items.OfType<MenuItem>().ToList())
+        {
+            bar.Items.Remove(menu);
+            MainMenu.Items.Add(menu);
+            _barMenus.Add(menu);
+        }
+        _menuSets = [HamburgerMenuItem, bar];
+
         // Export profiles management
-        ManageExportProfilesItem.Click += OnManageExportProfiles;
+        foreach (var set in _menuSets)
+            set.ManageExportProfilesItem.Click += OnManageExportProfiles;
 
         // Tab middle-click
         DocumentTabStrip.PointerPressed += OnTabStripPointerPressed;
@@ -120,33 +132,19 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>
-    /// Places File/View either nested under a single ☰ item (hamburger) or
-    /// inline as top-level menu items, by reparenting the same MenuItem
-    /// instances — no duplicated markup, so toggling is lossless.
-    /// </summary>
+    // The application menus exist twice (see AppMenus): inside the hamburger and
+    // as the menu bar. Showing one set never moves menus between parents, which
+    // Avalonia can't do safely once a menu has been opened.
+    private readonly List<MenuItem> _barMenus = [];
+    private AppMenus[] _menuSets = [];
+
     private void ApplyMenuMode(bool hamburger)
     {
-        MainMenu.Items.Clear();
-        HamburgerMenuItem.Items.Clear();
-
-        if (hamburger)
-        {
-            HamburgerMenuItem.Items.Add(FileMenuItem);
-            HamburgerMenuItem.Items.Add(ImportMenuItem);
-            HamburgerMenuItem.Items.Add(ExportMenu);
-            HamburgerMenuItem.Items.Add(ViewMenuItem);
-            HamburgerMenuItem.Items.Add(StyleMenuItem);
-            MainMenu.Items.Add(HamburgerMenuItem);
-        }
-        else
-        {
-            MainMenu.Items.Add(FileMenuItem);
-            MainMenu.Items.Add(ImportMenuItem);
-            MainMenu.Items.Add(ExportMenu);
-            MainMenu.Items.Add(ViewMenuItem);
-            MainMenu.Items.Add(StyleMenuItem);
-        }
+        // The switch is clicked inside an open menu: close it first.
+        MainMenu.Close();
+        HamburgerMenuItem.IsVisible = hamburger;
+        foreach (var menu in _barMenus)
+            menu.IsVisible = !hamburger;
     }
 
     private void OnRecentFilesChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -157,15 +155,22 @@ public partial class MainWindow : Window
 
     // --- Export profiles ---
 
-    private readonly List<Control> _exportProfileMenuItems = [];
+    private readonly Dictionary<MenuItem, List<Control>> _exportProfileMenuItems = [];
 
     /// <summary>Profile entries live at the top of the Export submenu, above
     /// the raw format items, so the one-click path is the shortest one.</summary>
     private void RebuildExportMenu()
     {
-        foreach (var item in _exportProfileMenuItems)
-            ExportMenu.Items.Remove(item);
-        _exportProfileMenuItems.Clear();
+        foreach (var set in _menuSets)
+            RebuildExportMenu(set.ExportMenu);
+    }
+
+    private void RebuildExportMenu(MenuItem exportMenu)
+    {
+        if (_exportProfileMenuItems.TryGetValue(exportMenu, out var previous))
+            foreach (var item in previous)
+                exportMenu.Items.Remove(item);
+        var added = _exportProfileMenuItems[exportMenu] = [];
 
         if (_viewModel is null || _viewModel.ExportProfiles.Count == 0)
             return;
@@ -181,13 +186,13 @@ public partial class MainWindow : Window
             };
             ToolTip.SetTip(item,
                 $"{profile.Format.DisplayName()} · {profile.Theme.DisplayName()} → {profile.OutputFolder ?? "next to the document"}");
-            _exportProfileMenuItems.Add(item);
-            ExportMenu.Items.Insert(index++, item);
+            added.Add(item);
+            exportMenu.Items.Insert(index++, item);
         }
 
         var separator = new Separator();
-        _exportProfileMenuItems.Add(separator);
-        ExportMenu.Items.Insert(index, separator);
+        added.Add(separator);
+        exportMenu.Items.Insert(index, separator);
     }
 
     private async void OnManageExportProfiles(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -355,21 +360,18 @@ public partial class MainWindow : Window
 
     private void RebuildRecentFilesMenu(MainWindowViewModel vm)
     {
-        RecentFilesMenu.Items.Clear();
-
-        foreach (var path in vm.RecentFiles)
+        foreach (var set in _menuSets)
         {
-            var item = new MenuItem { Header = path };
-            item.Click += (_, _) => vm.OpenRecentFileCommand.Execute(path);
-            RecentFilesMenu.Items.Add(item);
+            var recent = set.RecentFilesMenu;
+            recent.Items.Clear();
+            foreach (var path in vm.RecentFiles)
+            {
+                var item = new MenuItem { Header = path };
+                item.Click += (_, _) => vm.OpenRecentFileCommand.Execute(path);
+                recent.Items.Add(item);
+            }
+            recent.IsEnabled = vm.RecentFiles.Count > 0;
         }
-
-        RecentFilesMenu.IsEnabled = vm.RecentFiles.Count > 0;
-    }
-
-    private void OnExitClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        Close();
     }
 
     private void OnTitleDragPressed(object? sender, PointerPressedEventArgs e)
