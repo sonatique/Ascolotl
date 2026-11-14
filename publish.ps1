@@ -48,6 +48,9 @@ foreach ($rid in $Runtimes) {
     $outDir = "$OutputBase/$rid"
     # Start clean: a previous multi-file publish would otherwise linger beside the single executable.
     if (Test-Path $outDir) { Remove-Item $outDir -Recurse -Force }
+    # The Store build (packaging/msix) shares this intermediate folder with other
+    # settings; reusing its trimmed/ReadyToRun output can crash the app at startup.
+    Remove-Item "src/Ascolotl.App/obj/$Configuration/net10.0/$rid" -Recurse -Force -ErrorAction SilentlyContinue
 
     dotnet publish $Project `
         -c $Configuration `

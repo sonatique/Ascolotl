@@ -39,6 +39,10 @@ foreach ($arch in $Architectures) {
     Write-Host "`nBuilding $arch..." -ForegroundColor Cyan
     $layout = "$out/$arch/layout"
 
+    # publish.ps1's single-file build shares this intermediate folder; reusing its
+    # trimmed/ReadyToRun output produced an exe that crashed at startup.
+    Remove-Item "$root/src/Ascolotl.App/obj/Release/net10.0/win-$arch" -Recurse -Force -ErrorAction SilentlyContinue
+
     # Multi-file publish: MSIX installs the files, so no single-file self-extraction.
     dotnet publish $project -c Release -r "win-$arch" --self-contained true -o $layout `
         -p:PublishReadyToRun=true -p:PublishTrimmed=true -p:TrimMode=partial -p:DebugType=none
