@@ -49,7 +49,7 @@
                         <!-- Parser diagnostics count (errors / warnings); hover
                              for the messages. -->
                         <StackPanel Orientation="Horizontal" Spacing="4"
-                                    IsVisible="{Binding SelectedDocument.HasErrors}"
+                                    IsVisible="{Binding SelectedDocument.HasErrors, FallbackValue=False}"
                                     ToolTip.Tip="{Binding SelectedDocument.DiagnosticsSummary}"
                                     VerticalAlignment="Center">
                             <Path Classes="icon" Data="{StaticResource IconErrorGeometry}"
@@ -59,7 +59,7 @@
                                        VerticalAlignment="Center" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="4"
-                                    IsVisible="{Binding SelectedDocument.HasWarnings}"
+                                    IsVisible="{Binding SelectedDocument.HasWarnings, FallbackValue=False}"
                                     ToolTip.Tip="{Binding SelectedDocument.DiagnosticsSummary}"
                                     VerticalAlignment="Center">
                             <Path Classes="icon" Data="{StaticResource IconWarningGeometry}"
@@ -126,12 +126,12 @@
                                     Margin="14,10,12,8">
                             <TextBlock Name="SidebarOutlineTab"
                                        Text="Outline"
-                                       FontSize="11"
+                                       FontSize="11.5"
                                        Cursor="Hand"
                                        Foreground="{DynamicResource ForgeTextMutedBrush}" />
                             <TextBlock Name="SidebarFilesTab"
                                        Text="Files"
-                                       FontSize="11"
+                                       FontSize="11.5"
                                        Cursor="Hand"
                                        IsVisible="{Binding HasProject}"
                                        Foreground="{DynamicResource ForgeTextMutedBrush}" />
@@ -147,7 +147,7 @@
                                     <DataTemplate x:DataType="models:OutlineItem">
                                         <TextBlock Text="{Binding Title}"
                                                    Margin="{Binding Level, Converter={StaticResource LevelToMarginConverter}}"
-                                                   FontSize="12"
+                                                   FontSize="12.5"
                                                    TextTrimming="CharacterEllipsis"
                                                    ToolTip.Tip="{Binding Title}" />
                                     </DataTemplate>
@@ -162,7 +162,7 @@
                                     <TreeDataTemplate ItemsSource="{Binding Children}"
                                                       x:DataType="models:ProjectNode">
                                         <TextBlock Text="{Binding Name}"
-                                                   FontSize="12"
+                                                   FontSize="12.5"
                                                    TextTrimming="CharacterEllipsis"
                                                    ToolTip.Tip="{Binding FullPath}" />
                                     </TreeDataTemplate>

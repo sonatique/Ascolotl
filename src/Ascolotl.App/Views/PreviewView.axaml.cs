@@ -414,12 +414,14 @@ public partial class PreviewView : UserControl
                 content.MaxWidth = style.PageWidth * dip;
                 content.Padding = new Thickness(style.MarginLeft * dip, 24, style.MarginRight * dip, 0);
                 content.Background = Brushes.White;
+                PageEdge(content);
                 TextElement.SetForeground(content, Brushes.Black);
                 TextElement.SetFontSize(content, style.FontSize * dip);
             }
             // The title sheet is its own page, like the PDF's page 1.
             PreviewHost.Content = Zoomed(
-                titlePage is null ? content : new StackPanel { Spacing = 16, Children = { titlePage, content } },
+                titlePage is null ? content
+                    : new StackPanel { Spacing = 16, Children = { PageEdge(new Border { Child = titlePage }), content } },
                 content.MaxWidth, doc);
             _renderedRoot = panel;
 
@@ -480,6 +482,20 @@ public partial class PreviewView : UserControl
             StatusOverlay.IsVisible = true;
             StatusText.Text = $"Preview render failed: {ex.Message}";
         }
+    }
+
+    /// <summary>
+    /// A hairline in the theme's border colour around a white page: the preview
+    /// shares the editor's surface, and in the light theme that surface is
+    /// almost white, so the edge is what reads as "a sheet of paper".
+    /// </summary>
+    private Border PageEdge(Border page)
+    {
+        page.BorderThickness = new Thickness(1);
+        page.CornerRadius = new CornerRadius(3);
+        page.ClipToBounds = true;
+        page.Bind(Border.BorderBrushProperty, this.GetResourceObservable("ForgeBorderBrush"));
+        return page;
     }
 
     /// <summary>

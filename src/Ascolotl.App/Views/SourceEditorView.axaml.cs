@@ -43,18 +43,30 @@ public partial class SourceEditorView : UserControl
         Editor.TextChanged += OnEditorTextChanged;
         Editor.TextArea.Caret.PositionChanged += OnCaretPositionChanged;
 
-        // Set initial Vibrant Gill theme colors based on current theme
+        Editor.TextArea.TextView.LineTransformers.Add(_colorizer);
+
+        // Colours for the current theme (light or dark)
         OnThemeChanged(null, EventArgs.Empty);
     }
+
+    private readonly AsciiDocColorizer _colorizer = new();
 
     private void OnThemeChanged(object? sender, EventArgs e)
     {
         var isDark = Application.Current?.ActualThemeVariant == ThemeVariant.Dark;
-        Editor.LineNumbersForeground = new Avalonia.Media.SolidColorBrush(
-            Avalonia.Media.Color.Parse(isDark ? "#9E958C" : "#7A7168"));
-        Editor.TextArea.TextView.CurrentLineBorder = new Avalonia.Media.Pen(
-            new Avalonia.Media.SolidColorBrush(
-                Avalonia.Media.Color.Parse(isDark ? "#40E8608A" : "#40D94F7A")), 1);
+        static Avalonia.Media.SolidColorBrush Brush(string hex) => new(Avalonia.Media.Color.Parse(hex));
+
+        Editor.LineNumbersForeground = Brush(isDark ? "#6E6862" : "#B0ABA3");
+        // The current line is a quiet band; the rose caret marks where you are.
+        Editor.TextArea.TextView.CurrentLineBackground = Brush(isDark ? "#262321" : "#F4F2EE");
+        Editor.TextArea.TextView.CurrentLineBorder = new Avalonia.Media.Pen(Avalonia.Media.Brushes.Transparent, 0);
+        Editor.TextArea.Caret.CaretBrush = Brush(isDark ? "#E8608A" : "#D94F7A");
+        Editor.TextArea.SelectionBrush = Brush(isDark ? "#4A2535" : "#F7DCE5");
+        Editor.TextArea.SelectionForeground = null;
+        Editor.TextArea.SelectionBorder = null;
+
+        _colorizer.UseTheme(isDark);
+        Editor.TextArea.TextView.Redraw();
     }
 
     private void OnDataContextChanged(object? sender, EventArgs e)
