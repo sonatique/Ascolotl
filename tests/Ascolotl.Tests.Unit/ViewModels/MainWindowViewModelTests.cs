@@ -31,6 +31,35 @@ public sealed class MainWindowViewModelTests : IDisposable
     // --- Constructor ---
 
     [Fact]
+    public async Task ImportPlainText_WritesAsciiDocAndOpensIt()
+    {
+        var vm = CreateViewModel();
+        _fileService.PickOpenFilePathResult = Path.Combine("in", "notes.txt");
+        _fileService.PickSavePathResult = Path.Combine("out", "notes.adoc");
+        _fileService.ReadFileResult = "Hello\n- one\n";
+
+        await vm.ImportCommand.ExecuteAsync(ImportFormat.PlainText);
+
+        Assert.Equal(Path.Combine("out", "notes.adoc"), _fileService.LastSavedPath);
+        Assert.Equal("= notes\n\nHello\n\n* one\n", _fileService.LastSavedContent);
+        Assert.Equal(Path.Combine("out", "notes.adoc"), vm.SelectedDocument?.FilePath);
+    }
+
+    [Fact]
+    public async Task ImportPlainText_UnreadableFile_ShowsErrorDialog()
+    {
+        var vm = CreateViewModel();
+        _fileService.PickOpenFilePathResult = "gone.txt";
+        _fileService.PickSavePathResult = "gone.adoc";
+        _fileService.ReadFileResult = null;
+
+        await vm.ImportCommand.ExecuteAsync(ImportFormat.PlainText);
+
+        Assert.Equal("Import Failed", Assert.Single(_dialogService.Errors).Title);
+        Assert.Equal(0, _fileService.SaveFileCalled);
+    }
+
+    [Fact]
     public void EmptyState_HiddenWhileStartupOpensDocuments()
     {
         var vm = CreateViewModel();

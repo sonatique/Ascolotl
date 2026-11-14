@@ -232,9 +232,6 @@
                                 <MenuItem Header="Close Folder"
                                           Command="{Binding CloseFolderCommand}"
                                           IsVisible="{Binding HasProject}" />
-                                <MenuItem Header="_Import from Word..."
-                                          Command="{Binding ImportDocxCommand}"
-                                          ToolTip.Tip="Convert a .docx to AsciiDoc (images extracted beside it)" />
                                 <MenuItem Header="Recent _Files" Name="RecentFilesMenu" />
                                 <MenuItem Header="Reopen C_losed Tab"
                                           Command="{Binding ReopenClosedTabCommand}"
@@ -250,72 +247,80 @@
                                           Command="{Binding SaveAllCommand}"
                                           InputGesture="Ctrl+Alt+S" />
                                 <Separator />
-                                <MenuItem Header="_Export" Name="ExportMenu">
-                                    <!-- Export-profile items are inserted at the
-                                         top in code-behind (RebuildExportMenu). -->
-                                    <MenuItem Header="_PDF..."
-                                              Command="{Binding ExportCommand}"
-                                              CommandParameter="{x:Static models:ExportFormat.Pdf}"
-                                              InputGesture="Ctrl+E" />
-                                    <MenuItem Header="PDF (_Landscape)..."
-                                              Command="{Binding ExportCommand}"
-                                              CommandParameter="{x:Static models:ExportFormat.PdfLandscape}" />
-                                    <MenuItem Header="_HTML..."
-                                              Command="{Binding ExportCommand}"
-                                              CommandParameter="{x:Static models:ExportFormat.Html}" />
-                                    <MenuItem Header="_DocBook..."
-                                              Command="{Binding ExportCommand}"
-                                              CommandParameter="{x:Static models:ExportFormat.DocBook}" />
-                                    <MenuItem Header="_EPUB..."
-                                              Command="{Binding ExportCommand}"
-                                              CommandParameter="{x:Static models:ExportFormat.Epub}" />
-                                    <MenuItem Header="_Website..."
-                                              Command="{Binding ExportWebsiteCommand}"
-                                              IsVisible="{Binding HasProject}"
-                                              ToolTip.Tip="Export the whole project folder as a linked HTML site" />
-                                    <Separator />
-                                    <MenuItem Header="_Manage Profiles..."
-                                              Name="ManageExportProfilesItem" />
-                                    <Separator />
-                                    <MenuItem Header="PDF _Title">
-                                        <MenuItem Header="_Full Title"
-                                                  Command="{Binding SetPdfTitleRuleCommand}"
-                                                  CommandParameter="{x:Static models:PdfTitleRule.FullTitle}"
-                                                  ToggleType="Radio"
-                                                  IsChecked="{Binding IsPdfTitleFull, Mode=OneWay}" />
-                                        <MenuItem Header="_Up to First Colon"
-                                                  Command="{Binding SetPdfTitleRuleCommand}"
-                                                  CommandParameter="{x:Static models:PdfTitleRule.UpToFirstColon}"
-                                                  ToggleType="Radio"
-                                                  IsChecked="{Binding IsPdfTitleUpToColon, Mode=OneWay}" />
-                                        <Separator />
-                                        <MenuItem Header="_Edit Before Each PDF Export"
-                                                  Command="{Binding ToggleAskPdfTitleCommand}"
-                                                  ToggleType="CheckBox"
-                                                  IsChecked="{Binding AskPdfTitle, Mode=OneWay}" />
-                                    </MenuItem>
-                                    <MenuItem Header="With Another _Style">
-                                        <MenuItem Header="_PDF..."
-                                                  Command="{Binding ExportWithStyleCommand}"
-                                                  CommandParameter="{x:Static models:ExportFormat.Pdf}" />
-                                        <MenuItem Header="PDF (_Landscape)..."
-                                                  Command="{Binding ExportWithStyleCommand}"
-                                                  CommandParameter="{x:Static models:ExportFormat.PdfLandscape}" />
-                                        <MenuItem Header="_HTML..."
-                                                  Command="{Binding ExportWithStyleCommand}"
-                                                  CommandParameter="{x:Static models:ExportFormat.Html}" />
-                                        <MenuItem Header="_EPUB..."
-                                                  Command="{Binding ExportWithStyleCommand}"
-                                                  CommandParameter="{x:Static models:ExportFormat.Epub}" />
-                                    </MenuItem>
-                                </MenuItem>
-                                <Separator />
                                 <MenuItem Header="_Close Tab"
                                           Command="{Binding CloseTabCommand}"
                                           InputGesture="Ctrl+W" />
                                 <Separator />
                                 <MenuItem Header="E_xit"
                                           Click="OnExitClick" />
+                            </MenuItem>
+                            <MenuItem x:Name="ImportMenuItem" Header="_Import">
+                                <MenuItem Header="_Word Document..."
+                                          Command="{Binding ImportCommand}"
+                                          CommandParameter="{x:Static models:ImportFormat.Word}"
+                                          ToolTip.Tip="Convert a .docx to AsciiDoc (images extracted beside it)" />
+                                <MenuItem Header="_Plain Text..."
+                                          Command="{Binding ImportCommand}"
+                                          CommandParameter="{x:Static models:ImportFormat.PlainText}" />
+                            </MenuItem>
+                            <MenuItem x:Name="ExportMenu" Header="_Export">
+                                <!-- Export-profile items are inserted at the
+                                     top in code-behind (RebuildExportMenu). -->
+                                <MenuItem Header="_PDF..."
+                                          Command="{Binding ExportCommand}"
+                                          CommandParameter="{x:Static models:ExportFormat.Pdf}"
+                                          InputGesture="Ctrl+E" />
+                                <MenuItem Header="PDF (_Landscape)..."
+                                          Command="{Binding ExportCommand}"
+                                          CommandParameter="{x:Static models:ExportFormat.PdfLandscape}" />
+                                <MenuItem Header="_HTML..."
+                                          Command="{Binding ExportCommand}"
+                                          CommandParameter="{x:Static models:ExportFormat.Html}" />
+                                <MenuItem Header="_DocBook..."
+                                          Command="{Binding ExportCommand}"
+                                          CommandParameter="{x:Static models:ExportFormat.DocBook}" />
+                                <MenuItem Header="_EPUB..."
+                                          Command="{Binding ExportCommand}"
+                                          CommandParameter="{x:Static models:ExportFormat.Epub}" />
+                                <MenuItem Header="_Website..."
+                                          Command="{Binding ExportWebsiteCommand}"
+                                          IsVisible="{Binding HasProject}"
+                                          ToolTip.Tip="Export the whole project folder as a linked HTML site" />
+                                <Separator />
+                                <MenuItem Header="_Manage Profiles..."
+                                          Name="ManageExportProfilesItem" />
+                                <Separator />
+                                <MenuItem Header="PDF _Title">
+                                    <MenuItem Header="_Full Title"
+                                              Command="{Binding SetPdfTitleRuleCommand}"
+                                              CommandParameter="{x:Static models:PdfTitleRule.FullTitle}"
+                                              ToggleType="Radio"
+                                              IsChecked="{Binding IsPdfTitleFull, Mode=OneWay}" />
+                                    <MenuItem Header="_Up to First Colon"
+                                              Command="{Binding SetPdfTitleRuleCommand}"
+                                              CommandParameter="{x:Static models:PdfTitleRule.UpToFirstColon}"
+                                              ToggleType="Radio"
+                                              IsChecked="{Binding IsPdfTitleUpToColon, Mode=OneWay}" />
+                                    <Separator />
+                                    <MenuItem Header="_Edit Before Each PDF Export"
+                                              Command="{Binding ToggleAskPdfTitleCommand}"
+                                              ToggleType="CheckBox"
+                                              IsChecked="{Binding AskPdfTitle, Mode=OneWay}" />
+                                </MenuItem>
+                                <MenuItem Header="With Another _Style">
+                                    <MenuItem Header="_PDF..."
+                                              Command="{Binding ExportWithStyleCommand}"
+                                              CommandParameter="{x:Static models:ExportFormat.Pdf}" />
+                                    <MenuItem Header="PDF (_Landscape)..."
+                                              Command="{Binding ExportWithStyleCommand}"
+                                              CommandParameter="{x:Static models:ExportFormat.PdfLandscape}" />
+                                    <MenuItem Header="_HTML..."
+                                              Command="{Binding ExportWithStyleCommand}"
+                                              CommandParameter="{x:Static models:ExportFormat.Html}" />
+                                    <MenuItem Header="_EPUB..."
+                                              Command="{Binding ExportWithStyleCommand}"
+                                              CommandParameter="{x:Static models:ExportFormat.Epub}" />
+                                </MenuItem>
                             </MenuItem>
                             <MenuItem x:Name="ViewMenuItem" Header="_View">
                                 <MenuItem Header="_Source Mode"

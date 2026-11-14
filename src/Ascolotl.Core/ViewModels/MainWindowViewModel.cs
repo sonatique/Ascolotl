@@ -536,35 +536,49 @@ public partial class MainWindowViewModel : ObservableObject
     // --- Import ---
 
     /// <summary>
-    /// Import a Word document: convert it to AsciiDoc at a location the user
-    /// picks (images land in a media folder beside it) and open the result.
-    /// The destination is asked for up front rather than importing into an
-    /// untitled buffer, because the images need somewhere to live.
+    /// Import: convert a file in another format into a new AsciiDoc document at
+    /// a location the user picks, then open it. The destination is asked for up
+    /// front rather than importing into an untitled buffer, because extracted
+    /// images need somewhere to live.
     /// </summary>
     [RelayCommand]
-    private async Task ImportDocxAsync()
+    private async Task ImportAsync(ImportFormat format)
     {
-        if (_docxImportService is null)
+        if (format == ImportFormat.Word && _docxImportService is null)
             return;
 
-        var docxPath = await _fileService.PickOpenFilePathAsync(
-            "Import Word Document", "Word Documents", ["*.docx"]);
-        if (docxPath is null)
+        var sourcePath = await _fileService.PickOpenFilePathAsync(
+            $"Import {format.DisplayName()}", format.DisplayName(), format.Patterns());
+        if (sourcePath is null)
             return;
 
-        var suggested = Path.GetFileNameWithoutExtension(docxPath) + ".adoc";
+        var suggested = Path.GetFileNameWithoutExtension(sourcePath) + ".adoc";
         var adocPath = await _fileService.PickSavePathAsync(suggested, "adoc", "AsciiDoc File");
         if (adocPath is null)
             return;
 
-        StatusText = $"Importing {Path.GetFileName(docxPath)}...";
+        StatusText = $"Importing {Path.GetFileName(sourcePath)}...";
 
-        var outcome = await _docxImportService.ImportAsync(docxPath, adocPath, CancellationToken.None);
+        if (format == ImportFormat.PlainText)
+        {
+            var text = await _fileService.ReadFileAsync(sourcePath);
+            if (text is null)
+            {
+                await ReportFailureAsync("Import Failed", $"Could not read {Path.GetFileName(sourcePath)}.");
+                return;
+            }
+            await _fileService.SaveFileAsync(adocPath,
+                PlainTextImport.ToAsciiDoc(text, Path.GetFileNameWithoutExtension(sourcePath)));
+            await OpenFileByPathAsync(adocPath);
+            StatusText = $"Imported {Path.GetFileName(sourcePath)}";
+            return;
+        }
 
+        var outcome = await _docxImportService!.ImportAsync(sourcePath, adocPath, CancellationToken.None);
         if (!outcome.IsSuccess)
         {
             _log?.Error($"Word import failed: {outcome.ErrorMessage}");
-            StatusText = DocxImportSummary.Describe(outcome);
+            await ReportFailureAsync("Import Failed", DocxImportSummary.Describe(outcome));
             return;
         }
 
@@ -933,10 +947,12 @@ public partial class MainWindowViewModel : ObservableObject
     /// Export failures get a dialog: the status line alone is overwritten by
     /// the next render, so the failure would go unnoticed.
     /// </summary>
-    private async Task ReportExportFailureAsync(string message)
+    private Task ReportExportFailureAsync(string message) => ReportFailureAsync("Export Failed", message);
+
+    private async Task ReportFailureAsync(string title, string message)
     {
         StatusText = message;
-        await _dialogService.ShowErrorAsync("Export Failed", message);
+        await _dialogService.ShowErrorAsync(title, message);
     }
 
     // --- Export profiles (single-source publishing) ---
@@ -1396,7 +1412,8 @@ public partial class MainWindowViewModel : ObservableObject
             new("New Document", "Ctrl+N", "File", () => NewDocumentCommand.Execute(null)),
             new("Open Document", "Ctrl+O", "File", () => OpenDocumentCommand.Execute(null)),
             new("Open Folder", "Ctrl+Shift+O", "File", () => OpenFolderCommand.Execute(null)),
-            new("Import from Word (.docx)", null, "File", () => ImportDocxCommand.Execute(null)),
+            new("Import Word Document", null, "Import", () => ImportCommand.Execute(ImportFormat.Word)),
+            new("Import Plain Text", null, "Import", () => ImportCommand.Execute(ImportFormat.PlainText)),
             new("Close Folder", null, "File", () => CloseFolderCommand.Execute(null), () => HasProject),
             new("Refresh Folder", null, "File", () => RefreshProjectCommand.Execute(null), () => HasProject),
             new("Save", "Ctrl+S", "File", () => SaveDocumentCommand.Execute(null)),

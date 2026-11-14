@@ -133,6 +133,8 @@ public partial class MainWindow : Window
         if (hamburger)
         {
             HamburgerMenuItem.Items.Add(FileMenuItem);
+            HamburgerMenuItem.Items.Add(ImportMenuItem);
+            HamburgerMenuItem.Items.Add(ExportMenu);
             HamburgerMenuItem.Items.Add(ViewMenuItem);
             HamburgerMenuItem.Items.Add(StyleMenuItem);
             MainMenu.Items.Add(HamburgerMenuItem);
@@ -140,6 +142,8 @@ public partial class MainWindow : Window
         else
         {
             MainMenu.Items.Add(FileMenuItem);
+            MainMenu.Items.Add(ImportMenuItem);
+            MainMenu.Items.Add(ExportMenu);
             MainMenu.Items.Add(ViewMenuItem);
             MainMenu.Items.Add(StyleMenuItem);
         }
