@@ -703,7 +703,9 @@ public sealed class MainWindowViewModelTests : IDisposable
         Assert.Equal("= Hello", _renderService.LastSource);
     }
 
-    [Fact]
+    // On the UI thread, as in the app: the coalescing relies on the dispatcher
+    // running the render after the synchronous selection changes.
+    [Avalonia.Headless.XUnit.AvaloniaFact]
     public async Task Render_SelectionChangedTwiceInOneStep_RendersOnlyTheLastDocument()
     {
         // Session restore: the tab strip selects the first tab, then the saved one.
