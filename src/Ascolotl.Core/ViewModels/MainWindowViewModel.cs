@@ -1113,17 +1113,39 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void ZoomIn()
     {
-        PreviewFitWidth = false;
-        if (SelectedDocument is not null && SelectedDocument.ZoomLevel < DocumentViewModel.ZoomMax)
-            SelectedDocument.ZoomLevel += DocumentViewModel.ZoomStep;
+        // Steps land on multiples of 10 even after a smooth gesture left 117 %.
+        if (SelectedDocument is { } doc)
+            ZoomTo((doc.ZoomLevel / DocumentViewModel.ZoomStep + 1) * DocumentViewModel.ZoomStep);
     }
 
     [RelayCommand]
     private void ZoomOut()
     {
+        if (SelectedDocument is { } doc)
+            ZoomTo((doc.ZoomLevel - 1) / DocumentViewModel.ZoomStep * DocumentViewModel.ZoomStep);
+    }
+
+    // Exact zoom between whole percents, so a gesture's many small steps add up
+    // instead of each rounding back to the same level.
+    private double _zoomExact;
+
+    /// <summary>Scales the zoom by <paramref name="factor"/> (smooth Ctrl+wheel or pinch zoom).</summary>
+    public void ZoomBy(double factor)
+    {
+        if (SelectedDocument is not { } doc)
+            return;
+        if (Math.Abs(_zoomExact - doc.ZoomLevel) >= 1)
+            _zoomExact = doc.ZoomLevel; // changed elsewhere (menu, another tab)
+        _zoomExact = Math.Clamp(_zoomExact * factor, DocumentViewModel.ZoomMin, DocumentViewModel.ZoomMax);
+        ZoomTo((int)Math.Round(_zoomExact));
+    }
+
+    /// <summary>Sets the zoom (clamped to its range), e.g. from a smooth gesture; turns Fit Width off.</summary>
+    public void ZoomTo(int percent)
+    {
         PreviewFitWidth = false;
-        if (SelectedDocument is not null && SelectedDocument.ZoomLevel > DocumentViewModel.ZoomMin)
-            SelectedDocument.ZoomLevel -= DocumentViewModel.ZoomStep;
+        if (SelectedDocument is not null)
+            SelectedDocument.ZoomLevel = Math.Clamp(percent, DocumentViewModel.ZoomMin, DocumentViewModel.ZoomMax);
     }
 
     [RelayCommand]

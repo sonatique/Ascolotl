@@ -491,30 +491,21 @@ public partial class MainWindow : Window
 
     // --- Zoom gestures ---
 
-    // Touchpads send many small deltas; step one zoom notch per whole unit.
-    private double _zoomWheelAccum;
-    private double _zoomMagnifyAccum;
-
+    // Smooth zoom: 10 % per wheel notch, proportionally less for a touchpad's
+    // fractional deltas (Windows sends a pinch as Ctrl+wheel).
     private void OnZoomWheel(object? sender, PointerWheelEventArgs e)
     {
         if (_viewModel is null || !e.KeyModifiers.HasFlag(KeyModifiers.Control)) return;
         e.Handled = true;
-        _zoomWheelAccum = StepZoom(_zoomWheelAccum + e.Delta.Y, 1.0);
+        _viewModel.ZoomBy(Math.Pow(1.1, e.Delta.Y));
     }
 
+    // macOS pinch: Delta.X is the relative magnification change.
     private void OnZoomMagnify(object? sender, PointerDeltaEventArgs e)
     {
         if (_viewModel is null) return;
         e.Handled = true;
-        _zoomMagnifyAccum = StepZoom(_zoomMagnifyAccum + e.Delta.X, 0.1);
-    }
-
-    /// <summary>Zooms one step per <paramref name="unit"/> accumulated; returns the remainder.</summary>
-    private double StepZoom(double accum, double unit)
-    {
-        while (accum >= unit) { _viewModel!.ZoomInCommand.Execute(null); accum -= unit; }
-        while (accum <= -unit) { _viewModel!.ZoomOutCommand.Execute(null); accum += unit; }
-        return accum;
+        _viewModel.ZoomBy(1 + e.Delta.X);
     }
 
     // --- Command palette keyboard routing ---

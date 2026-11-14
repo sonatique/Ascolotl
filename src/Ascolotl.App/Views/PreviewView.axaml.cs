@@ -104,6 +104,9 @@ public partial class PreviewView : UserControl
     private const double FitWidthGap = 12;
     private double _renderedViewportWidth;
     private readonly DispatcherTimer _fitWidthTimer;
+    // Zoom gestures rescale live; the full re-render (sharp layout, line map,
+    // scroll position) waits until the gesture pauses.
+    private readonly DispatcherTimer _zoomSettleTimer;
 
     public PreviewView()
     {
@@ -132,6 +135,14 @@ public partial class PreviewView : UserControl
 
         // Fit Width follows the pane: re-render once a resize settles (the
         // line map must be rebuilt at the new scale, so no live transform tweak).
+        _zoomSettleTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
+        _zoomSettleTimer.Tick += (_, _) =>
+        {
+            _zoomSettleTimer.Stop();
+            if (_doc is not null)
+                UpdatePreview(_doc);
+        };
+
         _fitWidthTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
         _fitWidthTimer.Tick += (_, _) =>
         {
@@ -265,10 +276,19 @@ public partial class PreviewView : UserControl
 
         if (e.PropertyName is nameof(DocumentViewModel.RenderedDocument)
             or nameof(DocumentViewModel.RenderError)
-            or nameof(DocumentViewModel.LastRenderSucceeded)
-            or nameof(DocumentViewModel.ZoomLevel))
+            or nameof(DocumentViewModel.LastRenderSucceeded))
         {
             UpdatePreview(_doc);
+        }
+        else if (e.PropertyName == nameof(DocumentViewModel.ZoomLevel))
+        {
+            if (PreviewHost.Content is LayoutTransformControl host && _mainVm?.PreviewFitWidth != true)
+            {
+                var zoom = _doc.ZoomLevel / 100.0;
+                host.LayoutTransform = new ScaleTransform(zoom, zoom);
+            }
+            _zoomSettleTimer.Stop();
+            _zoomSettleTimer.Start();
         }
     }
 

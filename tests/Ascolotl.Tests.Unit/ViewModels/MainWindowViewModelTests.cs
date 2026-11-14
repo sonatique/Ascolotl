@@ -398,6 +398,50 @@ public sealed class MainWindowViewModelTests : IDisposable
         Assert.Equal(90, vm.SelectedDocument!.ZoomLevel);
     }
 
+    [Theory]
+    [InlineData(117, true, 120)]
+    [InlineData(117, false, 110)]
+    [InlineData(120, true, 130)]
+    [InlineData(120, false, 110)]
+    public void ZoomSteps_SnapToMultiplesOfTen(int start, bool zoomIn, int expected)
+    {
+        var vm = CreateViewModel();
+        vm.NewDocumentCommand.Execute(null);
+        vm.SelectedDocument!.ZoomLevel = start;
+
+        (zoomIn ? vm.ZoomInCommand : vm.ZoomOutCommand).Execute(null);
+
+        Assert.Equal(expected, vm.SelectedDocument.ZoomLevel);
+    }
+
+    [Fact]
+    public void ZoomBy_SmallStepsAddUp()
+    {
+        var vm = CreateViewModel();
+        vm.NewDocumentCommand.Execute(null);
+
+        // A touchpad pinch: many tiny factors, each below one percent.
+        for (int i = 0; i < 20; i++)
+            vm.ZoomBy(1.004);
+
+        Assert.Equal(108, vm.SelectedDocument!.ZoomLevel); // 100 * 1.004^20 = 108.3
+    }
+
+    [Fact]
+    public void ZoomBy_ClampsToRange_AndTurnsOffFitWidth()
+    {
+        var vm = CreateViewModel();
+        vm.NewDocumentCommand.Execute(null);
+        vm.PreviewFitWidth = true;
+
+        vm.ZoomBy(100);
+
+        Assert.Equal(DocumentViewModel.ZoomMax, vm.SelectedDocument!.ZoomLevel);
+        Assert.False(vm.PreviewFitWidth);
+        vm.ZoomBy(0.001);
+        Assert.Equal(DocumentViewModel.ZoomMin, vm.SelectedDocument.ZoomLevel);
+    }
+
     [Fact]
     public void ZoomReset_SetsTo100()
     {
