@@ -149,6 +149,7 @@ public class App : Application
                 _viewModel.LoadProjectFolder(projectFolder);
 
             mainWindow.DataContext = _viewModel;
+            _viewModel.OpeningDocuments = true;
 
             RestoreWindowBounds(mainWindow, _settings);
 
@@ -156,14 +157,22 @@ public class App : Application
             {
                 // Recovery takes precedence over session restore
                 var windowShown = SinceStart();
-                var recovered = await _viewModel.CheckAndRecoverAsync();
-                if (!recovered)
-                    await _viewModel.RestoreSessionAsync();
-                var sessionRestored = SinceStart();
+                long sessionRestored;
+                try
+                {
+                    var recovered = await _viewModel.CheckAndRecoverAsync();
+                    if (!recovered)
+                        await _viewModel.RestoreSessionAsync();
+                    sessionRestored = SinceStart();
 
-                // Files Ascolotl was launched with (e.g. double-clicked .adoc files)
-                // open after the restored tabs, so the last one is in front.
-                await OpenFilesAsync(desktop.Args ?? []);
+                    // Files Ascolotl was launched with (e.g. double-clicked .adoc files)
+                    // open after the restored tabs, so the last one is in front.
+                    await OpenFilesAsync(desktop.Args ?? []);
+                }
+                finally
+                {
+                    _viewModel.OpeningDocuments = false;
+                }
 
                 _viewModel.StartAutosave();
 

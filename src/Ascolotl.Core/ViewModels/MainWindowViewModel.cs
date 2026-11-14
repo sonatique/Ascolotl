@@ -131,7 +131,15 @@ public partial class MainWindowViewModel : ObservableObject
     public ObservableCollection<string> RecentFiles { get; } = [];
 
     /// <summary>True when no document tabs are open — drives the empty-state view.</summary>
-    public bool HasNoDocuments => Documents.Count == 0;
+    public bool HasNoDocuments => Documents.Count == 0 && !OpeningDocuments;
+
+    /// <summary>
+    /// True while startup opens documents (restored tabs, files to open), so the
+    /// empty-state screen doesn't flash before they arrive.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasNoDocuments))]
+    private bool _openingDocuments;
 
     public CommandPaletteViewModel CommandPalette { get; }
 

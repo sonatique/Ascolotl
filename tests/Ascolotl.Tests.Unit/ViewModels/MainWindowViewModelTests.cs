@@ -31,6 +31,19 @@ public sealed class MainWindowViewModelTests : IDisposable
     // --- Constructor ---
 
     [Fact]
+    public void EmptyState_HiddenWhileStartupOpensDocuments()
+    {
+        var vm = CreateViewModel();
+        Assert.True(vm.HasNoDocuments);
+
+        vm.OpeningDocuments = true;
+        Assert.False(vm.HasNoDocuments);
+
+        vm.OpeningDocuments = false;
+        Assert.True(vm.HasNoDocuments);
+    }
+
+    [Fact]
     public void Constructor_InitializesEmptyDocuments()
     {
         var vm = CreateViewModel();
