@@ -87,6 +87,12 @@ public partial class MainWindow : Window
         // Tab middle-click
         DocumentTabStrip.PointerPressed += OnTabStripPointerPressed;
 
+        // Many tabs: the wheel scrolls the strip, and the all-tabs button
+        // appears once the tabs no longer fit.
+        TabScroll.AddHandler(PointerWheelChangedEvent, OnTabStripWheel, RoutingStrategies.Tunnel);
+        TabScroll.ScrollChanged += (_, _) => AllTabsButton.IsVisible = TabScroll.Extent.Width > TabScroll.Viewport.Width + 1;
+        AllTabsButton.Click += OnAllTabsClick;
+
         // Command palette keyboard routing
         CommandPaletteFilter.KeyDown += OnCommandPaletteKeyDown;
 
@@ -216,6 +222,10 @@ public partial class MainWindow : Window
         if (e.PropertyName is nameof(MainWindowViewModel.EditorMode)
             or nameof(MainWindowViewModel.SelectedDocument))
             UpdateStatusBarExtras();
+
+        // Keep the selected tab in view when the tabs overflow.
+        if (e.PropertyName == nameof(MainWindowViewModel.SelectedDocument) && _viewModel.SelectedDocument is { } shown)
+            Dispatcher.UIThread.Post(() => DocumentTabStrip.ContainerFromItem(shown)?.BringIntoView());
 
         if (e.PropertyName == nameof(MainWindowViewModel.PreviewFitWidth) && _viewModel.SelectedDocument is { } fitDoc)
             ZoomText.Text = ZoomLabel(fitDoc);
@@ -573,6 +583,35 @@ public partial class MainWindow : Window
     }
 
     // --- Tab middle-click ---
+
+    private void OnTabStripWheel(object? sender, PointerWheelEventArgs e)
+    {
+        if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+            return; // Ctrl+wheel zooms
+        var delta = e.Delta.Y != 0 ? e.Delta.Y : e.Delta.X;
+        TabScroll.Offset = TabScroll.Offset.WithX(TabScroll.Offset.X - delta * 60);
+        e.Handled = true;
+    }
+
+    private void OnAllTabsClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (_viewModel is not { } vm)
+            return;
+        var flyout = new MenuFlyout();
+        foreach (var doc in vm.Documents)
+        {
+            var item = new MenuItem
+            {
+                Header = doc.TabTitle.Replace("_", "__"), // "_" marks access keys in menu headers
+                ToggleType = MenuItemToggleType.Radio,
+                IsChecked = doc == vm.SelectedDocument,
+            };
+            ToolTip.SetTip(item, doc.FilePath ?? "Not saved yet");
+            item.Click += (_, _) => vm.SelectedDocument = doc;
+            flyout.Items.Add(item);
+        }
+        flyout.ShowAt(AllTabsButton);
+    }
 
     private void OnTabStripPointerPressed(object? sender, PointerPressedEventArgs e)
     {

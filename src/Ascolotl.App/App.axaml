@@ -29,6 +29,7 @@
                     <SolidColorBrush x:Key="ForgeBorderBrush" Color="#34302C" />
                     <SolidColorBrush x:Key="ForgeTextBrush" Color="#ECE7E1" />
                     <SolidColorBrush x:Key="ForgeTextMutedBrush" Color="#968F88" />
+                    <SolidColorBrush x:Key="ForgeTabTextBrush" Color="#BDB6AF" />
                     <!-- Title bar: one step off the editor surface, warm neutral. -->
                     <SolidColorBrush x:Key="ForgeTitleBarBrush" Color="#191715" />
                     <SolidColorBrush x:Key="ForgeHighlightBrush" Color="#12FFFFFF" />
@@ -72,6 +73,7 @@
                     <SolidColorBrush x:Key="ForgeBorderBrush" Color="#E5E1DA" />
                     <SolidColorBrush x:Key="ForgeTextBrush" Color="#37352F" />
                     <SolidColorBrush x:Key="ForgeTextMutedBrush" Color="#8F8B84" />
+                    <SolidColorBrush x:Key="ForgeTabTextBrush" Color="#5F5B54" />
                     <!-- Title bar: one step off the editor surface, warm neutral. -->
                     <SolidColorBrush x:Key="ForgeTitleBarBrush" Color="#F4F2EE" />
                     <SolidColorBrush x:Key="ForgeHighlightBrush" Color="#0A000000" />
@@ -98,7 +100,8 @@
 
             <!-- ── Icon geometries (theme-independent): one consistent outline set,
                  stroked via Path.icon. Replaces ad-hoc unicode glyphs. ── -->
-            <StreamGeometry x:Key="IconMenuGeometry">M4 7 H20 M4 13 H20 M4 19 H20</StreamGeometry>
+            <StreamGeometry x:Key="IconMenuGeometry">M5 7.5 H19 M5 12 H19 M5 16.5 H19</StreamGeometry>
+            <StreamGeometry x:Key="IconChevronDownGeometry">M6 9 L12 15 L18 9</StreamGeometry>
             <StreamGeometry x:Key="IconCloseGeometry">M6 6 L18 18 M18 6 L6 18</StreamGeometry>
             <StreamGeometry x:Key="IconWarningGeometry">M12 3 L22 21 H2 Z M12 9 V14 M12 17.3 v0.2</StreamGeometry>
             <StreamGeometry x:Key="IconErrorGeometry">M3 12 A9 9 0 1 1 21 12 A9 9 0 1 1 3 12 Z M8 8 L16 16 M16 8 L8 16</StreamGeometry>
@@ -136,19 +139,22 @@
             <Setter Property="BorderThickness" Value="1" />
         </Style>
 
-        <!-- ── Tabs: quiet pills. The active one sits on the editor surface with
-             a hairline edge; rose is kept for the unsaved dot. Motion: background
-             and foreground ease in (~140ms). ── -->
+        <!-- ── Tabs: flat, top-rounded, standing on the title bar's bottom edge.
+             The active one takes the editor's surface so it flows into the
+             editor; rose is kept for the unsaved dot. Motion ~140ms. ── -->
         <Style Selector="TabStrip">
             <Setter Property="Background" Value="Transparent" />
         </Style>
         <Style Selector="TabStripItem">
-            <Setter Property="Foreground" Value="{DynamicResource ForgeTextMutedBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource ForgeTabTextBrush}" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="12,4" />
-            <Setter Property="MinHeight" Value="28" />
-            <Setter Property="Margin" Value="1,5,1,5" />
+            <Setter Property="Padding" Value="14,0,8,0" />
+            <Setter Property="Height" Value="27" />
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="MaxWidth" Value="240" />
+            <Setter Property="Margin" Value="0,5,1,0" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="Transitions">
                 <Transitions>
@@ -164,7 +170,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="7"
+                            CornerRadius="7,7,0,0"
                             TextElement.Foreground="{TemplateBinding Foreground}">
                         <ContentPresenter Content="{TemplateBinding Content}"
                                           ContentTemplate="{TemplateBinding ContentTemplate}"
@@ -188,8 +194,6 @@
         <Style Selector="TabStripItem:selected">
             <Setter Property="Foreground" Value="{DynamicResource ForgeTextBrush}" />
             <Setter Property="Background" Value="{DynamicResource ForgeBgBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ForgeBorderBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
         </Style>
 
         <!-- Per-tab close button + modified dot: dot shows when dirty, the
@@ -197,8 +201,8 @@
         <Style Selector="Button.close-tab">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Foreground" Value="{DynamicResource ForgeTextMutedBrush}" />
-            <Setter Property="Opacity" Value="0" />
+            <Setter Property="Foreground" Value="{DynamicResource ForgeTabTextBrush}" />
+            <Setter Property="Opacity" Value="0.55" />
             <Setter Property="Width" Value="16" />
             <Setter Property="Height" Value="16" />
             <Setter Property="Padding" Value="0" />
@@ -209,7 +213,13 @@
                 </Transitions>
             </Setter>
         </Style>
-        <Style Selector="TabStripItem:pointerover Button.close-tab">
+        <Style Selector="TabStripItem:pointerover Button.close-tab, TabStripItem:selected Button.close-tab">
+            <Setter Property="Opacity" Value="1" />
+        </Style>
+        <Style Selector="Panel.dirty Button.close-tab">
+            <Setter Property="Opacity" Value="0" />
+        </Style>
+        <Style Selector="TabStripItem:pointerover Panel.dirty Button.close-tab">
             <Setter Property="Opacity" Value="1" />
         </Style>
         <Style Selector="Button.close-tab:pointerover">
@@ -226,6 +236,20 @@
         </Style>
         <Style Selector="TabStripItem:pointerover Ellipse.modified-dot">
             <Setter Property="Opacity" Value="0" />
+        </Style>
+
+        <!-- Tab overflow: lists every open document when the tabs don't fit. -->
+        <Style Selector="Button.all-tabs">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Width" Value="26" />
+            <Setter Property="Height" Value="24" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.all-tabs:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ForgeHighlightBrush}" />
         </Style>
 
         <!-- ── Outline sidebar: tight rows, full-row hover, accent active ── -->
