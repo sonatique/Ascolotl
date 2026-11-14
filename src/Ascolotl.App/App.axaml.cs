@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
+using Avalonia.Threading;
 using Ascolotl.App.Services;
 using Ascolotl.Core.Models;
 using Ascolotl.Core.Services;
@@ -158,7 +159,20 @@ public class App : Application
                 if (!recovered)
                     await _viewModel.RestoreSessionAsync();
 
+                // Files Ascolotl was launched with (e.g. double-clicked .adoc files)
+                // open after the restored tabs, so the last one is in front.
+                await OpenFilesAsync(desktop.Args ?? []);
+
                 _viewModel.StartAutosave();
+
+                // Later launches hand their files to this window (see SingleInstance).
+                _ = SingleInstance.ListenAsync(paths => Dispatcher.UIThread.Post(async () =>
+                {
+                    await OpenFilesAsync(paths);
+                    if (mainWindow.WindowState == WindowState.Minimized)
+                        mainWindow.WindowState = WindowState.Normal;
+                    mainWindow.Activate();
+                }));
             };
 
             var forceClose = false;
@@ -214,6 +228,13 @@ public class App : Application
             AppTheme.Dark => ThemeVariant.Dark,
             _ => ThemeVariant.Default,
         };
+    }
+
+    /// <summary>Opens each existing file among <paramref name="paths"/>; other arguments are ignored.</summary>
+    private async Task OpenFilesAsync(IEnumerable<string> paths)
+    {
+        foreach (var path in paths.Where(File.Exists))
+            await _viewModel!.OpenFileByPathAsync(Path.GetFullPath(path));
     }
 
     private static void RestoreWindowBounds(Avalonia.Controls.Window window, AppSettings settings)
