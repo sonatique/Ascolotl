@@ -1237,14 +1237,14 @@ public partial class MainWindowViewModel : ObservableObject
         {
             newValue.PropertyChanged += OnSelectedDocumentPropertyChanged;
             if (EditorMode != EditorMode.Source)
-                RequestRender();
+                RequestRender(immediate: true);
         }
     }
 
     partial void OnEditorModeChanged(EditorMode value)
     {
         if (value != EditorMode.Source && SelectedDocument is not null)
-            RequestRender();
+            RequestRender(immediate: true);
 
         OnPropertyChanged(nameof(IsSourceMode));
         OnPropertyChanged(nameof(IsSplitMode));
@@ -1270,19 +1270,30 @@ public partial class MainWindowViewModel : ObservableObject
             RequestRender();
     }
 
-    public void RequestRender()
+    /// <summary>
+    /// Renders the selected document. Typing waits out the debounce so each
+    /// keystroke doesn't re-render; <paramref name="immediate"/> skips it for a
+    /// document just shown (startup, tab switch, mode change).
+    /// </summary>
+    public void RequestRender(bool immediate = false)
     {
         _renderCts?.Cancel();
         _renderCts?.Dispose();
         _renderCts = new CancellationTokenSource();
-        PendingRenderTask = RenderAfterDelayAsync(_renderCts.Token);
+        PendingRenderTask = RenderAfterDelayAsync(immediate ? 0 : _debounceMs, _renderCts.Token);
     }
 
-    private async Task RenderAfterDelayAsync(CancellationToken ct)
+    private async Task RenderAfterDelayAsync(int delayMs, CancellationToken ct)
     {
         try
         {
-            await Task.Delay(_debounceMs, ct);
+            if (delayMs > 0)
+                await Task.Delay(delayMs, ct);
+            else
+                // One dispatcher turn: a selection that changes again in the same
+                // step (session restore: the tab strip selects the first tab, then
+                // the saved one) cancels this render before it does any work.
+                await Task.Yield();
 
             var doc = SelectedDocument;
             if (doc is null || ct.IsCancellationRequested)

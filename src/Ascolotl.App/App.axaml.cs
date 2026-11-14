@@ -32,7 +32,7 @@ public class App : Application
         {
             // Initialize logging first
             _log = new FileAppLog();
-            _log.Info("Ascolotl starting");
+            _log.Info($"Ascolotl starting ({SinceStart()} ms after launch)");
 
             // Hook unhandled exceptions
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
@@ -155,15 +155,25 @@ public class App : Application
             mainWindow.Opened += async (_, _) =>
             {
                 // Recovery takes precedence over session restore
+                var windowShown = SinceStart();
                 var recovered = await _viewModel.CheckAndRecoverAsync();
                 if (!recovered)
                     await _viewModel.RestoreSessionAsync();
+                var sessionRestored = SinceStart();
 
                 // Files Ascolotl was launched with (e.g. double-clicked .adoc files)
                 // open after the restored tabs, so the last one is in front.
                 await OpenFilesAsync(desktop.Args ?? []);
 
                 _viewModel.StartAutosave();
+
+                // Startup timing, for spotting regressions: logged once the first
+                // preview has had its layout pass (background priority runs after it).
+                await _viewModel.PendingRenderTask;
+                Dispatcher.UIThread.Post(
+                    () => _log?.Info($"Startup: window {windowShown} ms, session {sessionRestored} ms, " +
+                                     $"first preview {SinceStart()} ms after launch"),
+                    DispatcherPriority.Background);
 
                 // Later launches hand their files to this window (see SingleInstance).
                 _ = SingleInstance.ListenAsync(paths => Dispatcher.UIThread.Post(async () =>
@@ -229,6 +239,9 @@ public class App : Application
             _ => ThemeVariant.Default,
         };
     }
+
+    private static long SinceStart()
+        => (long)(DateTime.Now - System.Diagnostics.Process.GetCurrentProcess().StartTime).TotalMilliseconds;
 
     /// <summary>Opens each existing file among <paramref name="paths"/>; other arguments are ignored.</summary>
     private async Task OpenFilesAsync(IEnumerable<string> paths)

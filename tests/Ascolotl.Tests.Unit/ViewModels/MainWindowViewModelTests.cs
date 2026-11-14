@@ -618,6 +618,27 @@ public sealed class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public async Task Render_SelectionChangedTwiceInOneStep_RendersOnlyTheLastDocument()
+    {
+        // Session restore: the tab strip selects the first tab, then the saved one.
+        var vm = CreateViewModel();
+        vm.SetEditorModeCommand.Execute(EditorMode.Split);
+        vm.NewDocumentCommand.Execute(null);
+        vm.NewDocumentCommand.Execute(null);
+        vm.Documents[0].SourceText = "= First";
+        vm.Documents[1].SourceText = "= Second";
+        await vm.PendingRenderTask;
+        _renderService.RenderCalled = 0;
+
+        vm.SelectedDocument = vm.Documents[0];
+        vm.SelectedDocument = vm.Documents[1];
+        await vm.PendingRenderTask;
+
+        Assert.Equal(1, _renderService.RenderCalled);
+        Assert.Equal("= Second", _renderService.LastSource);
+    }
+
+    [Fact]
     public async Task Render_SourceMode_DoesNotTriggerRender()
     {
         var vm = CreateViewModel();
@@ -923,10 +944,11 @@ public sealed class MainWindowViewModelTests : IDisposable
 
     // --- PDF title ---
 
-    private MainWindowViewModel VmWithTitledDocument(string title)
+    private async Task<MainWindowViewModel> VmWithTitledDocument(string title)
     {
         var vm = CreateViewModel();
         vm.NewDocumentCommand.Execute(null);
+        await vm.PendingRenderTask; // or the new document's render replaces the title set below
         vm.SelectedDocument!.RenderedDocument = new AdocNet.Ast.DocumentNode { Title = title };
         _fileService.PickSavePathResult = Path.Combine("tmp", "out.pdf");
         _exportService.ExportResult = ExportResult.Success();
@@ -936,7 +958,7 @@ public sealed class MainWindowViewModelTests : IDisposable
     [Fact]
     public async Task ExportPdf_DefaultRule_StopsAtFirstColon()
     {
-        var vm = VmWithTitledDocument("Manual: The long subtitle");
+        var vm = await VmWithTitledDocument("Manual: The long subtitle");
         Assert.True(vm.IsPdfTitleUpToColon);
         Assert.Equal(PdfTitleRule.UpToFirstColon, new AppSettings().PdfTitleRule);
 
@@ -949,7 +971,7 @@ public sealed class MainWindowViewModelTests : IDisposable
     [Fact]
     public async Task ExportPdf_FullTitleRule_KeepsSubtitle()
     {
-        var vm = VmWithTitledDocument("Manual: The long subtitle");
+        var vm = await VmWithTitledDocument("Manual: The long subtitle");
         vm.SetPdfTitleRuleCommand.Execute(PdfTitleRule.FullTitle);
 
         await vm.ExportCommand.ExecuteAsync(ExportFormat.Pdf);
@@ -960,7 +982,7 @@ public sealed class MainWindowViewModelTests : IDisposable
     [Fact]
     public async Task ExportPdf_AskTitle_ShowsRuleResultAndUsesEdit()
     {
-        var vm = VmWithTitledDocument("Manual: The long subtitle");
+        var vm = await VmWithTitledDocument("Manual: The long subtitle");
         vm.ToggleAskPdfTitleCommand.Execute(null);
         _dialogService.PdfTitleAnswer = _ => "Edited";
 
@@ -973,7 +995,7 @@ public sealed class MainWindowViewModelTests : IDisposable
     [Fact]
     public async Task ExportPdf_AskTitleCancelled_DoesNotExport()
     {
-        var vm = VmWithTitledDocument("Manual");
+        var vm = await VmWithTitledDocument("Manual");
         vm.AskPdfTitle = true;
         _dialogService.PdfTitleAnswer = _ => null;
 
@@ -985,7 +1007,7 @@ public sealed class MainWindowViewModelTests : IDisposable
     [Fact]
     public async Task ExportPdf_AskTitleEmptied_KeepsDocumentTitle()
     {
-        var vm = VmWithTitledDocument("Manual: Sub");
+        var vm = await VmWithTitledDocument("Manual: Sub");
         vm.AskPdfTitle = true;
         _dialogService.PdfTitleAnswer = _ => "  ";
 
@@ -998,7 +1020,7 @@ public sealed class MainWindowViewModelTests : IDisposable
     [Fact]
     public async Task Export_Failure_ShowsErrorDialog()
     {
-        var vm = VmWithTitledDocument("Manual");
+        var vm = await VmWithTitledDocument("Manual");
         _exportService.ExportResult = ExportResult.Failure("out.pdf is open in another program.");
 
         await vm.ExportCommand.ExecuteAsync(ExportFormat.Pdf);
@@ -1012,7 +1034,7 @@ public sealed class MainWindowViewModelTests : IDisposable
     [Fact]
     public async Task Export_Success_ShowsNoDialog()
     {
-        var vm = VmWithTitledDocument("Manual");
+        var vm = await VmWithTitledDocument("Manual");
 
         await vm.ExportCommand.ExecuteAsync(ExportFormat.Pdf);
 
@@ -1022,7 +1044,7 @@ public sealed class MainWindowViewModelTests : IDisposable
     [Fact]
     public async Task ExportHtml_NeverAsksPdfTitle()
     {
-        var vm = VmWithTitledDocument("Manual: Sub");
+        var vm = await VmWithTitledDocument("Manual: Sub");
         vm.AskPdfTitle = true;
         _fileService.PickSavePathResult = Path.Combine("tmp", "out.html");
 
