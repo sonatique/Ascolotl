@@ -65,6 +65,11 @@ public partial class DocumentViewModel : ObservableObject
     /// <see cref="RenderedDocument"/>.</summary>
     public IReadOnlyList<AdocNet.LineOrigin>? LineOrigins { get; set; }
 
+    /// <summary>The source text <see cref="RenderedDocument"/> was parsed from;
+    /// its source ranges index this text, not a newer <see cref="SourceText"/>.
+    /// Set together with <see cref="RenderedDocument"/>.</summary>
+    public string? RenderedSource { get; set; }
+
     /// <summary>Parser diagnostics from the last render, mapped to editor
     /// coordinates for inline display and the status-bar count.</summary>
     [ObservableProperty]

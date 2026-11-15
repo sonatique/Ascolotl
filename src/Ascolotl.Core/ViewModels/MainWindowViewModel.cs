@@ -1362,6 +1362,7 @@ public partial class MainWindowViewModel : ObservableObject
             // Set origins before the document so PreviewView (which reacts to
             // RenderedDocument) sees the matching line map for this render.
             doc.LineOrigins = result.LineOrigins;
+            doc.RenderedSource = source;
             // Parser diagnostics: AdocNet 1.0.17 (Adoc.Net#67) reports these in
             // original source coordinates, so they map straight to editor lines.
             doc.Diagnostics = DiagnosticMapper.Map(result.Diagnostics);

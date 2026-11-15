@@ -146,6 +146,30 @@ public partial class SourceEditorView : UserControl
         }, DispatcherPriority.Background);
     }
 
+    /// <summary>Apply a change made outside the editor (preview edit, block or
+    /// table command) to the same document as one replace of the differing
+    /// middle, so the undo stack and caret survive (setting Text clears both).</summary>
+    private void ApplyExternalEdit(string newText)
+    {
+        var old = Editor.Document.Text;
+        var max = Math.Min(old.Length, newText.Length);
+        var prefix = 0;
+        while (prefix < max && old[prefix] == newText[prefix]) prefix++;
+        var suffix = 0;
+        while (suffix < max - prefix && old[^(suffix + 1)] == newText[^(suffix + 1)]) suffix++;
+
+        _updatingFromEditor = true;
+        try
+        {
+            Editor.Document.Replace(prefix, old.Length - prefix - suffix,
+                newText.Substring(prefix, newText.Length - prefix - suffix));
+        }
+        finally
+        {
+            _updatingFromEditor = false;
+        }
+    }
+
     private void OnEditorTextChanged(object? sender, EventArgs e)
     {
         if (_updatingFromEditor || _currentDocument is null)
@@ -164,7 +188,7 @@ public partial class SourceEditorView : UserControl
             case nameof(DocumentViewModel.SourceText):
                 if (!_updatingFromEditor && Editor.Text != _currentDocument.SourceText)
                 {
-                    LoadTextFromDocument(_currentDocument);
+                    ApplyExternalEdit(_currentDocument.SourceText);
                 }
                 break;
 

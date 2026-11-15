@@ -82,9 +82,22 @@ public partial class PreviewView : UserControl
 
     // In-flight block-WYSIWYG edit: the rendered block visual has been
     // swapped for an in-place source editor. Null when not editing.
-    // Cleared (without commit) whenever UpdatePreview rebuilds the panel,
-    // because the swap target dies with the old panel.
+    // UpdatePreview never rebuilds the panel under it: the rebuild is
+    // postponed (_rebuildPending) until the edit is committed or cancelled.
     private BlockEditState? _activeEdit;
+    private bool _rebuildPending;
+
+    // The source text the current panel's block map was rendered from. Its
+    // ranges index that text, so gestures that splice the source refuse while
+    // the document has moved on and the re-render is still pending.
+    private string? _panelSource;
+
+    // Page Preview: one page layout runs at a time; requests meanwhile
+    // collapse into one rerun when it finishes.
+    private bool _pageLayoutRunning;
+    private bool _pageLayoutQueued;
+
+    private Window? _window;
 
     // When a single click both commits the open edit AND lands on another
     // block, we queue that block here so the click opens it too:
@@ -222,16 +235,25 @@ public partial class PreviewView : UserControl
             Application.Current.ActualThemeVariantChanged -= OnThemeChanged;
         if (_mainVm is not null)
             _mainVm.PropertyChanged -= OnMainVmPropertyChanged;
+        if (_window is not null)
+            _window.Closing -= OnWindowClosing;
+        _window = null;
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
-        var window = TopLevel.GetTopLevel(this) as Window;
-        _mainVm = window?.DataContext as MainWindowViewModel;
+        _window = TopLevel.GetTopLevel(this) as Window;
+        _mainVm = _window?.DataContext as MainWindowViewModel;
         if (_mainVm is not null)
             _mainVm.PropertyChanged += OnMainVmPropertyChanged;
+        if (_window is not null)
+            _window.Closing += OnWindowClosing;
     }
+
+    // Closing must see the open in-place edit's text in the document, so the
+    // save prompt (and the saved file) include it.
+    private void OnWindowClosing(object? sender, WindowClosingEventArgs e) => CommitBlockEdit();
 
     private void OnMainVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -258,6 +280,13 @@ public partial class PreviewView : UserControl
 
     private void OnDataContextChanged(object? sender, EventArgs e)
     {
+        // An open in-place edit belongs to the outgoing document: commit it
+        // there before switching, rather than dropping the typed text.
+        // (Cleared first: neither a re-entry nor a rebuild applies to it.)
+        _pendingReentry = null;
+        _rebuildPending = false;
+        CommitBlockEdit();
+
         if (_doc is not null)
             _doc.PropertyChanged -= OnDocPropertyChanged;
 
@@ -294,6 +323,19 @@ public partial class PreviewView : UserControl
 
     private void UpdatePreview(DocumentViewModel doc)
     {
+        // Every call supersedes a page layout still running, early returns included.
+        var generation = ++_renderGeneration;
+
+        // Rebuilding would discard the open in-place edit and its typed text;
+        // rebuild once it is committed or cancelled instead.
+        if (_activeEdit is not null)
+        {
+            _rebuildPending = true;
+            return;
+        }
+        _rebuildPending = false;
+        _panelSource = null;
+
         if (!doc.LastRenderSucceeded && doc.RenderError is not null)
         {
             PreviewHost.Content = null;
@@ -312,11 +354,6 @@ public partial class PreviewView : UserControl
 
         try
         {
-            // Any in-flight block edit dies with the old panel — its swap
-            // target is about to be discarded. Handlers on the dying inline
-            // editor no-op once the state is cleared.
-            _activeEdit = null;
-
             // Build the layout, then render it BLOCK-BY-BLOCK via 1.0.9's
             // Render(BlockLayout) entry point. Each call returns exactly one
             // visual, so we get an authoritative 1:1 mapping from visual to
@@ -338,7 +375,6 @@ public partial class PreviewView : UserControl
             // inert (guarded at the pointer handler) and scroll-sync degrades
             // to its ratio fallback. The title always shows, matching what
             // the exported PDF prints.
-            var generation = ++_renderGeneration;
             if (_mainVm?.PagePreview == true)
             {
                 RenderPagePreview(doc, layout, style ?? new PdfRenderOptions(), generation);
@@ -388,6 +424,7 @@ public partial class PreviewView : UserControl
                 blockMap.Add((vis, block));
             }
             _blockMap = blockMap;
+            _panelSource = doc.RenderedSource;
 
             // Bottom-spacer so the last block doesn't sit flush against the
             // viewport edge at maximum scroll. Grows the panel's DesiredSize
@@ -526,6 +563,29 @@ public partial class PreviewView : UserControl
     /// in Split mode doesn't snap the pages back to the top.
     /// </summary>
     private async void RenderPagePreview(DocumentViewModel doc, DocumentLayout layout, PdfRenderOptions pdf, int generation)
+    {
+        if (_pageLayoutRunning)
+        {
+            _pageLayoutQueued = true;
+            return;
+        }
+        _pageLayoutRunning = true;
+        try
+        {
+            await LayOutPagesAsync(doc, layout, pdf, generation);
+        }
+        finally
+        {
+            _pageLayoutRunning = false;
+            if (_pageLayoutQueued)
+            {
+                _pageLayoutQueued = false;
+                if (_doc is not null) UpdatePreview(_doc);
+            }
+        }
+    }
+
+    private async Task LayOutPagesAsync(DocumentViewModel doc, DocumentLayout layout, PdfRenderOptions pdf, int generation)
     {
         var savedOffset = PreviewScroll.Offset.Y;
         var document = doc.RenderedDocument!;
@@ -826,9 +886,10 @@ public partial class PreviewView : UserControl
 
         // Entering an edit supersedes any queued chain-re-entry.
         _pendingReentry = null;
+        if (!PanelIsCurrent()) return false;
 
         var text = _doc.SourceText;
-        var slice = BlockSourceEditing.ResolveEditorSlice(text, block.Source, _astToEditor);
+        var slice =BlockSourceEditing.ResolveEditorSlice(text, block.Source, _astToEditor);
         if (slice is null)
         {
             if (_mainVm is not null)
@@ -899,6 +960,7 @@ public partial class PreviewView : UserControl
 
         // Entering an edit supersedes any queued chain-re-entry.
         _pendingReentry = null;
+        if (!PanelIsCurrent()) return false;
 
         var cell = table.Rows[r].Cells[cellIdx];
 
@@ -977,6 +1039,10 @@ public partial class PreviewView : UserControl
 
         if (caretInSlice is int c)
             editor.CaretOffset = Math.Clamp(c, 0, length);
+
+        // Typed-but-uncommitted text is a change: closing must prompt for it.
+        var doc = _doc;
+        editor.TextChanged += (_, _) => { if (doc is not null) doc.IsDirty = true; };
 
         // KeyDown must TUNNEL: AvaloniaEdit's TextArea consumes Escape (and
         // would insert a newline for Enter variants) before a bubbling
@@ -1176,6 +1242,7 @@ public partial class PreviewView : UserControl
             edit.Editor.IsReadOnly = true;
             _doc.SourceText = _doc.SourceText.Remove(s, len).Insert(s, newSlice);
             if (_mainVm is not null) _mainVm.StatusText = "Block updated";
+            _rebuildPending = false; // the splice's own re-render rebuilds the panel
 
             // Shift a queued re-entry for the splice: a block above the edit is
             // unchanged; one below moves by the length delta. Consumed once the
@@ -1195,8 +1262,11 @@ public partial class PreviewView : UserControl
                     : "Ready";
 
             // No source change → no re-render to host the re-entry; open the
-            // queued target now against the still-current block map.
-            if (_pendingReentry is { } p)
+            // queued target now against the still-current block map — unless
+            // a postponed rebuild runs now, whose layout pass consumes it.
+            if (_rebuildPending)
+                UpdatePreview(_doc);
+            else if (_pendingReentry is { } p)
             {
                 _pendingReentry = null;
                 ConsumeReentry(p);
@@ -1254,11 +1324,22 @@ public partial class PreviewView : UserControl
 
         edit.Restore();
         if (_mainVm is not null) _mainVm.StatusText = "Edit cancelled";
+        if (_rebuildPending && _doc is not null)
+            UpdatePreview(_doc);
+    }
+
+    /// <summary>True when the block map's source ranges still index the current
+    /// text; otherwise reports that the preview is catching up.</summary>
+    private bool PanelIsCurrent()
+    {
+        if (_doc is not null && _doc.SourceText == _panelSource) return true;
+        if (_mainVm is not null) _mainVm.StatusText = "The preview is updating — try again";
+        return false;
     }
 
     private void ShowBlockContextMenu(Control blockVis, BlockLayout block, Visual? clickTarget, Point pointInScroll)
     {
-        if (_doc is null) return;
+        if (_doc is null || !PanelIsCurrent()) return;
 
         var slice = BlockSourceEditing.ResolveEditorSlice(_doc.SourceText, block.Source, _astToEditor);
         if (slice is null)
@@ -1379,7 +1460,7 @@ public partial class PreviewView : UserControl
     /// </summary>
     private void ShowInsertMenuAt(Point pointInScroll)
     {
-        if (_doc is null) return;
+        if (_doc is null || !PanelIsCurrent()) return;
         var contentY = pointInScroll.Y + PreviewScroll.Offset.Y;
 
         BlockLayout? above = null;
@@ -1528,6 +1609,7 @@ public partial class PreviewView : UserControl
     /// </summary>
     private void GridTableOp(TableLayout table, Func<TableGrid, bool> op, int colDelta, string okStatus)
     {
+        if (!PanelIsCurrent()) return;
         var startLine = IncludeExpansionMap.AstLineToEditor(_astToEditor, table.Source.Start.Line - 1, fallback: -1);
         var endLine = IncludeExpansionMap.AstLineToEditor(_astToEditor, table.Source.End.Line - 1, fallback: -1);
         if (startLine < 0 || endLine < startLine)
@@ -1554,7 +1636,9 @@ public partial class PreviewView : UserControl
                 if (open < 0 || close <= open) return;
 
                 var body = lines.GetRange(open + 1, close - open - 1);
-                var grid = TableGrid.Parse(body);
+                // The renderer's row 0 knows the real width (cols= included).
+                int? width = table.Rows.Count > 0 ? table.Rows[0].Cells.Sum(c => c.ColSpan) : null;
+                var grid = TableGrid.Parse(body, width);
                 if (grid is null)
                 {
                     status = "Edit the table source for this layout";
@@ -1762,14 +1846,6 @@ public partial class PreviewView : UserControl
         return rawOffset < maxScroll - 0.5;
     }
 
-    /// <summary>Scroll the preview to a 0–1 ratio of its content height.</summary>
-    public void ScrollToRatio(double ratio)
-    {
-        var clamped = Math.Clamp(ratio, 0.0, 1.0);
-        var maxScroll = Math.Max(0, PreviewScroll.Extent.Height - PreviewScroll.Viewport.Height);
-        PreviewScroll.Offset = new Vector(PreviewScroll.Offset.X, clamped * maxScroll);
-    }
-
     /// <summary>
     /// Walk the visual subtree and return the maximum Y-coordinate of any
     /// painted descendant, in <paramref name="root"/>'s coordinate space.
@@ -1901,16 +1977,4 @@ public partial class PreviewView : UserControl
         }
         return null;
     }
-
-    private static T? FindDescendantOfType<T>(Visual root) where T : Visual
-    {
-        foreach (var c in root.GetVisualChildren())
-        {
-            if (c is T match) return match;
-            var found = FindDescendantOfType<T>(c);
-            if (found is not null) return found;
-        }
-        return null;
-    }
-
 }
