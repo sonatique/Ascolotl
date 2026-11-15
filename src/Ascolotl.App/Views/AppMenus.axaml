@@ -50,7 +50,11 @@
         <MenuItem Header="_Markdown..."
                   Command="{Binding ImportCommand}"
                   CommandParameter="{x:Static models:ImportFormat.Markdown}" />
-        <!-- HTML and PDF import return once AdocNet's importers pass RoundTripTests. -->
+        <MenuItem Header="_HTML..."
+                  Command="{Binding ImportCommand}"
+                  CommandParameter="{x:Static models:ImportFormat.Html}" />
+        <!-- PDF import returns once AdocNet's PdfImporter reads real manuals faithfully
+             (1.0.32 turns a multi-line IMPORTANT note into a heading and drops its words). -->
         <MenuItem Header="_Plain Text..."
                   Command="{Binding ImportCommand}"
                   CommandParameter="{x:Static models:ImportFormat.PlainText}" />

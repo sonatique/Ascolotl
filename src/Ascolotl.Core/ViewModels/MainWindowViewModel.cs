@@ -1525,6 +1525,7 @@ public partial class MainWindowViewModel : ObservableObject
             new("Open Folder", "Ctrl+Shift+O", "File", () => OpenFolderCommand.Execute(null)),
             new("Import Word Document", null, "Import", () => ImportCommand.Execute(ImportFormat.Word)),
             new("Import Markdown", null, "Import", () => ImportCommand.Execute(ImportFormat.Markdown)),
+            new("Import HTML", null, "Import", () => ImportCommand.Execute(ImportFormat.Html)),
             new("Import Plain Text", null, "Import", () => ImportCommand.Execute(ImportFormat.PlainText)),
             new("Close Folder", null, "File", () => CloseFolderCommand.Execute(null), () => HasProject),
             new("Refresh Folder", null, "File", () => RefreshProjectCommand.Execute(null), () => HasProject),

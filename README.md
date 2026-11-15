@@ -31,8 +31,8 @@ no Java.
 - **Page Preview** shows the document as the exported PDF's pages: title page,
   table of contents, headers and footers.
 - **Authoring help:** completion, snippets, a visual table editor and a
-  searchable syntax reference (`F1`). Word (`.docx`), Markdown and plain
-  text files can be imported.
+  searchable syntax reference (`F1`). Word (`.docx`), Markdown, HTML and
+  plain text files can be imported.
 - **Tabs and session restore:** reopen a closed tab and pick up where you left
   off. Unsaved work is recovered after a crash.
 - **Light, dark or system theme**, with zoom and word wrap for each pane.
@@ -122,7 +122,7 @@ then publishes one self-contained, trimmed executable per runtime to
 | `src/Ascolotl.App` | Avalonia desktop app: windows, views, dialogs and file pickers |
 | `src/Ascolotl.Core` | View models, editing logic, document model and the preview's parse service |
 | `src/Ascolotl.Infrastructure` | Settings, session, crash-recovery storage and the log |
-| `src/Ascolotl.Export` | PDF, HTML, EPUB, DocBook and website export; Word and Markdown import |
+| `src/Ascolotl.Export` | PDF, HTML, EPUB, DocBook and website export; Word, Markdown and HTML import |
 | `tests/Ascolotl.Tests.Unit` | Unit tests |
 | `example-documents/` | Sample AsciiDoc files for manual testing |
 
