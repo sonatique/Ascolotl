@@ -1,4 +1,3 @@
-using AdocNet;
 using AdocNet.Ast;
 using AdocNet.Parser;
 using Ascolotl.Core.Models;
@@ -29,17 +28,7 @@ public sealed class AdocRenderService : IRenderService
                 if (standalone)
                     attributes["toc"] = "auto";
 
-                var parseOptions = new ParseOptions
-                {
-                    BaseDirectory = basePath,
-                    IncludeMaxDepth = 10,
-                    AllowUriRead = false,
-                    // Same as export: includes may leave the document's folder.
-                    SafeMode = SafeMode.Unsafe,
-                    Attributes = attributes,
-                };
-
-                var parsed = AdocParser.Parse(source, parseOptions);
+                var parsed = AdocParser.Parse(source, LocalIncludeReader.ParseOptions(basePath, attributes));
 
                 // When the toggle is off, drop the table of contents even if the
                 // document's own header set `:toc:` — AdocNet honours the
