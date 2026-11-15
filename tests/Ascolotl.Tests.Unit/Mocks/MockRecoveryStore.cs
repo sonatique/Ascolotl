@@ -17,8 +17,11 @@ public sealed class MockRecoveryStore : IRecoveryStore
     public void SetEntries(List<RecoveryEntry> entries) => _entries = entries;
     public void SetSnapshot(string documentId, string sourceText) => _snapshots[documentId] = sourceText;
 
-    public void SaveSnapshot(string documentId, string sourceText, string? filePath, string displayName)
+    public DateTime? LastSavedFileWriteTime { get; private set; }
+
+    public void SaveSnapshot(string documentId, string sourceText, string? filePath, string displayName, DateTime? fileWriteTime = null)
     {
+        LastSavedFileWriteTime = fileWriteTime;
         SaveSnapshotCalled++;
         LastSavedDocumentId = documentId;
         LastSavedSourceText = sourceText;

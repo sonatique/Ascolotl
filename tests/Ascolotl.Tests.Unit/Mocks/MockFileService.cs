@@ -1,3 +1,4 @@
+using System.Text;
 using Ascolotl.Core.Services;
 
 namespace Ascolotl.Tests.Unit.Mocks;
@@ -16,31 +17,52 @@ public sealed class MockFileService : IFileService
 
     public string? LastSavedPath { get; private set; }
     public string? LastSavedContent { get; private set; }
+    public Encoding? LastSavedEncoding { get; private set; }
 
-    public Task<(string Path, string Content)?> OpenFileAsync()
+    /// <summary>Encoding reported with <see cref="ReadFileResult"/> and <see cref="OpenFileResult"/>.</summary>
+    public Encoding ReadFileEncoding { get; set; } = TextFile.Utf8NoBom;
+
+    /// <summary>Thrown by both save methods (e.g. a locked or read-only file).</summary>
+    public Exception? SaveException { get; set; }
+
+    /// <summary>Runs while a save is in progress (e.g. the user typing during the write).</summary>
+    public Action? DuringSave { get; set; }
+
+    public Task<(string Path, FileText? Content)?> OpenFileAsync()
     {
-        return Task.FromResult(OpenFileResult);
+        return Task.FromResult<(string, FileText?)?>(
+            OpenFileResult is { } r ? (r.Path, new FileText(r.Content, ReadFileEncoding)) : null);
     }
 
-    public Task<string?> ReadFileAsync(string path)
+    public Task<FileText?> ReadFileAsync(string path)
     {
         ReadFileCalled++;
-        return Task.FromResult(ReadFileResult);
+        return Task.FromResult(ReadFileResult is null ? null : new FileText(ReadFileResult, ReadFileEncoding));
     }
 
-    public Task<string?> SaveFileAsAsync(string suggestedName, string content)
+    public Task<string?> SaveFileAsAsync(string suggestedName, string content, Encoding encoding)
     {
         SaveFileAsCalled++;
-        LastSavedContent = content;
+        if (SaveFileAsResult is not null)
+            Write(content, encoding);
         return Task.FromResult(SaveFileAsResult);
     }
 
-    public Task SaveFileAsync(string path, string content)
+    public Task SaveFileAsync(string path, string content, Encoding encoding)
     {
         SaveFileCalled++;
         LastSavedPath = path;
-        LastSavedContent = content;
+        Write(content, encoding);
         return Task.CompletedTask;
+    }
+
+    private void Write(string content, Encoding encoding)
+    {
+        DuringSave?.Invoke();
+        if (SaveException is not null)
+            throw SaveException;
+        LastSavedContent = content;
+        LastSavedEncoding = encoding;
     }
 
     public Task<string?> PickSavePathAsync(string suggestedName, string extension, string filterName)

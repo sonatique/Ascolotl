@@ -1,3 +1,4 @@
+using System.Text;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Ascolotl.Core.Services;
@@ -23,7 +24,7 @@ public sealed class AvaloniaFileService : IFileService
         _window = window;
     }
 
-    public async Task<(string Path, string Content)?> OpenFileAsync()
+    public async Task<(string Path, FileText? Content)?> OpenFileAsync()
     {
         var files = await _window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
@@ -40,30 +41,23 @@ public sealed class AvaloniaFileService : IFileService
         if (localPath is null)
             return null;
 
-        await using var stream = await file.OpenReadAsync();
-        using var reader = new StreamReader(stream);
-        var content = await reader.ReadToEndAsync();
-
-        return (localPath, content);
+        return (localPath, await ReadFileAsync(localPath));
     }
 
-    public async Task<string?> ReadFileAsync(string path)
+    public async Task<FileText?> ReadFileAsync(string path)
     {
         try
         {
-            return await File.ReadAllTextAsync(path);
+            return await TextFile.ReadAsync(path);
         }
-        catch (FileNotFoundException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            return null;
-        }
-        catch (DirectoryNotFoundException)
-        {
+            // Missing, locked by another program, or no permission: callers report it.
             return null;
         }
     }
 
-    public async Task<string?> SaveFileAsAsync(string suggestedName, string content)
+    public async Task<string?> SaveFileAsAsync(string suggestedName, string content, Encoding encoding)
     {
         var file = await _window.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
@@ -80,15 +74,13 @@ public sealed class AvaloniaFileService : IFileService
         if (localPath is null)
             return null;
 
-        await File.WriteAllTextAsync(localPath, content);
+        await TextFile.WriteAsync(localPath, content, encoding);
 
         return localPath;
     }
 
-    public async Task SaveFileAsync(string path, string content)
-    {
-        await File.WriteAllTextAsync(path, content);
-    }
+    public Task SaveFileAsync(string path, string content, Encoding encoding)
+        => TextFile.WriteAsync(path, content, encoding);
 
     public async Task<string?> PickSavePathAsync(string suggestedName, string extension, string filterName)
     {

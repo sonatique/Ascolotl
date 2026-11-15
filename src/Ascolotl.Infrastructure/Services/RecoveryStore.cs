@@ -17,6 +17,9 @@ public sealed class RecoveryStore : IRecoveryStore
     private readonly string _recoveryDirectory;
     private readonly string _manifestPath;
 
+    // Autosave, crash save and save/close all touch the manifest (read-modify-write).
+    private readonly Lock _lock = new();
+
     public RecoveryStore()
         : this(GetDefaultDirectory())
     {
@@ -28,64 +31,81 @@ public sealed class RecoveryStore : IRecoveryStore
         _manifestPath = Path.Combine(_recoveryDirectory, "recovery-manifest.json");
     }
 
-    public void SaveSnapshot(string documentId, string sourceText, string? filePath, string displayName)
+    public void SaveSnapshot(string documentId, string sourceText, string? filePath, string displayName, DateTime? fileWriteTime = null)
     {
-        Directory.CreateDirectory(_recoveryDirectory);
-
-        // Write source text atomically
-        var snapshotPath = GetSnapshotPath(documentId);
-        var tempPath = snapshotPath + ".tmp";
-        File.WriteAllText(tempPath, sourceText);
-        File.Move(tempPath, snapshotPath, overwrite: true);
-
-        // Update manifest
-        var entries = LoadManifest();
-        var existing = entries.FindIndex(e => e.DocumentId == documentId);
-        var entry = new RecoveryEntry
+        lock (_lock)
         {
-            DocumentId = documentId,
-            OriginalFilePath = filePath,
-            DisplayName = displayName,
-            Timestamp = DateTime.UtcNow,
-        };
+            Directory.CreateDirectory(_recoveryDirectory);
 
-        if (existing >= 0)
-            entries[existing] = entry;
-        else
-            entries.Add(entry);
+            // Write source text atomically
+            var snapshotPath = GetSnapshotPath(documentId);
+            var tempPath = snapshotPath + ".tmp";
+            File.WriteAllText(tempPath, sourceText);
+            File.Move(tempPath, snapshotPath, overwrite: true);
 
-        SaveManifest(entries);
+            // Update manifest
+            var entries = LoadManifest();
+            var existing = entries.FindIndex(e => e.DocumentId == documentId);
+            var entry = new RecoveryEntry
+            {
+                DocumentId = documentId,
+                OriginalFilePath = filePath,
+                DisplayName = displayName,
+                Timestamp = DateTime.UtcNow,
+                FileWriteTime = fileWriteTime,
+            };
+
+            if (existing >= 0)
+                entries[existing] = entry;
+            else
+                entries.Add(entry);
+
+            SaveManifest(entries);
+        }
     }
 
     public string? LoadSnapshot(string documentId)
     {
-        var path = GetSnapshotPath(documentId);
-        return File.Exists(path) ? File.ReadAllText(path) : null;
+        lock (_lock)
+        {
+            var path = GetSnapshotPath(documentId);
+            return File.Exists(path) ? File.ReadAllText(path) : null;
+        }
     }
 
     public void RemoveSnapshot(string documentId)
     {
-        var path = GetSnapshotPath(documentId);
-        if (File.Exists(path))
-            File.Delete(path);
+        lock (_lock)
+        {
+            var path = GetSnapshotPath(documentId);
+            if (File.Exists(path))
+                File.Delete(path);
 
-        var entries = LoadManifest();
-        entries.RemoveAll(e => e.DocumentId == documentId);
-        SaveManifest(entries);
+            var entries = LoadManifest();
+            entries.RemoveAll(e => e.DocumentId == documentId);
+            SaveManifest(entries);
+        }
     }
 
-    public List<RecoveryEntry> GetRecoveryEntries() => LoadManifest();
+    public List<RecoveryEntry> GetRecoveryEntries()
+    {
+        lock (_lock)
+            return LoadManifest();
+    }
 
     public void ClearAll()
     {
-        try
+        lock (_lock)
         {
-            if (Directory.Exists(_recoveryDirectory))
-                Directory.Delete(_recoveryDirectory, recursive: true);
-        }
-        catch
-        {
-            // Best-effort cleanup
+            try
+            {
+                if (Directory.Exists(_recoveryDirectory))
+                    Directory.Delete(_recoveryDirectory, recursive: true);
+            }
+            catch
+            {
+                // Best-effort cleanup
+            }
         }
     }
 
@@ -104,6 +124,9 @@ public sealed class RecoveryStore : IRecoveryStore
         }
         catch
         {
+            // The next save overwrites the manifest: keep the unreadable one for inspection.
+            try { File.Copy(_manifestPath, _manifestPath + ".corrupt", overwrite: true); }
+            catch { /* best effort */ }
             return [];
         }
     }

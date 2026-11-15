@@ -105,4 +105,52 @@ public sealed class RecoveryStoreTests : IDisposable
         Assert.Equal("content1", _store.LoadSnapshot("doc1"));
         Assert.Equal("content2", _store.LoadSnapshot("doc2"));
     }
+
+    [Fact]
+    public async Task SaveAndRemoveSnapshot_FromManyThreads_KeepTheManifestConsistent()
+    {
+        // Autosave (timer) and save/close (UI thread) update the manifest concurrently.
+        await Task.WhenAll(Enumerable.Range(0, 40).Select(i => Task.Run(() =>
+        {
+            _store.SaveSnapshot($"doc{i}", $"text {i}", null, $"Doc {i}");
+            if (i % 2 == 0)
+                _store.RemoveSnapshot($"doc{i}");
+        })));
+
+        var ids = _store.GetRecoveryEntries().Select(e => e.DocumentId).Order().ToList();
+        Assert.Equal(Enumerable.Range(0, 40).Where(i => i % 2 == 1).Select(i => $"doc{i}").Order(), ids);
+    }
+
+    [Fact]
+    public void SaveSnapshot_StoresFileWriteTime()
+    {
+        var writeTime = new DateTime(2026, 3, 4, 5, 6, 7, DateTimeKind.Utc);
+
+        _store.SaveSnapshot("doc1", "content", "/a.adoc", "a.adoc", writeTime);
+
+        Assert.Equal(writeTime, _store.GetRecoveryEntries()[0].FileWriteTime);
+    }
+
+    [Fact]
+    public void GetRecoveryEntries_OldManifestWithoutWriteTime_StillLoads()
+    {
+        Directory.CreateDirectory(_testDir);
+        File.WriteAllText(Path.Combine(_testDir, "recovery-manifest.json"),
+            """[{ "documentId": "doc1", "displayName": "a.adoc", "timestamp": "2026-01-01T00:00:00Z" }]""");
+
+        var entry = Assert.Single(_store.GetRecoveryEntries());
+        Assert.Equal("doc1", entry.DocumentId);
+        Assert.Null(entry.FileWriteTime);
+    }
+
+    [Fact]
+    public void GetRecoveryEntries_CorruptManifest_KeepsCopy()
+    {
+        Directory.CreateDirectory(_testDir);
+        var manifest = Path.Combine(_testDir, "recovery-manifest.json");
+        File.WriteAllText(manifest, "{ not json");
+
+        Assert.Empty(_store.GetRecoveryEntries());
+        Assert.Equal("{ not json", File.ReadAllText(manifest + ".corrupt"));
+    }
 }

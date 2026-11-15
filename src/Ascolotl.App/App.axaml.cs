@@ -21,6 +21,9 @@ public class App : Application
     private FileAppLog? _log;
     private MainWindowViewModel? _viewModel;
 
+    /// <summary>Set by Program when a running instance held the lock but never accepted the files.</summary>
+    internal static bool ForwardFailed { get; set; }
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -33,17 +36,37 @@ public class App : Application
             // Initialize logging first
             _log = new FileAppLog();
             _log.Info($"Ascolotl starting ({SinceStart()} ms after launch)");
+            if (ForwardFailed)
+                _log.Warn("Another instance is running but did not answer for 10 s; starting anyway");
 
             // Hook unhandled exceptions
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
             TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
 
-            _settingsService = new JsonSettingsService();
+            _settingsService = new JsonSettingsService(_log);
             _settings = _settingsService.Load();
 
             ApplyTheme(_settings.Theme);
 
             var mainWindow = new Views.MainWindow();
+
+            // Listen for later launches right away, so one started during the
+            // (possibly long) startup below forwards its files instead of
+            // running a second instance. Paths received before startup ends
+            // wait in pendingPaths.
+            List<string>? pendingPaths = [];
+            _ = SingleInstance.ListenAsync(paths => Dispatcher.UIThread.Post(async () =>
+            {
+                if (pendingPaths is not null)
+                {
+                    pendingPaths.AddRange(paths);
+                    return;
+                }
+                await OpenFilesAsync(paths);
+                if (mainWindow.WindowState == WindowState.Minimized)
+                    mainWindow.WindowState = WindowState.Normal;
+                mainWindow.Activate();
+            }));
 
             var fileService = new AvaloniaFileService(mainWindow);
             var dialogService = new AvaloniaDialogService(mainWindow);
@@ -80,67 +103,67 @@ public class App : Application
                 {
                     ApplyTheme(_viewModel.CurrentTheme);
                     _settings.Theme = _viewModel.CurrentTheme;
-                    _settingsService.Save(_settings);
+                    SaveSettings();
                 }
                 else if (e.PropertyName == nameof(MainWindowViewModel.EditorMode))
                 {
                     _settings.EditorMode = _viewModel.EditorMode;
-                    _settingsService.Save(_settings);
+                    SaveSettings();
                 }
                 else if (e.PropertyName == nameof(MainWindowViewModel.ShowTitleAndToc))
                 {
                     _settings.ShowTitleAndToc = _viewModel.ShowTitleAndToc;
-                    _settingsService.Save(_settings);
+                    SaveSettings();
                 }
                 else if (e.PropertyName == nameof(MainWindowViewModel.SyncScrolling))
                 {
                     _settings.SyncScrolling = _viewModel.SyncScrolling;
-                    _settingsService.Save(_settings);
+                    SaveSettings();
                 }
                 else if (e.PropertyName == nameof(MainWindowViewModel.ShowOutlinePane))
                 {
                     _settings.ShowOutlinePane = _viewModel.ShowOutlinePane;
-                    _settingsService.Save(_settings);
+                    SaveSettings();
                 }
                 else if (e.PropertyName == nameof(MainWindowViewModel.HamburgerMenu))
                 {
                     _settings.HamburgerMenu = _viewModel.HamburgerMenu;
-                    _settingsService.Save(_settings);
+                    SaveSettings();
                 }
                 else if (e.PropertyName == nameof(MainWindowViewModel.ProjectFolderPath))
                 {
                     _settings.ProjectFolderPath = _viewModel.ProjectFolderPath;
-                    _settingsService.Save(_settings);
+                    SaveSettings();
                 }
                 else if (e.PropertyName == nameof(MainWindowViewModel.PagePreview))
                 {
                     _settings.PagePreview = _viewModel.PagePreview;
-                    _settingsService.Save(_settings);
+                    SaveSettings();
                 }
                 else if (e.PropertyName == nameof(MainWindowViewModel.StylePath))
                 {
                     _settings.StylePath = _viewModel.StylePath;
-                    _settingsService.Save(_settings);
+                    SaveSettings();
                 }
                 else if (e.PropertyName is nameof(MainWindowViewModel.PdfTitleRule) or nameof(MainWindowViewModel.AskPdfTitle))
                 {
                     _settings.PdfTitleRule = _viewModel.PdfTitleRule;
                     _settings.AskPdfTitle = _viewModel.AskPdfTitle;
-                    _settingsService.Save(_settings);
+                    SaveSettings();
                 }
             };
 
             _viewModel.RecentFilesChanged += () =>
             {
                 _settings.RecentFiles = [.. _viewModel.RecentFiles];
-                _settingsService.Save(_settings);
+                SaveSettings();
             };
 
             _viewModel.LoadExportProfiles(_settings.ExportProfiles);
             _viewModel.ExportProfilesChanged += () =>
             {
                 _settings.ExportProfiles = [.. _viewModel.ExportProfiles];
-                _settingsService.Save(_settings);
+                SaveSettings();
             };
 
             // Reopen the project workspace from the previous run (after the
@@ -155,22 +178,27 @@ public class App : Application
 
             mainWindow.Opened += async (_, _) =>
             {
-                // Recovery takes precedence over session restore
+                // Recovered documents first; the session then adds the other
+                // tabs (it skips files already open).
                 var windowShown = SinceStart();
                 long sessionRestored;
                 try
                 {
-                    var recovered = await _viewModel.CheckAndRecoverAsync();
-                    if (!recovered)
-                        await _viewModel.RestoreSessionAsync();
+                    await _viewModel.CheckAndRecoverAsync();
+                    await _viewModel.RestoreSessionAsync();
                     sessionRestored = SinceStart();
 
                     // Files Ascolotl was launched with (e.g. double-clicked .adoc files)
-                    // open after the restored tabs, so the last one is in front.
+                    // open after the restored tabs, so the last one is in front;
+                    // then those from launches made during startup.
                     await OpenFilesAsync(desktop.Args ?? []);
+                    var queued = pendingPaths;
+                    pendingPaths = null;
+                    await OpenFilesAsync(queued ?? []);
                 }
                 finally
                 {
+                    pendingPaths = null;
                     _viewModel.OpeningDocuments = false;
                 }
 
@@ -183,15 +211,6 @@ public class App : Application
                     () => _log?.Info($"Startup: window {windowShown} ms, session {sessionRestored} ms, " +
                                      $"first preview {SinceStart()} ms after launch"),
                     DispatcherPriority.Background);
-
-                // Later launches hand their files to this window (see SingleInstance).
-                _ = SingleInstance.ListenAsync(paths => Dispatcher.UIThread.Post(async () =>
-                {
-                    await OpenFilesAsync(paths);
-                    if (mainWindow.WindowState == WindowState.Minimized)
-                        mainWindow.WindowState = WindowState.Normal;
-                    mainWindow.Activate();
-                }));
             };
 
             var forceClose = false;
@@ -199,11 +218,18 @@ public class App : Application
             {
                 if (forceClose)
                 {
-                    SaveWindowBounds(mainWindow);
-                    _viewModel.StopAutosave();
-                    _viewModel.SaveSession();
-                    _viewModel.CleanupRecoveryOnShutdown();
-                    _log?.Info("Ascolotl shutdown complete");
+                    try
+                    {
+                        SaveWindowBounds(mainWindow);
+                        _viewModel.StopAutosave();
+                        _viewModel.SaveSession();
+                        _viewModel.CleanupRecoveryOnShutdown();
+                        _log?.Info("Ascolotl shutdown complete");
+                    }
+                    catch (Exception ex)
+                    {
+                        _log?.Error("Shutdown cleanup failed", ex);
+                    }
                     _log?.Dispose();
                     return;
                 }
@@ -259,6 +285,19 @@ public class App : Application
             await _viewModel!.OpenFileByPathAsync(Path.GetFullPath(path));
     }
 
+    /// <summary>Settings are saved from event handlers: a failed write is logged, never a crash.</summary>
+    private void SaveSettings()
+    {
+        try
+        {
+            _settingsService?.Save(_settings!);
+        }
+        catch (Exception ex)
+        {
+            _log?.Error("Could not save settings", ex);
+        }
+    }
+
     private static void RestoreWindowBounds(Avalonia.Controls.Window window, AppSettings settings)
     {
         window.Width = settings.WindowWidth;
@@ -290,6 +329,6 @@ public class App : Application
             _settings.WindowY = window.Position.Y;
         }
 
-        _settingsService.Save(_settings);
+        SaveSettings();
     }
 }

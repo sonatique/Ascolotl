@@ -22,6 +22,8 @@ public sealed class MainWindowViewModelTests : IDisposable
     public void Dispose()
     {
         DocumentViewModel.ResetUntitledCounter();
+        foreach (var path in _tempFiles)
+            File.Delete(path);
     }
 
     private MainWindowViewModel CreateViewModel()
@@ -1457,15 +1459,17 @@ public sealed class MainWindowViewModelTests : IDisposable
     // --- Cleanup ---
 
     [Fact]
-    public void CleanupRecoveryOnShutdown_RemovesSnapshotsForOpenDocs()
+    public void CleanupRecoveryOnShutdown_ClearsAllEntriesIncludingOrphans()
     {
         var vm = CreateViewModel();
         vm.NewDocumentCommand.Execute(null);
-        vm.NewDocumentCommand.Execute(null);
+        // An entry for a document no longer open must not prompt for recovery forever.
+        _recoveryStore.SetEntries([new() { DocumentId = "orphan", DisplayName = "gone.adoc" }]);
 
         vm.CleanupRecoveryOnShutdown();
 
-        Assert.Equal(2, _recoveryStore.RemoveSnapshotCalled);
+        Assert.Equal(1, _recoveryStore.ClearAllCalled);
+        Assert.Empty(_recoveryStore.GetRecoveryEntries());
     }
 
     // --- DocumentViewModel ---
@@ -1502,5 +1506,164 @@ public sealed class MainWindowViewModelTests : IDisposable
         await vm.SaveDocumentCommand.ExecuteAsync(null);
 
         Assert.True(_recoveryStore.RemoveSnapshotCalled > 0);
+    }
+
+    // --- Save failures, encoding, concurrent edits ---
+
+    private readonly List<string> _tempFiles = [];
+
+    private string CreateTempFile(string content)
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"ascolotl-vm-{Guid.NewGuid():N}.adoc");
+        File.WriteAllText(path, content);
+        _tempFiles.Add(path);
+        return path;
+    }
+
+    [Fact]
+    public async Task Save_WriteFails_ShowsSaveFailedAndKeepsDocumentDirty()
+    {
+        var vm = CreateViewModel();
+        _fileService.OpenFileResult = ("/tmp/test.adoc", "original");
+        await vm.OpenDocumentCommand.ExecuteAsync(null);
+        vm.SelectedDocument!.SourceText = "modified";
+        _fileService.SaveException = new UnauthorizedAccessException("Access denied");
+
+        await vm.SaveDocumentCommand.ExecuteAsync(null);
+
+        Assert.Equal("Save Failed", Assert.Single(_dialogService.Errors).Title);
+        Assert.True(vm.SelectedDocument.IsDirty);
+    }
+
+    [Fact]
+    public async Task AppClosing_WriteFails_AbortsClose()
+    {
+        var vm = CreateViewModel();
+        _fileService.OpenFileResult = ("/tmp/test.adoc", "original");
+        await vm.OpenDocumentCommand.ExecuteAsync(null);
+        vm.SelectedDocument!.SourceText = "modified";
+        _dialogService.NextResult = SaveConfirmationResult.Save;
+        _fileService.SaveException = new IOException("Disk full");
+
+        Assert.False(await vm.HandleAppClosingAsync());
+        Assert.True(vm.SelectedDocument.IsDirty);
+    }
+
+    [Fact]
+    public async Task Save_KeepsEncodingTheFileWasReadWith()
+    {
+        var vm = CreateViewModel();
+        _fileService.ReadFileEncoding = System.Text.Encoding.UTF8; // with BOM
+        _fileService.OpenFileResult = ("/tmp/test.adoc", "original");
+        await vm.OpenDocumentCommand.ExecuteAsync(null);
+        vm.SelectedDocument!.SourceText = "modified";
+
+        await vm.SaveDocumentCommand.ExecuteAsync(null);
+
+        Assert.Equal(3, _fileService.LastSavedEncoding!.GetPreamble().Length);
+    }
+
+    [Fact]
+    public async Task Save_TypingDuringSave_StaysDirty()
+    {
+        var vm = CreateViewModel();
+        _fileService.OpenFileResult = ("/tmp/test.adoc", "original");
+        await vm.OpenDocumentCommand.ExecuteAsync(null);
+        var doc = vm.SelectedDocument!;
+        doc.SourceText = "modified";
+        _fileService.DuringSave = () => doc.SourceText += " and typed during save";
+
+        await vm.SaveDocumentCommand.ExecuteAsync(null);
+
+        Assert.Equal("modified", _fileService.LastSavedContent);
+        Assert.True(doc.IsDirty);
+    }
+
+    [Fact]
+    public async Task SaveAll_ConflictAnsweredSaveAs_SavesTheConflictingDocument()
+    {
+        var vm = CreateViewModel();
+        var path = CreateTempFile("on disk");
+        _fileService.OpenFileResult = (path, "on disk");
+        await vm.OpenDocumentCommand.ExecuteAsync(null);
+        var conflicting = vm.SelectedDocument!;
+        conflicting.SourceText = "conflicting edits";
+        conflicting.LastKnownWriteTime = File.GetLastWriteTimeUtc(path).AddMinutes(-1); // changed on disk since
+        vm.NewDocumentCommand.Execute(null); // another tab is selected
+        _dialogService.NextFileConflictResult = FileConflictResult.SaveAs;
+        _fileService.SaveFileAsResult = "/tmp/copy.adoc";
+
+        await vm.SaveAllCommand.ExecuteAsync(null);
+
+        Assert.Equal("conflicting edits", _fileService.LastSavedContent);
+        Assert.Equal("/tmp/copy.adoc", conflicting.FilePath);
+        Assert.False(conflicting.IsDirty);
+    }
+
+    [Fact]
+    public async Task CheckAndRecover_NoSnapshotLoads_ReturnsFalse()
+    {
+        var vm = CreateViewModel();
+        _recoveryStore.SetEntries([new() { DocumentId = "lost", DisplayName = "lost.adoc" }]);
+        _dialogService.NextRecoveryResult = true;
+
+        Assert.False(await vm.CheckAndRecoverAsync());
+    }
+
+    [Fact]
+    public async Task RestoreSession_AfterRecovery_AddsTheOtherTabsAndKeepsRecoveredInFront()
+    {
+        var vm = CreateViewModel();
+        var recoveredPath = CreateTempFile("a");
+        var otherPath = CreateTempFile("b");
+        _recoveryStore.SetEntries([new() { DocumentId = "a", OriginalFilePath = recoveredPath, DisplayName = "a.adoc" }]);
+        _recoveryStore.SetSnapshot("a", "a, edited");
+        _dialogService.NextRecoveryResult = true;
+        _sessionStore.NextLoadResult = new SessionState
+        {
+            SelectedIndex = 1,
+            OpenDocuments =
+            [
+                new() { DocumentId = "a", FilePath = recoveredPath, DisplayName = "a.adoc" },
+                new() { DocumentId = "b", FilePath = otherPath, DisplayName = "b.adoc" },
+            ],
+        };
+
+        await vm.CheckAndRecoverAsync();
+        await vm.RestoreSessionAsync();
+
+        Assert.Equal(["a, edited", "b"], vm.Documents.Select(d => d.SourceText));
+        Assert.Equal("a, edited", vm.SelectedDocument!.SourceText);
+    }
+
+    [Fact]
+    public async Task CheckAndRecover_UsesWriteTimeStoredWithSnapshot()
+    {
+        var vm = CreateViewModel();
+        var path = CreateTempFile("changed while the app was down");
+        var basedOn = File.GetLastWriteTimeUtc(path).AddMinutes(-5);
+        _recoveryStore.SetEntries([new() { DocumentId = "d", OriginalFilePath = path, DisplayName = "d.adoc", FileWriteTime = basedOn }]);
+        _recoveryStore.SetSnapshot("d", "recovered");
+        _dialogService.NextRecoveryResult = true;
+
+        await vm.CheckAndRecoverAsync();
+        await vm.SaveDocumentCommand.ExecuteAsync(null);
+
+        Assert.Equal(1, _dialogService.ShowFileConflictCalled);
+        Assert.Equal(0, _fileService.SaveFileCalled); // conflict dialog cancelled
+    }
+
+    [Fact]
+    public void Autosave_PassesBaseWriteTimeToRecoveryStore()
+    {
+        var vm = CreateViewModel();
+        vm.NewDocumentCommand.Execute(null);
+        var doc = vm.SelectedDocument!;
+        doc.SourceText = "dirty";
+        doc.LastKnownWriteTime = new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc);
+
+        vm.RunAutosave();
+
+        Assert.Equal(doc.LastKnownWriteTime, _recoveryStore.LastSavedFileWriteTime);
     }
 }

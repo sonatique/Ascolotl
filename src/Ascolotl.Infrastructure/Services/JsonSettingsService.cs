@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Ascolotl.Core.Models;
+using Ascolotl.Core.Services;
 
 namespace Ascolotl.Infrastructure.Services;
 
@@ -14,15 +15,17 @@ public sealed class JsonSettingsService
     };
 
     private readonly string _settingsPath;
+    private readonly IAppLog? _log;
 
-    public JsonSettingsService()
-        : this(GetDefaultPath())
+    public JsonSettingsService(IAppLog? log = null)
+        : this(GetDefaultPath(), log)
     {
     }
 
-    public JsonSettingsService(string settingsPath)
+    public JsonSettingsService(string settingsPath, IAppLog? log = null)
     {
         _settingsPath = settingsPath;
+        _log = log;
     }
 
     public AppSettings Load()
@@ -36,8 +39,12 @@ public sealed class JsonSettingsService
             return JsonSerializer.Deserialize<AppSettings>(json, SerializerOptions)
                    ?? new AppSettings();
         }
-        catch
+        catch (Exception ex)
         {
+            // The next save overwrites the file with defaults: keep the unreadable one.
+            _log?.Error($"Settings unreadable, using defaults; kept as {Path.GetFileName(_settingsPath)}.corrupt", ex);
+            try { File.Copy(_settingsPath, _settingsPath + ".corrupt", overwrite: true); }
+            catch { /* best effort */ }
             return new AppSettings();
         }
     }

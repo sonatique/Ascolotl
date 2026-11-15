@@ -102,4 +102,19 @@ public sealed class JsonSettingsServiceTests : IDisposable
         Assert.False(settings.WindowMaximized);
         Assert.Empty(settings.RecentFiles);
     }
+
+    [Fact]
+    public void Load_UnreadableFile_KeepsCopyBeforeDefaultsOverwriteIt()
+    {
+        Directory.CreateDirectory(_tempDir);
+        var path = Path.Combine(_tempDir, "settings.json");
+        File.WriteAllText(path, """{ "theme": "noSuchTheme" }""");
+        var service = CreateService();
+
+        var settings = service.Load();
+        service.Save(settings);
+
+        Assert.Equal(AppTheme.System, settings.Theme);
+        Assert.Equal("""{ "theme": "noSuchTheme" }""", File.ReadAllText(path + ".corrupt"));
+    }
 }

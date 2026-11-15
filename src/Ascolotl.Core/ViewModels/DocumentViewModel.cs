@@ -14,6 +14,9 @@ public partial class DocumentViewModel : ObservableObject
 
     public DateTime? LastKnownWriteTime { get; set; }
 
+    /// <summary>Encoding the file was read with, reused on save; null = UTF-8 without BOM.</summary>
+    public System.Text.Encoding? FileEncoding { get; set; }
+
     private bool _isRecovered;
     public bool IsRecovered
     {

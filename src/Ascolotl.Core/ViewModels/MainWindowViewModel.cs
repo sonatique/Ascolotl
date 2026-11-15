@@ -208,8 +208,14 @@ public partial class MainWindowViewModel : ObservableObject
     public void StartAutosave()
     {
         if (_recoveryStore is null) return;
+        // The timer fires on the thread pool; documents belong to the UI thread.
+        var ui = SynchronizationContext.Current;
         _autosaveTimer = new System.Threading.Timer(
-            _ => RunAutosave(), null,
+            _ =>
+            {
+                if (ui is null) RunAutosave();
+                else ui.Post(_ => { if (_autosaveTimer is not null) RunAutosave(); }, null);
+            }, null,
             TimeSpan.FromSeconds(AutosaveIntervalSeconds),
             TimeSpan.FromSeconds(AutosaveIntervalSeconds));
     }
@@ -231,7 +237,7 @@ public partial class MainWindowViewModel : ObservableObject
             try
             {
                 _recoveryStore.SaveSnapshot(
-                    doc.DocumentId, doc.SourceText, doc.FilePath, doc.DisplayName);
+                    doc.DocumentId, doc.SourceText, doc.FilePath, doc.DisplayName, doc.LastKnownWriteTime);
             }
             catch (Exception ex)
             {
@@ -254,7 +260,7 @@ public partial class MainWindowViewModel : ObservableObject
             try
             {
                 _recoveryStore.SaveSnapshot(
-                    doc.DocumentId, doc.SourceText, doc.FilePath, doc.DisplayName);
+                    doc.DocumentId, doc.SourceText, doc.FilePath, doc.DisplayName, doc.LastKnownWriteTime);
             }
             catch
             {
@@ -282,6 +288,7 @@ public partial class MainWindowViewModel : ObservableObject
             return false;
         }
 
+        var recovered = 0;
         foreach (var entry in entries)
         {
             var sourceText = _recoveryStore.LoadSnapshot(entry.DocumentId);
@@ -299,26 +306,30 @@ public partial class MainWindowViewModel : ObservableObject
             doc.EndLoad();
             doc.IsDirty = true; // Recovered docs are dirty
 
-            // Snapshot the file's current write time so conflict detection
-            // works on the first save — catches modifications that happened
-            // while the app was down.
-            if (entry.OriginalFilePath is not null)
+            // The write time the edits were based on, so the first save flags
+            // changes made to the file while the app was down. Older manifests
+            // lack it: fall back to the file's current time.
+            doc.LastKnownWriteTime = entry.FileWriteTime;
+            if (doc.LastKnownWriteTime is null && entry.OriginalFilePath is not null)
             {
                 try { doc.LastKnownWriteTime = File.GetLastWriteTimeUtc(entry.OriginalFilePath); }
                 catch { /* file may be gone — conflict check will be skipped */ }
             }
 
             Documents.Add(doc);
+            recovered++;
         }
 
-        if (Documents.Count > 0)
-            SelectedDocument = Documents[0];
+        if (recovered == 0)
+            return false;
+
+        SelectedDocument = Documents[0];
 
         // Do NOT ClearAll here — recovery data stays on disk as a safety net
         // until each document is explicitly saved (RemoveRecoverySnapshot) or
         // the app shuts down cleanly (CleanupRecoveryOnShutdown).
-        _log?.Info($"Recovered {Documents.Count} document(s)");
-        StatusText = $"Recovered {Documents.Count} document(s)";
+        _log?.Info($"Recovered {recovered} document(s)");
+        StatusText = $"Recovered {recovered} document(s)";
         return true;
     }
 
@@ -334,13 +345,13 @@ public partial class MainWindowViewModel : ObservableObject
         // Read all session files off the UI thread
         var loaded = await Task.Run(() =>
         {
-            var results = new List<(SessionDocument Session, string Content, DateTime WriteTime)>();
+            var results = new List<(SessionDocument Session, FileText Content, DateTime WriteTime)>();
             foreach (var sessionDoc in session.OpenDocuments)
             {
                 if (sessionDoc.FilePath is null) continue;
                 try
                 {
-                    var content = File.ReadAllText(sessionDoc.FilePath);
+                    var content = TextFile.Read(sessionDoc.FilePath);
                     var writeTime = File.GetLastWriteTimeUtc(sessionDoc.FilePath);
                     results.Add((sessionDoc, content, writeTime));
                 }
@@ -362,18 +373,20 @@ public partial class MainWindowViewModel : ObservableObject
             doc.BeginLoad();
             doc.FilePath = sessionDoc.FilePath;
             doc.DisplayName = sessionDoc.DisplayName;
-            doc.SourceText = content;
+            doc.SourceText = content.Text;
             doc.EndLoad();
             doc.MarkClean();
             doc.LastKnownWriteTime = writeTime;
+            doc.FileEncoding = content.Encoding;
 
             Documents.Add(doc);
         }
 
-        if (session.SelectedIndex >= 0 && session.SelectedIndex < Documents.Count)
-            SelectedDocument = Documents[session.SelectedIndex];
-        else if (Documents.Count > 0)
-            SelectedDocument = Documents[0];
+        // Recovered documents (opened first) keep the focus.
+        if (SelectedDocument is null && Documents.Count > 0)
+            SelectedDocument = session.SelectedIndex >= 0 && session.SelectedIndex < Documents.Count
+                ? Documents[session.SelectedIndex]
+                : Documents[0];
 
         if (Documents.Count > 0)
         {
@@ -412,20 +425,9 @@ public partial class MainWindowViewModel : ObservableObject
 
     public void CleanupRecoveryOnShutdown()
     {
-        // On clean shutdown, remove recovery snapshots for all documents
-        if (_recoveryStore is null) return;
-
-        foreach (var doc in Documents)
-        {
-            try
-            {
-                _recoveryStore.RemoveSnapshot(doc.DocumentId);
-            }
-            catch
-            {
-                // Best-effort cleanup
-            }
-        }
+        // Every dirty document was saved or deliberately discarded in
+        // HandleAppClosingAsync, so no entry (orphans included) is still needed.
+        _recoveryStore?.ClearAll();
     }
 
     // --- Document commands ---
@@ -447,7 +449,13 @@ public partial class MainWindowViewModel : ObservableObject
         if (result is null)
             return;
 
-        OpenDocumentFromPath(result.Value.Path, result.Value.Content);
+        if (result.Value.Content is not { } content)
+        {
+            StatusText = $"Could not open: {Path.GetFileName(result.Value.Path)}";
+            return;
+        }
+
+        OpenDocumentFromPath(result.Value.Path, content);
     }
 
     [RelayCommand]
@@ -468,6 +476,12 @@ public partial class MainWindowViewModel : ObservableObject
         var content = await _fileService.ReadFileAsync(path);
         if (content is null)
         {
+            // Only a vanished file leaves the list; a locked one stays.
+            if (File.Exists(path))
+            {
+                StatusText = $"Could not open: {Path.GetFileName(path)}";
+                return;
+            }
             RecentFiles.Remove(path);
             RecentFilesChanged?.Invoke();
             StatusText = $"File not found: {Path.GetFileName(path)}";
@@ -505,7 +519,7 @@ public partial class MainWindowViewModel : ObservableObject
         OpenDocumentFromPath(path, content);
     }
 
-    private void OpenDocumentFromPath(string path, string content)
+    private void OpenDocumentFromPath(string path, FileText content)
     {
         var existing = Documents.FirstOrDefault(
             d => string.Equals(d.FilePath, path, StringComparison.OrdinalIgnoreCase));
@@ -520,9 +534,10 @@ public partial class MainWindowViewModel : ObservableObject
         doc.BeginLoad();
         doc.FilePath = path;
         doc.DisplayName = Path.GetFileName(path);
-        doc.SourceText = content;
+        doc.SourceText = content.Text;
         doc.EndLoad();
         doc.MarkClean();
+        doc.FileEncoding = content.Encoding;
 
         try { doc.LastKnownWriteTime = File.GetLastWriteTimeUtc(path); }
         catch { /* non-critical */ }
@@ -567,8 +582,18 @@ public partial class MainWindowViewModel : ObservableObject
                 await ReportFailureAsync("Import Failed", $"Could not read {Path.GetFileName(sourcePath)}.");
                 return;
             }
-            await _fileService.SaveFileAsync(adocPath,
-                PlainTextImport.ToAsciiDoc(text, Path.GetFileNameWithoutExtension(sourcePath)));
+            try
+            {
+                await _fileService.SaveFileAsync(adocPath,
+                    PlainTextImport.ToAsciiDoc(text.Text, Path.GetFileNameWithoutExtension(sourcePath)),
+                    TextFile.Utf8NoBom);
+            }
+            catch (Exception ex)
+            {
+                _log?.Error($"Import save failed: {adocPath}", ex);
+                await ReportFailureAsync("Save Failed", $"Could not save {Path.GetFileName(adocPath)}: {ex.Message}");
+                return;
+            }
             await OpenFileByPathAsync(adocPath);
             StatusText = $"Imported {Path.GetFileName(sourcePath)}";
             return;
@@ -722,46 +747,25 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private async Task SaveDocumentAsync()
     {
-        if (SelectedDocument is null)
+        if (SelectedDocument is not { } doc)
             return;
-
-        if (SelectedDocument.FilePath is null)
-        {
-            await SaveDocumentAsAsync();
-            return;
-        }
 
         // Check for external file modification
-        if (await CheckFileConflictAsync(SelectedDocument))
+        if (doc.FilePath is not null && await CheckFileConflictAsync(doc))
             return; // Conflict handled or save cancelled
 
-        await _fileService.SaveFileAsync(SelectedDocument.FilePath, SelectedDocument.SourceText);
-        SelectedDocument.MarkClean();
-        SelectedDocument.IsRecovered = false;
-        UpdateLastKnownWriteTime(SelectedDocument);
-        RemoveRecoverySnapshot(SelectedDocument);
-        StatusText = $"Saved {SelectedDocument.DisplayName}";
+        if (await WriteDocumentAsync(doc, saveAs: false))
+            StatusText = $"Saved {doc.DisplayName}";
     }
 
     [RelayCommand]
-    private async Task SaveDocumentAsAsync()
+    private Task SaveDocumentAsAsync()
+        => SelectedDocument is { } doc ? SaveAsAsync(doc) : Task.CompletedTask;
+
+    private async Task SaveAsAsync(DocumentViewModel doc)
     {
-        if (SelectedDocument is null)
-            return;
-
-        var path = await _fileService.SaveFileAsAsync(
-            SelectedDocument.DisplayName, SelectedDocument.SourceText);
-        if (path is null)
-            return;
-
-        SelectedDocument.FilePath = path;
-        SelectedDocument.DisplayName = Path.GetFileName(path);
-        SelectedDocument.MarkClean();
-        SelectedDocument.IsRecovered = false;
-        UpdateLastKnownWriteTime(SelectedDocument);
-        RemoveRecoverySnapshot(SelectedDocument);
-        AddRecentFile(path);
-        StatusText = $"Saved {SelectedDocument.DisplayName}";
+        if (await WriteDocumentAsync(doc, saveAs: true))
+            StatusText = $"Saved {doc.DisplayName}";
     }
 
     [RelayCommand]
@@ -774,35 +778,73 @@ public partial class MainWindowViewModel : ObservableObject
                 if (await CheckFileConflictAsync(doc))
                     continue; // Conflict handled (reload/saveas/cancel) — skip to next
 
-                await _fileService.SaveFileAsync(doc.FilePath, doc.SourceText);
-                doc.MarkClean();
-                doc.IsRecovered = false;
-                UpdateLastKnownWriteTime(doc);
-                RemoveRecoverySnapshot(doc);
+                if (!await WriteDocumentAsync(doc, saveAs: false))
+                    return; // Failure reported — stop Save All
             }
             else
             {
                 var prev = SelectedDocument;
                 SelectedDocument = doc;
 
-                var path = await _fileService.SaveFileAsAsync(doc.DisplayName, doc.SourceText);
-                if (path is null)
+                if (!await WriteDocumentAsync(doc, saveAs: true))
                 {
                     SelectedDocument = prev;
-                    return; // User cancelled — stop Save All
+                    return; // User cancelled or failure reported — stop Save All
                 }
-
-                doc.FilePath = path;
-                doc.DisplayName = Path.GetFileName(path);
-                doc.MarkClean();
-                doc.IsRecovered = false;
-                UpdateLastKnownWriteTime(doc);
-                RemoveRecoverySnapshot(doc);
-                AddRecentFile(path);
             }
         }
 
         StatusText = "All documents saved";
+    }
+
+    /// <summary>
+    /// The one place documents reach the disk: writes <paramref name="doc"/>
+    /// (to a picked path when <paramref name="saveAs"/> or untitled), keeping
+    /// its encoding. A failure is reported and leaves the document dirty.
+    /// </summary>
+    /// <returns>true when written; false when cancelled or failed.</returns>
+    private async Task<bool> WriteDocumentAsync(DocumentViewModel doc, bool saveAs)
+    {
+        // Typing continues during the await: only what was written counts as saved.
+        var text = doc.SourceText;
+        var encoding = TextFile.EncodingFor(text, doc.FileEncoding);
+        string? path;
+        try
+        {
+            if (saveAs || doc.FilePath is null)
+            {
+                path = await _fileService.SaveFileAsAsync(doc.DisplayName, text, encoding);
+                if (path is null)
+                    return false;
+            }
+            else
+            {
+                path = doc.FilePath;
+                await _fileService.SaveFileAsync(path, text, encoding);
+            }
+        }
+        catch (Exception ex)
+        {
+            _log?.Error($"Save failed: {doc.DisplayName}", ex);
+            await ReportFailureAsync("Save Failed", $"Could not save {doc.DisplayName}: {ex.Message}");
+            return false;
+        }
+
+        if (!string.Equals(path, doc.FilePath, StringComparison.Ordinal))
+        {
+            doc.FilePath = path;
+            doc.DisplayName = Path.GetFileName(path);
+            AddRecentFile(path);
+        }
+        doc.FileEncoding = encoding;
+        doc.IsRecovered = false;
+        UpdateLastKnownWriteTime(doc);
+        if (doc.SourceText == text)
+        {
+            doc.MarkClean();
+            RemoveRecoverySnapshot(doc);
+        }
+        return true;
     }
 
     // --- File conflict detection ---
@@ -837,9 +879,10 @@ public partial class MainWindowViewModel : ObservableObject
                 if (content is not null)
                 {
                     doc.BeginLoad();
-                    doc.SourceText = content;
+                    doc.SourceText = content.Text;
                     doc.EndLoad();
                     doc.MarkClean();
+                    doc.FileEncoding = content.Encoding;
                     UpdateLastKnownWriteTime(doc);
                     RemoveRecoverySnapshot(doc);
                     StatusText = $"Reloaded {doc.DisplayName} from disk";
@@ -847,7 +890,7 @@ public partial class MainWindowViewModel : ObservableObject
                 return true;
 
             case FileConflictResult.SaveAs:
-                await SaveDocumentAsAsync();
+                await SaveAsAsync(doc);
                 return true;
 
             case FileConflictResult.Cancel:
@@ -1099,30 +1142,12 @@ public partial class MainWindowViewModel : ObservableObject
             switch (result)
             {
                 case SaveConfirmationResult.Save:
-                    if (doc.FilePath is not null)
-                    {
-                        if (await CheckFileConflictAsync(doc))
-                        {
-                            // Conflict handled — if user chose Cancel in conflict
-                            // dialog, the doc is still dirty; abort close so they
-                            // don't lose work.
-                            if (doc.IsDirty)
-                                return false;
-                        }
-                        else
-                        {
-                            await _fileService.SaveFileAsync(doc.FilePath, doc.SourceText);
-                            doc.MarkClean();
-                        }
-                    }
-                    else
-                    {
-                        var path = await _fileService.SaveFileAsAsync(doc.DisplayName, doc.SourceText);
-                        if (path is null)
-                            return false; // User cancelled SaveAs — abort close
-                        doc.FilePath = path;
-                        doc.MarkClean();
-                    }
+                    // A conflict answered with Reload/Save As is handled; otherwise write.
+                    if (doc.FilePath is null || !await CheckFileConflictAsync(doc))
+                        await WriteDocumentAsync(doc, saveAs: false);
+                    // Still dirty (cancelled, failed, edited meanwhile): abort close so no work is lost.
+                    if (doc.IsDirty)
+                        return false;
                     break;
                 case SaveConfirmationResult.Cancel:
                     return false;
