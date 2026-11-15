@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -10,7 +11,7 @@ public readonly record struct SitePage(string RelativeHtmlPath, string Title);
 
 /// <summary>
 /// Pure helpers for exporting a project folder as a static HTML site: path
-/// mapping, inter-document link rewriting, title extraction, and the index
+/// mapping, inter-document link rewriting, and the index
 /// page. The I/O and AdocNet rendering live in the export service; everything
 /// here is unit-testable.
 /// </summary>
@@ -36,24 +37,6 @@ public static partial class WebsiteBuilder
     public static string RewriteDocLinks(string html) =>
         DocHrefRegex().Replace(html, m =>
             m.Groups[1].Value + m.Groups[2].Value + ".html" + m.Groups[4].Value + m.Groups[5].Value);
-
-    /// <summary>Document title: the first <c>= Title</c> line, else the file
-    /// name without extension.</summary>
-    public static string ExtractTitle(string source, string fallbackFileName)
-    {
-        foreach (var raw in source.Split('\n'))
-        {
-            var line = raw.TrimEnd('\r');
-            var t = line.TrimStart();
-            if (t.Length == 0 || t.StartsWith("//", StringComparison.Ordinal)) continue;
-            if (t.StartsWith("= ", StringComparison.Ordinal))
-                return t[2..].Trim();
-            // First non-empty, non-comment line that isn't a doc title — the
-            // document has no title line (attribute entries may precede it).
-            if (!t.StartsWith(':')) break;
-        }
-        return Path.GetFileNameWithoutExtension(fallbackFileName);
-    }
 
     /// <summary>True when the project provides its own site index (an
     /// index.adoc at the root), in which case no index is generated.</summary>
@@ -103,7 +86,9 @@ public static partial class WebsiteBuilder
                 sb.AppendLine("<ul>");
                 open = true;
             }
-            sb.AppendLine($"<li><a href=\"{page.RelativeHtmlPath}\">{Escape(page.Title)}</a></li>");
+            // Per segment, so "My Notes/a#1.html" stays a path; the result needs no HTML escaping.
+            var href = string.Join('/', page.RelativeHtmlPath.Split('/').Select(Uri.EscapeDataString));
+            sb.AppendLine($"<li><a href=\"{href}\">{Escape(page.Title)}</a></li>");
         }
         if (open) sb.AppendLine("</ul>");
 
@@ -111,6 +96,5 @@ public static partial class WebsiteBuilder
         return sb.ToString();
     }
 
-    private static string Escape(string s) =>
-        s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
+    private static string Escape(string s) => WebUtility.HtmlEncode(s);
 }
