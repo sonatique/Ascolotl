@@ -19,7 +19,13 @@ public sealed class DocxImportService : IDocxImportService
             cancellationToken.ThrowIfCancellationRequested();
             try
             {
-                var result = new DocxImporter().ConvertFile(docxPath, adocPath);
+                // Media folder per document, so a second import into the same folder
+                // does not overwrite the first one's image1.png.
+                var importer = new DocxImporter(new DocxImportOptions
+                {
+                    MediaDirectoryName = Path.GetFileNameWithoutExtension(adocPath) + "-media",
+                });
+                var result = importer.ConvertFile(docxPath, adocPath);
                 var report = result.Report;
 
                 return new DocxImportOutcome
