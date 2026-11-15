@@ -14,7 +14,7 @@ public static class PreviewStyle
     /// <summary>Theme sizes are PDF points; Avalonia lays out in 1/96 inch.</summary>
     public const double DipPerPoint = 96.0 / 72.0;
 
-    private static (string Path, DateTime Stamp, PdfRenderOptions Options)? _cache;
+    private static (string Key, DateTime Stamp, PdfRenderOptions Options)? _cache;
 
     /// <summary>
     /// The style for a document (its :pdf-theme:, else the user's default),
@@ -30,12 +30,14 @@ public static class PreviewStyle
             if (path is null || !File.Exists(path))
                 return null;
 
+            // The font root also depends on the document's folder and :pdf-fontsdir:.
+            var key = $"{path}\n{docDir}\n{attributes.GetValueOrDefault("pdf-fontsdir")}";
             var stamp = File.GetLastWriteTimeUtc(path);
-            if (_cache is { } c && c.Path == path && c.Stamp == stamp)
+            if (_cache is { } c && c.Key == key && c.Stamp == stamp)
                 return c.Options;
 
             var options = PdfThemeResolver.Load(path, attributes, docDir);
-            _cache = (path, stamp, options);
+            _cache = (key, stamp, options);
             return options;
         }
         catch (Exception)
