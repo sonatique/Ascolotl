@@ -85,22 +85,23 @@ public static partial class SmartTyping
     {
         var t = lineText.Trim();
         if (t.Length == 0) return null;
-        if (documentText is not null
-            && documentText.Split('\n').Count(l => l.Trim() == t) % 2 == 0)
-            return null;
 
-        if (t is "|===" || TableDelimiter().IsMatch(t)) return "|===";
-
+        string? closer = null;
+        if (t is "|===" || TableDelimiter().IsMatch(t)) closer = "|===";
         // Symmetric fences: the closer is identical to the opener.
-        if (ListingDelimiter().IsMatch(t)
+        else if (ListingDelimiter().IsMatch(t)
             || LiteralDelimiter().IsMatch(t)
             || ExampleDelimiter().IsMatch(t)
             || SidebarDelimiter().IsMatch(t)
             || QuoteDelimiter().IsMatch(t)
             || PassthroughDelimiter().IsMatch(t))
-            return t;
+            closer = t;
 
-        return null;
+        // Counted only for fence lines: this runs on every Enter.
+        if (closer is not null && documentText is not null
+            && documentText.Split('\n').Count(l => l.Trim() == t) % 2 == 0)
+            return null;
+        return closer;
     }
 
     [GeneratedRegex(@"^\|=+$")] private static partial Regex TableDelimiter();

@@ -71,18 +71,36 @@ public static class TextFile
         }
     }
 
-    /// <summary>Writes to a temp file next to <paramref name="path"/>, then moves it over the original.</summary>
+    /// <summary>
+    /// Writes to a temp file next to <paramref name="path"/>, then swaps it in, so a
+    /// failed write never leaves a truncated file. Writes through symlinks.
+    /// </summary>
     public static async Task WriteAsync(string path, string text, Encoding encoding)
     {
+        path = new FileInfo(path).ResolveLinkTarget(returnFinalTarget: true)?.FullName ?? path;
+        var exists = File.Exists(path);
         var temp = $"{path}.{Guid.NewGuid():N}.tmp";
         try
         {
             await File.WriteAllTextAsync(temp, text, encoding);
-            // Replace keeps the original's attributes and permissions; Move does not.
-            if (File.Exists(path))
-                File.Replace(temp, path, destinationBackupFileName: null);
-            else
+            if (!exists)
+            {
                 File.Move(temp, path);
+                return;
+            }
+            if (!OperatingSystem.IsWindows())
+                File.SetUnixFileMode(temp, File.GetUnixFileMode(path));
+            try
+            {
+                // Replace keeps the original's attributes and Windows permissions.
+                File.Replace(temp, path, destinationBackupFileName: null);
+            }
+            catch (IOException)
+            {
+                // Some drives and sharing modes refuse a swap but allow writing in place.
+                File.Copy(temp, path, overwrite: true);
+                File.Delete(temp);
+            }
         }
         catch
         {

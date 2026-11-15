@@ -1459,17 +1459,19 @@ public sealed class MainWindowViewModelTests : IDisposable
     // --- Cleanup ---
 
     [Fact]
-    public void CleanupRecoveryOnShutdown_ClearsAllEntriesIncludingOrphans()
+    public async Task CleanupRecoveryOnShutdown_RemovesOwnEntriesIncludingOrphans_KeepsOtherInstances()
     {
         var vm = CreateViewModel();
-        vm.NewDocumentCommand.Execute(null);
-        // An entry for a document no longer open must not prompt for recovery forever.
+        // Found at startup but unloadable: must not prompt for recovery forever.
         _recoveryStore.SetEntries([new() { DocumentId = "orphan", DisplayName = "gone.adoc" }]);
+        _dialogService.NextRecoveryResult = true;
+        await vm.CheckAndRecoverAsync();
+        // Written later by a second instance sharing the recovery folder.
+        _recoveryStore.GetRecoveryEntries().Add(new() { DocumentId = "other", DisplayName = "theirs.adoc" });
 
         vm.CleanupRecoveryOnShutdown();
 
-        Assert.Equal(1, _recoveryStore.ClearAllCalled);
-        Assert.Empty(_recoveryStore.GetRecoveryEntries());
+        Assert.Equal(["other"], _recoveryStore.GetRecoveryEntries().Select(e => e.DocumentId));
     }
 
     // --- DocumentViewModel ---

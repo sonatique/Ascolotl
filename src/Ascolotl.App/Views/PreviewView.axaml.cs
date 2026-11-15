@@ -234,9 +234,10 @@ public partial class PreviewView : UserControl
         if (Application.Current is not null)
             Application.Current.ActualThemeVariantChanged -= OnThemeChanged;
         if (_mainVm is not null)
+        {
             _mainVm.PropertyChanged -= OnMainVmPropertyChanged;
-        if (_window is not null)
-            _window.Closing -= OnWindowClosing;
+            _mainVm.FlushPendingEdits = null;
+        }
         _window = null;
     }
 
@@ -246,14 +247,12 @@ public partial class PreviewView : UserControl
         _window = TopLevel.GetTopLevel(this) as Window;
         _mainVm = _window?.DataContext as MainWindowViewModel;
         if (_mainVm is not null)
+        {
             _mainVm.PropertyChanged += OnMainVmPropertyChanged;
-        if (_window is not null)
-            _window.Closing += OnWindowClosing;
+            // Saving and closing must see the open in-place edit's text.
+            _mainVm.FlushPendingEdits = CommitBlockEdit;
+        }
     }
-
-    // Closing must see the open in-place edit's text in the document, so the
-    // save prompt (and the saved file) include it.
-    private void OnWindowClosing(object? sender, WindowClosingEventArgs e) => CommitBlockEdit();
 
     private void OnMainVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -1031,6 +1030,8 @@ public partial class PreviewView : UserControl
             Start = start,
             Length = length,
             OriginalSlice = originalSlice,
+            WasDirty = _doc?.IsDirty ?? false,
+            SourceAtOpen = _doc?.SourceText ?? string.Empty,
             // The inline editor holds one block's slice, so feed the whole
             // document for anchor/attribute (document-aware) completion.
             Assist = new CompletionController(editor,
@@ -1256,6 +1257,7 @@ public partial class PreviewView : UserControl
         else
         {
             edit.Restore();
+            UndoTypingDirty(edit);
             if (_mainVm is not null)
                 _mainVm.StatusText = action == BlockSourceEditing.CommitAction.Abort
                     ? "Edit discarded — the document changed while the block was open"
@@ -1313,6 +1315,13 @@ public partial class PreviewView : UserControl
         return bestDelta <= 2 ? best : null;
     }
 
+    /// <summary>Typing marked the document dirty; an edit that changed nothing undoes that.</summary>
+    private void UndoTypingDirty(BlockEditState edit)
+    {
+        if (_doc is not null && !edit.WasDirty && _doc.SourceText == edit.SourceAtOpen)
+            _doc.IsDirty = false;
+    }
+
     private void CancelBlockEdit()
     {
         var edit = _activeEdit;
@@ -1323,6 +1332,7 @@ public partial class PreviewView : UserControl
         _activeEdit = null;
 
         edit.Restore();
+        UndoTypingDirty(edit);
         if (_mainVm is not null) _mainVm.StatusText = "Edit cancelled";
         if (_rebuildPending && _doc is not null)
             UpdatePreview(_doc);
@@ -1721,6 +1731,8 @@ public partial class PreviewView : UserControl
         public required int Start { get; init; }
         public required int Length { get; init; }
         public required string OriginalSlice { get; init; }
+        public required bool WasDirty { get; init; }
+        public required string SourceAtOpen { get; init; }
 
         /// <summary>Authoring-assist controller for the inline editor, so the
         /// WYSIWYG block editor gets the same completion/snippets/smart-typing

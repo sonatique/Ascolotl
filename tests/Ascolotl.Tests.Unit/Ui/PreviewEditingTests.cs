@@ -16,9 +16,10 @@ namespace Ascolotl.Tests.Unit.Ui;
 /// <summary>In-place preview editing and external edits against the source editor.</summary>
 public sealed class PreviewEditingTests
 {
-    private static (MainWindow Window, MainWindowViewModel Vm) Open(string text, EditorMode mode, int debounceMs = 0)
+    private static (MainWindow Window, MainWindowViewModel Vm) Open(string text, EditorMode mode, int debounceMs = 0,
+        MockFileService? files = null)
     {
-        var vm = new MainWindowViewModel(new MockFileService(), new MockDialogService(), new MockRenderService(),
+        var vm = new MainWindowViewModel(files ?? new MockFileService(), new MockDialogService(), new MockRenderService(),
             new MockExportService(), new MockRecoveryStore(), new MockSessionStore(), new MockAppLog(), debounceMs)
         { EditorMode = mode };
         var window = new MainWindow { DataContext = vm, Width = 1000, Height = 700 };
@@ -49,6 +50,41 @@ public sealed class PreviewEditingTests
         var tb = Preview(window).GetVisualDescendants().OfType<TextBlock>()
             .First(t => t.IsEffectivelyVisible && t.Bounds.Width > 0);
         return tb.TranslatePoint(new Point(4, tb.Bounds.Height / 2), window)!.Value;
+    }
+
+    private static TextEditor OpenInlineEditor(Window window)
+    {
+        var p = FirstTextPoint(window);
+        window.MouseDown(p, MouseButton.Left);
+        window.MouseUp(p, MouseButton.Left);
+        Pump(window);
+        return Preview(window).GetVisualDescendants().OfType<TextEditor>().Single();
+    }
+
+    [AvaloniaFact]
+    public async Task Save_WithOpenInlineEdit_WritesTheTypedText()
+    {
+        var files = new MockFileService { SaveFileAsResult = Path.Combine(Path.GetTempPath(), "a.adoc") };
+        var (window, vm) = Open("Hello world", EditorMode.Wysiwyg, files: files);
+        var editor = OpenInlineEditor(window);
+
+        editor.Document.Insert(editor.Document.TextLength, " again");
+        await vm.SaveDocumentCommand.ExecuteAsync(null);
+
+        Assert.Equal("Hello world again", files.LastSavedContent?.TrimEnd());
+    }
+
+    [AvaloniaFact]
+    public void CancelledInlineEdit_LeavesDocumentClean()
+    {
+        var (window, vm) = Open("Hello world", EditorMode.Wysiwyg);
+        var editor = OpenInlineEditor(window);
+
+        editor.Document.Insert(editor.Document.TextLength, " again");
+        window.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, null);
+        Pump(window);
+
+        Assert.False(vm.SelectedDocument!.IsDirty);
     }
 
     [AvaloniaFact]

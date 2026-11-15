@@ -61,6 +61,18 @@ public class WebsiteExportServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task Export_StaleHtmlInProject_DoesNotReplaceRenderedPage()
+    {
+        File.WriteAllText(Path.Combine(_root, "guide.adoc"), "= Guide\n\nFresh text.\n");
+        File.WriteAllText(Path.Combine(_root, "guide.html"), "stale");
+
+        var result = await new WebsiteExportService().ExportAsync(_root, ["guide.adoc"], _out, CancellationToken.None);
+
+        Assert.True(result.IsSuccess, result.ErrorMessage);
+        Assert.Contains("Fresh text.", File.ReadAllText(Path.Combine(_out, "guide.html")));
+    }
+
+    [Fact]
     public async Task Export_CopiesImages_SkipsDotFoldersAndOutput()
     {
         File.WriteAllText(Path.Combine(_root, "a.adoc"), "= A\n\nimage::images/logo.png[]\n");

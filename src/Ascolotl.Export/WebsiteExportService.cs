@@ -35,6 +35,9 @@ public sealed class WebsiteExportService : IWebsiteExportService
                 return ExportResult.Failure(
                     $"{string.Join(" and ", clash)} would both become {clash.Key}. Rename one of them, then export again.");
 
+            // Copied first so a stale guide.html in the project never replaces the rendered page.
+            await Task.Run(() => CopyProjectFiles(projectRoot, outputFolder, cancellationToken), cancellationToken);
+
             var pages = new List<SitePage>();
 
             foreach (var rel in relativeDocPaths)
@@ -65,8 +68,6 @@ public sealed class WebsiteExportService : IWebsiteExportService
                     : parsed.Document.Title;
                 pages.Add(new SitePage(relHtml, title));
             }
-
-            await Task.Run(() => CopyProjectFiles(projectRoot, outputFolder, cancellationToken), cancellationToken);
 
             if (!WebsiteBuilder.HasOwnIndex(relativeDocPaths))
             {

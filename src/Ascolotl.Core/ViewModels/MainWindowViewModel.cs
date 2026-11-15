@@ -17,6 +17,9 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly IWebsiteExportService? _websiteExportService;
     private readonly IDocxImportService? _docxImportService;
     private readonly IRecoveryStore? _recoveryStore;
+    // Recovery entries this instance wrote or took over; shutdown removes only these,
+    // so a second instance sharing the folder keeps its own.
+    private readonly HashSet<string> _ownSnapshots = [];
     private readonly ISessionStore? _sessionStore;
     private readonly IAppLog? _log;
     private readonly int _debounceMs;
@@ -236,6 +239,7 @@ public partial class MainWindowViewModel : ObservableObject
 
             try
             {
+                _ownSnapshots.Add(doc.DocumentId);
                 _recoveryStore.SaveSnapshot(
                     doc.DocumentId, doc.SourceText, doc.FilePath, doc.DisplayName, doc.LastKnownWriteTime);
             }
@@ -279,6 +283,8 @@ public partial class MainWindowViewModel : ObservableObject
         if (entries.Count == 0) return false;
 
         _log?.Info($"Found {entries.Count} recoverable document(s)");
+        foreach (var entry in entries)
+            _ownSnapshots.Add(entry.DocumentId);
 
         var shouldRecover = await _dialogService.ShowRecoveryDialogAsync(entries.Count);
         if (!shouldRecover)
@@ -314,6 +320,12 @@ public partial class MainWindowViewModel : ObservableObject
             {
                 try { doc.LastKnownWriteTime = File.GetLastWriteTimeUtc(entry.OriginalFilePath); }
                 catch { /* file may be gone — conflict check will be skipped */ }
+            }
+            // Save back in the file's own encoding (BOM, UTF-16, 1252), not plain UTF-8.
+            if (entry.OriginalFilePath is not null)
+            {
+                try { doc.FileEncoding = TextFile.Read(entry.OriginalFilePath).Encoding; }
+                catch { /* gone or unreadable: UTF-8 */ }
             }
 
             Documents.Add(doc);
@@ -426,8 +438,10 @@ public partial class MainWindowViewModel : ObservableObject
     public void CleanupRecoveryOnShutdown()
     {
         // Every dirty document was saved or deliberately discarded in
-        // HandleAppClosingAsync, so no entry (orphans included) is still needed.
-        _recoveryStore?.ClearAll();
+        // HandleAppClosingAsync, so none of this instance's entries is still needed.
+        if (_recoveryStore is null) return;
+        foreach (var id in _ownSnapshots)
+            _recoveryStore.RemoveSnapshot(id);
     }
 
     // --- Document commands ---
@@ -803,8 +817,15 @@ public partial class MainWindowViewModel : ObservableObject
     /// its encoding. A failure is reported and leaves the document dirty.
     /// </summary>
     /// <returns>true when written; false when cancelled or failed.</returns>
+    /// <summary>
+    /// Set by the preview: puts an open in-place edit's text into its document,
+    /// so saving and closing see it.
+    /// </summary>
+    public Action? FlushPendingEdits { get; set; }
+
     private async Task<bool> WriteDocumentAsync(DocumentViewModel doc, bool saveAs)
     {
+        FlushPendingEdits?.Invoke();
         // Typing continues during the await: only what was written counts as saved.
         var text = doc.SourceText;
         var encoding = TextFile.EncodingFor(text, doc.FileEncoding);
@@ -1090,6 +1111,7 @@ public partial class MainWindowViewModel : ObservableObject
         if (doc is null)
             return;
 
+        FlushPendingEdits?.Invoke();
         if (doc.IsDirty)
         {
             var result = await _dialogService.ShowSaveConfirmationAsync(doc.DisplayName);
@@ -1136,6 +1158,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     public async Task<bool> HandleAppClosingAsync()
     {
+        FlushPendingEdits?.Invoke();
         foreach (var doc in Documents.Where(d => d.IsDirty).ToList())
         {
             var result = await _dialogService.ShowSaveConfirmationAsync(doc.DisplayName);

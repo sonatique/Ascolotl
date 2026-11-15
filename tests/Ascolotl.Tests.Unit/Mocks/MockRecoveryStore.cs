@@ -35,6 +35,7 @@ public sealed class MockRecoveryStore : IRecoveryStore
     {
         RemoveSnapshotCalled++;
         _snapshots.Remove(documentId);
+        _entries.RemoveAll(e => e.DocumentId == documentId);
     }
 
     public List<RecoveryEntry> GetRecoveryEntries() => _entries;

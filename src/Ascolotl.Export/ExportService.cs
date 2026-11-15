@@ -63,9 +63,7 @@ public sealed class ExportService : IExportService
                             MetadataTitle = pdfTitle,
                             // AdocNet's PDF renderer loads images from here and
                             // does not apply :imagesdir: itself.
-                            BaseDirectory = basePath is null
-                                ? null
-                                : Path.Combine(basePath, attributes.GetValueOrDefault("imagesdir", "")),
+                            BaseDirectory = ImageBase(basePath, attributes.GetValueOrDefault("imagesdir", "")),
                         };
                         new PdfRenderer().Render(parsed.Document, ms, options);
                         break;
@@ -115,4 +113,12 @@ public sealed class ExportService : IExportService
 
     /// <summary>Windows sharing or lock violation: another program holds the file open.</summary>
     private static bool IsInUse(IOException ex) => (ex.HResult & 0xFFFF) is 32 or 33;
+
+    /// <summary>Folder images load from; never a network or device path (:imagesdir: \server would leak credentials).</summary>
+    private static string? ImageBase(string? basePath, string imagesDir)
+    {
+        if (basePath is null) return null;
+        var dir = Path.Combine(basePath, imagesDir);
+        return LocalIncludeReader.IsBlocked(dir, basePath) ? null : dir;
+    }
 }
