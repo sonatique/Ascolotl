@@ -31,7 +31,8 @@ no Java.
 - **Page Preview** shows the document as the exported PDF's pages: title page,
   table of contents, headers and footers.
 - **Authoring help:** completion, snippets, a visual table editor and a
-  searchable syntax reference (`F1`). Word documents (`.docx`) can be imported.
+  searchable syntax reference (`F1`). Word documents (`.docx`) and plain text
+  files can be imported.
 - **Tabs and session restore:** reopen a closed tab and pick up where you left
   off. Unsaved work is recovered after a crash.
 - **Light, dark or system theme**, with zoom and word wrap for each pane.
@@ -82,7 +83,7 @@ tar -xzf Ascolotl-0.0.1-linux-x64.tar.gz && ./Ascolotl
 
 | Action | Shortcut |
 |---|---|
-| New / Open | `Ctrl+N` / `Ctrl+O` |
+| New / Open / Open folder | `Ctrl+N` / `Ctrl+O` / `Ctrl+Shift+O` |
 | Save / Save As / Save All | `Ctrl+S` / `Ctrl+Shift+S` / `Ctrl+Alt+S` |
 | Close tab / Reopen closed tab | `Ctrl+W` / `Ctrl+Shift+T` |
 | Export to PDF | `Ctrl+E` |
@@ -118,10 +119,10 @@ then publishes one self-contained, trimmed executable per runtime to
 
 | Path | Contents |
 |---|---|
-| `src/Ascolotl.App` | Avalonia desktop app: windows, views and view models |
-| `src/Ascolotl.Core` | Editing logic, document model and rendering services |
-| `src/Ascolotl.Infrastructure` | File access, session and crash-recovery storage |
-| `src/Ascolotl.Export` | PDF, HTML, EPUB and DocBook export |
+| `src/Ascolotl.App` | Avalonia desktop app: windows, views, dialogs and file pickers |
+| `src/Ascolotl.Core` | View models, editing logic, document model and the preview's parse service |
+| `src/Ascolotl.Infrastructure` | Settings, session, crash-recovery storage and the log |
+| `src/Ascolotl.Export` | PDF, HTML, EPUB, DocBook and website export; Word import |
 | `tests/Ascolotl.Tests.Unit` | Unit tests |
 | `example-documents/` | Sample AsciiDoc files for manual testing |
 
