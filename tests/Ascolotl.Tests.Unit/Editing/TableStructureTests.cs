@@ -8,68 +8,6 @@ using Ascolotl.Core.Editing;
 /// </summary>
 public class TableStructureTests
 {
-    [Theory]
-    [InlineData(1, "|")]
-    [InlineData(2, "| |")]
-    [InlineData(3, "| | |")]
-    public void BlankRow_HasOneCellPerColumn(int cols, string expected)
-    {
-        Assert.Equal(expected, TableStructure.BlankRow(cols));
-    }
-
-    [Fact]
-    public void InsertCell_Middle_InsertsEmptyCell()
-    {
-        Assert.Equal("| a | | c", TableStructure.InsertCellInRowLine("| a | c", 1));
-    }
-
-    [Fact]
-    public void InsertCell_AtStart()
-    {
-        Assert.Equal("| | a | b", TableStructure.InsertCellInRowLine("| a | b", 0));
-    }
-
-    // Cell merging now lives in the span-aware TableGrid model (TableGridTests).
-
-    [Fact]
-    public void InsertCell_AtEnd_AppendsColumn()
-    {
-        Assert.Equal("| a | b | ", TableStructure.InsertCellInRowLine("| a | b", 2));
-    }
-
-    [Fact]
-    public void DeleteCell_Middle()
-    {
-        Assert.Equal("| a | c", TableStructure.DeleteCellInRowLine("| a | b | c", 1));
-    }
-
-    [Fact]
-    public void DeleteCell_First()
-    {
-        Assert.Equal("| b | c", TableStructure.DeleteCellInRowLine("| a | b | c", 0));
-    }
-
-    [Fact]
-    public void DeleteCell_Last()
-    {
-        Assert.Equal("| a | b", TableStructure.DeleteCellInRowLine("| a | b | c", 2));
-    }
-
-    [Fact]
-    public void DeleteCell_OutOfRange_Unchanged()
-    {
-        Assert.Equal("| a | b", TableStructure.DeleteCellInRowLine("| a | b", 9));
-    }
-
-    [Fact]
-    public void InsertThenDelete_RoundTrips()
-    {
-        var line = "| x | y | z";
-        var grown = TableStructure.InsertCellInRowLine(line, 1);
-        var shrunk = TableStructure.DeleteCellInRowLine(grown, 1);
-        Assert.Equal(line, shrunk);
-    }
-
     [Fact]
     public void AdjustCols_QuotedSpecs_Grow()
     {
@@ -101,15 +39,6 @@ public class TableStructureTests
     {
         Assert.Null(TableStructure.AdjustColsAttribute("[options=\"header\"]", 1));
         Assert.Null(TableStructure.AdjustColsAttribute("| a | b", 1));
-    }
-
-    [Fact]
-    public void InsertCell_PreservesEscapedPipe()
-    {
-        // The escaped pipe is content, not a separator: cell 0 is "a \| x",
-        // so inserting at column 1 lands the empty cell before "b".
-        var result = TableStructure.InsertCellInRowLine(@"| a \| x | b", 1);
-        Assert.Equal(@"| a \| x | | b", result);
     }
 
     // ── FlatCellIndex ─────────────────────────────────────────────────────

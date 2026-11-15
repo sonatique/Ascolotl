@@ -10,9 +10,6 @@ public sealed class TableCell
     /// <summary>Non-span spec characters (alignment / style) preserved verbatim
     /// and re-emitted after the span operator, e.g. the <c>^</c> in <c>2+^|</c>.</summary>
     public string SpecExtra { get; set; } = string.Empty;
-
-    public TableCell Clone() => new()
-        { Content = Content, ColSpan = ColSpan, RowSpan = RowSpan, SpecExtra = SpecExtra };
 }
 
 /// <summary>
@@ -21,7 +18,8 @@ public sealed class TableCell
 /// col/row spans, supports structural edits (merge, split, insert/delete row and
 /// column) that keep spans consistent, and serialises back to canonical source.
 ///
-/// <para>Multiplier specs (<c>N*</c>) and multi-line cells aren't modelled —
+/// <para>Multiplier specs (<c>N*</c>), multi-line cells and rows spread over
+/// several lines aren't modelled —
 /// <see cref="Parse"/> returns null for those so the caller can fall back to
 /// editing the table source directly.</para>
 /// </summary>
@@ -37,21 +35,57 @@ public sealed class TableGrid
 
     // ---- Parsing ----------------------------------------------------------
 
-    public static TableGrid? Parse(IReadOnlyList<string> bodyLines)
+    // A blank line followed row 0 in the source (the implicit-header marker);
+    // ToLines writes it back.
+    private bool _headerSeparated;
+
+    /// <summary>Parse the body lines, one source line per row. Returns null when
+    /// the table can't be modelled, including when the rows don't tile a
+    /// <paramref name="columnCount"/>-wide grid exactly (e.g. one cell per line),
+    /// since editing that line-per-row model would corrupt the table.
+    /// <paramref name="columnCount"/> defaults to row 0's width.</summary>
+    public static TableGrid? Parse(IReadOnlyList<string> bodyLines, int? columnCount = null)
     {
         var grid = new TableGrid();
         foreach (var raw in bodyLines)
         {
-            if (raw.Trim().Length == 0) continue; // blank row separator
+            if (raw.Trim().Length == 0)              // blank row separator
+            {
+                if (grid.Rows.Count == 1) grid._headerSeparated = true;
+                continue;
+            }
             var cells = ParseRow(raw);
             if (cells is null) return null;        // unsupported → bail
             grid.Rows.Add(cells);
         }
         if (grid.Rows.Count == 0) return null;
 
-        grid.ColumnCount = grid.Rows[0].Sum(c => c.ColSpan);
-        if (grid.ColumnCount <= 0) return null;
+        grid.ColumnCount = columnCount ?? grid.Rows[0].Sum(c => c.ColSpan);
+        if (grid.ColumnCount <= 0 || !grid.FillsGridExactly()) return null;
         return grid;
+    }
+
+    /// <summary>Every grid slot is covered by exactly one cell, and no cell runs
+    /// past the right edge or the last row.</summary>
+    private bool FillsGridExactly()
+    {
+        var used = new int[Rows.Count, ColumnCount];
+        for (var r = 0; r < Rows.Count; r++)
+        {
+            var c = 0;
+            foreach (var cell in Rows[r])
+            {
+                while (c < ColumnCount && used[r, c] > 0) c++;
+                if (c + cell.ColSpan > ColumnCount || r + cell.RowSpan > Rows.Count) return false;
+                for (var dr = 0; dr < cell.RowSpan; dr++)
+                    for (var dc = 0; dc < cell.ColSpan; dc++)
+                        used[r + dr, c + dc]++;
+                c += cell.ColSpan;
+            }
+        }
+        foreach (var n in used)
+            if (n != 1) return false;
+        return true;
     }
 
     private static List<TableCell>? ParseRow(string line)
@@ -386,7 +420,10 @@ public sealed class TableGrid
     {
         var lines = new List<string>();
         foreach (var row in Rows)
+        {
             lines.Add(string.Join(" ", row.Select(SerializeCell)).TrimEnd());
+            if (lines.Count == 1 && _headerSeparated) lines.Add(string.Empty);
+        }
         return lines;
     }
 

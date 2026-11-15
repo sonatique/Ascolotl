@@ -44,6 +44,30 @@ public class TableGridTests
     }
 
     [Fact]
+    public void Parse_OneCellPerLine_Bails()
+    {
+        // Rows spread over several lines: the line-per-row model would delete
+        // single cells, so the caller must fall back to editing the source.
+        Assert.Null(TableGrid.Parse(new[] { "| a | b", "| c", "| d" }));
+        Assert.Null(TableGrid.Parse(new[] { "| a", "| b", "| c", "| d" }, columnCount: 2));
+    }
+
+    [Fact]
+    public void Parse_OverlappingOrOverhangingSpans_Bails()
+    {
+        Assert.Null(TableGrid.Parse(new[] { "| a .2+| b", "| c | d" }));  // row 1 overfills
+        Assert.Null(TableGrid.Parse(new[] { "| a .2+| b" }));             // span past last row
+    }
+
+    [Fact]
+    public void ImplicitHeaderBlankLine_SurvivesRowEdits()
+    {
+        var g = Parse("| h1 | h2", "", "| a | b", "| c | d");
+        Assert.True(g.DeleteRow(2));
+        Assert.Equal(new[] { "| h1 | h2", "", "| a | b" }, g.ToLines());
+    }
+
+    [Fact]
     public void Parse_PreservesAlignmentSpec()
     {
         var g = Parse("| a ^| b");
