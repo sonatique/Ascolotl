@@ -441,7 +441,11 @@ public partial class MainWindowViewModel : ObservableObject
         // HandleAppClosingAsync, so none of this instance's entries is still needed.
         if (_recoveryStore is null) return;
         foreach (var id in _ownSnapshots)
-            _recoveryStore.RemoveSnapshot(id);
+        {
+            // One locked file must not keep the rest for a false "recover" offer next launch.
+            try { _recoveryStore.RemoveSnapshot(id); }
+            catch (Exception ex) { _log?.Error($"Could not remove recovery entry {id}", ex); }
+        }
     }
 
     // --- Document commands ---

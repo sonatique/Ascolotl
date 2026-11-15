@@ -11,11 +11,21 @@ public sealed class LocalIncludeReaderTests
     [InlineData(@"\\.\PhysicalDrive0", true)]
     [InlineData("/dev/zero", true)]
     [InlineData("/proc/self/environ", true)]
+    [InlineData(@"\??\UNC\attacker\share\x.yml", true)]
+    [InlineData(@"\??\GLOBALROOT\Device\Mup\attacker\share\x.yml", true)]
     [InlineData(@"\\corp\docs\shared\x.adoc", false)] // same server as the document
     [InlineData(@"C:\docs\x.adoc", false)]
     [InlineData("/home/me/shared.adoc", false)]
     public void IsBlocked(string path, bool blocked)
         => Assert.Equal(blocked, LocalIncludeReader.IsBlocked(path, @"\\corp\docs\guide"));
+
+    [Fact]
+    public void IsBlocked_DotDotIntoDevices_OnUnix()
+    {
+        if (OperatingSystem.IsWindows())
+            return; // /dev is an ordinary folder name there
+        Assert.True(LocalIncludeReader.IsBlocked("/home/u/docs/../../../dev/zero", "/home/u/docs"));
+    }
 
     [Fact]
     public async Task Preview_NetworkInclude_IsNotReadAndIsReported()

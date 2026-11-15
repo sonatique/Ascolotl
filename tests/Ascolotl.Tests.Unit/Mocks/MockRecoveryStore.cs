@@ -31,9 +31,14 @@ public sealed class MockRecoveryStore : IRecoveryStore
     public string? LoadSnapshot(string documentId)
         => _snapshots.TryGetValue(documentId, out var text) ? text : null;
 
+    /// <summary>RemoveSnapshot throws for this ID, like a file another program holds open.</summary>
+    public string? FailRemovalOf { get; set; }
+
     public void RemoveSnapshot(string documentId)
     {
         RemoveSnapshotCalled++;
+        if (documentId == FailRemovalOf)
+            throw new IOException("in use");
         _snapshots.Remove(documentId);
         _entries.RemoveAll(e => e.DocumentId == documentId);
     }

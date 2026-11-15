@@ -50,14 +50,32 @@ public sealed class LocalIncludeReader(string? baseDirectory) : IIncludeReader
 
     /// <summary>
     /// True for a path on another computer (<c>\\server</c>, <c>//server</c>,
-    /// including <c>\\?\</c> and <c>\\.\</c> device paths) unless the document
-    /// itself lives on that same server, and for Unix device and kernel files.
+    /// including <c>\\?\</c>, <c>\\.\</c> and <c>\??\</c> device paths) unless the
+    /// document itself lives on that same server, and for Unix device and kernel
+    /// files. The path is made absolute first, so <c>..</c> cannot walk into them.
     /// </summary>
     public static bool IsBlocked(string path, string? baseDirectory)
     {
+        string full;
+        try
+        {
+            full = Path.GetFullPath(path);
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return true;
+        }
+        // Both forms: the full one resolves .., the raw one keeps what GetFullPath
+        // rewrites per OS (Unix collapses //server, Windows roots /dev on C:).
+        return IsBlockedForm(path, baseDirectory) || IsBlockedForm(full, baseDirectory);
+    }
+
+    private static bool IsBlockedForm(string path, string? baseDirectory)
+    {
         var p = path.Replace('\\', '/');
+        // \??\ is the NT object namespace: \??\UNC\server reaches SMB like \\server.
         if (p.StartsWith("/dev/", StringComparison.Ordinal) || p.StartsWith("/proc/", StringComparison.Ordinal)
-            || p.StartsWith("/sys/", StringComparison.Ordinal))
+            || p.StartsWith("/sys/", StringComparison.Ordinal) || p.StartsWith("/??/", StringComparison.Ordinal))
             return true;
         if (!p.StartsWith("//", StringComparison.Ordinal))
             return false;

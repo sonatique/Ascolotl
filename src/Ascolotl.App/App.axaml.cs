@@ -220,10 +220,11 @@ public class App : Application
                 {
                     try
                     {
-                        SaveWindowBounds(mainWindow);
+                        // Recovery cleanup first: a failure saving bounds or session must not leave stale entries.
                         _viewModel.StopAutosave();
-                        _viewModel.SaveSession();
                         _viewModel.CleanupRecoveryOnShutdown();
+                        SaveWindowBounds(mainWindow);
+                        _viewModel.SaveSession();
                         _log?.Info("Ascolotl shutdown complete");
                     }
                     catch (Exception ex)

@@ -46,17 +46,8 @@ public sealed class DocumentImportService : IDocumentImportService
     {
         var report = new DocxImporter(new DocxImportOptions { MediaDirectoryName = media })
             .ConvertFile(sourcePath, adocPath).Report;
-        return new ImportOutcome
-        {
-            IsSuccess = true,
-            OutputPath = adocPath,
-            Fidelity = report.Fidelity,
-            Images = report.Images,
-            Tables = report.Tables,
-            // Approximations and losses only: the informational entries
-            // would drown the ones that need attention.
-            Issues = [.. report.Issues.Where(i => i.Severity != DocxIssueSeverity.Info).Select(i => i.ToString())],
-        };
+        return Success(adocPath, report.Fidelity, report.Images, report.Tables,
+            report.Issues.Where(i => i.Severity != DocxIssueSeverity.Info));
     }
 
     private static ImportOutcome Import(ImportFormat format, string sourcePath, string adocPath, string media)
@@ -70,14 +61,19 @@ public sealed class DocumentImportService : IDocumentImportService
             _ => throw new ArgumentOutOfRangeException(nameof(format), format, "Not a document import format"),
         };
         var report = importer.ConvertFile(sourcePath, adocPath).Report;
-        return new ImportOutcome
-        {
-            IsSuccess = true,
-            OutputPath = adocPath,
-            Fidelity = report.Fidelity,
-            Images = report.Images,
-            Tables = report.Tables,
-            Issues = [.. report.Issues.Where(i => i.Severity != ImportIssueSeverity.Info).Select(i => i.ToString())],
-        };
+        return Success(adocPath, report.Fidelity, report.Images, report.Tables,
+            report.Issues.Where(i => i.Severity != ImportIssueSeverity.Info));
     }
+
+    /// <param name="issues">Approximations and losses only: informational entries
+    /// would drown the ones that need attention.</param>
+    private static ImportOutcome Success(string adocPath, double fidelity, int images, int tables, IEnumerable<object> issues) => new()
+    {
+        IsSuccess = true,
+        OutputPath = adocPath,
+        Fidelity = fidelity,
+        Images = images,
+        Tables = tables,
+        Issues = [.. issues.Select(i => i.ToString()!)],
+    };
 }

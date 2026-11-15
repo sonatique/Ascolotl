@@ -1474,6 +1474,20 @@ public sealed class MainWindowViewModelTests : IDisposable
         Assert.Equal(["other"], _recoveryStore.GetRecoveryEntries().Select(e => e.DocumentId));
     }
 
+    [Fact]
+    public async Task CleanupRecoveryOnShutdown_OneFailedRemoval_StillRemovesTheRest()
+    {
+        var vm = CreateViewModel();
+        _recoveryStore.SetEntries([new() { DocumentId = "locked", DisplayName = "a.adoc" }, new() { DocumentId = "b", DisplayName = "b.adoc" }]);
+        _dialogService.NextRecoveryResult = true;
+        await vm.CheckAndRecoverAsync();
+        _recoveryStore.FailRemovalOf = "locked";
+
+        vm.CleanupRecoveryOnShutdown();
+
+        Assert.Equal(["locked"], _recoveryStore.GetRecoveryEntries().Select(e => e.DocumentId));
+    }
+
     // --- DocumentViewModel ---
 
     [Fact]
