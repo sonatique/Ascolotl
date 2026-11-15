@@ -144,10 +144,9 @@ public sealed class DocumentViewModelTests : IDisposable
     {
         var doc = DocumentViewModel.CreateNew();
 
-        Assert.Equal(string.Empty, doc.RenderedHtml);
+        Assert.Null(doc.RenderedDocument);
         Assert.False(doc.LastRenderSucceeded);
         Assert.Null(doc.RenderError);
-        Assert.False(doc.IsRendering);
     }
 
     // --- Zoom / FontSize ---

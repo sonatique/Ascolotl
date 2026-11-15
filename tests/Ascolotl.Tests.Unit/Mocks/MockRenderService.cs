@@ -28,6 +28,6 @@ public sealed class MockRenderService : IRenderService
             return Task.FromResult(NextResult);
 
         var parsed = AdocParser.Parse(source, new ParseOptions { BaseDirectory = basePath });
-        return Task.FromResult(RenderResult.Success("<p>mock</p>", parsed.Document, parsed.LineOrigins, parsed.Diagnostics));
+        return Task.FromResult(RenderResult.Success(parsed.Document, parsed.LineOrigins, parsed.Diagnostics));
     }
 }

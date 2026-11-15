@@ -6,7 +6,6 @@ namespace Ascolotl.Core.Models;
 public sealed class RenderResult
 {
     public bool IsSuccess { get; }
-    public string HtmlContent { get; }
     public DocumentNode? Document { get; }
 
     /// <summary>Per-line provenance for the parsed document (AdocNet 1.0.13,
@@ -20,21 +19,20 @@ public sealed class RenderResult
 
     public string? ErrorSummary { get; }
 
-    private RenderResult(bool isSuccess, string htmlContent, DocumentNode? document,
+    private RenderResult(bool isSuccess, DocumentNode? document,
         IReadOnlyList<LineOrigin>? lineOrigins, IReadOnlyList<Diagnostic>? diagnostics, string? errorSummary)
     {
         IsSuccess = isSuccess;
-        HtmlContent = htmlContent;
         Document = document;
         LineOrigins = lineOrigins;
         Diagnostics = diagnostics;
         ErrorSummary = errorSummary;
     }
 
-    public static RenderResult Success(string html, DocumentNode? document = null,
+    public static RenderResult Success(DocumentNode? document = null,
         IReadOnlyList<LineOrigin>? lineOrigins = null, IReadOnlyList<Diagnostic>? diagnostics = null)
-        => new(true, html, document, lineOrigins, diagnostics, null);
+        => new(true, document, lineOrigins, diagnostics, null);
 
     public static RenderResult Failure(string errorSummary)
-        => new(false, string.Empty, null, null, null, errorSummary);
+        => new(false, null, null, null, errorSummary);
 }

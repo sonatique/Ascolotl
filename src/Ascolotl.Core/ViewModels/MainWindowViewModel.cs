@@ -1347,8 +1347,6 @@ public partial class MainWindowViewModel : ObservableObject
 
             var source = doc.SourceText;
 
-            doc.IsRendering = true;
-
             var basePath = doc.FilePath is not null
                 ? Path.GetDirectoryName(doc.FilePath)
                 : null;
@@ -1358,7 +1356,6 @@ public partial class MainWindowViewModel : ObservableObject
             if (ct.IsCancellationRequested)
                 return;
 
-            doc.RenderedHtml = result.HtmlContent;
             // Set origins before the document so PreviewView (which reacts to
             // RenderedDocument) sees the matching line map for this render.
             doc.LineOrigins = result.LineOrigins;
@@ -1374,7 +1371,6 @@ public partial class MainWindowViewModel : ObservableObject
                 OutlineItems.Add(item);
             doc.LastRenderSucceeded = result.IsSuccess;
             doc.RenderError = result.ErrorSummary;
-            doc.IsRendering = false;
 
             StatusText = result.IsSuccess
                 ? "Render complete"
