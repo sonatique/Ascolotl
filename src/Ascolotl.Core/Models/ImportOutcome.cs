@@ -12,6 +12,9 @@ public sealed class ImportOutcome
 
     public string? ErrorMessage { get; init; }
 
+    /// <summary>The unexpected exception behind a failure, kept for the log.</summary>
+    public Exception? Exception { get; init; }
+
     /// <summary>Where the AsciiDoc was written.</summary>
     public string? OutputPath { get; init; }
 
@@ -24,8 +27,8 @@ public sealed class ImportOutcome
     /// <summary>Human-readable notes about what was approximated or lost.</summary>
     public IReadOnlyList<string> Issues { get; init; } = [];
 
-    public static ImportOutcome Failure(string message) =>
-        new() { IsSuccess = false, ErrorMessage = message };
+    public static ImportOutcome Failure(string message, Exception? exception = null) =>
+        new() { IsSuccess = false, ErrorMessage = message, Exception = exception };
 }
 
 /// <summary>Formats an import outcome for the status bar. Pure.</summary>

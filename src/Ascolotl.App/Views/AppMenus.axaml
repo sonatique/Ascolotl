@@ -50,13 +50,7 @@
         <MenuItem Header="_Markdown..."
                   Command="{Binding ImportCommand}"
                   CommandParameter="{x:Static models:ImportFormat.Markdown}" />
-        <MenuItem Header="_HTML..."
-                  Command="{Binding ImportCommand}"
-                  CommandParameter="{x:Static models:ImportFormat.Html}" />
-        <MenuItem Header="P_DF..."
-                  Command="{Binding ImportCommand}"
-                  CommandParameter="{x:Static models:ImportFormat.Pdf}"
-                  ToolTip.Tip="Recover text, headings, lists and tables from a PDF (layout is approximated)" />
+        <!-- HTML and PDF import return once AdocNet's importers pass RoundTripTests. -->
         <MenuItem Header="_Plain Text..."
                   Command="{Binding ImportCommand}"
                   CommandParameter="{x:Static models:ImportFormat.PlainText}" />

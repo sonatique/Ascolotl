@@ -48,6 +48,17 @@ public partial class DocumentViewModel : ObservableObject
     [ObservableProperty]
     private string? _filePath;
 
+    /// <summary>
+    /// Private folder holding an unsaved import's images. Relative image paths
+    /// resolve here until the first save copies them beside the file.
+    /// ponytail: not kept in recovery snapshots, so an unsaved import restored
+    /// after a crash shows its text without images; store it there if that bites.
+    /// </summary>
+    public string? AssetDirectory { get; set; }
+
+    /// <summary>Folder that relative includes and images resolve against, or null.</summary>
+    public string? BaseDirectory => FilePath is not null ? Path.GetDirectoryName(FilePath) : AssetDirectory;
+
     [ObservableProperty]
     private bool _isDirty;
 

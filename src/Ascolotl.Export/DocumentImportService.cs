@@ -33,11 +33,11 @@ public sealed class DocumentImportService : IDocumentImportService
             }
             catch (Exception ex) when (ex is DocxImportException or ImportException)
             {
-                return ImportOutcome.Failure($"Not a readable {format.DisplayName()} file: {ex.Message}");
+                return ImportOutcome.Failure($"Not a readable {format.DisplayName()} file: {ex.Message}", ex);
             }
             catch (Exception ex)
             {
-                return ImportOutcome.Failure($"{format.DisplayName()} import failed: {ex.Message}");
+                return ImportOutcome.Failure($"{format.DisplayName()} import failed: {ex.Message}", ex);
             }
         }, cancellationToken);
     }

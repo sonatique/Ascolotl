@@ -19,9 +19,13 @@ public sealed class MainWindowViewModelTests : IDisposable
         DocumentViewModel.ResetUntitledCounter();
     }
 
+    private readonly List<string> _tempDirs = [];
+
     public void Dispose()
     {
         DocumentViewModel.ResetUntitledCounter();
+        foreach (var dir in _tempDirs)
+            try { Directory.Delete(dir, recursive: true); } catch { }
         foreach (var path in _tempFiles)
             File.Delete(path);
     }
@@ -33,18 +37,20 @@ public sealed class MainWindowViewModelTests : IDisposable
     // --- Constructor ---
 
     [Fact]
-    public async Task ImportPlainText_WritesAsciiDocAndOpensIt()
+    public async Task ImportPlainText_OpensUnsavedTabNamedAfterTheSource()
     {
         var vm = CreateViewModel();
         _fileService.PickOpenFilePathResult = Path.Combine("in", "notes.txt");
-        _fileService.PickSavePathResult = Path.Combine("out", "notes.adoc");
         _fileService.ReadFileResult = "Hello\n- one\n";
 
         await vm.ImportCommand.ExecuteAsync(ImportFormat.PlainText);
 
-        Assert.Equal(Path.Combine("out", "notes.adoc"), _fileService.LastSavedPath);
-        Assert.Equal("= notes\n\nHello\n\n* one\n", _fileService.LastSavedContent);
-        Assert.Equal(Path.Combine("out", "notes.adoc"), vm.SelectedDocument?.FilePath);
+        var doc = vm.SelectedDocument!;
+        Assert.Equal("notes.adoc", doc.DisplayName);
+        Assert.Null(doc.FilePath);
+        Assert.True(doc.IsDirty);
+        Assert.Equal("= notes\n\nHello\n\n* one\n", doc.SourceText);
+        Assert.Equal(0, _fileService.SaveFileCalled + _fileService.SaveFileAsCalled);
     }
 
     [Fact]
@@ -52,13 +58,85 @@ public sealed class MainWindowViewModelTests : IDisposable
     {
         var vm = CreateViewModel();
         _fileService.PickOpenFilePathResult = "gone.txt";
-        _fileService.PickSavePathResult = "gone.adoc";
         _fileService.ReadFileResult = null;
 
         await vm.ImportCommand.ExecuteAsync(ImportFormat.PlainText);
 
         Assert.Equal("Import Failed", Assert.Single(_dialogService.Errors).Title);
-        Assert.Equal(0, _fileService.SaveFileCalled);
+        Assert.Empty(vm.Documents);
+    }
+
+    private const string HtmlWithImage =
+        "<html><body><h1>Page</h1><p>Hi</p><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==\"></body></html>";
+
+    private async Task<(MainWindowViewModel Vm, string Dir)> ImportHtmlWithImage()
+    {
+        var dir = Directory.CreateTempSubdirectory("ascolotl-import-").FullName;
+        _tempDirs.Add(dir);
+        var html = Path.Combine(dir, "page.html");
+        File.WriteAllText(html, HtmlWithImage);
+        var vm = new MainWindowViewModel(_fileService, _dialogService, _renderService, _exportService,
+            _recoveryStore, _sessionStore, _appLog, debounceMs: 0, importService: new Ascolotl.Export.DocumentImportService());
+        _fileService.PickOpenFilePathResult = html;
+        await vm.ImportCommand.ExecuteAsync(ImportFormat.Html);
+        return (vm, dir);
+    }
+
+    [Fact]
+    public async Task ImportHtml_OpensUnsavedTab_ImagesWaitInPrivateFolder()
+    {
+        var (vm, dir) = await ImportHtmlWithImage();
+
+        var doc = vm.SelectedDocument!;
+        Assert.Equal("page.adoc", doc.DisplayName);
+        Assert.Null(doc.FilePath);
+        Assert.Contains("image::page-media/", doc.SourceText);
+        Assert.Equal(doc.AssetDirectory, doc.BaseDirectory);
+        Assert.Single(Directory.GetFiles(Path.Combine(doc.AssetDirectory!, "page-media")));
+        Assert.Equal(["page.html"], Directory.GetFileSystemEntries(dir).Select(Path.GetFileName));
+    }
+
+    [Fact]
+    public async Task ImportHtml_FirstSave_CopiesImagesBesideTheFile()
+    {
+        var (vm, dir) = await ImportHtmlWithImage();
+        var doc = vm.SelectedDocument!;
+        var assets = doc.AssetDirectory!;
+        _fileService.SaveFileAsResult = Path.Combine(dir, "saved.adoc");
+
+        await vm.SaveDocumentCommand.ExecuteAsync(null);
+
+        Assert.Equal(Path.Combine(dir, "saved.adoc"), doc.FilePath);
+        Assert.Single(Directory.GetFiles(Path.Combine(dir, "page-media")));
+        Assert.Null(doc.AssetDirectory);
+        Assert.False(Directory.Exists(assets));
+    }
+
+    [Fact]
+    public async Task ImportHtml_FirstSave_KeepsAnExistingImageOfTheSameName()
+    {
+        var (vm, dir) = await ImportHtmlWithImage();
+        var image = Path.GetFileName(Directory.GetFiles(Path.Combine(vm.SelectedDocument!.AssetDirectory!, "page-media")).Single());
+        Directory.CreateDirectory(Path.Combine(dir, "page-media"));
+        File.WriteAllText(Path.Combine(dir, "page-media", image), "mine");
+        _fileService.SaveFileAsResult = Path.Combine(dir, "page.adoc");
+
+        await vm.SaveDocumentCommand.ExecuteAsync(null);
+
+        Assert.Equal("mine", File.ReadAllText(Path.Combine(dir, "page-media", image)));
+        Assert.Equal("Images Not Replaced", Assert.Single(_dialogService.Errors).Title);
+    }
+
+    [Fact]
+    public async Task ImportHtml_ClosedWithoutSaving_DeletesThePrivateFolder()
+    {
+        var (vm, _) = await ImportHtmlWithImage();
+        var assets = vm.SelectedDocument!.AssetDirectory!;
+        _dialogService.NextResult = SaveConfirmationResult.DontSave;
+
+        await vm.CloseDocumentCommand.ExecuteAsync(vm.SelectedDocument);
+
+        Assert.False(Directory.Exists(assets));
     }
 
     [Fact]

@@ -439,6 +439,8 @@ public partial class MainWindowViewModel : ObservableObject
     {
         // Every dirty document was saved or deliberately discarded in
         // HandleAppClosingAsync, so none of this instance's entries is still needed.
+        foreach (var doc in Documents)
+            DeleteAssets(doc.AssetDirectory);
         if (_recoveryStore is null) return;
         foreach (var id in _ownSnapshots)
         {
@@ -569,10 +571,9 @@ public partial class MainWindowViewModel : ObservableObject
     // --- Import ---
 
     /// <summary>
-    /// Import: convert a file in another format into a new AsciiDoc document at
-    /// a location the user picks, then open it. The destination is asked for up
-    /// front rather than importing into an untitled buffer, because extracted
-    /// images need somewhere to live.
+    /// Import: convert a file in another format into a new, unsaved AsciiDoc
+    /// tab named after it. Extracted images wait in a private folder that the
+    /// preview resolves against; the first save copies them beside the file.
     /// </summary>
     [RelayCommand]
     private async Task ImportAsync(ImportFormat format)
@@ -585,11 +586,7 @@ public partial class MainWindowViewModel : ObservableObject
         if (sourcePath is null)
             return;
 
-        var suggested = Path.GetFileNameWithoutExtension(sourcePath) + ".adoc";
-        var adocPath = await _fileService.PickSavePathAsync(suggested, "adoc", "AsciiDoc File");
-        if (adocPath is null)
-            return;
-
+        var name = Path.GetFileNameWithoutExtension(sourcePath);
         StatusText = $"Importing {Path.GetFileName(sourcePath)}...";
 
         if (format == ImportFormat.PlainText)
@@ -600,27 +597,32 @@ public partial class MainWindowViewModel : ObservableObject
                 await ReportFailureAsync("Import Failed", $"Could not read {Path.GetFileName(sourcePath)}.");
                 return;
             }
-            try
-            {
-                await _fileService.SaveFileAsync(adocPath,
-                    PlainTextImport.ToAsciiDoc(text.Text, Path.GetFileNameWithoutExtension(sourcePath)),
-                    TextFile.Utf8NoBom);
-            }
-            catch (Exception ex)
-            {
-                _log?.Error($"Import save failed: {adocPath}", ex);
-                await ReportFailureAsync("Save Failed", $"Could not save {Path.GetFileName(adocPath)}: {ex.Message}");
-                return;
-            }
-            await OpenFileByPathAsync(adocPath);
+            OpenImported(name, PlainTextImport.ToAsciiDoc(text.Text, name), assetDirectory: null);
             StatusText = $"Imported {Path.GetFileName(sourcePath)}";
             return;
         }
 
-        var outcome = await _importService!.ImportAsync(format, sourcePath, adocPath, CancellationToken.None);
+        var workDir = Path.Combine(Path.GetTempPath(), "Ascolotl", "imports", Guid.NewGuid().ToString("N"));
+        var adocPath = Path.Combine(workDir, name + ".adoc");
+        string source;
+        ImportOutcome outcome;
+        try
+        {
+            Directory.CreateDirectory(workDir);
+            outcome = await _importService!.ImportAsync(format, sourcePath, adocPath, CancellationToken.None);
+            source = outcome.IsSuccess ? (await TextFile.ReadAsync(adocPath)).Text : "";
+            if (outcome.IsSuccess)
+                File.Delete(adocPath);
+        }
+        catch (Exception ex)
+        {
+            outcome = ImportOutcome.Failure($"Could not read the converted text: {ex.Message}", ex);
+            source = "";
+        }
         if (!outcome.IsSuccess)
         {
-            _log?.Error($"{format.DisplayName()} import failed: {outcome.ErrorMessage}");
+            DeleteAssets(workDir);
+            _log?.Error($"Import of {sourcePath} failed: {outcome.ErrorMessage}", outcome.Exception);
             await ReportFailureAsync("Import Failed", ImportSummary.Describe(outcome));
             return;
         }
@@ -630,8 +632,57 @@ public partial class MainWindowViewModel : ObservableObject
         foreach (var issue in outcome.Issues)
             _log?.Warn($"{format.DisplayName()} import: {issue}");
 
-        await OpenFileByPathAsync(adocPath);
+        var hasAssets = Directory.EnumerateFileSystemEntries(workDir).Any();
+        if (!hasAssets)
+            DeleteAssets(workDir);
+        OpenImported(name, source, hasAssets ? workDir : null);
         StatusText = ImportSummary.Describe(outcome);
+    }
+
+    private void OpenImported(string name, string source, string? assetDirectory)
+    {
+        var doc = new DocumentViewModel { DisplayName = name + ".adoc", AssetDirectory = assetDirectory };
+        doc.SourceText = source; // dirty: closing asks whether to save it
+        Documents.Add(doc);
+        SelectedDocument = doc;
+    }
+
+    /// <summary>
+    /// First save of an import: copy its images beside the saved file, keeping
+    /// their relative paths, then drop the private folder. An existing file of
+    /// the same name is kept, never overwritten.
+    /// </summary>
+    /// <returns>The image files left as they were because one already existed.</returns>
+    private List<string> MoveImportedAssets(DocumentViewModel doc, string targetDir)
+    {
+        var kept = new List<string>();
+        if (doc.AssetDirectory is not { } assets)
+            return kept;
+        foreach (var file in Directory.EnumerateFiles(assets, "*", SearchOption.AllDirectories))
+        {
+            var target = Path.Combine(targetDir, Path.GetRelativePath(assets, file));
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            if (File.Exists(target))
+            {
+                kept.Add(Path.GetRelativePath(targetDir, target));
+                _log?.Warn($"Import image not copied, {target} already exists");
+                continue;
+            }
+            File.Copy(file, target);
+        }
+        doc.AssetDirectory = null;
+        DeleteAssets(assets);
+        if (SelectedDocument == doc)
+            RequestRender(immediate: true); // the preview's images pointed into the deleted folder
+        return kept;
+    }
+
+    private void DeleteAssets(string? directory)
+    {
+        if (directory is null)
+            return;
+        try { Directory.Delete(directory, recursive: true); }
+        catch (Exception ex) { _log?.Warn($"Could not delete {directory}: {ex.Message}"); }
     }
 
     // --- Project workspace commands ---
@@ -855,6 +906,22 @@ public partial class MainWindowViewModel : ObservableObject
             return false;
         }
 
+        if (doc.AssetDirectory is not null)
+        {
+            try
+            {
+                var kept = MoveImportedAssets(doc, Path.GetDirectoryName(path)!);
+                if (kept.Count > 0)
+                    await ReportFailureAsync("Images Not Replaced",
+                        $"{doc.DisplayName} was saved, but these files already existed and were kept, so the document may show them instead of the imported images:\n{string.Join("\n", kept)}");
+            }
+            catch (Exception ex)
+            {
+                // The text is saved; the images stay in the private folder for the next save.
+                _log?.Error($"Copying imported images beside {path} failed", ex);
+                await ReportFailureAsync("Images Not Copied", $"{doc.DisplayName} was saved, but its images could not be copied: {ex.Message}");
+            }
+        }
         if (!string.Equals(path, doc.FilePath, StringComparison.Ordinal))
         {
             doc.FilePath = path;
@@ -990,9 +1057,7 @@ public partial class MainWindowViewModel : ObservableObject
 
         StatusText = $"Exporting {format.DisplayName()}...";
 
-        var basePath = SelectedDocument.FilePath is not null
-            ? Path.GetDirectoryName(SelectedDocument.FilePath)
-            : null;
+        var basePath = SelectedDocument.BaseDirectory;
 
         // Renders straight from the AsciiDoc source via AdocNet's converters —
         // no HTML intermediate and no double-parse against the preview pipeline.
@@ -1061,9 +1126,7 @@ public partial class MainWindowViewModel : ObservableObject
 
         StatusText = $"Exporting {profile.Name}...";
 
-        var basePath = SelectedDocument.FilePath is not null
-            ? Path.GetDirectoryName(SelectedDocument.FilePath)
-            : null;
+        var basePath = SelectedDocument.BaseDirectory;
 
         var result = await _exportService.ExportAsync(
             SelectedDocument.SourceText, basePath, outputPath, profile.Format, profile.Theme, StylePath,
@@ -1137,6 +1200,7 @@ public partial class MainWindowViewModel : ObservableObject
             _closedTabPaths.Push(doc.FilePath);
 
         RemoveRecoverySnapshot(doc);
+        DeleteAssets(doc.AssetDirectory);
 
         var index = Documents.IndexOf(doc);
         Documents.Remove(doc);
@@ -1399,9 +1463,7 @@ public partial class MainWindowViewModel : ObservableObject
 
             var source = doc.SourceText;
 
-            var basePath = doc.FilePath is not null
-                ? Path.GetDirectoryName(doc.FilePath)
-                : null;
+            var basePath = doc.BaseDirectory;
 
             var result = await _renderService.RenderAsync(source, basePath, ShowTitleAndToc, ct);
 
@@ -1463,8 +1525,6 @@ public partial class MainWindowViewModel : ObservableObject
             new("Open Folder", "Ctrl+Shift+O", "File", () => OpenFolderCommand.Execute(null)),
             new("Import Word Document", null, "Import", () => ImportCommand.Execute(ImportFormat.Word)),
             new("Import Markdown", null, "Import", () => ImportCommand.Execute(ImportFormat.Markdown)),
-            new("Import HTML", null, "Import", () => ImportCommand.Execute(ImportFormat.Html)),
-            new("Import PDF", null, "Import", () => ImportCommand.Execute(ImportFormat.Pdf)),
             new("Import Plain Text", null, "Import", () => ImportCommand.Execute(ImportFormat.PlainText)),
             new("Close Folder", null, "File", () => CloseFolderCommand.Execute(null), () => HasProject),
             new("Refresh Folder", null, "File", () => RefreshProjectCommand.Execute(null), () => HasProject),

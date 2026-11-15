@@ -364,7 +364,7 @@ public partial class PreviewView : UserControl
 
             // The active style re-themes the renderer (shared, so set it on
             // every render: another document may carry its own :pdf-theme:).
-            var docDir = doc.FilePath is not null ? Path.GetDirectoryName(doc.FilePath)! : Directory.GetCurrentDirectory();
+            var docDir = doc.BaseDirectory ?? Directory.GetCurrentDirectory();
             var style = PreviewStyle.Load(_mainVm?.StylePath, doc.RenderedDocument.Attributes, docDir);
             _avaloniaRenderer.Theme = style is null ? _builtInTheme : PreviewStyle.ThemeFor(style);
             // Print-like page preview: flow the blocks into fixed A4 pages
