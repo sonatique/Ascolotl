@@ -15,7 +15,7 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly IRenderService _renderService;
     private readonly IExportService? _exportService;
     private readonly IWebsiteExportService? _websiteExportService;
-    private readonly IDocxImportService? _docxImportService;
+    private readonly IDocumentImportService? _importService;
     private readonly IRecoveryStore? _recoveryStore;
     // Recovery entries this instance wrote or took over; shutdown removes only these,
     // so a second instance sharing the folder keeps its own.
@@ -179,14 +179,14 @@ public partial class MainWindowViewModel : ObservableObject
         IAppLog? log = null,
         int debounceMs = 300,
         IWebsiteExportService? websiteExportService = null,
-        IDocxImportService? docxImportService = null)
+        IDocumentImportService? importService = null)
     {
         _fileService = fileService;
         _dialogService = dialogService;
         _renderService = renderService;
         _exportService = exportService;
         _websiteExportService = websiteExportService;
-        _docxImportService = docxImportService;
+        _importService = importService;
         _recoveryStore = recoveryStore;
         _sessionStore = sessionStore;
         _log = log;
@@ -573,7 +573,7 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private async Task ImportAsync(ImportFormat format)
     {
-        if (format == ImportFormat.Word && _docxImportService is null)
+        if (format != ImportFormat.PlainText && _importService is null)
             return;
 
         var sourcePath = await _fileService.PickOpenFilePathAsync(
@@ -613,21 +613,21 @@ public partial class MainWindowViewModel : ObservableObject
             return;
         }
 
-        var outcome = await _docxImportService!.ImportAsync(sourcePath, adocPath, CancellationToken.None);
+        var outcome = await _importService!.ImportAsync(format, sourcePath, adocPath, CancellationToken.None);
         if (!outcome.IsSuccess)
         {
-            _log?.Error($"Word import failed: {outcome.ErrorMessage}");
-            await ReportFailureAsync("Import Failed", DocxImportSummary.Describe(outcome));
+            _log?.Error($"{format.DisplayName()} import failed: {outcome.ErrorMessage}");
+            await ReportFailureAsync("Import Failed", ImportSummary.Describe(outcome));
             return;
         }
 
-        // Word carries plenty AsciiDoc can't model; log what was approximated
+        // Other formats carry plenty AsciiDoc can't model; log what was approximated
         // or lost so the summary line can stay short.
         foreach (var issue in outcome.Issues)
-            _log?.Warn($"docx import: {issue}");
+            _log?.Warn($"{format.DisplayName()} import: {issue}");
 
         await OpenFileByPathAsync(adocPath);
-        StatusText = DocxImportSummary.Describe(outcome);
+        StatusText = ImportSummary.Describe(outcome);
     }
 
     // --- Project workspace commands ---
@@ -1458,6 +1458,9 @@ public partial class MainWindowViewModel : ObservableObject
             new("Open Document", "Ctrl+O", "File", () => OpenDocumentCommand.Execute(null)),
             new("Open Folder", "Ctrl+Shift+O", "File", () => OpenFolderCommand.Execute(null)),
             new("Import Word Document", null, "Import", () => ImportCommand.Execute(ImportFormat.Word)),
+            new("Import Markdown", null, "Import", () => ImportCommand.Execute(ImportFormat.Markdown)),
+            new("Import HTML", null, "Import", () => ImportCommand.Execute(ImportFormat.Html)),
+            new("Import PDF", null, "Import", () => ImportCommand.Execute(ImportFormat.Pdf)),
             new("Import Plain Text", null, "Import", () => ImportCommand.Execute(ImportFormat.PlainText)),
             new("Close Folder", null, "File", () => CloseFolderCommand.Execute(null), () => HasProject),
             new("Refresh Folder", null, "File", () => RefreshProjectCommand.Execute(null), () => HasProject),

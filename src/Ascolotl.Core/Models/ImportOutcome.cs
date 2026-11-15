@@ -1,12 +1,12 @@
 namespace Ascolotl.Core.Models;
 
 /// <summary>
-/// Result of importing a Word document. Word carries things AsciiDoc has no
+/// Result of importing a Word, Markdown, HTML or PDF file. These carry things AsciiDoc has no
 /// concept of (page geometry, text boxes, exact fonts), so an import is
 /// lossy by nature — the counts and issues say how lossy, rather than
 /// pretending otherwise.
 /// </summary>
-public sealed class DocxImportOutcome
+public sealed class ImportOutcome
 {
     public bool IsSuccess { get; init; }
 
@@ -24,22 +24,22 @@ public sealed class DocxImportOutcome
     /// <summary>Human-readable notes about what was approximated or lost.</summary>
     public IReadOnlyList<string> Issues { get; init; } = [];
 
-    public static DocxImportOutcome Failure(string message) =>
+    public static ImportOutcome Failure(string message) =>
         new() { IsSuccess = false, ErrorMessage = message };
 }
 
 /// <summary>Formats an import outcome for the status bar. Pure.</summary>
-public static class DocxImportSummary
+public static class ImportSummary
 {
     /// <summary>
     /// One line describing the import: file name, fidelity when anything was
     /// lost, and the counts worth knowing (images land in a media folder next
     /// to the document, so they're worth calling out).
     /// </summary>
-    public static string Describe(DocxImportOutcome outcome)
+    public static string Describe(ImportOutcome outcome)
     {
         if (!outcome.IsSuccess)
-            return outcome.ErrorMessage ?? "Word import failed";
+            return outcome.ErrorMessage ?? "Import failed";
 
         var name = outcome.OutputPath is null
             ? "document"

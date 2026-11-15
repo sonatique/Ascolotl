@@ -47,6 +47,16 @@
                   Command="{Binding ImportCommand}"
                   CommandParameter="{x:Static models:ImportFormat.Word}"
                   ToolTip.Tip="Convert a .docx to AsciiDoc (images extracted beside it)" />
+        <MenuItem Header="_Markdown..."
+                  Command="{Binding ImportCommand}"
+                  CommandParameter="{x:Static models:ImportFormat.Markdown}" />
+        <MenuItem Header="_HTML..."
+                  Command="{Binding ImportCommand}"
+                  CommandParameter="{x:Static models:ImportFormat.Html}" />
+        <MenuItem Header="P_DF..."
+                  Command="{Binding ImportCommand}"
+                  CommandParameter="{x:Static models:ImportFormat.Pdf}"
+                  ToolTip.Tip="Recover text, headings, lists and tables from a PDF (layout is approximated)" />
         <MenuItem Header="_Plain Text..."
                   Command="{Binding ImportCommand}"
                   CommandParameter="{x:Static models:ImportFormat.PlainText}" />

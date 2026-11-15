@@ -80,7 +80,7 @@ public class App : Application
                 fileService, dialogService, _renderService, exportService,
                 recoveryStore, sessionStore, _log,
                 websiteExportService: new WebsiteExportService(),
-                docxImportService: new DocxImportService())
+                importService: new DocumentImportService())
             {
                 CurrentTheme = _settings.Theme,
                 EditorMode = _settings.EditorMode,
