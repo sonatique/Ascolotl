@@ -51,9 +51,23 @@ public static partial class PlainTextImport
         return BlankRuns().Replace(sb.ToString(), "\n\n").TrimEnd() + "\n";
     }
 
-    /// <summary>Prefixes a line AsciiDoc would read as a block marker so it stays text.</summary>
+    /// <summary>Keeps a line AsciiDoc would read as markup or a command as text.</summary>
     private static string Escape(string line)
-        => line.Length > 0 && "=*-.[|/:<>+#_'\"".Contains(line[0]) ? "{empty}" + line : line;
+    {
+        // "Term::" or "Term;; text" starts a description list wherever the
+        // delimiter sits, so split the delimiter ("Term:{empty}:") instead.
+        line = ListDelimiter().Replace(line, m => string.Join("{empty}", m.Value.ToCharArray()));
+        return line.Length > 0 && ("=*-.[|/:<>+#_'\"".Contains(line[0]) || Command().IsMatch(line))
+            ? "{empty}" + line
+            : line;
+    }
+
+    /// <summary><c>ifdef::</c>, <c>include::</c>, <c>image::</c>… and admonition labels.</summary>
+    [GeneratedRegex(@"^(?:[A-Za-z][\w-]*::|(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION):\s)")]
+    private static partial Regex Command();
+
+    [GeneratedRegex(@"(?::{2,}|;{2,})(?=\s|$)")]
+    private static partial Regex ListDelimiter();
 
     [GeneratedRegex(@"^[-*•]\s+(.*)$")]
     private static partial Regex Bullet();
