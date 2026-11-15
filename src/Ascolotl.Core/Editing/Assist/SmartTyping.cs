@@ -77,11 +77,17 @@ public static partial class SmartTyping
     /// <summary>
     /// When <paramref name="lineText"/> is exactly an opening block delimiter,
     /// return the matching closing fence to auto-insert; otherwise null.
+    /// When <paramref name="documentText"/> is given, a fence that already has
+    /// its partner (it occurs an even number of times) gets no closer, so Enter
+    /// on a closing fence doesn't open a block that never ends.
     /// </summary>
-    public static string? ClosingDelimiterFor(string lineText)
+    public static string? ClosingDelimiterFor(string lineText, string? documentText = null)
     {
         var t = lineText.Trim();
         if (t.Length == 0) return null;
+        if (documentText is not null
+            && documentText.Split('\n').Count(l => l.Trim() == t) % 2 == 0)
+            return null;
 
         if (t is "|===" || TableDelimiter().IsMatch(t)) return "|===";
 

@@ -192,6 +192,17 @@ public class AuthoringAssistTests
         Assert.Null(SmartTyping.ClosingDelimiterFor(line));
     }
 
+    [Fact]
+    public void ClosingDelimiter_OnlyForUnpairedOpener()
+    {
+        // Enter on the closing fence must not open a new, unterminated block.
+        Assert.Null(SmartTyping.ClosingDelimiterFor("----", "intro\n----\ncode\n----"));
+        Assert.Null(SmartTyping.ClosingDelimiterFor("|===", "|===\n| a\n|===\r\n"));
+        // A lone opener (odd count) still gets its closer.
+        Assert.Equal("----", SmartTyping.ClosingDelimiterFor("----", "a\n----\n----\nb\n----"));
+        Assert.Equal("====", SmartTyping.ClosingDelimiterFor("====", "text\n  ====  "));
+    }
+
     // --- Syntax hint ---
 
     [Theory]

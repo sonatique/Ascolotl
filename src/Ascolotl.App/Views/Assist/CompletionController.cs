@@ -42,12 +42,6 @@ internal sealed class CompletionController
     /// host's own key handling (e.g. block-edit Esc/Tab) should defer to us.</summary>
     public bool IsActive => _window is not null || _session is { Active: true };
 
-    public void Detach()
-    {
-        _editor.TextArea.TextEntered -= OnTextEntered;
-        _editor.TextArea.RemoveHandler(InputElement.KeyDownEvent, OnKeyDown);
-    }
-
     private void OnTextEntered(object? sender, TextInputEventArgs e)
     {
         if (_session is { Active: true }) return;
@@ -307,7 +301,7 @@ internal sealed class CompletionController
         // Delimited block: only when the caret is at the end of the opener line.
         if (caret == line.EndOffset)
         {
-            var closer = SmartTyping.ClosingDelimiterFor(lineText);
+            var closer = SmartTyping.ClosingDelimiterFor(lineText, doc.Text);
             if (closer is not null)
             {
                 doc.Insert(caret, "\n\n" + closer);
