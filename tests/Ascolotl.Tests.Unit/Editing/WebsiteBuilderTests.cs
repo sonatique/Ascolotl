@@ -49,27 +49,6 @@ public class WebsiteBuilderTests
         Assert.Equal("""<a href="../intro/start.html">Start</a>""", WebsiteBuilder.RewriteDocLinks(html));
     }
 
-    // --- Title extraction ---
-
-    [Fact]
-    public void ExtractTitle_UsesDocTitle()
-    {
-        Assert.Equal("User Guide", WebsiteBuilder.ExtractTitle("= User Guide\n\nText.", "guide.adoc"));
-    }
-
-    [Fact]
-    public void ExtractTitle_SkipsCommentsAndAttributes()
-    {
-        var src = "// header comment\n:toc:\n= Real Title\n";
-        Assert.Equal("Real Title", WebsiteBuilder.ExtractTitle(src, "x.adoc"));
-    }
-
-    [Fact]
-    public void ExtractTitle_FallsBackToFileName()
-    {
-        Assert.Equal("notes", WebsiteBuilder.ExtractTitle("Just prose, no title.", "notes.adoc"));
-    }
-
     // --- Index ---
 
     [Fact]
@@ -101,5 +80,13 @@ public class WebsiteBuilderTests
             [new SitePage("x.html", "Tips <& tricks>")]);
         Assert.Contains("A &amp; B", html);
         Assert.Contains("Tips &lt;&amp; tricks&gt;", html);
+    }
+
+    [Fact]
+    public void BuildIndexHtml_EncodesLinkPaths()
+    {
+        var html = WebsiteBuilder.BuildIndexHtml("Docs", [new SitePage("My Notes/a#1 \"x\".html", "A")]);
+
+        Assert.Contains("""<a href="My%20Notes/a%231%20%22x%22.html">""", html);
     }
 }

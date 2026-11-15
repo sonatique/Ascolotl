@@ -40,17 +40,17 @@ public sealed class ExampleDocumentStabilityTests
         var result = await service.RenderAsync(source, baseDir, standalone: true, CancellationToken.None);
 
         Assert.True(result.IsSuccess, $"Render failed for {fileName}: {result.ErrorSummary}");
-        Assert.False(string.IsNullOrEmpty(result.HtmlContent), $"Empty HTML for {fileName}");
+        Assert.NotNull(result.Document);
     }
 
     // ------------------------------------------------------------------
     // Renders pull in include::copyright.adoc[] content — verify the
-    // included text reaches the output for every doc that references it.
+    // included text reaches the parsed document for every doc that references it.
     // ------------------------------------------------------------------
 
     [Theory]
     [MemberData(nameof(AllExampleFiles))]
-    public async Task RenderedHtml_ResolvesIncludes(string fileName, string filePath)
+    public async Task ParsedDocument_ResolvesIncludes(string fileName, string filePath)
     {
         _ = fileName;
         var source = File.ReadAllText(filePath);
@@ -63,10 +63,9 @@ public sealed class ExampleDocumentStabilityTests
         var result = await service.RenderAsync(source, baseDir, standalone: true, CancellationToken.None);
 
         Assert.True(result.IsSuccess, $"Render failed for {fileName}: {result.ErrorSummary}");
-        // No raw "include::path[]" line should survive into the rendered HTML.
-        Assert.DoesNotContain("include::", result.HtmlContent);
-        // AsciiDoc engines emit this marker when an include path fails to resolve.
-        Assert.DoesNotContain("Unresolved directive", result.HtmlContent);
+        // Every include resolved: no include diagnostic, and included lines are in the document.
+        Assert.DoesNotContain(result.Diagnostics!, d => d.Message.Contains("include", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(result.LineOrigins!, o => o.IsSynthetic);
     }
 
     // ------------------------------------------------------------------

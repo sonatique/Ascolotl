@@ -26,17 +26,9 @@ public sealed class ExportService : IExportService
             cancellationToken.ThrowIfCancellationRequested();
             try
             {
-                var parseOptions = new ParseOptions
-                {
-                    BaseDirectory = basePath,
-                    IncludeMaxDepth = 10,
-                    AllowUriRead = false,
-                    // Asciidoctor's CLI default: includes may leave the document's
-                    // folder (e.g. a shared ../../copyright.adoc).
-                    SafeMode = SafeMode.Unsafe,
-                };
-
-                var parsed = AdocParser.Parse(source, parseOptions);
+                // Includes may leave the document's folder (e.g. a shared
+                // ../../copyright.adoc), but not the computer.
+                var parsed = AdocParser.Parse(source, LocalIncludeReader.ParseOptions(basePath));
 
                 // The style (the document's :pdf-theme:, else the user's choice)
                 // drives PDF natively and HTML/EPUB through generated CSS.
@@ -69,6 +61,11 @@ public sealed class ExportService : IExportService
                             PageWidth = landscape ? page.PageHeight : page.PageWidth,
                             PageHeight = landscape ? page.PageWidth : page.PageHeight,
                             MetadataTitle = pdfTitle,
+                            // AdocNet's PDF renderer loads images from here and
+                            // does not apply :imagesdir: itself.
+                            BaseDirectory = basePath is null
+                                ? null
+                                : Path.Combine(basePath, attributes.GetValueOrDefault("imagesdir", "")),
                         };
                         new PdfRenderer().Render(parsed.Document, ms, options);
                         break;

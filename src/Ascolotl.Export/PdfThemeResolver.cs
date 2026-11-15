@@ -1,4 +1,5 @@
 using AdocNet.Converters.Pdf;
+using Ascolotl.Core.Services;
 
 namespace Ascolotl.Export;
 
@@ -14,7 +15,8 @@ public static class PdfThemeResolver
     /// <c>pdf-theme</c> (resolved against <c>pdf-themesdir</c>, else the
     /// document directory) wins over <paramref name="defaultThemePath"/>, the
     /// user's app-wide choice. <c>pdf-theme: default</c> or <c>base</c> forces
-    /// the built-in look.
+    /// the built-in look. A document naming a theme on another computer or a
+    /// device file gets the built-in look too (see <see cref="LocalIncludeReader.IsBlocked"/>).
     /// </summary>
     public static string? ResolveThemePath(
         IReadOnlyDictionary<string, string> attributes, string docDir, string? defaultThemePath)
@@ -31,7 +33,8 @@ public static class PdfThemeResolver
             var themesDir = attributes.TryGetValue("pdf-themesdir", out var dir) && !string.IsNullOrWhiteSpace(dir)
                 ? Path.Combine(docDir, dir.Trim())
                 : docDir;
-            return Path.GetFullPath(Path.Combine(themesDir, fileName));
+            var path = Path.GetFullPath(Path.Combine(themesDir, fileName));
+            return LocalIncludeReader.IsBlocked(path, docDir) ? null : path;
         }
 
         return string.IsNullOrWhiteSpace(defaultThemePath) ? null : defaultThemePath;
@@ -72,8 +75,9 @@ public static class PdfThemeResolver
             // names its bundled fonts, which AdocNet does not ship.
             foreach (var entry in fontsDirs.Split([';', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
-                if (entry != "GEM_FONTS_DIR")
-                    yield return Path.GetFullPath(Path.Combine(docDir, entry));
+                var dir = entry == "GEM_FONTS_DIR" ? null : Path.GetFullPath(Path.Combine(docDir, entry));
+                if (dir is not null && !LocalIncludeReader.IsBlocked(dir, docDir))
+                    yield return dir;
             }
         }
 

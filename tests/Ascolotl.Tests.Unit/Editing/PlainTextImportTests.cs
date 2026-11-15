@@ -38,6 +38,28 @@ public sealed class PlainTextImportTests
     }
 
     [Fact]
+    public void CommandsAndListDelimitersStayText()
+    {
+        var text = "ifdef::secret[]\nkept\nendif::[]\ninclude::a.txt[]\nNOTE: call Bob\nIngredients::\nTerm;; meaning\nC:: too";
+        var adoc = PlainTextImport.ToAsciiDoc(text, "T");
+        var doc = AdocParser.Parse(adoc).Document;
+
+        var paragraph = Assert.IsType<ParagraphNode>(Assert.Single(doc.Children));
+        foreach (var expected in new[] { "kept", "ifdef::secret[]", "endif::[]", "include::a.txt[]", "NOTE: call Bob" })
+            Assert.Contains(expected, paragraph.Text);
+    }
+
+    [Fact]
+    public void ListItemTextStaysText()
+    {
+        var adoc = PlainTextImport.ToAsciiDoc("- Ingredients::\n- NOTE: fresh", "T");
+        var list = Assert.IsAssignableFrom<ListNode>(Assert.Single(AdocParser.Parse(adoc).Document.Children));
+
+        Assert.Equal(2, list.Children.Count);
+        Assert.DoesNotContain(list.Children.SelectMany(c => c.Children), n => n is DescriptionListNode or AdmonitionNode);
+    }
+
+    [Fact]
     public void IndentedBlockStaysLiteral()
     {
         var adoc = PlainTextImport.ToAsciiDoc("Code:\n\n    x = 1\n    y = 2\n", "T");

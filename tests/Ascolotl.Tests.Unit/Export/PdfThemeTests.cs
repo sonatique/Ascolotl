@@ -234,6 +234,28 @@ public sealed class PdfThemeTests : IDisposable
         Assert.Contains("Shared copyright text.", html);
     }
 
+    [Fact]
+    public async Task Export_Pdf_EmbedsImagesFromImagesDir()
+    {
+        Directory.CreateDirectory(Path.Combine(_docDir, "img"));
+        await File.WriteAllBytesAsync(Path.Combine(_docDir, "img", "x.png"), Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="));
+
+        var pdf = await ExportBytes("= Doc\n:imagesdir: img\n\nimage::x.png[]\n", ExportFormat.Pdf, null);
+
+        Assert.Contains("/Subtype /Image", Encoding.Latin1.GetString(pdf));
+    }
+
+    [Theory]
+    [InlineData(@"\\attacker\share\corp.yml")]
+    [InlineData("//attacker/share/corp.yml")]
+    public void ResolveThemePath_NetworkPath_IsIgnored(string theme)
+    {
+        Assert.Null(PdfThemeResolver.ResolveThemePath(Attrs(("pdf-theme", theme)), _docDir, null));
+        Assert.Null(PdfThemeResolver.ResolveThemePath(
+            Attrs(("pdf-theme", "corp"), ("pdf-themesdir", @"\\attacker\share")), _docDir, null));
+    }
+
     private string WriteTheme(string yaml)
     {
         var path = Path.Combine(_root, $"t{Guid.NewGuid():N}-theme.yml");

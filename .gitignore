@@ -44,5 +44,4 @@ _tmp_npm/
 .playwright-mcp/
 package.json
 package-lock.json
-icon-cleanup-preview*.png
 example-documents/test-export.html

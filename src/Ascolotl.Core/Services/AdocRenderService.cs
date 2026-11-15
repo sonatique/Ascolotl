@@ -1,22 +1,15 @@
-using System.Text;
-using AdocNet;
 using AdocNet.Ast;
-using AdocNet.Converters.Html;
 using AdocNet.Parser;
 using Ascolotl.Core.Models;
 
 namespace Ascolotl.Core.Services;
 
 /// <summary>
-/// In-process AsciiDoc renderer backed by AdocNet. No JavaScript engine,
-/// no WebView, no external binaries — runs anywhere managed code runs.
-/// Source-line markers are derived from the AST instead of regex-scanning
-/// the source text.
+/// In-process AsciiDoc parse for the live preview, backed by AdocNet. The
+/// preview draws the parsed document itself, so no HTML is produced here.
 /// </summary>
 public sealed class AdocRenderService : IRenderService
 {
-    private readonly HtmlRenderer _renderer = new();
-
     public Task<RenderResult> RenderAsync(string source, string? basePath, bool standalone, CancellationToken cancellationToken)
     {
         // Render is CPU-bound, fully synchronous in AdocNet, and typically
@@ -31,24 +24,11 @@ public sealed class AdocRenderService : IRenderService
                 // the auto-generated table of contents: only request it when the
                 // toggle is on. (When a document sets `:toc:` in its own header
                 // this default is overridden — see the TocNode strip below.)
-                var attributes = new Dictionary<string, string>
-                {
-                    ["linkcss"] = "",
-                };
+                var attributes = new Dictionary<string, string>();
                 if (standalone)
                     attributes["toc"] = "auto";
 
-                var parseOptions = new ParseOptions
-                {
-                    BaseDirectory = basePath,
-                    IncludeMaxDepth = 10,
-                    AllowUriRead = false,
-                    // Same as export: includes may leave the document's folder.
-                    SafeMode = SafeMode.Unsafe,
-                    Attributes = attributes,
-                };
-
-                var parsed = AdocParser.Parse(source, parseOptions);
+                var parsed = AdocParser.Parse(source, LocalIncludeReader.ParseOptions(basePath, attributes));
 
                 // When the toggle is off, drop the table of contents even if the
                 // document's own header set `:toc:` — AdocNet honours the
@@ -66,17 +46,7 @@ public sealed class AdocRenderService : IRenderService
                     }
                 }
 
-                var renderOptions = new HtmlRenderOptions
-                {
-                    FullDocument = standalone,
-                    Theme = standalone ? HtmlTheme.Asciidoctor : HtmlTheme.None,
-                };
-
-                using var ms = new MemoryStream();
-                _renderer.Render(parsed.Document, ms, renderOptions);
-                var html = Encoding.UTF8.GetString(ms.ToArray());
-
-                return RenderResult.Success(html, parsed.Document, parsed.LineOrigins, parsed.Diagnostics);
+                return RenderResult.Success(parsed.Document, parsed.LineOrigins, parsed.Diagnostics);
             }
             catch (OperationCanceledException)
             {

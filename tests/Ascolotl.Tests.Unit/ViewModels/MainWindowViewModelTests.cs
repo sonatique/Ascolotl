@@ -761,15 +761,15 @@ public sealed class MainWindowViewModelTests : IDisposable
     public async Task Render_Success_UpdatesDocumentProperties()
     {
         var vm = CreateViewModel();
-        _renderService.NextResult = RenderResult.Success("<p>rendered</p>");
+        var rendered = AdocNet.Parser.AdocParser.Parse("= Rendered").Document;
+        _renderService.NextResult = RenderResult.Success(rendered);
         vm.SetEditorModeCommand.Execute(EditorMode.Split);
         vm.NewDocumentCommand.Execute(null);
         await vm.PendingRenderTask;
 
-        Assert.Equal("<p>rendered</p>", vm.SelectedDocument!.RenderedHtml);
+        Assert.Same(rendered, vm.SelectedDocument!.RenderedDocument);
         Assert.True(vm.SelectedDocument.LastRenderSucceeded);
         Assert.Null(vm.SelectedDocument.RenderError);
-        Assert.False(vm.SelectedDocument.IsRendering);
     }
 
     [Fact]
@@ -783,7 +783,7 @@ public sealed class MainWindowViewModelTests : IDisposable
 
         Assert.False(vm.SelectedDocument!.LastRenderSucceeded);
         Assert.Equal("asciidoctor not found", vm.SelectedDocument.RenderError);
-        Assert.Equal(string.Empty, vm.SelectedDocument.RenderedHtml);
+        Assert.Null(vm.SelectedDocument.RenderedDocument);
     }
 
     [Fact]
@@ -806,7 +806,7 @@ public sealed class MainWindowViewModelTests : IDisposable
     public async Task Render_PreservesSourceText()
     {
         var vm = CreateViewModel();
-        _renderService.NextResult = RenderResult.Success("<p>html</p>");
+        _renderService.NextResult = RenderResult.Success();
         vm.SetEditorModeCommand.Execute(EditorMode.Split);
         vm.NewDocumentCommand.Execute(null);
         vm.SelectedDocument!.SourceText = "= My Document";
@@ -840,7 +840,7 @@ public sealed class MainWindowViewModelTests : IDisposable
     public async Task Render_StatusText_UpdatesOnSuccess()
     {
         var vm = CreateViewModel();
-        _renderService.NextResult = RenderResult.Success("<p>ok</p>");
+        _renderService.NextResult = RenderResult.Success();
         vm.SetEditorModeCommand.Execute(EditorMode.Source);
         vm.NewDocumentCommand.Execute(null);
         vm.SetEditorModeCommand.Execute(EditorMode.Split);

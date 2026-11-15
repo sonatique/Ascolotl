@@ -14,7 +14,7 @@ done, what's deferred, and why.
 | Syntax reference | Inline explanations | F1 searchable cheat-sheet backed by the completion catalog; Enter inserts |
 | Project workspace | Sidebar, multi-doc projects | Open Folder → Files sidebar tab (.adoc tree), persisted across launches |
 | Single-source publishing | Export profiles | Named export profiles (format + theme + destination), one-click from Export menu |
-| Website export | Full websites from one source | Project → static HTML site: structure mirrored, `.adoc` links rewritten, generated index (own `index.adoc` wins) |
+| Website export | Full websites from one source | Project → static HTML site: structure mirrored, `.adoc` links rewritten, images and other project files copied, generated index (own `index.adoc` wins) |
 | Unified styling | One stylesheet for HTML + PDF | `ExportTheme` (Asciidoctor / Clean / GitHub) drives HtmlTheme **and** a matching PDF palette per profile |
 | Document stats | Word counts | Status-bar prose word count (structural lines excluded), reading time + characters on hover |
 | Word import | — (not offered) | File → Import from Word…: .docx → AsciiDoc via AdocNet's importer, images extracted beside the output, fidelity summary in the status bar |

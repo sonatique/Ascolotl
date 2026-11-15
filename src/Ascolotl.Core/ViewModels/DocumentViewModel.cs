@@ -57,9 +57,6 @@ public partial class DocumentViewModel : ObservableObject
     // --- Render state ---
 
     [ObservableProperty]
-    private string _renderedHtml = string.Empty;
-
-    [ObservableProperty]
     private DocumentNode? _renderedDocument;
 
     /// <summary>Per-line origin map from the last successful render (AdocNet
@@ -114,9 +111,6 @@ public partial class DocumentViewModel : ObservableObject
 
     [ObservableProperty]
     private string? _renderError;
-
-    [ObservableProperty]
-    private bool _isRendering;
 
     // --- Cursor position (updated by SourceEditorView) ---
 
