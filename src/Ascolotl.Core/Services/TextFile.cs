@@ -78,7 +78,11 @@ public static class TextFile
         try
         {
             await File.WriteAllTextAsync(temp, text, encoding);
-            File.Move(temp, path, overwrite: true);
+            // Replace keeps the original's attributes and permissions; Move does not.
+            if (File.Exists(path))
+                File.Replace(temp, path, destinationBackupFileName: null);
+            else
+                File.Move(temp, path);
         }
         catch
         {

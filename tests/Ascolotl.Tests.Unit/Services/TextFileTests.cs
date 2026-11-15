@@ -88,7 +88,7 @@ public sealed class TextFileTests : IDisposable
 
         // A file locked by another program can't be replaced.
         using (new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None))
-            await Assert.ThrowsAsync<UnauthorizedAccessException>(() => TextFile.WriteAsync(path, "new", TextFile.Utf8NoBom));
+            await Assert.ThrowsAnyAsync<IOException>(() => TextFile.WriteAsync(path, "new", TextFile.Utf8NoBom));
 
         Assert.Equal("original", await File.ReadAllTextAsync(path));
         Assert.Single(Directory.GetFiles(_dir));
