@@ -36,7 +36,7 @@ no Java.
 - **Tabs and session restore:** reopen a closed tab and pick up where you left
   off. Unsaved work is recovered after a crash.
 - **Light, dark or system theme**, with zoom and word wrap for each pane.
-- **English, French or German** interface, following the system language by
+- **English, French, German, Italian or Spanish** interface, following the system language by
   default (View → Language).
 
 ## Install

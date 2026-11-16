@@ -190,7 +190,9 @@
   <data name="LanguageEnglish" xml:space="preserve"><value>English</value></data>
   <data name="LanguageFrench" xml:space="preserve"><value>Français</value></data>
   <data name="LanguageGerman" xml:space="preserve"><value>Deutsch</value></data>
+  <data name="LanguageItalian" xml:space="preserve"><value>Italiano</value></data>
   <data name="LanguageMenu" xml:space="preserve"><value>Spr_ache</value></data>
+  <data name="LanguageSpanish" xml:space="preserve"><value>Español</value></data>
   <data name="LanguageSystemDefault" xml:space="preserve"><value>Systemsprache</value></data>
   <data name="ListAnd" xml:space="preserve"><value> und </value></data>
   <data name="Ln1Col1" xml:space="preserve"><value>Z 1, Sp 1</value></data>

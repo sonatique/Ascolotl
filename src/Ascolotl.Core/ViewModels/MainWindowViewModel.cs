@@ -134,6 +134,8 @@ public partial class MainWindowViewModel : ObservableObject
     public bool IsLanguageEnglish => UiLanguageCode == "en";
     public bool IsLanguageFrench => UiLanguageCode == "fr";
     public bool IsLanguageGerman => UiLanguageCode == "de";
+    public bool IsLanguageItalian => UiLanguageCode == "it";
+    public bool IsLanguageSpanish => UiLanguageCode == "es";
 
     /// <summary>Interface language code, or "" for the system's. Takes effect at the next start.</summary>
     [ObservableProperty]
@@ -1329,6 +1331,8 @@ public partial class MainWindowViewModel : ObservableObject
         OnPropertyChanged(nameof(IsLanguageEnglish));
         OnPropertyChanged(nameof(IsLanguageFrench));
         OnPropertyChanged(nameof(IsLanguageGerman));
+        OnPropertyChanged(nameof(IsLanguageItalian));
+        OnPropertyChanged(nameof(IsLanguageSpanish));
     }
 
     // --- Editor mode ---

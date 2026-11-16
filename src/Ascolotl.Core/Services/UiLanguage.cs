@@ -9,7 +9,7 @@ namespace Ascolotl.Core.Services;
 public static class UiLanguage
 {
     /// <summary>Languages with a full translation of Strings.resx.</summary>
-    public static readonly IReadOnlyList<string> Codes = ["en", "fr", "de"];
+    public static readonly IReadOnlyList<string> Codes = ["en", "fr", "de", "it", "es"];
 
     public static void Apply(string? code)
     {

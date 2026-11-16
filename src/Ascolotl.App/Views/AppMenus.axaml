@@ -220,6 +220,16 @@
                       CommandParameter="de"
                       ToggleType="Radio"
                       IsChecked="{Binding IsLanguageGerman, Mode=OneWay}" />
+            <MenuItem Header="{x:Static res:Strings.LanguageItalian}"
+                      Command="{Binding SetUiLanguageCommand}"
+                      CommandParameter="it"
+                      ToggleType="Radio"
+                      IsChecked="{Binding IsLanguageItalian, Mode=OneWay}" />
+            <MenuItem Header="{x:Static res:Strings.LanguageSpanish}"
+                      Command="{Binding SetUiLanguageCommand}"
+                      CommandParameter="es"
+                      ToggleType="Radio"
+                      IsChecked="{Binding IsLanguageSpanish, Mode=OneWay}" />
         </MenuItem>
     </MenuItem>
     <!-- Document style: an asciidoctor-pdf YAML theme used by

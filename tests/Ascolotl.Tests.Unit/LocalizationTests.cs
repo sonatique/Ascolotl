@@ -61,10 +61,10 @@ public sealed partial class LocalizationTests
         Assert.Empty(found);
     }
 
+    public static IEnumerable<object[]> Languages() => UiLanguage.Codes.Select(c => new object[] { c });
+
     [Theory]
-    [InlineData("en")]
-    [InlineData("fr")]
-    [InlineData("de")]
+    [MemberData(nameof(Languages))]
     public void Menus_HaveUniqueAccessKeysAtEachLevel(string code)
     {
         var culture = CultureInfo.GetCultureInfo(code);
