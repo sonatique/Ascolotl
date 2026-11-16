@@ -986,6 +986,25 @@ public sealed class MainWindowViewModelTests : IDisposable
         Assert.Contains("doc.pdf", vm.StatusText);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ExportAsPdf_FollowsTheAccessibleSetting_AndReportsMissingAltText(bool accessible)
+    {
+        var vm = CreateViewModel();
+        vm.NewDocumentCommand.Execute(null);
+        vm.SelectedDocument!.SourceText = "= Hello";
+        if (accessible)
+            vm.ToggleAccessiblePdfCommand.Execute(null);
+        _fileService.PickSavePathResult = "/tmp/out.pdf";
+        _exportService.ExportResult = ExportResult.Success(accessible ? ["pic.png: no alt text"] : null);
+
+        await vm.ExportCommand.ExecuteAsync(ExportFormat.Pdf);
+
+        Assert.Equal(accessible, _exportService.LastAccessiblePdf);
+        Assert.Equal(accessible, vm.StatusText.Contains("1 image(s) without alt text"));
+    }
+
     [Fact]
     public async Task ExportAsPdf_Failure_ShowsError()
     {

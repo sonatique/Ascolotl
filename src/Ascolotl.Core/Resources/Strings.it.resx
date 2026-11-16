@@ -4,6 +4,8 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AccessiblePdfMenu" xml:space="preserve"><value>PDF _accessibile (PDF/UA)</value></data>
+  <data name="AccessiblePdfTip" xml:space="preserve"><value>PDF/UA con tag per i lettori di schermo. Tutti i font sono incorporati: i file sono più grandi e Noto Serif sostituisce i font PDF standard.</value></data>
   <data name="AddAProfileToGetOne" xml:space="preserve"><value>Aggiungi un profilo per esportare con un clic dal menu Esporta.</value></data>
   <data name="AddProfile" xml:space="preserve"><value>Aggiungi profilo</value></data>
   <data name="AllOpenDocuments" xml:space="preserve"><value>Tutti i documenti aperti</value></data>
@@ -67,6 +69,7 @@
   <data name="CommandThemeDark" xml:space="preserve"><value>Tema: scuro</value></data>
   <data name="CommandThemeLight" xml:space="preserve"><value>Tema: chiaro</value></data>
   <data name="CommandThemeSystem" xml:space="preserve"><value>Tema: sistema</value></data>
+  <data name="CommandToggleAccessiblePdf" xml:space="preserve"><value>PDF accessibile (PDF/UA)</value></data>
   <data name="CommandToggleEditorWordWrap" xml:space="preserve"><value>A capo automatico nell'editor</value></data>
   <data name="CommandToggleEditPDFTitleBeforeExport" xml:space="preserve"><value>Modifica il titolo del PDF prima dell'esportazione</value></data>
   <data name="CommandToggleFitWidth" xml:space="preserve"><value>Adatta alla larghezza</value></data>
@@ -287,6 +290,7 @@
   <data name="StatusEditingCell" xml:space="preserve"><value>Modifica della cella — Applica (Ctrl+Invio) o fai clic altrove per confermare, Esc per annullare</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Modifica la sorgente della tabella per questa disposizione</value></data>
   <data name="StatusExportedTo" xml:space="preserve"><value>Esportato in {0}</value></data>
+  <data name="StatusExportedWithWarnings" xml:space="preserve"><value>Esportato in {0} — {1} immagine/i senza testo alternativo; è stato usato il nome del file</value></data>
   <data name="StatusExporting" xml:space="preserve"><value>Esportazione {0}...</value></data>
   <data name="StatusExportingWebsite" xml:space="preserve"><value>Esportazione del sito web...</value></data>
   <data name="StatusFileNotFound" xml:space="preserve"><value>File non trovato: {0}</value></data>

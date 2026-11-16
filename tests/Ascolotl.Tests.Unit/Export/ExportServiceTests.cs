@@ -60,6 +60,52 @@ public class ExportServiceTests
             && bytes[2] == (byte)'D' && bytes[3] == (byte)'F', "missing %PDF header");
     }
 
+    /// <summary>Exports <paramref name="source"/> to PDF in a temp folder holding a small PNG.</summary>
+    private static async Task<(ExportResult Result, string Text)> ExportPdfAsync(string source, PdfExportOptions? pdf, ExportFormat format = ExportFormat.Pdf)
+    {
+        var dir = Directory.CreateTempSubdirectory("ascolotl-pdfua-").FullName;
+        try
+        {
+            File.WriteAllBytes(Path.Combine(dir, "pic.png"), Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="));
+            var path = Path.Combine(dir, "out.pdf");
+            var result = await new ExportService().ExportAsync(source, dir, path, format, ExportTheme.Asciidoctor, null, pdf, CancellationToken.None);
+            return (result, File.Exists(path) ? System.Text.Encoding.Latin1.GetString(await File.ReadAllBytesAsync(path)) : "");
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    [Theory]
+    [InlineData(ExportFormat.Pdf)]
+    [InlineData(ExportFormat.PdfLandscape)]
+    public async Task Export_AccessiblePdf_IsTaggedPdfUa_PlainPdfIsNot(ExportFormat format)
+    {
+        var (accessible, tagged) = await ExportPdfAsync(Sample, new PdfExportOptions(Accessible: true), format);
+        var (plain, untagged) = await ExportPdfAsync(Sample, null, format);
+
+        Assert.True(accessible.IsSuccess, accessible.ErrorMessage);
+        Assert.Contains("pdfuaid:part", tagged);
+        Assert.Contains("/MarkInfo", tagged);
+        Assert.True(plain.IsSuccess, plain.ErrorMessage);
+        Assert.DoesNotContain("pdfuaid:part", untagged);
+    }
+
+    [Fact]
+    public async Task Export_AccessiblePdf_ReportsImagesWithoutAltText()
+    {
+        const string source = "= Pictures\n\nimage::pic.png[]\n\nimage::pic.png[A described picture]\n";
+
+        var (accessible, _) = await ExportPdfAsync(source, new PdfExportOptions(Accessible: true));
+        var (plain, _) = await ExportPdfAsync(source, null);
+
+        Assert.True(accessible.IsSuccess, accessible.ErrorMessage);
+        Assert.Single(accessible.Warnings);
+        Assert.Empty(plain.Warnings);
+    }
+
     [Fact]
     public async Task Export_Pdf_HasPdfSignature()
     {

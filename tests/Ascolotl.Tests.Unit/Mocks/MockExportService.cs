@@ -15,12 +15,14 @@ public sealed class MockExportService : IExportService
     public ExportTheme? LastTheme { get; private set; }
     public string? LastStylePath { get; private set; }
     public string? LastPdfTitle { get; private set; }
+    public bool LastAccessiblePdf { get; private set; }
 
     public Task<ExportResult> ExportAsync(
         string source, string? basePath, string outputPath, ExportFormat format,
-        ExportTheme theme, string? stylePath, string? pdfTitle, CancellationToken cancellationToken)
+        ExportTheme theme, string? stylePath, PdfExportOptions? pdf, CancellationToken cancellationToken)
     {
-        LastPdfTitle = pdfTitle;
+        LastPdfTitle = pdf?.Title;
+        LastAccessiblePdf = pdf?.Accessible == true;
         LastStylePath = stylePath;
         ExportCalled++;
         LastSource = source;

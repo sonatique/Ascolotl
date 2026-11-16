@@ -1073,12 +1073,12 @@ public partial class MainWindowViewModel : ObservableObject
         // Renders straight from the AsciiDoc source via AdocNet's converters —
         // no HTML intermediate and no double-parse against the preview pipeline.
         var result = await _exportService.ExportAsync(
-            SelectedDocument.SourceText, basePath, outputPath, format, ExportTheme.Asciidoctor, stylePath, pdfTitle,
-            CancellationToken.None);
+            SelectedDocument.SourceText, basePath, outputPath, format, ExportTheme.Asciidoctor, stylePath,
+            new PdfExportOptions(pdfTitle, AccessiblePdf), CancellationToken.None);
 
         if (result.IsSuccess)
         {
-            StatusText = string.Format(Strings.StatusExportedTo, Path.GetFileName(outputPath));
+            StatusText = ExportedStatus(Path.GetFileName(outputPath), result);
         }
         else
         {
@@ -1141,14 +1141,16 @@ public partial class MainWindowViewModel : ObservableObject
 
         var result = await _exportService.ExportAsync(
             SelectedDocument.SourceText, basePath, outputPath, profile.Format, profile.Theme, StylePath,
-            profile.Format is ExportFormat.Pdf or ExportFormat.PdfLandscape
-                ? PdfTitles.From(SelectedDocument.RenderedDocument?.Title, PdfTitleRule)
-                : null,
+            new PdfExportOptions(
+                profile.Format is ExportFormat.Pdf or ExportFormat.PdfLandscape
+                    ? PdfTitles.From(SelectedDocument.RenderedDocument?.Title, PdfTitleRule)
+                    : null,
+                AccessiblePdf),
             CancellationToken.None);
 
         if (result.IsSuccess)
         {
-            StatusText = $"{profile.Name} → {Path.GetFileName(outputPath)}";
+            StatusText = ExportedStatus($"{profile.Name} → {Path.GetFileName(outputPath)}", result);
         }
         else
         {
@@ -1162,6 +1164,23 @@ public partial class MainWindowViewModel : ObservableObject
 
     [RelayCommand]
     private void ToggleAskPdfTitle() => AskPdfTitle = !AskPdfTitle;
+
+    /// <summary>PDF exports are tagged PDF/UA-1: readable by screen readers, every font embedded.</summary>
+    [ObservableProperty]
+    private bool _accessiblePdf;
+
+    [RelayCommand]
+    private void ToggleAccessiblePdf() => AccessiblePdf = !AccessiblePdf;
+
+    /// <summary>The export's status line, noting what an accessible PDF had to work around.</summary>
+    private string ExportedStatus(string exported, ExportResult result)
+    {
+        foreach (var warning in result.Warnings)
+            _log?.Warn($"Export: {warning}");
+        return result.Warnings.Count == 0
+            ? string.Format(Strings.StatusExportedTo, exported)
+            : string.Format(Strings.StatusExportedWithWarnings, exported, result.Warnings.Count);
+    }
 
     [RelayCommand]
     private async Task LoadStyleAsync()
@@ -1581,6 +1600,7 @@ public partial class MainWindowViewModel : ObservableObject
             new(Strings.CommandPDFTitleFullTitle, null, Strings.CommandCategoryFile, () => SetPdfTitleRuleCommand.Execute(PdfTitleRule.FullTitle)),
             new(Strings.CommandPDFTitleUpToFirstColon, null, Strings.CommandCategoryFile, () => SetPdfTitleRuleCommand.Execute(PdfTitleRule.UpToFirstColon)),
             new(Strings.CommandToggleEditPDFTitleBeforeExport, null, Strings.CommandCategoryFile, () => ToggleAskPdfTitleCommand.Execute(null)),
+            new(Strings.CommandToggleAccessiblePdf, null, Strings.CommandCategoryFile, () => ToggleAccessiblePdfCommand.Execute(null)),
             new(Strings.CommandExportAsHTMLWithStyle, null, Strings.CommandCategoryFile, () => ExportWithStyleCommand.Execute(ExportFormat.Html)),
             new(Strings.CommandExportAsEPUBWithStyle, null, Strings.CommandCategoryFile, () => ExportWithStyleCommand.Execute(ExportFormat.Epub)),
             new(Strings.CommandSourceMode, null, Strings.CommandCategoryView, () => SetEditorModeCommand.Execute(EditorMode.Source)),

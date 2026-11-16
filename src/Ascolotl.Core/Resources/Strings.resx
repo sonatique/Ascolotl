@@ -4,6 +4,8 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AccessiblePdfMenu" xml:space="preserve"><value>_Accessible PDF (PDF/UA)</value></data>
+  <data name="AccessiblePdfTip" xml:space="preserve"><value>Tagged PDF/UA for screen readers. Every font is embedded, so files are larger, and Noto Serif replaces standard PDF fonts.</value></data>
   <data name="AddAProfileToGetOne" xml:space="preserve"><value>Add a profile to get one-click exports in the Export menu.</value></data>
   <data name="AddProfile" xml:space="preserve"><value>Add profile</value></data>
   <data name="AllOpenDocuments" xml:space="preserve"><value>All open documents</value></data>
@@ -67,6 +69,7 @@
   <data name="CommandThemeDark" xml:space="preserve"><value>Theme: Dark</value></data>
   <data name="CommandThemeLight" xml:space="preserve"><value>Theme: Light</value></data>
   <data name="CommandThemeSystem" xml:space="preserve"><value>Theme: System</value></data>
+  <data name="CommandToggleAccessiblePdf" xml:space="preserve"><value>Toggle Accessible PDF (PDF/UA)</value></data>
   <data name="CommandToggleEditorWordWrap" xml:space="preserve"><value>Toggle Editor Word Wrap</value></data>
   <data name="CommandToggleEditPDFTitleBeforeExport" xml:space="preserve"><value>Toggle Edit PDF Title Before Export</value></data>
   <data name="CommandToggleFitWidth" xml:space="preserve"><value>Toggle Fit Width</value></data>
@@ -287,6 +290,7 @@
   <data name="StatusEditingCell" xml:space="preserve"><value>Editing cell — Apply (Ctrl+Enter) or click away to commit, Esc to cancel</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Edit the table source for this layout</value></data>
   <data name="StatusExportedTo" xml:space="preserve"><value>Exported to {0}</value></data>
+  <data name="StatusExportedWithWarnings" xml:space="preserve"><value>Exported to {0} — {1} image(s) without alt text; their file name was used</value></data>
   <data name="StatusExporting" xml:space="preserve"><value>Exporting {0}...</value></data>
   <data name="StatusExportingWebsite" xml:space="preserve"><value>Exporting website...</value></data>
   <data name="StatusFileNotFound" xml:space="preserve"><value>File not found: {0}</value></data>

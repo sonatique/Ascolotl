@@ -13,10 +13,10 @@ public interface IExportService
     /// user's asciidoctor-pdf theme (null for none); a document's own
     /// <c>:pdf-theme:</c> attribute overrides it, and either one replaces
     /// <paramref name="theme"/> for PDF and is layered over it for HTML/EPUB.
-    /// <paramref name="pdfTitle"/> replaces a PDF's Title metadata only
-    /// (null keeps the document title).
+    /// <paramref name="pdf"/> holds PDF-only settings (title override,
+    /// accessibility); null means the defaults.
     /// </summary>
     Task<ExportResult> ExportAsync(
         string source, string? basePath, string outputPath, ExportFormat format,
-        ExportTheme theme, string? stylePath, string? pdfTitle, CancellationToken cancellationToken);
+        ExportTheme theme, string? stylePath, PdfExportOptions? pdf, CancellationToken cancellationToken);
 }

@@ -4,6 +4,8 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AccessiblePdfMenu" xml:space="preserve"><value>_Barrierefreies PDF (PDF/UA)</value></data>
+  <data name="AccessiblePdfTip" xml:space="preserve"><value>Getaggtes PDF/UA für Screenreader. Alle Schriften werden eingebettet, daher sind die Dateien größer, und Noto Serif ersetzt die PDF-Standardschriften.</value></data>
   <data name="AddAProfileToGetOne" xml:space="preserve"><value>Fügen Sie ein Profil hinzu, um mit einem Klick aus dem Menü Exportieren zu exportieren.</value></data>
   <data name="AddProfile" xml:space="preserve"><value>Profil hinzufügen</value></data>
   <data name="AllOpenDocuments" xml:space="preserve"><value>Alle geöffneten Dokumente</value></data>
@@ -67,6 +69,7 @@
   <data name="CommandThemeDark" xml:space="preserve"><value>Design: dunkel</value></data>
   <data name="CommandThemeLight" xml:space="preserve"><value>Design: hell</value></data>
   <data name="CommandThemeSystem" xml:space="preserve"><value>Design: System</value></data>
+  <data name="CommandToggleAccessiblePdf" xml:space="preserve"><value>Barrierefreies PDF (PDF/UA)</value></data>
   <data name="CommandToggleEditorWordWrap" xml:space="preserve"><value>Zeilenumbruch im Editor</value></data>
   <data name="CommandToggleEditPDFTitleBeforeExport" xml:space="preserve"><value>PDF-Titel vor dem Export bearbeiten</value></data>
   <data name="CommandToggleFitWidth" xml:space="preserve"><value>An Breite anpassen</value></data>
@@ -287,6 +290,7 @@
   <data name="StatusEditingCell" xml:space="preserve"><value>Zelle wird bearbeitet — Übernehmen (Strg+Enter) oder daneben klicken zum Übernehmen, Esc zum Abbrechen</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Bearbeiten Sie für dieses Layout den Tabellenquelltext</value></data>
   <data name="StatusExportedTo" xml:space="preserve"><value>Exportiert nach {0}</value></data>
+  <data name="StatusExportedWithWarnings" xml:space="preserve"><value>Exportiert nach {0} — {1} Bild(er) ohne Alternativtext; stattdessen wurde der Dateiname verwendet</value></data>
   <data name="StatusExporting" xml:space="preserve"><value>{0} wird exportiert...</value></data>
   <data name="StatusExportingWebsite" xml:space="preserve"><value>Website wird exportiert...</value></data>
   <data name="StatusFileNotFound" xml:space="preserve"><value>Datei nicht gefunden: {0}</value></data>

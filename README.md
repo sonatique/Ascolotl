@@ -24,7 +24,8 @@ no Java.
   file tree.
 - **Export** to PDF (portrait or landscape for wide tables), HTML, EPUB,
   DocBook XML and a linked static website. **Export profiles** save one-click
-  export settings.
+  export settings. PDFs can be made **accessible** (tagged PDF/UA-1, for screen
+  readers) with Export → Accessible PDF.
 - **Styles:** load an asciidoctor-pdf theme (`.yml`) once and it styles every
   PDF, HTML and EPUB export and the live preview, title page included. A
   document's own `:pdf-theme:` still wins.

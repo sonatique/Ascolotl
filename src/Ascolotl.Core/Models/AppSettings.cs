@@ -20,6 +20,9 @@ public sealed class AppSettings
     public PdfTitleRule PdfTitleRule { get; set; } = PdfTitleRule.UpToFirstColon;
     /// <summary>Show the PDF title for editing before each PDF export.</summary>
     public bool AskPdfTitle { get; set; }
+
+    /// <summary>Export PDFs as tagged PDF/UA-1.</summary>
+    public bool AccessiblePdf { get; set; }
     public List<string> RecentFiles { get; set; } = [];
 
     /// <summary>Project workspace folder to reopen on launch, or null.</summary>

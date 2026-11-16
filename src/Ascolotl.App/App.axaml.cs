@@ -96,6 +96,7 @@ public class App : Application
                 StylePath = File.Exists(_settings.StylePath) ? _settings.StylePath : null,
                 PdfTitleRule = _settings.PdfTitleRule,
                 AskPdfTitle = _settings.AskPdfTitle,
+                AccessiblePdf = _settings.AccessiblePdf,
             };
 
             _viewModel.LoadRecentFiles(_settings.RecentFiles);
@@ -151,6 +152,11 @@ public class App : Application
                 else if (e.PropertyName == nameof(MainWindowViewModel.StylePath))
                 {
                     _settings.StylePath = _viewModel.StylePath;
+                    SaveSettings();
+                }
+                else if (e.PropertyName == nameof(MainWindowViewModel.AccessiblePdf))
+                {
+                    _settings.AccessiblePdf = _viewModel.AccessiblePdf;
                     SaveSettings();
                 }
                 else if (e.PropertyName is nameof(MainWindowViewModel.PdfTitleRule) or nameof(MainWindowViewModel.AskPdfTitle))

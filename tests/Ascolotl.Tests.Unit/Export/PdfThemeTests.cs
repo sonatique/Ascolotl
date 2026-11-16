@@ -272,7 +272,7 @@ public sealed class PdfThemeTests : IDisposable
     private async Task<byte[]> ExportBytes(string source, ExportFormat format, string? theme, string? pdfTitle = null)
     {
         var output = Path.Combine(_root, $"out-{Guid.NewGuid():N}.{format.Extension()}");
-        var result = await new ExportService().ExportAsync(source, _docDir, output, format, ExportTheme.Asciidoctor, theme, pdfTitle, CancellationToken.None);
+        var result = await new ExportService().ExportAsync(source, _docDir, output, format, ExportTheme.Asciidoctor, theme, new PdfExportOptions(pdfTitle), CancellationToken.None);
         Assert.True(result.IsSuccess, result.ErrorMessage);
         return await File.ReadAllBytesAsync(output);
     }

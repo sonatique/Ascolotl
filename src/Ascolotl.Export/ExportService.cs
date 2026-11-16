@@ -5,7 +5,7 @@ using AdocNet.Converters.Html;
 using AdocNet.Converters.Pdf;
 using AdocNet.Parser;
 using Ascolotl.Core.Models;
-using Ascolotl.Core.Services;
+using Ascolotl.Core.Services;
 using Ascolotl.Core.Resources;
 
 namespace Ascolotl.Export;
@@ -20,7 +20,7 @@ public sealed class ExportService : IExportService
 {
     public Task<ExportResult> ExportAsync(
         string source, string? basePath, string outputPath, ExportFormat format,
-        ExportTheme theme, string? stylePath, string? pdfTitle, CancellationToken cancellationToken)
+        ExportTheme theme, string? stylePath, PdfExportOptions? pdf, CancellationToken cancellationToken)
     {
         return Task.Run(() =>
         {
@@ -45,6 +45,7 @@ public sealed class ExportService : IExportService
                     : null;
 
                 using var ms = new MemoryStream();
+                List<string> warnings = [];
                 switch (format)
                 {
                     case ExportFormat.Pdf:
@@ -61,12 +62,15 @@ public sealed class ExportService : IExportService
                         {
                             PageWidth = landscape ? page.PageHeight : page.PageWidth,
                             PageHeight = landscape ? page.PageWidth : page.PageHeight,
-                            MetadataTitle = pdfTitle,
+                            MetadataTitle = pdf?.Title,
+                            Accessibility = pdf?.Accessible == true,
                             // AdocNet's PDF renderer loads images from here and
                             // does not apply :imagesdir: itself.
                             BaseDirectory = ImageBase(basePath, attributes.GetValueOrDefault("imagesdir", "")),
                         };
-                        new PdfRenderer().Render(parsed.Document, ms, options);
+                        var renderer = new PdfRenderer();
+                        renderer.Render(parsed.Document, ms, options);
+                        warnings = [.. renderer.Warnings];
                         break;
                     }
                     case ExportFormat.Html:
@@ -92,7 +96,7 @@ public sealed class ExportService : IExportService
                 File.WriteAllBytes(outputPath, ms.ToArray());
 
                 return File.Exists(outputPath)
-                    ? ExportResult.Success()
+                    ? ExportResult.Success(warnings)
                     : ExportResult.Failure(string.Format(Strings.ExportFileNotCreated, format.DisplayName()));
             }
             catch (OperationCanceledException)
