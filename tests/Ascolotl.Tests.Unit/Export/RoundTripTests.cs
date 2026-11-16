@@ -29,26 +29,32 @@ public sealed partial class RoundTripTests(ITestOutputHelper output) : IDisposab
             ? Directory.GetFiles(ExamplesPath, "*.adoc").Select(f => new object[] { Path.GetFileName(f) })
             : [];
 
-    private const string NestedTables = "Cvyqypzogj Hmwhj Vppqirkz Ymqqnf.adoc";
-    private const string BoldSpacing = "Kiegykd CrBc Kfxouiw Cfyupoysy.adoc";
+    private const string LiteralNestedTables = "Cvyqypzogj Hmwhj Vppqirkz Ymqqnf.adoc";
+    private const string LiteralNestedTablesReason =
+        "its nested tables sit in m! (monospace literal) cells, so their rows and titles are literal text, as in Asciidoctor";
 
     /// <summary>
-    /// Losses caused by AdocNet 1.0.32's converters, not its importers: the export
-    /// never shows that content, so no import can bring it back. Each case still
-    /// imports; only the comparison is waived. Drop an entry when AdocNet fixes it.
+    /// Documents whose export does not show some content, so no import can bring it
+    /// back. Each still imports; only the comparison is waived.
     /// </summary>
-    private static readonly Dictionary<(string Stage, string File), string> ConverterDefects = new()
+    private static readonly Dictionary<(string Stage, string File), string> NotShownByExport = new()
     {
-        [("first generation", NestedTables)] = "nested !=== tables are printed as literal text",
-        [("second generation", NestedTables)] = "nested !=== tables are printed as literal text",
-        [("from PDF", NestedTables)] = "nested !=== tables are printed as literal text",
-        [("HTML then PDF", NestedTables)] = "nested !=== tables are printed as literal text",
-        [("from PDF", BoldSpacing)] = "PDF adds a space after bold (*Name*- x prints Name - x) and splits a heading across a page break",
-        [("HTML then PDF", BoldSpacing)] = "PDF adds a space after bold (*Name*- x prints Name - x) and splits a heading across a page break",
+        [("first generation", LiteralNestedTables)] = LiteralNestedTablesReason,
+        [("second generation", LiteralNestedTables)] = LiteralNestedTablesReason,
+        [("from PDF", LiteralNestedTables)] = LiteralNestedTablesReason,
+        [("HTML then PDF", LiteralNestedTables)] = LiteralNestedTablesReason,
     };
 
-    /// <summary>The HTML import writes code cells as `+...+`, which AdocNet 1.0.32's PDF prints empty: only words go missing.</summary>
-    private const string EmptyMonospaceCells = "PDF prints table cells holding `+monospace passthrough+` as empty";
+    /// <summary>
+    /// Known AdocNet 1.0.33 PdfImporter bug: a heading the PDF wraps onto a second
+    /// line comes back as two headings. Waived only for that document's lost titles;
+    /// drop this when AdocNet fixes it.
+    /// </summary>
+    private static readonly HashSet<(string Stage, string File)> WrappedHeadingSplit =
+    [
+        ("from PDF", "Kiegykd CrBc Kfxouiw Cfyupoysy.adoc"),
+        ("HTML then PDF", "Kiegykd CrBc Kfxouiw Cfyupoysy.adoc"),
+    ];
 
     /// <summary>
     /// .adoc to HTML, imported, exported to HTML again and imported again: both
@@ -109,20 +115,20 @@ public sealed partial class RoundTripTests(ITestOutputHelper output) : IDisposab
         foreach (var t in lostTitles)
             output.WriteLine($"  lost title: {t}");
 
-        if (ConverterDefects.TryGetValue((stage, fileName), out var defect))
+        if (NotShownByExport.TryGetValue((stage, fileName), out var reason))
         {
-            output.WriteLine($"  not compared, converter defect: {defect}");
+            output.WriteLine($"  not compared: {reason}");
             return;
         }
-        Assert.True(lostTitles.Count == 0, $"{stage}: lost titles {string.Join(" | ", lostTitles)}");
+        if (WrappedHeadingSplit.Contains((stage, fileName)))
+            output.WriteLine("  titles not compared: AdocNet splits a wrapped PDF heading in two");
+        else
+            Assert.True(lostTitles.Count == 0, $"{stage}: lost titles {string.Join(" | ", lostTitles)}");
         if (numberedTitles.Any(t => SectionNumber().IsMatch(t)))
             Assert.True(SettingLine(imported, "sectnums"), $"{stage}: numbered sections but no :sectnums:");
         if (reference.Contains("id=\"toc\"", StringComparison.Ordinal))
             Assert.True(SettingLine(imported, "toc"), $"{stage}: a table of contents but no :toc:");
-        if (stage == "HTML then PDF")
-            output.WriteLine($"  words not compared, converter defect: {EmptyMonospaceCells}");
-        else
-            Assert.True(recall >= 0.95, $"{stage}: only {recall:P1} of the words came back");
+        Assert.True(recall >= 0.95, $"{stage}: only {recall:P1} of the words came back");
         Assert.True(tables == importedTables, $"{stage}: {importedTables} of {tables} tables");
     }
 

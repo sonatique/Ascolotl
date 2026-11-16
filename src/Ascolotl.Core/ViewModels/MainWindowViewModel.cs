@@ -1526,6 +1526,7 @@ public partial class MainWindowViewModel : ObservableObject
             new("Import Word Document", null, "Import", () => ImportCommand.Execute(ImportFormat.Word)),
             new("Import Markdown", null, "Import", () => ImportCommand.Execute(ImportFormat.Markdown)),
             new("Import HTML", null, "Import", () => ImportCommand.Execute(ImportFormat.Html)),
+            new("Import PDF", null, "Import", () => ImportCommand.Execute(ImportFormat.Pdf)),
             new("Import Plain Text", null, "Import", () => ImportCommand.Execute(ImportFormat.PlainText)),
             new("Close Folder", null, "File", () => CloseFolderCommand.Execute(null), () => HasProject),
             new("Refresh Folder", null, "File", () => RefreshProjectCommand.Execute(null), () => HasProject),

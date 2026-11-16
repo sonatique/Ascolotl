@@ -53,8 +53,10 @@
         <MenuItem Header="_HTML..."
                   Command="{Binding ImportCommand}"
                   CommandParameter="{x:Static models:ImportFormat.Html}" />
-        <!-- PDF import returns once AdocNet's PdfImporter reads real manuals faithfully
-             (1.0.32 turns a multi-line IMPORTANT note into a heading and drops its words). -->
+        <MenuItem Header="P_DF..."
+                  Command="{Binding ImportCommand}"
+                  CommandParameter="{x:Static models:ImportFormat.Pdf}"
+                  ToolTip.Tip="Recover headings, text, tables and notes from a PDF (layout is approximated)" />
         <MenuItem Header="_Plain Text..."
                   Command="{Binding ImportCommand}"
                   CommandParameter="{x:Static models:ImportFormat.PlainText}" />
