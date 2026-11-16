@@ -46,17 +46,6 @@ public sealed partial class RoundTripTests(ITestOutputHelper output) : IDisposab
     };
 
     /// <summary>
-    /// Known AdocNet 1.0.33 PdfImporter bug: a heading the PDF wraps onto a second
-    /// line comes back as two headings. Waived only for that document's lost titles;
-    /// drop this when AdocNet fixes it.
-    /// </summary>
-    private static readonly HashSet<(string Stage, string File)> WrappedHeadingSplit =
-    [
-        ("from PDF", "Kiegykd CrBc Kfxouiw Cfyupoysy.adoc"),
-        ("HTML then PDF", "Kiegykd CrBc Kfxouiw Cfyupoysy.adoc"),
-    ];
-
-    /// <summary>
     /// .adoc to HTML, imported, exported to HTML again and imported again: both
     /// generations must still hold the original's titles, words and tables.
     /// </summary>
@@ -120,10 +109,7 @@ public sealed partial class RoundTripTests(ITestOutputHelper output) : IDisposab
             output.WriteLine($"  not compared: {reason}");
             return;
         }
-        if (WrappedHeadingSplit.Contains((stage, fileName)))
-            output.WriteLine("  titles not compared: AdocNet splits a wrapped PDF heading in two");
-        else
-            Assert.True(lostTitles.Count == 0, $"{stage}: lost titles {string.Join(" | ", lostTitles)}");
+        Assert.True(lostTitles.Count == 0, $"{stage}: lost titles {string.Join(" | ", lostTitles)}");
         if (numberedTitles.Any(t => SectionNumber().IsMatch(t)))
             Assert.True(SettingLine(imported, "sectnums"), $"{stage}: numbered sections but no :sectnums:");
         if (reference.Contains("id=\"toc\"", StringComparison.Ordinal))
