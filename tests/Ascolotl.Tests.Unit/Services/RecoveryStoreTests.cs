@@ -9,7 +9,7 @@ public sealed class RecoveryStoreTests : IDisposable
 
     public RecoveryStoreTests()
     {
-        _testDir = Path.Combine(Path.GetTempPath(), $"adocforge-recovery-test-{Guid.NewGuid():N}");
+        _testDir = Path.Combine(Path.GetTempPath(), $"ascolotl-recovery-test-{Guid.NewGuid():N}");
         _store = new RecoveryStore(_testDir);
     }
 

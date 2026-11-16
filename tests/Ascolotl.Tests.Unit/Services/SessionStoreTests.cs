@@ -10,7 +10,7 @@ public sealed class SessionStoreTests : IDisposable
 
     public SessionStoreTests()
     {
-        _testPath = Path.Combine(Path.GetTempPath(), $"adocforge-session-test-{Guid.NewGuid():N}.json");
+        _testPath = Path.Combine(Path.GetTempPath(), $"ascolotl-session-test-{Guid.NewGuid():N}.json");
         _store = new SessionStore(_testPath);
     }
 

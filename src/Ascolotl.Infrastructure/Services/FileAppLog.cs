@@ -52,7 +52,7 @@ public sealed class FileAppLog : IAppLog, IDisposable
                 {
                     _writer?.Dispose();
                     _currentDate = today;
-                    var path = Path.Combine(_logDirectory, $"adocforge-{today}.log");
+                    var path = Path.Combine(_logDirectory, $"ascolotl-{today}.log");
                     var stream = new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.Read);
                     _writer = new StreamWriter(stream) { AutoFlush = true };
                 }
@@ -71,7 +71,9 @@ public sealed class FileAppLog : IAppLog, IDisposable
         try
         {
             var cutoff = DateTime.Now.AddDays(-7);
-            foreach (var file in Directory.GetFiles(_logDirectory, "adocforge-*.log"))
+            // adocforge-*.log: logs written under the app's earlier name, left to age out too.
+            foreach (var file in Directory.GetFiles(_logDirectory, "ascolotl-*.log")
+                         .Concat(Directory.GetFiles(_logDirectory, "adocforge-*.log")))
             {
                 if (File.GetLastWriteTime(file) < cutoff)
                     File.Delete(file);
