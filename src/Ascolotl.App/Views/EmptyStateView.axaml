@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Ascolotl.Core.ViewModels"
+             xmlns:models="using:Ascolotl.Core.Models"
              x:Class="Ascolotl.App.Views.EmptyStateView"
              x:DataType="vm:MainWindowViewModel">
 
@@ -54,11 +55,11 @@
                     <ScaleTransform />
                 </Image.RenderTransform>
             </Image>
-            <TextBlock Text="Nothing forged yet"
+            <TextBlock Text="Ready when you are"
                        FontSize="18" FontWeight="Medium"
                        Foreground="{DynamicResource ForgeTextBrush}"
                        HorizontalAlignment="Center" Margin="0,16,0,0" />
-            <TextBlock Text="Open a document to start — or just start typing."
+            <TextBlock Text="Open a document, import one, or just start typing."
                        FontSize="13" TextWrapping="Wrap" TextAlignment="Center"
                        Foreground="{DynamicResource ForgeTextMutedBrush}"
                        HorizontalAlignment="Center" Margin="0,6,0,0" />
@@ -68,6 +69,22 @@
                         Command="{Binding NewDocumentCommand}" />
                 <Button Classes="chip" Content="Open…"
                         Command="{Binding OpenDocumentCommand}" />
+                <Button Classes="chip" Content="Import…">
+                    <Button.Flyout>
+                        <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                            <MenuItem Header="Word Document…" Command="{Binding ImportCommand}"
+                                      CommandParameter="{x:Static models:ImportFormat.Word}" />
+                            <MenuItem Header="Markdown…" Command="{Binding ImportCommand}"
+                                      CommandParameter="{x:Static models:ImportFormat.Markdown}" />
+                            <MenuItem Header="HTML…" Command="{Binding ImportCommand}"
+                                      CommandParameter="{x:Static models:ImportFormat.Html}" />
+                            <MenuItem Header="PDF…" Command="{Binding ImportCommand}"
+                                      CommandParameter="{x:Static models:ImportFormat.Pdf}" />
+                            <MenuItem Header="Plain Text…" Command="{Binding ImportCommand}"
+                                      CommandParameter="{x:Static models:ImportFormat.PlainText}" />
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Spacing="6"
                         HorizontalAlignment="Center" Margin="0,16,0,0">
