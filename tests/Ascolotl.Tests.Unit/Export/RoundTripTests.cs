@@ -116,23 +116,15 @@ public sealed partial class RoundTripTests(ITestOutputHelper output) : IDisposab
             Assert.True(SettingLine(imported, "toc"), $"{stage}: a table of contents but no :toc:");
         Assert.True(recall >= 0.95, $"{stage}: only {recall:P1} of the words came back");
         Assert.True(tables == importedTables, $"{stage}: {importedTables} of {tables} tables");
-        var codeLines = CodeLines(PreBlock().Matches(Body(reference)).Select(m => Text(m.Groups[1].Value, "")));
-        if (stage.EndsWith("PDF", StringComparison.Ordinal))
-            output.WriteLine($"  code lines not compared: {PdfCodeBug}");
-        else
-            AssertCodeLinesWhole(codeLines, imported, stage);
+        AssertCodeLinesWhole(CodeLines(PreBlock().Matches(Body(reference)).Select(m => Text(m.Groups[1].Value, ""))), imported, stage);
     }
-
-    // Remove with the Skip below once Ascolotl is on AdocNet 1.0.35.
-    private const string PdfCodeBug =
-        "AdocNet 1.0.34 PdfImporter keeps a wrapped code line's break and splits a block at a page break (fixed in 1.0.35)";
 
     /// <summary>
     /// A wide code line wraps in a PDF and a long block crosses a page; the import
     /// must give back each line whole and the block in one piece, or a copied
     /// example no longer works.
     /// </summary>
-    [Fact(Skip = PdfCodeBug)]
+    [Fact]
     public async Task Pdf_KeepsWrappedCodeLinesAndPageSpanningBlocksWhole()
     {
         var longLine = "Item time=3000000 accesscode=\"56 34 12\" rawencoding=fec_decoded rfchannel=20 rssi=-50 clock=0 rawdata=\"00 06 01 02 03 04 05 06\"";
