@@ -116,7 +116,48 @@ public sealed partial class RoundTripTests(ITestOutputHelper output) : IDisposab
             Assert.True(SettingLine(imported, "toc"), $"{stage}: a table of contents but no :toc:");
         Assert.True(recall >= 0.95, $"{stage}: only {recall:P1} of the words came back");
         Assert.True(tables == importedTables, $"{stage}: {importedTables} of {tables} tables");
+        var codeLines = CodeLines(PreBlock().Matches(Body(reference)).Select(m => Text(m.Groups[1].Value, "")));
+        if (stage.EndsWith("PDF", StringComparison.Ordinal))
+            output.WriteLine($"  code lines not compared: {PdfCodeBug}");
+        else
+            AssertCodeLinesWhole(codeLines, imported, stage);
     }
+
+    // Remove with the Skip below once Ascolotl is on AdocNet 1.0.35.
+    private const string PdfCodeBug =
+        "AdocNet 1.0.34 PdfImporter keeps a wrapped code line's break and splits a block at a page break (fixed in 1.0.35)";
+
+    /// <summary>
+    /// A wide code line wraps in a PDF and a long block crosses a page; the import
+    /// must give back each line whole and the block in one piece, or a copied
+    /// example no longer works.
+    /// </summary>
+    [Fact(Skip = PdfCodeBug)]
+    public async Task Pdf_KeepsWrappedCodeLinesAndPageSpanningBlocksWhole()
+    {
+        var longLine = "Item time=3000000 accesscode=\"56 34 12\" rawencoding=fec_decoded rfchannel=20 rssi=-50 clock=0 rawdata=\"00 06 01 02 03 04 05 06\"";
+        var block = string.Join("\n", Enumerable.Range(1, 90).Select(i => $"Item time={i * 1000} rfchannel={i % 40}"));
+        var source = $"= Code\n\n== Wide line\n\n----\n{longLine}\n----\n\n== Long block\n\n----\n{block}\n----\n";
+
+        var imported = await Import(ImportFormat.Pdf, await Export(source, ExportFormat.Pdf, "code.pdf"), "code");
+
+        Assert.Equal(2, CodeBlock().Matches(imported).Count);
+        AssertCodeLinesWhole(CodeLines(CodeBlock().Matches(source).Select(m => m.Groups[2].Value)), imported, "from PDF");
+    }
+
+    private void AssertCodeLinesWhole(List<string> expected, string imported, string stage)
+    {
+        var importedLines = CodeLines(CodeBlock().Matches(imported).Select(m => m.Groups[2].Value)).ToHashSet();
+        var broken = expected.Where(l => !importedLines.Contains(l)).ToList();
+        output.WriteLine($"{stage}: code lines {expected.Count - broken.Count}/{expected.Count}");
+        foreach (var l in broken.Take(10))
+            output.WriteLine($"  code line not whole: {l}");
+        Assert.True(broken.Count == 0, $"{stage}: {broken.Count} of {expected.Count} code lines did not come back whole");
+    }
+
+    /// <summary>Non-blank lines of the given code blocks, trimmed: indentation may differ.</summary>
+    private static List<string> CodeLines(IEnumerable<string> blocks) =>
+        [.. blocks.SelectMany(b => b.Split('\n')).Select(l => l.Trim()).Where(l => l.Length > 0)];
 
     private async Task<string> Export(string source, ExportFormat format, string name)
     {
@@ -152,6 +193,8 @@ public sealed partial class RoundTripTests(ITestOutputHelper output) : IDisposab
     [GeneratedRegex(@"<(script|style)\b.*?</\1>", RegexOptions.Singleline)] private static partial Regex ScriptOrStyle();
     [GeneratedRegex(@"<div id=""(toctitle|footer-text)"">.*?</div>", RegexOptions.Singleline)] private static partial Regex HtmlOnly();
     [GeneratedRegex(@"<[^>]+>")] private static partial Regex Tag();
+    [GeneratedRegex(@"<pre\b[^>]*>(.*?)</pre>", RegexOptions.Singleline)] private static partial Regex PreBlock();
+    [GeneratedRegex(@"^(-{4,}|\.{4,})[ \t]*\r?\n(.*?)^\1[ \t]*\r?$", RegexOptions.Multiline | RegexOptions.Singleline)] private static partial Regex CodeBlock();
     [GeneratedRegex(@"\s+")] private static partial Regex Space();
     [GeneratedRegex(@"^(\d+\.)+ ")] private static partial Regex SectionNumber();
     [GeneratedRegex(@"[*_`#]")] private static partial Regex Emphasis();
