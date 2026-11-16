@@ -1,3 +1,4 @@
+using Ascolotl.Core.Resources;
 namespace Ascolotl.Core.Models;
 
 /// <summary>
@@ -22,7 +23,7 @@ public static class ExportThemeExtensions
     public static string DisplayName(this ExportTheme theme) => theme switch
     {
         ExportTheme.Asciidoctor => "Asciidoctor",
-        ExportTheme.Clean => "Clean",
+        ExportTheme.Clean => Strings.ThemeClean,
         ExportTheme.Github => "GitHub",
         _ => theme.ToString(),
     };

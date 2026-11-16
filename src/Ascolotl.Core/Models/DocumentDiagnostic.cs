@@ -1,5 +1,6 @@
 using System.Globalization;
-using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
+using Ascolotl.Core.Resources;
 
 namespace Ascolotl.Core.Models;
 
@@ -55,10 +56,8 @@ public sealed record DocumentDiagnostic(
             var deficit = expected - found;
             if (deficit <= 0) return null;
 
-            var cells = deficit == 1 ? "cell" : "cells";
-            return $"This row fills {found} of the {expected} cells the grid needs here. " +
-                   $"Add {deficit} more {cells} (type {deficit} more \"|\") to this row — " +
-                   "or reduce an oversized rowspan (a \".N+\" cell) above it.";
+            return string.Format(deficit == 1 ? Strings.HintRowMissingOneCell : Strings.HintRowMissingCells,
+                found, expected, deficit);
         }
     }
 }

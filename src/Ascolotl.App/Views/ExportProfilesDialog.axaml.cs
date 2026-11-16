@@ -2,7 +2,8 @@ using System.Collections.ObjectModel;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
-using Ascolotl.Core.Models;
+using Ascolotl.Core.Models;
+using Ascolotl.Core.Resources;
 
 namespace Ascolotl.App.Views;
 
@@ -81,7 +82,7 @@ public partial class ExportProfilesDialog : Window
     {
         if (_loadingFields || _current is null) return;
 
-        _current.Name = string.IsNullOrWhiteSpace(NameBox.Text) ? "Unnamed" : NameBox.Text!.Trim();
+        _current.Name = string.IsNullOrWhiteSpace(NameBox.Text) ? Strings.ProfileUnnamed : NameBox.Text!.Trim();
         _current.OutputFolder = string.IsNullOrWhiteSpace(FolderBox.Text) ? null : FolderBox.Text!.Trim();
         if (FormatBox.SelectedIndex >= 0 && FormatBox.SelectedIndex < Formats.Length)
             _current.Format = Formats[FormatBox.SelectedIndex];
@@ -102,7 +103,7 @@ public partial class ExportProfilesDialog : Window
 
     private void OnAdd(object? sender, RoutedEventArgs e)
     {
-        _profiles.Add(new ExportProfile { Name = $"Profile {_profiles.Count + 1}" });
+        _profiles.Add(new ExportProfile { Name = string.Format(Strings.ProfileNumbered, _profiles.Count + 1) });
         RefreshList(_profiles.Count - 1);
         NameBox.Focus();
         NameBox.SelectAll();
@@ -120,7 +121,7 @@ public partial class ExportProfilesDialog : Window
     {
         var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = "Choose output folder",
+            Title = Strings.DialogChooseOutputFolder,
             AllowMultiple = false,
         });
         if (folders.Count > 0 && folders[0].TryGetLocalPath() is { } path)

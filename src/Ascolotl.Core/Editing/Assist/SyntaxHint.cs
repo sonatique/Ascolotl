@@ -1,3 +1,4 @@
+using Ascolotl.Core.Resources;
 namespace Ascolotl.Core.Editing.Assist;
 
 /// <summary>
@@ -22,11 +23,11 @@ public static class SyntaxHint
         // Attribute reference takes priority — it can appear mid-line.
         var query = AsciiDocContextAnalyzer.Analyze(text, caretOffset);
         if (query.Kind == AssistContextKind.AttributeReference)
-            return "Attribute reference — {name}";
+            return Strings.HintAttributeReference;
 
         // Inside a table: advertise the cell/row shortcuts and where columns live.
         if (AsciiDocContextAnalyzer.IsInsideTable(text, caretOffset))
-            return "Table — Tab: new cell · Enter: new row · right-click the preview to add/remove columns";
+            return Strings.HintTable;
 
         if (trimmed.Length == 0)
             return null;
@@ -37,36 +38,36 @@ public static class SyntaxHint
             var eq = 0;
             while (eq < trimmed.Length && trimmed[eq] == '=') eq++;
             if (eq < trimmed.Length && trimmed[eq] == ' ')
-                return eq == 1 ? "Document title" : $"Section heading (level {eq - 1})";
+                return eq == 1 ? Strings.HintDocumentTitle : string.Format(Strings.HintSectionHeading, eq - 1);
         }
 
         if (StartsWithMarker(trimmed, '*') || StartsWithMarker(trimmed, '-'))
-            return "Unordered list item";
+            return Strings.HintUnorderedListItem;
         if (StartsWithMarker(trimmed, '.'))
-            return "Ordered list item";
+            return Strings.HintOrderedListItem;
 
         foreach (var label in new[] { "NOTE", "TIP", "IMPORTANT", "WARNING", "CAUTION" })
             if (trimmed.StartsWith(label + ":", StringComparison.Ordinal))
-                return $"Admonition ({label})";
+                return string.Format(Strings.HintAdmonition, label);
 
         if (trimmed.StartsWith("[source", StringComparison.OrdinalIgnoreCase))
-            return "Source block attributes — [source,language]";
+            return Strings.HintSourceAttributes;
         if (trimmed.StartsWith("[", StringComparison.Ordinal))
-            return "Block attribute list";
+            return Strings.HintBlockAttributeList;
         if (trimmed is "|===" || trimmed.StartsWith("|==", StringComparison.Ordinal))
-            return "Table delimiter";
-        if (IsFence(trimmed, '-')) return "Listing block delimiter";
-        if (IsFence(trimmed, '=')) return "Example block delimiter";
-        if (IsFence(trimmed, '*')) return "Sidebar block delimiter";
-        if (IsFence(trimmed, '_')) return "Quote block delimiter";
-        if (IsFence(trimmed, '.')) return "Literal block delimiter";
-        if (IsFence(trimmed, '+')) return "Passthrough block delimiter";
+            return Strings.HintTableDelimiter;
+        if (IsFence(trimmed, '-')) return Strings.HintListingDelimiter;
+        if (IsFence(trimmed, '=')) return Strings.HintExampleDelimiter;
+        if (IsFence(trimmed, '*')) return Strings.HintSidebarDelimiter;
+        if (IsFence(trimmed, '_')) return Strings.HintQuoteDelimiter;
+        if (IsFence(trimmed, '.')) return Strings.HintLiteralDelimiter;
+        if (IsFence(trimmed, '+')) return Strings.HintPassthroughDelimiter;
         if (trimmed.StartsWith("//", StringComparison.Ordinal))
-            return "Comment (not rendered)";
+            return Strings.HintComment;
         if (trimmed.StartsWith("image::", StringComparison.OrdinalIgnoreCase))
-            return "Block image — image::path[alt]";
+            return Strings.HintBlockImage;
         if (IsAttributeEntry(trimmed))
-            return "Document attribute entry — :name: value";
+            return Strings.HintAttributeEntry;
 
         return null;
     }

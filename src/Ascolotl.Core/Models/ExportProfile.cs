@@ -1,3 +1,4 @@
+using Ascolotl.Core.Resources;
 namespace Ascolotl.Core.Models;
 
 /// <summary>
@@ -7,7 +8,7 @@ namespace Ascolotl.Core.Models;
 /// </summary>
 public sealed class ExportProfile
 {
-    public string Name { get; set; } = "New profile";
+    public string Name { get; set; } = Strings.ProfileNew;
 
     public ExportFormat Format { get; set; } = ExportFormat.Pdf;
 

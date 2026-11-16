@@ -2,6 +2,7 @@ using AdocNet.Importers;
 using AdocNet.Importers.Docx;
 using Ascolotl.Core.Models;
 using Ascolotl.Core.Services;
+using Ascolotl.Core.Resources;
 
 namespace Ascolotl.Export;
 
@@ -33,11 +34,11 @@ public sealed class DocumentImportService : IDocumentImportService
             }
             catch (Exception ex) when (ex is DocxImportException or ImportException)
             {
-                return ImportOutcome.Failure($"Not a readable {format.DisplayName()} file: {ex.Message}", ex);
+                return ImportOutcome.Failure(string.Format(Strings.ImportNotReadable, format.DisplayName(), ex.Message), ex);
             }
             catch (Exception ex)
             {
-                return ImportOutcome.Failure($"{format.DisplayName()} import failed: {ex.Message}", ex);
+                return ImportOutcome.Failure(string.Format(Strings.ImportFailedWithReason, format.DisplayName(), ex.Message), ex);
             }
         }, cancellationToken);
     }

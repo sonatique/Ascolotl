@@ -27,6 +27,7 @@ using Avalonia.Threading;
 using Avalonia.VisualTree;
 using AvaloniaEdit;
 using AvaloniaEdit.Document;
+using Ascolotl.Core.Resources;
 
 namespace Ascolotl.App.Views;
 
@@ -516,7 +517,7 @@ public partial class PreviewView : UserControl
         {
             PreviewHost.Content = null;
             StatusOverlay.IsVisible = true;
-            StatusText.Text = $"Preview render failed: {ex.Message}";
+            StatusText.Text = string.Format(Strings.StatusPreviewRenderFailed, ex.Message);
         }
     }
 
@@ -603,7 +604,7 @@ public partial class PreviewView : UserControl
             if (generation != _renderGeneration) return;
             PreviewHost.Content = null;
             StatusOverlay.IsVisible = true;
-            StatusText.Text = $"Page preview failed: {ex.Message}";
+            StatusText.Text = string.Format(Strings.StatusPagePreviewFailed, ex.Message);
             return;
         }
         _renderedRoot = null;
@@ -892,7 +893,7 @@ public partial class PreviewView : UserControl
         if (slice is null)
         {
             if (_mainVm is not null)
-                _mainVm.StatusText = "This block can't be edited in place (it comes from an include)";
+                _mainVm.StatusText = Strings.StatusBlockFromInclude;
             return false;
         }
 
@@ -912,7 +913,7 @@ public partial class PreviewView : UserControl
                 var idx = panel.Children.IndexOf(host);
                 if (idx >= 0) panel.Children[idx] = blockVis;
             },
-            statusHint: "Editing block — Apply (Ctrl+Enter) or click away to commit, Esc to cancel",
+            statusHint: Strings.StatusEditingBlock,
             caretInSlice: caretAbsOffset is int abs ? abs - start : null);
         return true;
     }
@@ -971,7 +972,7 @@ public partial class PreviewView : UserControl
         if (cellSlice is null)
         {
             if (_mainVm is not null)
-                _mainVm.StatusText = "This table cell can't be edited in place (it comes from an include)";
+                _mainVm.StatusText = Strings.StatusCellFromInclude;
             return false;
         }
 
@@ -1012,7 +1013,7 @@ public partial class PreviewView : UserControl
         }
 
         BeginEdit(editor, host, start, length, original, restore,
-            statusHint: "Editing cell — Apply (Ctrl+Enter) or click away to commit, Esc to cancel",
+            statusHint: Strings.StatusEditingCell,
             caretInSlice: caretInContent);
         return true;
     }
@@ -1150,12 +1151,12 @@ public partial class PreviewView : UserControl
             Padding = compact ? new Thickness(4, 2) : new Thickness(8, 6),
         };
 
-        var applyButton = new Button { Content = "✓ Apply", FontSize = 11, Padding = new Thickness(8, 2) };
-        ToolTip.SetTip(applyButton, "Apply (Ctrl+Enter)");
+        var applyButton = new Button { Content = Strings.InlineApply, FontSize = 11, Padding = new Thickness(8, 2) };
+        ToolTip.SetTip(applyButton, Strings.InlineApplyTip);
         applyButton.Click += (_, _) => CommitBlockEdit();
 
-        var cancelButton = new Button { Content = "✕ Cancel", FontSize = 11, Padding = new Thickness(8, 2) };
-        ToolTip.SetTip(cancelButton, "Cancel (Esc)");
+        var cancelButton = new Button { Content = Strings.InlineCancel, FontSize = 11, Padding = new Thickness(8, 2) };
+        ToolTip.SetTip(cancelButton, Strings.InlineCancelTip);
         cancelButton.Click += (_, _) => CancelBlockEdit();
 
         var buttons = new StackPanel
@@ -1242,7 +1243,7 @@ public partial class PreviewView : UserControl
             // the panel — the splice below kicks that off via dirty tracking.
             edit.Editor.IsReadOnly = true;
             _doc.SourceText = _doc.SourceText.Remove(s, len).Insert(s, newSlice);
-            if (_mainVm is not null) _mainVm.StatusText = "Block updated";
+            if (_mainVm is not null) _mainVm.StatusText = Strings.StatusBlockUpdated;
             _rebuildPending = false; // the splice's own re-render rebuilds the panel
 
             // Shift a queued re-entry for the splice: a block above the edit is
@@ -1260,8 +1261,8 @@ public partial class PreviewView : UserControl
             UndoTypingDirty(edit);
             if (_mainVm is not null)
                 _mainVm.StatusText = action == BlockSourceEditing.CommitAction.Abort
-                    ? "Edit discarded — the document changed while the block was open"
-                    : "Ready";
+                    ? Strings.StatusEditDiscarded
+                    : Strings.Ready;
 
             // No source change → no re-render to host the re-entry; open the
             // queued target now against the still-current block map — unless
@@ -1333,7 +1334,7 @@ public partial class PreviewView : UserControl
 
         edit.Restore();
         UndoTypingDirty(edit);
-        if (_mainVm is not null) _mainVm.StatusText = "Edit cancelled";
+        if (_mainVm is not null) _mainVm.StatusText = Strings.StatusEditCancelled;
         if (_rebuildPending && _doc is not null)
             UpdatePreview(_doc);
     }
@@ -1343,7 +1344,7 @@ public partial class PreviewView : UserControl
     private bool PanelIsCurrent()
     {
         if (_doc is not null && _doc.SourceText == _panelSource) return true;
-        if (_mainVm is not null) _mainVm.StatusText = "The preview is updating — try again";
+        if (_mainVm is not null) _mainVm.StatusText = Strings.StatusPreviewUpdating;
         return false;
     }
 
@@ -1355,24 +1356,24 @@ public partial class PreviewView : UserControl
         if (slice is null)
         {
             if (_mainVm is not null)
-                _mainVm.StatusText = "This block comes from an include and can't be modified here";
+                _mainVm.StatusText = Strings.StatusBlockFromIncludeCannotModify;
             return;
         }
         var (start, length) = slice.Value;
 
         // In WYSIWYG mode a single click opens the editor; Split keeps the
         // double-click gesture (single click navigates the source pane).
-        var gesture = _mainVm?.EditorMode == EditorMode.Wysiwyg ? "click" : "double-click";
+        var gesture = _mainVm?.EditorMode == EditorMode.Wysiwyg ? Strings.GestureClick : Strings.GestureDoubleClick;
 
         var items = new List<Control>();
 
         if (block is TableLayout table)
         {
-            var cellItem = new MenuItem { Header = $"Edit cell content ({gesture})" };
+            var cellItem = new MenuItem { Header = string.Format(Strings.MenuEditCellContent, gesture) };
             cellItem.Click += (_, _) => EnterCellEdit(blockVis, table, clickTarget, pointInScroll);
             items.Add(cellItem);
 
-            var tableItem = new MenuItem { Header = "Edit table source" };
+            var tableItem = new MenuItem { Header = Strings.MenuEditTableSource };
             tableItem.Click += (_, _) => EnterBlockEdit(blockVis, block);
             items.Add(tableItem);
 
@@ -1386,35 +1387,35 @@ public partial class PreviewView : UserControl
                 {
                     items.Add(new Separator());
 
-                    var rowMenu = new MenuItem { Header = "Row" };
+                    var rowMenu = new MenuItem { Header = Strings.MenuRow };
                     rowMenu.ItemsSource = new[]
                     {
-                        Cmd("Insert above", () => GridTableOp(table, g => g.InsertRow(r, below: false), 0, "Row inserted")),
-                        Cmd("Insert below", () => GridTableOp(table, g => g.InsertRow(r, below: true), 0, "Row inserted")),
-                        Cmd("Delete row", () => GridTableOp(table, g => g.DeleteRow(r), 0, "Row deleted")),
+                        Cmd(Strings.MenuInsertAbove, () => GridTableOp(table, g => g.InsertRow(r, below: false), 0, Strings.StatusRowInserted)),
+                        Cmd(Strings.MenuInsertBelow, () => GridTableOp(table, g => g.InsertRow(r, below: true), 0, Strings.StatusRowInserted)),
+                        Cmd(Strings.MenuDeleteRow, () => GridTableOp(table, g => g.DeleteRow(r), 0, Strings.StatusRowDeleted)),
                     };
                     items.Add(rowMenu);
 
-                    var colMenu = new MenuItem { Header = "Column" };
+                    var colMenu = new MenuItem { Header = Strings.MenuColumn };
                     colMenu.ItemsSource = new[]
                     {
-                        Cmd("Insert left", () => GridTableOp(table, g => g.InsertColumn(r, c, right: false), +1, "Column inserted")),
-                        Cmd("Insert right", () => GridTableOp(table, g => g.InsertColumn(r, c, right: true), +1, "Column inserted")),
-                        Cmd("Delete column", () => GridTableOp(table, g => g.DeleteColumn(r, c), -1, "Column deleted")),
+                        Cmd(Strings.MenuInsertLeft, () => GridTableOp(table, g => g.InsertColumn(r, c, right: false), +1, Strings.StatusColumnInserted)),
+                        Cmd(Strings.MenuInsertRight, () => GridTableOp(table, g => g.InsertColumn(r, c, right: true), +1, Strings.StatusColumnInserted)),
+                        Cmd(Strings.MenuDeleteColumn, () => GridTableOp(table, g => g.DeleteColumn(r, c), -1, Strings.StatusColumnDeleted)),
                     };
                     items.Add(colMenu);
 
                     var mergeItems = new List<Control>();
                     if (c + 1 < table.Rows[r].Cells.Count)
-                        mergeItems.Add(Cmd("Merge right", () => GridTableOp(table, g => g.MergeRight(r, c), 0, "Cells merged")));
+                        mergeItems.Add(Cmd(Strings.MenuMergeRight, () => GridTableOp(table, g => g.MergeRight(r, c), 0, Strings.StatusCellsMerged)));
                     if (r + 1 < table.Rows.Count)
-                        mergeItems.Add(Cmd("Merge down", () => GridTableOp(table, g => g.MergeDown(r, c), 0, "Cells merged")));
+                        mergeItems.Add(Cmd(Strings.MenuMergeDown, () => GridTableOp(table, g => g.MergeDown(r, c), 0, Strings.StatusCellsMerged)));
                     var clicked = table.Rows[r].Cells[c];
                     if (clicked.ColSpan > 1 || clicked.RowSpan > 1)
-                        mergeItems.Add(Cmd("Split cell", () => GridTableOp(table, g => g.Split(r, c), 0, "Cell split")));
+                        mergeItems.Add(Cmd(Strings.MenuSplitCell, () => GridTableOp(table, g => g.Split(r, c), 0, Strings.StatusCellSplit)));
                     if (mergeItems.Count > 0)
                     {
-                        var mergeMenu = new MenuItem { Header = "Merge" };
+                        var mergeMenu = new MenuItem { Header = Strings.MenuMerge };
                         mergeMenu.ItemsSource = mergeItems;
                         items.Add(mergeMenu);
                     }
@@ -1427,14 +1428,14 @@ public partial class PreviewView : UserControl
         }
         else
         {
-            var editItem = new MenuItem { Header = $"Edit block ({gesture})" };
+            var editItem = new MenuItem { Header = string.Format(Strings.MenuEditBlock, gesture) };
             editItem.Click += (_, _) => EnterBlockEdit(blockVis, block);
             items.Add(editItem);
         }
 
         items.Add(new Separator());
 
-        var duplicateItem = new MenuItem { Header = "Duplicate block" };
+        var duplicateItem = new MenuItem { Header = Strings.MenuDuplicateBlock };
         duplicateItem.Click += (_, _) =>
         {
             if (_doc is not null)
@@ -1442,7 +1443,7 @@ public partial class PreviewView : UserControl
         };
         items.Add(duplicateItem);
 
-        var deleteItem = new MenuItem { Header = "Delete block" };
+        var deleteItem = new MenuItem { Header = Strings.MenuDeleteBlock };
         deleteItem.Click += (_, _) =>
         {
             if (_doc is not null)
@@ -1451,9 +1452,9 @@ public partial class PreviewView : UserControl
         items.Add(deleteItem);
 
         items.Add(new Separator());
-        items.Add(BuildInsertSubmenu("Insert above",
+        items.Add(BuildInsertSubmenu(Strings.MenuInsertAbove,
             snippet => { if (_doc is not null) _doc.SourceText = BlockInsertion.InsertBefore(_doc.SourceText, start, snippet); }));
-        items.Add(BuildInsertSubmenu("Insert below",
+        items.Add(BuildInsertSubmenu(Strings.MenuInsertBelow,
             snippet => { if (_doc is not null) _doc.SourceText = BlockInsertion.InsertAfter(_doc.SourceText, start + length, snippet); }));
 
         var menu = new ContextMenu { ItemsSource = items };
@@ -1544,16 +1545,16 @@ public partial class PreviewView : UserControl
 
         return new List<Control>
         {
-            Leaf("Paragraph", BlockSnippets.Paragraph),
-            Leaf("Heading (H2)", BlockSnippets.Heading(1)),
-            Leaf("Heading (H3)", BlockSnippets.Heading(2)),
-            Leaf("Bulleted list", BlockSnippets.BulletList),
-            Leaf("Numbered list", BlockSnippets.NumberedList),
+            Leaf(Strings.InsertParagraph, BlockSnippets.Paragraph),
+            Leaf(Strings.InsertHeadingH2, BlockSnippets.Heading(1)),
+            Leaf(Strings.InsertHeadingH3, BlockSnippets.Heading(2)),
+            Leaf(Strings.InsertBulletedList, BlockSnippets.BulletList),
+            Leaf(Strings.InsertNumberedList, BlockSnippets.NumberedList),
             new Separator(),
-            Leaf("Table", BlockSnippets.Table),
-            Leaf("Code block", BlockSnippets.CodeBlock),
-            Leaf("Note", BlockSnippets.Note),
-            Leaf("Horizontal rule", BlockSnippets.ThematicBreak),
+            Leaf(Strings.InsertTable, BlockSnippets.Table),
+            Leaf(Strings.InsertCodeBlock, BlockSnippets.CodeBlock),
+            Leaf(Strings.InsertNote, BlockSnippets.Note),
+            Leaf(Strings.InsertHorizontalRule, BlockSnippets.ThematicBreak),
         };
     }
 
@@ -1624,7 +1625,7 @@ public partial class PreviewView : UserControl
         var endLine = IncludeExpansionMap.AstLineToEditor(_astToEditor, table.Source.End.Line - 1, fallback: -1);
         if (startLine < 0 || endLine < startLine)
         {
-            if (_mainVm is not null) _mainVm.StatusText = "This table can't be edited here";
+            if (_mainVm is not null) _mainVm.StatusText = Strings.StatusTableNotEditable;
             return;
         }
 
@@ -1651,7 +1652,7 @@ public partial class PreviewView : UserControl
                 var grid = TableGrid.Parse(body, width);
                 if (grid is null)
                 {
-                    status = "Edit the table source for this layout";
+                    status = Strings.StatusEditTableSourceForLayout;
                     return;
                 }
                 if (!op(grid)) return;
@@ -1670,7 +1671,7 @@ public partial class PreviewView : UserControl
         catch (Exception ex)
         {
             _mainVm?.LogError("Table edit failed", ex);
-            status = $"Table edit failed: {ex.GetType().Name}";
+            status = string.Format(Strings.StatusTableEditFailed, ex.GetType().Name);
         }
 
         if (status is not null && _mainVm is not null) _mainVm.StatusText = status;

@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:Ascolotl.Core.Resources"
              xmlns:vm="using:Ascolotl.Core.ViewModels"
              xmlns:models="using:Ascolotl.Core.Models"
              x:Class="Ascolotl.App.Views.EmptyStateView"
@@ -55,32 +56,32 @@
                     <ScaleTransform />
                 </Image.RenderTransform>
             </Image>
-            <TextBlock Text="Ready when you are"
+            <TextBlock Text="{x:Static res:Strings.ReadyWhenYouAre}"
                        FontSize="18" FontWeight="Medium"
                        Foreground="{DynamicResource ForgeTextBrush}"
                        HorizontalAlignment="Center" Margin="0,16,0,0" />
-            <TextBlock Text="Open a document, import one, or just start typing."
+            <TextBlock Text="{x:Static res:Strings.OpenADocumentImportOneOr}"
                        FontSize="13" TextWrapping="Wrap" TextAlignment="Center"
                        Foreground="{DynamicResource ForgeTextMutedBrush}"
                        HorizontalAlignment="Center" Margin="0,6,0,0" />
             <StackPanel Orientation="Horizontal" Spacing="10"
                         HorizontalAlignment="Center" Margin="0,18,0,0">
-                <Button Classes="chip" Content="New file"
+                <Button Classes="chip" Content="{x:Static res:Strings.NewFile}"
                         Command="{Binding NewDocumentCommand}" />
-                <Button Classes="chip" Content="Open…"
+                <Button Classes="chip" Content="{x:Static res:Strings.ChipOpen}"
                         Command="{Binding OpenDocumentCommand}" />
-                <Button Classes="chip" Content="Import…">
+                <Button Classes="chip" Content="{x:Static res:Strings.ChipImport}">
                     <Button.Flyout>
                         <MenuFlyout Placement="BottomEdgeAlignedLeft">
-                            <MenuItem Header="Word Document…" Command="{Binding ImportCommand}"
+                            <MenuItem Header="{x:Static res:Strings.ChipWordDocument}" Command="{Binding ImportCommand}"
                                       CommandParameter="{x:Static models:ImportFormat.Word}" />
-                            <MenuItem Header="Markdown…" Command="{Binding ImportCommand}"
+                            <MenuItem Header="{x:Static res:Strings.ChipMarkdown}" Command="{Binding ImportCommand}"
                                       CommandParameter="{x:Static models:ImportFormat.Markdown}" />
-                            <MenuItem Header="HTML…" Command="{Binding ImportCommand}"
+                            <MenuItem Header="{x:Static res:Strings.ChipHtml}" Command="{Binding ImportCommand}"
                                       CommandParameter="{x:Static models:ImportFormat.Html}" />
-                            <MenuItem Header="PDF…" Command="{Binding ImportCommand}"
+                            <MenuItem Header="{x:Static res:Strings.ChipPdf}" Command="{Binding ImportCommand}"
                                       CommandParameter="{x:Static models:ImportFormat.Pdf}" />
-                            <MenuItem Header="Plain Text…" Command="{Binding ImportCommand}"
+                            <MenuItem Header="{x:Static res:Strings.ChipPlainText}" Command="{Binding ImportCommand}"
                                       CommandParameter="{x:Static models:ImportFormat.PlainText}" />
                         </MenuFlyout>
                     </Button.Flyout>
@@ -88,15 +89,15 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal" Spacing="6"
                         HorizontalAlignment="Center" Margin="0,16,0,0">
-                <TextBlock Text="press" FontSize="11.5" VerticalAlignment="Center"
+                <TextBlock Text="{x:Static res:Strings.Press}" FontSize="11.5" VerticalAlignment="Center"
                            Foreground="{DynamicResource ForgeTextMutedBrush}" />
                 <Border Background="{DynamicResource ForgeBgDeepBrush}"
                         BorderBrush="{DynamicResource ForgeBorderBrush}"
                         BorderThickness="1" CornerRadius="5" Padding="7,2">
-                    <TextBlock Text="Ctrl O" FontSize="11"
+                    <TextBlock Text="{x:Static res:Strings.CtrlO}" FontSize="11"
                                Foreground="{DynamicResource ForgeTextMutedBrush}" />
                 </Border>
-                <TextBlock Text="to open a file" FontSize="11.5" VerticalAlignment="Center"
+                <TextBlock Text="{x:Static res:Strings.ToOpenAFile}" FontSize="11.5" VerticalAlignment="Center"
                            Foreground="{DynamicResource ForgeTextMutedBrush}" />
             </StackPanel>
         </StackPanel>

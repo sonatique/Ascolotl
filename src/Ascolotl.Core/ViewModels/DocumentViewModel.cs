@@ -1,6 +1,7 @@
 using AdocNet.Ast;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Ascolotl.Core.Models;
+using Ascolotl.Core.Models;
+using Ascolotl.Core.Resources;
 
 namespace Ascolotl.Core.ViewModels;
 
@@ -99,7 +100,7 @@ public partial class DocumentViewModel : ObservableObject
     {
         string head;
         if (!d.IsUnanchored)
-            head = $"Line {d.Line + 1}: {d.Message}";
+            head = string.Format(Strings.DiagnosticAtLine, d.Line + 1, d.Message);
         else if (d.SourceFile is { } file)
             head = $"{file}:{d.SourceFileLine}: {d.Message}"; // inside an include
         else
@@ -147,7 +148,7 @@ public partial class DocumentViewModel : ObservableObject
         get
         {
             var name = DisplayName;
-            if (IsRecovered) name = $"[Recovered] {name}";
+            if (IsRecovered) name = string.Format(Strings.TabRecovered, name);
             return IsDirty ? $"{name} *" : name;
         }
     }
@@ -156,7 +157,7 @@ public partial class DocumentViewModel : ObservableObject
     {
         return new DocumentViewModel
         {
-            DisplayName = $"Untitled {++_untitledCounter}",
+            DisplayName = string.Format(Strings.Untitled, ++_untitledCounter),
         };
     }
 
@@ -190,7 +191,7 @@ public partial class DocumentViewModel : ObservableObject
         get
         {
             var stats = Editing.DocumentStats.Count(SourceText);
-            return stats.Words == 1 ? "1 word" : $"{stats.Words:N0} words";
+            return stats.Words == 1 ? Strings.StatsOneWord : string.Format(Strings.StatsWords, stats.Words);
         }
     }
 
@@ -200,7 +201,7 @@ public partial class DocumentViewModel : ObservableObject
         get
         {
             var stats = Editing.DocumentStats.Count(SourceText);
-            return $"≈ {stats.ReadingMinutes} min read · {stats.Characters:N0} characters";
+            return string.Format(Strings.StatsTooltip, stats.ReadingMinutes, stats.Characters);
         }
     }
 

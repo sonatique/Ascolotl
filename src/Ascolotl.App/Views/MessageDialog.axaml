@@ -1,7 +1,8 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:Ascolotl.Core.Resources"
         x:Class="Ascolotl.App.Views.MessageDialog"
-        Title="Ascolotl"
+        Title="{x:Static res:Strings.Ascolotl}"
         SizeToContent="WidthAndHeight"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
@@ -27,7 +28,7 @@
                                  TextWrapping="Wrap"
                                  MaxWidth="440" />
 
-            <Button Content="OK"
+            <Button Content="{x:Static res:Strings.OK}"
                     Classes="dialog primary"
                     HorizontalAlignment="Right"
                     Click="OnOkClick"

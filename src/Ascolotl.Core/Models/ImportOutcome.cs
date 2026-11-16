@@ -1,3 +1,4 @@
+using Ascolotl.Core.Resources;
 namespace Ascolotl.Core.Models;
 
 /// <summary>
@@ -42,25 +43,25 @@ public static class ImportSummary
     public static string Describe(ImportOutcome outcome)
     {
         if (!outcome.IsSuccess)
-            return outcome.ErrorMessage ?? "Import failed";
+            return outcome.ErrorMessage ?? Strings.ImportFailed;
 
         var name = outcome.OutputPath is null
-            ? "document"
+            ? Strings.ImportDocumentFallback
             : Path.GetFileName(outcome.OutputPath);
 
         var parts = new List<string>();
 
         // Round DOWN so a near-perfect import never claims a flat 100%.
         var percent = (int)Math.Floor(Math.Clamp(outcome.Fidelity, 0, 1) * 100);
-        parts.Add(percent >= 100 ? "fully mapped" : $"{percent}% mapped");
+        parts.Add(percent >= 100 ? Strings.ImportFullyMapped : string.Format(Strings.ImportPercentMapped, percent));
 
         if (outcome.Images > 0)
-            parts.Add(outcome.Images == 1 ? "1 image" : $"{outcome.Images} images");
+            parts.Add(outcome.Images == 1 ? Strings.ImportOneImage : string.Format(Strings.ImportImages, outcome.Images));
         if (outcome.Tables > 0)
-            parts.Add(outcome.Tables == 1 ? "1 table" : $"{outcome.Tables} tables");
+            parts.Add(outcome.Tables == 1 ? Strings.ImportOneTable : string.Format(Strings.ImportTables, outcome.Tables));
         if (outcome.Issues.Count > 0)
-            parts.Add(outcome.Issues.Count == 1 ? "1 note" : $"{outcome.Issues.Count} notes");
+            parts.Add(outcome.Issues.Count == 1 ? Strings.ImportOneNote : string.Format(Strings.ImportNotes, outcome.Issues.Count));
 
-        return $"Imported {name} — {string.Join(", ", parts)}";
+        return string.Format(Strings.ImportSummaryLine, name, string.Join(", ", parts));
     }
 }

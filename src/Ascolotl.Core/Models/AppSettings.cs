@@ -3,6 +3,9 @@ namespace Ascolotl.Core.Models;
 public sealed class AppSettings
 {
     public AppTheme Theme { get; set; } = AppTheme.System;
+
+    /// <summary>Interface language code ("en", "fr", "de"); "" follows the system.</summary>
+    public string Language { get; set; } = "";
     public EditorMode EditorMode { get; set; } = EditorMode.Split;
     public bool ShowTitleAndToc { get; set; }
     public bool SyncScrolling { get; set; } = true;

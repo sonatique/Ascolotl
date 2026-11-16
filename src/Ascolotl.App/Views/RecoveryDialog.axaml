@@ -1,7 +1,8 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:Ascolotl.Core.Resources"
         x:Class="Ascolotl.App.Views.RecoveryDialog"
-        Title="Ascolotl — Recover Documents"
+        Title="{x:Static res:Strings.AscolotlRecoverDocuments}"
         SizeToContent="WidthAndHeight"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
@@ -27,18 +28,18 @@
                        TextWrapping="Wrap"
                        MaxWidth="440" />
 
-            <TextBlock Text="Would you like to recover these documents?"
+            <TextBlock Text="{x:Static res:Strings.WouldYouLikeToRecoverThese}"
                        Foreground="{DynamicResource ForgeTextMutedBrush}" />
 
             <StackPanel Orientation="Horizontal"
                         HorizontalAlignment="Right"
                         Spacing="8">
-                <Button Content="Recover"
+                <Button Content="{x:Static res:Strings.Recover}"
                         Classes="dialog primary"
                         Click="OnRecoverClick"
                         IsDefault="True"
                         MinWidth="80" />
-                <Button Content="Discard"
+                <Button Content="{x:Static res:Strings.Discard}"
                         Classes="dialog"
                         Click="OnDiscardClick"
                         MinWidth="80" />

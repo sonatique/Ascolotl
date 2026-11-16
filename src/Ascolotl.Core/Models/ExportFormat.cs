@@ -1,3 +1,4 @@
+using Ascolotl.Core.Resources;
 namespace Ascolotl.Core.Models;
 
 /// <summary>A document format AdocNet can export to.</summary>
@@ -30,19 +31,19 @@ public static class ExportFormatExtensions
     /// <summary>Save-dialog filter label for the format.</summary>
     public static string FilterName(this ExportFormat format) => format switch
     {
-        ExportFormat.Pdf => "PDF Document",
-        ExportFormat.PdfLandscape => "PDF Document",
-        ExportFormat.Html => "HTML Document",
-        ExportFormat.DocBook => "DocBook XML",
-        ExportFormat.Epub => "EPUB Book",
-        _ => "File",
+        ExportFormat.Pdf => Strings.FilterPdf,
+        ExportFormat.PdfLandscape => Strings.FilterPdf,
+        ExportFormat.Html => Strings.FilterHtml,
+        ExportFormat.DocBook => Strings.FilterDocBook,
+        ExportFormat.Epub => Strings.FilterEpub,
+        _ => Strings.FilterFile,
     };
 
     /// <summary>Human-facing name used in status messages.</summary>
     public static string DisplayName(this ExportFormat format) => format switch
     {
         ExportFormat.Pdf => "PDF",
-        ExportFormat.PdfLandscape => "PDF (Landscape)",
+        ExportFormat.PdfLandscape => Strings.FormatPdfLandscape,
         ExportFormat.Html => "HTML",
         ExportFormat.DocBook => "DocBook",
         ExportFormat.Epub => "EPUB",

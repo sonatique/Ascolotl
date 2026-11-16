@@ -46,6 +46,8 @@ public class App : Application
             _settingsService = new JsonSettingsService(_log);
             _settings = _settingsService.Load();
 
+            // Before any window is built: views read their texts once, when created.
+            UiLanguage.Apply(_settings.Language);
             ApplyTheme(_settings.Theme);
 
             var mainWindow = new Views.MainWindow();
@@ -83,6 +85,7 @@ public class App : Application
                 importService: new DocumentImportService())
             {
                 CurrentTheme = _settings.Theme,
+                UiLanguageCode = _settings.Language,
                 EditorMode = _settings.EditorMode,
                 ShowTitleAndToc = _settings.ShowTitleAndToc,
                 SyncScrolling = _settings.SyncScrolling,
@@ -103,6 +106,11 @@ public class App : Application
                 {
                     ApplyTheme(_viewModel.CurrentTheme);
                     _settings.Theme = _viewModel.CurrentTheme;
+                    SaveSettings();
+                }
+                else if (e.PropertyName == nameof(MainWindowViewModel.UiLanguageCode))
+                {
+                    _settings.Language = _viewModel.UiLanguageCode;
                     SaveSettings();
                 }
                 else if (e.PropertyName == nameof(MainWindowViewModel.EditorMode))

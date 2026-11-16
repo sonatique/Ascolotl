@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AddAProfileToGetOne" xml:space="preserve"><value>Ajoutez un profil pour exporter en un clic depuis le menu Exporter.</value></data>
+  <data name="AddProfile" xml:space="preserve"><value>Ajouter un profil</value></data>
+  <data name="AllOpenDocuments" xml:space="preserve"><value>Tous les documents ouverts</value></data>
+  <data name="Ascolotl" xml:space="preserve"><value>Ascolotl</value></data>
+  <data name="AscolotlExportProfiles" xml:space="preserve"><value>Ascolotl — Profils d'export</value></data>
+  <data name="AscolotlFileChanged" xml:space="preserve"><value>Ascolotl — Fichier modifié</value></data>
+  <data name="AscolotlPDFTitle" xml:space="preserve"><value>Ascolotl — Titre du PDF</value></data>
+  <data name="AscolotlRecoverDocuments" xml:space="preserve"><value>Ascolotl — Récupérer des documents</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Annuler</value></data>
+  <data name="ChipHtml" xml:space="preserve"><value>HTML…</value></data>
+  <data name="ChipImport" xml:space="preserve"><value>Importer…</value></data>
+  <data name="ChipMarkdown" xml:space="preserve"><value>Markdown…</value></data>
+  <data name="ChipOpen" xml:space="preserve"><value>Ouvrir…</value></data>
+  <data name="ChipPdf" xml:space="preserve"><value>PDF…</value></data>
+  <data name="ChipPlainText" xml:space="preserve"><value>Texte brut…</value></data>
+  <data name="ChipWordDocument" xml:space="preserve"><value>Document Word…</value></data>
+  <data name="Close" xml:space="preserve"><value>Fermer</value></data>
+  <data name="CloseFolder" xml:space="preserve"><value>Fermer le dossier</value></data>
+  <data name="CloseTab" xml:space="preserve"><value>_Fermer l'onglet</value></data>
+  <data name="CloseTabTooltip" xml:space="preserve"><value>Fermer l'onglet</value></data>
+  <data name="CommandAsciiDocSyntaxReference" xml:space="preserve"><value>Aide-mémoire de la syntaxe AsciiDoc</value></data>
+  <data name="CommandCategoryFile" xml:space="preserve"><value>Fichier</value></data>
+  <data name="CommandCategoryHelp" xml:space="preserve"><value>Aide</value></data>
+  <data name="CommandCategoryImport" xml:space="preserve"><value>Importer</value></data>
+  <data name="CommandCategoryNavigation" xml:space="preserve"><value>Navigation</value></data>
+  <data name="CommandCategoryStyle" xml:space="preserve"><value>Style</value></data>
+  <data name="CommandCategoryTheme" xml:space="preserve"><value>Thème</value></data>
+  <data name="CommandCategoryView" xml:space="preserve"><value>Affichage</value></data>
+  <data name="CommandCloseFolder" xml:space="preserve"><value>Fermer le dossier</value></data>
+  <data name="CommandCloseTab" xml:space="preserve"><value>Fermer l'onglet</value></data>
+  <data name="CommandExportAsDocBook" xml:space="preserve"><value>Exporter en DocBook</value></data>
+  <data name="CommandExportAsEPUB" xml:space="preserve"><value>Exporter en EPUB</value></data>
+  <data name="CommandExportAsEPUBWithStyle" xml:space="preserve"><value>Exporter en EPUB avec un style</value></data>
+  <data name="CommandExportAsHTML" xml:space="preserve"><value>Exporter en HTML</value></data>
+  <data name="CommandExportAsHTMLWithStyle" xml:space="preserve"><value>Exporter en HTML avec un style</value></data>
+  <data name="CommandExportAsPDF" xml:space="preserve"><value>Exporter en PDF</value></data>
+  <data name="CommandExportAsPDFLandscape" xml:space="preserve"><value>Exporter en PDF (paysage)</value></data>
+  <data name="CommandExportAsPDFWithStyle" xml:space="preserve"><value>Exporter en PDF avec un style</value></data>
+  <data name="CommandExportWebsite" xml:space="preserve"><value>Exporter le site web</value></data>
+  <data name="CommandImportHTML" xml:space="preserve"><value>Importer du HTML</value></data>
+  <data name="CommandImportMarkdown" xml:space="preserve"><value>Importer du Markdown</value></data>
+  <data name="CommandImportPDF" xml:space="preserve"><value>Importer un PDF</value></data>
+  <data name="CommandImportPlainText" xml:space="preserve"><value>Importer du texte brut</value></data>
+  <data name="CommandImportWordDocument" xml:space="preserve"><value>Importer un document Word</value></data>
+  <data name="CommandLoadStyle" xml:space="preserve"><value>Charger un style</value></data>
+  <data name="CommandNewDocument" xml:space="preserve"><value>Nouveau document</value></data>
+  <data name="CommandNextTab" xml:space="preserve"><value>Onglet suivant</value></data>
+  <data name="CommandOpenDocument" xml:space="preserve"><value>Ouvrir un document</value></data>
+  <data name="CommandOpenFolder" xml:space="preserve"><value>Ouvrir un dossier</value></data>
+  <data name="CommandPDFTitleFullTitle" xml:space="preserve"><value>Titre du PDF : titre complet</value></data>
+  <data name="CommandPDFTitleUpToFirstColon" xml:space="preserve"><value>Titre du PDF : jusqu'aux premiers deux-points</value></data>
+  <data name="CommandPreviousTab" xml:space="preserve"><value>Onglet précédent</value></data>
+  <data name="CommandRefreshFolder" xml:space="preserve"><value>Actualiser le dossier</value></data>
+  <data name="CommandReopenClosedTab" xml:space="preserve"><value>Rouvrir l'onglet fermé</value></data>
+  <data name="CommandResetZoom" xml:space="preserve"><value>Réinitialiser le zoom</value></data>
+  <data name="CommandSave" xml:space="preserve"><value>Enregistrer</value></data>
+  <data name="CommandSaveAll" xml:space="preserve"><value>Tout enregistrer</value></data>
+  <data name="CommandSaveAs" xml:space="preserve"><value>Enregistrer sous</value></data>
+  <data name="CommandSourceMode" xml:space="preserve"><value>Mode source</value></data>
+  <data name="CommandSplitMode" xml:space="preserve"><value>Mode partagé</value></data>
+  <data name="CommandThemeDark" xml:space="preserve"><value>Thème : sombre</value></data>
+  <data name="CommandThemeLight" xml:space="preserve"><value>Thème : clair</value></data>
+  <data name="CommandThemeSystem" xml:space="preserve"><value>Thème : système</value></data>
+  <data name="CommandToggleEditorWordWrap" xml:space="preserve"><value>Retour à la ligne dans l'éditeur</value></data>
+  <data name="CommandToggleEditPDFTitleBeforeExport" xml:space="preserve"><value>Modifier le titre du PDF avant l'export</value></data>
+  <data name="CommandToggleFitWidth" xml:space="preserve"><value>Ajuster à la largeur</value></data>
+  <data name="CommandToggleOutlinePane" xml:space="preserve"><value>Afficher le plan</value></data>
+  <data name="CommandTogglePagePreview" xml:space="preserve"><value>Aperçu des pages</value></data>
+  <data name="CommandTogglePreviewWordWrap" xml:space="preserve"><value>Retour à la ligne dans l'aperçu</value></data>
+  <data name="CommandToggleSyncScrolling" xml:space="preserve"><value>Défilement synchronisé</value></data>
+  <data name="CommandToggleTitleTOC" xml:space="preserve"><value>Afficher le titre et la table des matières</value></data>
+  <data name="CommandUseBuiltInStyle" xml:space="preserve"><value>Utiliser le style intégré</value></data>
+  <data name="CommandWYSIWYGMode" xml:space="preserve"><value>Mode WYSIWYG</value></data>
+  <data name="CommandZoomIn" xml:space="preserve"><value>Zoom avant</value></data>
+  <data name="CommandZoomOut" xml:space="preserve"><value>Zoom arrière</value></data>
+  <data name="ConvertADocxToAsciiDocImages" xml:space="preserve"><value>Convertir un .docx en AsciiDoc (images extraites à côté)</value></data>
+  <data name="CtrlO" xml:space="preserve"><value>Ctrl O</value></data>
+  <data name="CursorPosition" xml:space="preserve"><value>Li {0}, Col {1}</value></data>
+  <data name="DiagnosticAtLine" xml:space="preserve"><value>Ligne {0} : {1}</value></data>
+  <data name="DialogChooseOutputFolder" xml:space="preserve"><value>Choisir le dossier de destination</value></data>
+  <data name="DialogChooseStyle" xml:space="preserve"><value>Choisir un style</value></data>
+  <data name="DialogExportAs" xml:space="preserve"><value>Exporter en {0}</value></data>
+  <data name="DialogOpenAsciiDocFile" xml:space="preserve"><value>Ouvrir un fichier AsciiDoc</value></data>
+  <data name="DialogOpenFolder" xml:space="preserve"><value>Ouvrir un dossier</value></data>
+  <data name="DialogSaveAsciiDocFile" xml:space="preserve"><value>Enregistrer le fichier AsciiDoc</value></data>
+  <data name="Discard" xml:space="preserve"><value>Abandonner</value></data>
+  <data name="DocBook" xml:space="preserve"><value>_DocBook...</value></data>
+  <data name="DonTSave" xml:space="preserve"><value>Ne pas enregistrer</value></data>
+  <data name="EditBeforeEachPDFExport" xml:space="preserve"><value>_Modifier avant chaque export PDF</value></data>
+  <data name="EditorWordWrap" xml:space="preserve"><value>Retour à la ligne dans l'_éditeur</value></data>
+  <data name="EmptyNextToTheDocument" xml:space="preserve"><value>Vide — à côté du document</value></data>
+  <data name="EPUB" xml:space="preserve"><value>_EPUB...</value></data>
+  <data name="Exit" xml:space="preserve"><value>_Quitter</value></data>
+  <data name="Export" xml:space="preserve"><value>E_xporter</value></data>
+  <data name="ExportFailed" xml:space="preserve"><value>L'export {0} a échoué.</value></data>
+  <data name="ExportFailedTitle" xml:space="preserve"><value>Échec de l'export</value></data>
+  <data name="ExportFailedWithReason" xml:space="preserve"><value>L'export {0} a échoué : {1}</value></data>
+  <data name="ExportFileInUse" xml:space="preserve"><value>{0} est ouvert dans un autre programme et ne peut pas être remplacé. Fermez-le, puis exportez à nouveau.</value></data>
+  <data name="ExportFileNotCreated" xml:space="preserve"><value>Le fichier {0} n'a pas été créé.</value></data>
+  <data name="ExportLabel" xml:space="preserve"><value>Exporter</value></data>
+  <data name="ExportStyleNotFound" xml:space="preserve"><value>Style introuvable : {0}</value></data>
+  <data name="ExportTheWholeProjectFolderAs" xml:space="preserve"><value>Exporter tout le dossier du projet en site HTML avec liens</value></data>
+  <data name="ExportUnsupportedFormat" xml:space="preserve"><value>Format d'export non pris en charge : {0}</value></data>
+  <data name="File" xml:space="preserve"><value>_Fichier</value></data>
+  <data name="FileConflictMessage" xml:space="preserve"><value>« {0} » a été modifié en dehors d'Ascolotl. Que voulez-vous faire ?</value></data>
+  <data name="Files" xml:space="preserve"><value>Fichiers</value></data>
+  <data name="FileTypeAsciiDoc" xml:space="preserve"><value>Fichiers AsciiDoc</value></data>
+  <data name="FileTypeText" xml:space="preserve"><value>Fichiers texte</value></data>
+  <data name="FilterDocBook" xml:space="preserve"><value>DocBook XML</value></data>
+  <data name="FilterEpub" xml:space="preserve"><value>Livre EPUB</value></data>
+  <data name="FilterFile" xml:space="preserve"><value>Fichier</value></data>
+  <data name="FilterHtml" xml:space="preserve"><value>Document HTML</value></data>
+  <data name="FilterPdf" xml:space="preserve"><value>Document PDF</value></data>
+  <data name="FilterPdfTheme" xml:space="preserve"><value>Thème asciidoctor-pdf</value></data>
+  <data name="FitWidth" xml:space="preserve"><value>A_juster à la largeur</value></data>
+  <data name="FlowThePreviewIntoA4Pages" xml:space="preserve"><value>Répartir l'aperçu en pages A4, comme l'export PDF</value></data>
+  <data name="Format" xml:space="preserve"><value>Format</value></data>
+  <data name="FormatPdfLandscape" xml:space="preserve"><value>PDF (paysage)</value></data>
+  <data name="FormatPlainText" xml:space="preserve"><value>Texte brut</value></data>
+  <data name="FormatWordDocument" xml:space="preserve"><value>Document Word</value></data>
+  <data name="FullTitle" xml:space="preserve"><value>Titre _complet</value></data>
+  <data name="GestureClick" xml:space="preserve"><value>clic</value></data>
+  <data name="GestureDoubleClick" xml:space="preserve"><value>double-clic</value></data>
+  <data name="HamburgerMenu" xml:space="preserve"><value>Menu _hamburger</value></data>
+  <data name="HintAdmonition" xml:space="preserve"><value>Avertissement ({0})</value></data>
+  <data name="HintAttributeEntry" xml:space="preserve"><value>Définition d'attribut du document — :nom: valeur</value></data>
+  <data name="HintAttributeReference" xml:space="preserve"><value>Référence d'attribut — {nom}</value></data>
+  <data name="HintBlockAttributeList" xml:space="preserve"><value>Liste d'attributs du bloc</value></data>
+  <data name="HintBlockImage" xml:space="preserve"><value>Image en bloc — image::chemin[alt]</value></data>
+  <data name="HintComment" xml:space="preserve"><value>Commentaire (non affiché)</value></data>
+  <data name="HintDocumentTitle" xml:space="preserve"><value>Titre du document</value></data>
+  <data name="HintExampleDelimiter" xml:space="preserve"><value>Délimiteur de bloc d'exemple</value></data>
+  <data name="HintListingDelimiter" xml:space="preserve"><value>Délimiteur de bloc de code</value></data>
+  <data name="HintLiteralDelimiter" xml:space="preserve"><value>Délimiteur de bloc littéral</value></data>
+  <data name="HintOrderedListItem" xml:space="preserve"><value>Élément de liste numérotée</value></data>
+  <data name="HintPassthroughDelimiter" xml:space="preserve"><value>Délimiteur de bloc brut</value></data>
+  <data name="HintQuoteDelimiter" xml:space="preserve"><value>Délimiteur de citation</value></data>
+  <data name="HintRowMissingCells" xml:space="preserve"><value>Cette ligne remplit {0} des {1} cellules dont la grille a besoin ici. Ajoutez {2} cellules (tapez {2} « | » de plus) à cette ligne — ou réduisez une fusion de lignes trop grande (une cellule « .N+ ») au-dessus.</value></data>
+  <data name="HintRowMissingOneCell" xml:space="preserve"><value>Cette ligne remplit {0} des {1} cellules dont la grille a besoin ici. Ajoutez 1 cellule (tapez 1 « | » de plus) à cette ligne — ou réduisez une fusion de lignes trop grande (une cellule « .N+ ») au-dessus.</value></data>
+  <data name="HintSectionHeading" xml:space="preserve"><value>Titre de section (niveau {0})</value></data>
+  <data name="HintSidebarDelimiter" xml:space="preserve"><value>Délimiteur d'encadré</value></data>
+  <data name="HintSourceAttributes" xml:space="preserve"><value>Attributs du bloc de code — [source,langage]</value></data>
+  <data name="HintTable" xml:space="preserve"><value>Tableau — Tab : nouvelle cellule · Entrée : nouvelle ligne · clic droit dans l'aperçu pour ajouter ou supprimer des colonnes</value></data>
+  <data name="HintTableDelimiter" xml:space="preserve"><value>Délimiteur de tableau</value></data>
+  <data name="HintUnorderedListItem" xml:space="preserve"><value>Élément de liste à puces</value></data>
+  <data name="HTML" xml:space="preserve"><value>_HTML...</value></data>
+  <data name="ImagesNotCopied" xml:space="preserve"><value>{0} a été enregistré, mais ses images n'ont pas pu être copiées : {1}</value></data>
+  <data name="ImagesNotCopiedTitle" xml:space="preserve"><value>Images non copiées</value></data>
+  <data name="ImagesNotReplaced" xml:space="preserve"><value>{0} a été enregistré, mais ces fichiers existaient déjà et ont été conservés ; le document risque de les afficher à la place des images importées :
+{1}</value></data>
+  <data name="ImagesNotReplacedTitle" xml:space="preserve"><value>Images non remplacées</value></data>
+  <data name="Import" xml:space="preserve"><value>_Importer</value></data>
+  <data name="ImportCouldNotRead" xml:space="preserve"><value>Impossible de lire {0}.</value></data>
+  <data name="ImportCouldNotReadConverted" xml:space="preserve"><value>Impossible de lire le texte converti : {0}</value></data>
+  <data name="ImportDialogTitle" xml:space="preserve"><value>Importer : {0}</value></data>
+  <data name="ImportDocumentFallback" xml:space="preserve"><value>document</value></data>
+  <data name="ImportFailed" xml:space="preserve"><value>L'import a échoué</value></data>
+  <data name="ImportFailedTitle" xml:space="preserve"><value>Échec de l'import</value></data>
+  <data name="ImportFailedWithReason" xml:space="preserve"><value>L'import {0} a échoué : {1}</value></data>
+  <data name="ImportFullyMapped" xml:space="preserve"><value>entièrement converti</value></data>
+  <data name="ImportImages" xml:space="preserve"><value>{0} images</value></data>
+  <data name="ImportNotes" xml:space="preserve"><value>{0} remarques</value></data>
+  <data name="ImportNotReadable" xml:space="preserve"><value>Fichier {0} illisible : {1}</value></data>
+  <data name="ImportOneImage" xml:space="preserve"><value>1 image</value></data>
+  <data name="ImportOneNote" xml:space="preserve"><value>1 remarque</value></data>
+  <data name="ImportOneTable" xml:space="preserve"><value>1 tableau</value></data>
+  <data name="ImportPercentMapped" xml:space="preserve"><value>{0} % converti</value></data>
+  <data name="ImportSummaryLine" xml:space="preserve"><value>{0} importé — {1}</value></data>
+  <data name="ImportTables" xml:space="preserve"><value>{0} tableaux</value></data>
+  <data name="InlineApply" xml:space="preserve"><value>✓ Appliquer</value></data>
+  <data name="InlineApplyTip" xml:space="preserve"><value>Appliquer (Ctrl+Entrée)</value></data>
+  <data name="InlineCancel" xml:space="preserve"><value>✕ Annuler</value></data>
+  <data name="InlineCancelTip" xml:space="preserve"><value>Annuler (Échap)</value></data>
+  <data name="InsertBulletedList" xml:space="preserve"><value>Liste à puces</value></data>
+  <data name="InsertCodeBlock" xml:space="preserve"><value>Bloc de code</value></data>
+  <data name="InsertHeadingH2" xml:space="preserve"><value>Titre (H2)</value></data>
+  <data name="InsertHeadingH3" xml:space="preserve"><value>Titre (H3)</value></data>
+  <data name="InsertHorizontalRule" xml:space="preserve"><value>Ligne horizontale</value></data>
+  <data name="InsertNote" xml:space="preserve"><value>Remarque</value></data>
+  <data name="InsertNumberedList" xml:space="preserve"><value>Liste numérotée</value></data>
+  <data name="InsertParagraph" xml:space="preserve"><value>Paragraphe</value></data>
+  <data name="InsertTable" xml:space="preserve"><value>Tableau</value></data>
+  <data name="LanguageAppliesAfterRestart" xml:space="preserve"><value>Redémarrez Ascolotl pour afficher la nouvelle langue.</value></data>
+  <data name="LanguageEnglish" xml:space="preserve"><value>English</value></data>
+  <data name="LanguageFrench" xml:space="preserve"><value>Français</value></data>
+  <data name="LanguageGerman" xml:space="preserve"><value>Deutsch</value></data>
+  <data name="LanguageMenu" xml:space="preserve"><value>Lan_gue</value></data>
+  <data name="LanguageSystemDefault" xml:space="preserve"><value>Langue du système</value></data>
+  <data name="ListAnd" xml:space="preserve"><value> et </value></data>
+  <data name="Ln1Col1" xml:space="preserve"><value>Li 1, Col 1</value></data>
+  <data name="LoadStyle" xml:space="preserve"><value>_Charger un style...</value></data>
+  <data name="MainMenuName" xml:space="preserve"><value>Menu principal</value></data>
+  <data name="ManageProfiles" xml:space="preserve"><value>_Gérer les profils...</value></data>
+  <data name="Markdown" xml:space="preserve"><value>_Markdown...</value></data>
+  <data name="Menu" xml:space="preserve"><value>Menu</value></data>
+  <data name="MenuColumn" xml:space="preserve"><value>Colonne</value></data>
+  <data name="MenuDeleteBlock" xml:space="preserve"><value>Supprimer le bloc</value></data>
+  <data name="MenuDeleteColumn" xml:space="preserve"><value>Supprimer la colonne</value></data>
+  <data name="MenuDeleteRow" xml:space="preserve"><value>Supprimer la ligne</value></data>
+  <data name="MenuDuplicateBlock" xml:space="preserve"><value>Dupliquer le bloc</value></data>
+  <data name="MenuEditBlock" xml:space="preserve"><value>Modifier le bloc ({0})</value></data>
+  <data name="MenuEditCellContent" xml:space="preserve"><value>Modifier le contenu de la cellule ({0})</value></data>
+  <data name="MenuEditTableSource" xml:space="preserve"><value>Modifier la source du tableau</value></data>
+  <data name="MenuExportPdf" xml:space="preserve"><value>_PDF...</value></data>
+  <data name="MenuImportPdf" xml:space="preserve"><value>P_DF...</value></data>
+  <data name="MenuInsertAbove" xml:space="preserve"><value>Insérer au-dessus</value></data>
+  <data name="MenuInsertBelow" xml:space="preserve"><value>Insérer en dessous</value></data>
+  <data name="MenuInsertLeft" xml:space="preserve"><value>Insérer à gauche</value></data>
+  <data name="MenuInsertRight" xml:space="preserve"><value>Insérer à droite</value></data>
+  <data name="MenuMerge" xml:space="preserve"><value>Fusionner</value></data>
+  <data name="MenuMergeDown" xml:space="preserve"><value>Fusionner vers le bas</value></data>
+  <data name="MenuMergeRight" xml:space="preserve"><value>Fusionner vers la droite</value></data>
+  <data name="MenuRow" xml:space="preserve"><value>Ligne</value></data>
+  <data name="MenuSplitCell" xml:space="preserve"><value>Scinder la cellule</value></data>
+  <data name="ModeSource" xml:space="preserve"><value>Source</value></data>
+  <data name="ModeSplit" xml:space="preserve"><value>Partagé</value></data>
+  <data name="ModeWysiwyg" xml:space="preserve"><value>WYSIWYG</value></data>
+  <data name="Name" xml:space="preserve"><value>Nom</value></data>
+  <data name="New" xml:space="preserve"><value>_Nouveau</value></data>
+  <data name="NewFile" xml:space="preserve"><value>Nouveau fichier</value></data>
+  <data name="OK" xml:space="preserve"><value>OK</value></data>
+  <data name="Open" xml:space="preserve"><value>_Ouvrir...</value></data>
+  <data name="OpenADocumentImportOneOr" xml:space="preserve"><value>Ouvrez un document, importez-en un, ou commencez simplement à écrire.</value></data>
+  <data name="OpenFolder" xml:space="preserve"><value>Ouvrir un _dossier...</value></data>
+  <data name="Outline" xml:space="preserve"><value>Plan</value></data>
+  <data name="OutputFolder" xml:space="preserve"><value>Dossier de destination</value></data>
+  <data name="Overwrite" xml:space="preserve"><value>Écraser</value></data>
+  <data name="PagePreview" xml:space="preserve"><value>_Aperçu des pages</value></data>
+  <data name="PDFLandscape" xml:space="preserve"><value>PDF (pa_ysage)...</value></data>
+  <data name="PDFTitle" xml:space="preserve"><value>_Titre du PDF</value></data>
+  <data name="PlainText" xml:space="preserve"><value>_Texte brut...</value></data>
+  <data name="Press" xml:space="preserve"><value>appuyez sur</value></data>
+  <data name="PreviewWordWrap" xml:space="preserve"><value>Retour à la lig_ne dans l'aperçu</value></data>
+  <data name="ProfileNew" xml:space="preserve"><value>Nouveau profil</value></data>
+  <data name="ProfileNextToDocument" xml:space="preserve"><value>à côté du document</value></data>
+  <data name="ProfileNumbered" xml:space="preserve"><value>Profil {0}</value></data>
+  <data name="ProfileUnnamed" xml:space="preserve"><value>Sans nom</value></data>
+  <data name="Ready" xml:space="preserve"><value>Prêt</value></data>
+  <data name="ReadyWhenYouAre" xml:space="preserve"><value>Prêt quand vous l'êtes</value></data>
+  <data name="RecentFiles" xml:space="preserve"><value>Fichiers _récents</value></data>
+  <data name="Recover" xml:space="preserve"><value>Récupérer</value></data>
+  <data name="RecoverHeadingsTextTablesAndNotes" xml:space="preserve"><value>Récupérer titres, texte, tableaux et remarques d'un PDF (mise en page approximative)</value></data>
+  <data name="RecoveryFoundMany" xml:space="preserve"><value>Ascolotl a trouvé {0} documents non enregistrés lors d'une session précédente.</value></data>
+  <data name="RecoveryFoundOne" xml:space="preserve"><value>Ascolotl a trouvé 1 document non enregistré lors d'une session précédente.</value></data>
+  <data name="Reload" xml:space="preserve"><value>Recharger</value></data>
+  <data name="RemoveSelectedProfile" xml:space="preserve"><value>Supprimer le profil sélectionné</value></data>
+  <data name="ReopenClosedTab" xml:space="preserve"><value>Rou_vrir l'onglet fermé</value></data>
+  <data name="ResetZoom" xml:space="preserve"><value>Réinitialiser le _zoom</value></data>
+  <data name="Save" xml:space="preserve"><value>_Enregistrer</value></data>
+  <data name="SaveAll" xml:space="preserve"><value>_Tout enregistrer</value></data>
+  <data name="SaveAs" xml:space="preserve"><value>Enregistrer _sous...</value></data>
+  <data name="SaveAsButton" xml:space="preserve"><value>Enregistrer sous...</value></data>
+  <data name="SaveButton" xml:space="preserve"><value>Enregistrer</value></data>
+  <data name="SaveConfirmationMessage" xml:space="preserve"><value>Voulez-vous enregistrer les modifications de « {0} » ?</value></data>
+  <data name="SaveCouldNotSave" xml:space="preserve"><value>Impossible d'enregistrer {0} : {1}</value></data>
+  <data name="SaveFailedTitle" xml:space="preserve"><value>Échec de l'enregistrement</value></data>
+  <data name="SearchAsciiDocSyntaxEnterInserts" xml:space="preserve"><value>Rechercher dans la syntaxe AsciiDoc... (Entrée insère)</value></data>
+  <data name="ShowTitleTOC" xml:space="preserve"><value>Afficher le _titre et la table des matières</value></data>
+  <data name="SourceMode" xml:space="preserve"><value>Mode _source</value></data>
+  <data name="Split" xml:space="preserve"><value>Partagé</value></data>
+  <data name="SplitMode" xml:space="preserve"><value>Mode _partagé</value></data>
+  <data name="StatsOneWord" xml:space="preserve"><value>1 mot</value></data>
+  <data name="StatsTooltip" xml:space="preserve"><value>≈ {0} min de lecture · {1:N0} caractères</value></data>
+  <data name="StatsWords" xml:space="preserve"><value>{0:N0} mots</value></data>
+  <data name="StatusAllSaved" xml:space="preserve"><value>Tous les documents sont enregistrés</value></data>
+  <data name="StatusBlockFromInclude" xml:space="preserve"><value>Ce bloc ne peut pas être modifié sur place (il provient d'un include)</value></data>
+  <data name="StatusBlockFromIncludeCannotModify" xml:space="preserve"><value>Ce bloc provient d'un include et ne peut pas être modifié ici</value></data>
+  <data name="StatusBlockUpdated" xml:space="preserve"><value>Bloc mis à jour</value></data>
+  <data name="StatusCellFromInclude" xml:space="preserve"><value>Cette cellule ne peut pas être modifiée sur place (elle provient d'un include)</value></data>
+  <data name="StatusCellsMerged" xml:space="preserve"><value>Cellules fusionnées</value></data>
+  <data name="StatusCellSplit" xml:space="preserve"><value>Cellule scindée</value></data>
+  <data name="StatusColumnDeleted" xml:space="preserve"><value>Colonne supprimée</value></data>
+  <data name="StatusColumnInserted" xml:space="preserve"><value>Colonne insérée</value></data>
+  <data name="StatusCouldNotOpen" xml:space="preserve"><value>Impossible d'ouvrir : {0}</value></data>
+  <data name="StatusCouldNotReadFolder" xml:space="preserve"><value>Impossible de lire le dossier : {0}</value></data>
+  <data name="StatusEditCancelled" xml:space="preserve"><value>Modification annulée</value></data>
+  <data name="StatusEditDiscarded" xml:space="preserve"><value>Modification abandonnée — le document a changé pendant que le bloc était ouvert</value></data>
+  <data name="StatusEditingBlock" xml:space="preserve"><value>Modification du bloc — Appliquer (Ctrl+Entrée) ou cliquer ailleurs pour valider, Échap pour annuler</value></data>
+  <data name="StatusEditingCell" xml:space="preserve"><value>Modification de la cellule — Appliquer (Ctrl+Entrée) ou cliquer ailleurs pour valider, Échap pour annuler</value></data>
+  <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Modifiez la source du tableau pour cette mise en page</value></data>
+  <data name="StatusExportedTo" xml:space="preserve"><value>Exporté vers {0}</value></data>
+  <data name="StatusExporting" xml:space="preserve"><value>Export {0}...</value></data>
+  <data name="StatusExportingWebsite" xml:space="preserve"><value>Export du site web...</value></data>
+  <data name="StatusFileNotFound" xml:space="preserve"><value>Fichier introuvable : {0}</value></data>
+  <data name="StatusFolderClosed" xml:space="preserve"><value>Dossier fermé</value></data>
+  <data name="StatusFolderHasNoDocuments" xml:space="preserve"><value>Le dossier du projet ne contient aucun document AsciiDoc</value></data>
+  <data name="StatusFolderLarge" xml:space="preserve"><value>Dossier volumineux — seuls les {0:N0} premiers documents sont affichés</value></data>
+  <data name="StatusFolderNotFound" xml:space="preserve"><value>Dossier introuvable : {0}</value></data>
+  <data name="StatusFolderOpened" xml:space="preserve"><value>Dossier ouvert : {0}</value></data>
+  <data name="StatusImported" xml:space="preserve"><value>{0} importé</value></data>
+  <data name="StatusImporting" xml:space="preserve"><value>Import de {0}...</value></data>
+  <data name="StatusNewDocument" xml:space="preserve"><value>Nouveau document créé</value></data>
+  <data name="StatusOpened" xml:space="preserve"><value>{0} ouvert</value></data>
+  <data name="StatusPagePreviewFailed" xml:space="preserve"><value>L'aperçu des pages a échoué : {0}</value></data>
+  <data name="StatusPreviewRenderFailed" xml:space="preserve"><value>Le rendu de l'aperçu a échoué : {0}</value></data>
+  <data name="StatusPreviewUpdating" xml:space="preserve"><value>L'aperçu se met à jour — réessayez</value></data>
+  <data name="StatusRecovered" xml:space="preserve"><value>{0} document(s) récupéré(s)</value></data>
+  <data name="StatusReloaded" xml:space="preserve"><value>{0} rechargé depuis le disque</value></data>
+  <data name="StatusRenderComplete" xml:space="preserve"><value>Rendu terminé</value></data>
+  <data name="StatusRenderFailed" xml:space="preserve"><value>Le rendu a échoué : {0}</value></data>
+  <data name="StatusRowDeleted" xml:space="preserve"><value>Ligne supprimée</value></data>
+  <data name="StatusRowInserted" xml:space="preserve"><value>Ligne insérée</value></data>
+  <data name="StatusSaved" xml:space="preserve"><value>{0} enregistré</value></data>
+  <data name="StatusSessionRestored" xml:space="preserve"><value>Session restaurée ({0} document(s))</value></data>
+  <data name="StatusStyle" xml:space="preserve"><value>Style : {0}</value></data>
+  <data name="StatusStyleBuiltIn" xml:space="preserve"><value>Style : intégré</value></data>
+  <data name="StatusSwitchedTo" xml:space="preserve"><value>Basculé vers {0}</value></data>
+  <data name="StatusSwitchModeToInsert" xml:space="preserve"><value>Passez en mode source ou partagé pour insérer de la syntaxe</value></data>
+  <data name="StatusTableEditFailed" xml:space="preserve"><value>La modification du tableau a échoué : {0}</value></data>
+  <data name="StatusTableNotEditable" xml:space="preserve"><value>Ce tableau ne peut pas être modifié ici</value></data>
+  <data name="StatusWebsiteExported" xml:space="preserve"><value>Site web exporté — {0} page(s) → {1}</value></data>
+  <data name="Style" xml:space="preserve"><value>_Style</value></data>
+  <data name="StyleBuiltIn" xml:space="preserve"><value>Intégré</value></data>
+  <data name="StyleCurrent" xml:space="preserve"><value>Actuel : {0}</value></data>
+  <data name="StylesHTMLAndPDFOutputConsistently" xml:space="preserve"><value>Met en forme le HTML et le PDF de façon cohérente</value></data>
+  <data name="SyncScrolling" xml:space="preserve"><value>_Défilement synchronisé</value></data>
+  <data name="TabNotSavedYet" xml:space="preserve"><value>Pas encore enregistré</value></data>
+  <data name="TabRecovered" xml:space="preserve"><value>[Récupéré] {0}</value></data>
+  <data name="Theme" xml:space="preserve"><value>Thème</value></data>
+  <data name="ThemeClean" xml:space="preserve"><value>Épuré</value></data>
+  <data name="ThemeDark" xml:space="preserve"><value>Thème : s_ombre</value></data>
+  <data name="ThemeLight" xml:space="preserve"><value>Thème : _clair</value></data>
+  <data name="ThemeSystem" xml:space="preserve"><value>Thème : s_ystème</value></data>
+  <data name="TitleStoredInThePDFS" xml:space="preserve"><value>Titre enregistré dans les propriétés du PDF :</value></data>
+  <data name="ToggleOutline" xml:space="preserve"><value>Afficher le p_lan</value></data>
+  <data name="ToOpenAFile" xml:space="preserve"><value>pour ouvrir un fichier</value></data>
+  <data name="TypeACommand" xml:space="preserve"><value>Tapez une commande...</value></data>
+  <data name="Untitled" xml:space="preserve"><value>Sans titre {0}</value></data>
+  <data name="UpToFirstColon" xml:space="preserve"><value>_Jusqu'aux premiers deux-points</value></data>
+  <data name="UseBuiltInStyle" xml:space="preserve"><value>Utiliser le style _intégré</value></data>
+  <data name="UTF8" xml:space="preserve"><value>UTF-8</value></data>
+  <data name="View" xml:space="preserve"><value>_Affichage</value></data>
+  <data name="Website" xml:space="preserve"><value>Site _web...</value></data>
+  <data name="WebsiteExportFailed" xml:space="preserve"><value>L'export du site web a échoué</value></data>
+  <data name="WebsiteExportFailedWithReason" xml:space="preserve"><value>L'export du site web a échoué : {0}</value></data>
+  <data name="WebsiteNameClash" xml:space="preserve"><value>{0} deviendraient tous deux {1}. Renommez l'un d'eux, puis exportez à nouveau.</value></data>
+  <data name="WebsiteNoDocuments" xml:space="preserve"><value>Le projet ne contient aucun document à exporter.</value></data>
+  <data name="WithAnotherStyle" xml:space="preserve"><value>Avec un autre _style</value></data>
+  <data name="WordDocument" xml:space="preserve"><value>Document _Word...</value></data>
+  <data name="WouldYouLikeToRecoverThese" xml:space="preserve"><value>Voulez-vous récupérer ces documents ?</value></data>
+  <data name="WYSIWYGMode" xml:space="preserve"><value>Mode _WYSIWYG</value></data>
+  <data name="ZoomFit" xml:space="preserve"><value>Ajusté</value></data>
+  <data name="ZoomIn" xml:space="preserve"><value>Zoom a_vant</value></data>
+  <data name="ZoomOut" xml:space="preserve"><value>Zoom a_rrière</value></data>
+</root>

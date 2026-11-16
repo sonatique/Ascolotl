@@ -1,4 +1,5 @@
-using Avalonia.Controls;
+using Avalonia.Controls;
+using Ascolotl.Core.Resources;
 
 namespace Ascolotl.App.Views;
 
@@ -13,8 +14,9 @@ public partial class RecoveryDialog : Window
 
     public RecoveryDialog(int documentCount) : this()
     {
-        var plural = documentCount == 1 ? "document" : "documents";
-        MessageText.Text = $"Ascolotl found {documentCount} unsaved {plural} from a previous session.";
+        MessageText.Text = documentCount == 1
+            ? Strings.RecoveryFoundOne
+            : string.Format(Strings.RecoveryFoundMany, documentCount);
     }
 
     private void OnRecoverClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

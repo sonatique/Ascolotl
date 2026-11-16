@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Ascolotl.Core.Editing;
 using Ascolotl.Core.Models;
+using Ascolotl.Core.Resources;
 using Ascolotl.Core.Services;
 
 namespace Ascolotl.Core.ViewModels;
@@ -38,7 +39,7 @@ public partial class MainWindowViewModel : ObservableObject
     private AppTheme _currentTheme;
 
     [ObservableProperty]
-    private string _statusText = "Ready";
+    private string _statusText = Strings.Ready;
 
     [ObservableProperty]
     private EditorMode _editorMode = EditorMode.Split;
@@ -98,7 +99,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     /// <summary>Style-menu line naming the active style ("_" doubled: it marks access keys).</summary>
     public string StyleMenuHeader =>
-        $"Current: {(StylePath is null ? "Built-in" : Path.GetFileName(StylePath).Replace("_", "__"))}";
+        string.Format(Strings.StyleCurrent, StylePath is null ? Strings.StyleBuiltIn : Path.GetFileName(StylePath).Replace("_", "__"));
 
     public ObservableCollection<OutlineItem> OutlineItems { get; } = [];
 
@@ -129,6 +130,14 @@ public partial class MainWindowViewModel : ObservableObject
     public bool IsThemeLight => CurrentTheme == AppTheme.Light;
     public bool IsThemeDark => CurrentTheme == AppTheme.Dark;
     public bool IsThemeSystem => CurrentTheme == AppTheme.System;
+    public bool IsLanguageSystem => UiLanguageCode == "";
+    public bool IsLanguageEnglish => UiLanguageCode == "en";
+    public bool IsLanguageFrench => UiLanguageCode == "fr";
+    public bool IsLanguageGerman => UiLanguageCode == "de";
+
+    /// <summary>Interface language code, or "" for the system's. Takes effect at the next start.</summary>
+    [ObservableProperty]
+    private string _uiLanguageCode = "";
 
     public ObservableCollection<DocumentViewModel> Documents { get; } = [];
     public ObservableCollection<string> RecentFiles { get; } = [];
@@ -340,8 +349,8 @@ public partial class MainWindowViewModel : ObservableObject
         // Do NOT ClearAll here — recovery data stays on disk as a safety net
         // until each document is explicitly saved (RemoveRecoverySnapshot) or
         // the app shuts down cleanly (CleanupRecoveryOnShutdown).
-        _log?.Info($"Recovered {recovered} document(s)");
-        StatusText = $"Recovered {recovered} document(s)";
+        _log?.Info(string.Format(Strings.StatusRecovered, recovered));
+        StatusText = string.Format(Strings.StatusRecovered, recovered);
         return true;
     }
 
@@ -403,7 +412,7 @@ public partial class MainWindowViewModel : ObservableObject
         if (Documents.Count > 0)
         {
             _log?.Info($"Restored session with {Documents.Count} document(s)");
-            StatusText = $"Session restored ({Documents.Count} document(s))";
+            StatusText = string.Format(Strings.StatusSessionRestored, Documents.Count);
         }
     }
 
@@ -458,7 +467,7 @@ public partial class MainWindowViewModel : ObservableObject
         var doc = DocumentViewModel.CreateNew();
         Documents.Add(doc);
         SelectedDocument = doc;
-        StatusText = "New document created";
+        StatusText = Strings.StatusNewDocument;
         NewDocumentCreated?.Invoke();
     }
 
@@ -471,7 +480,7 @@ public partial class MainWindowViewModel : ObservableObject
 
         if (result.Value.Content is not { } content)
         {
-            StatusText = $"Could not open: {Path.GetFileName(result.Value.Path)}";
+            StatusText = string.Format(Strings.StatusCouldNotOpen, Path.GetFileName(result.Value.Path));
             return;
         }
 
@@ -489,7 +498,7 @@ public partial class MainWindowViewModel : ObservableObject
         if (existing is not null)
         {
             SelectedDocument = existing;
-            StatusText = $"Switched to {existing.DisplayName}";
+            StatusText = string.Format(Strings.StatusSwitchedTo, existing.DisplayName);
             return;
         }
 
@@ -499,12 +508,12 @@ public partial class MainWindowViewModel : ObservableObject
             // Only a vanished file leaves the list; a locked one stays.
             if (File.Exists(path))
             {
-                StatusText = $"Could not open: {Path.GetFileName(path)}";
+                StatusText = string.Format(Strings.StatusCouldNotOpen, Path.GetFileName(path));
                 return;
             }
             RecentFiles.Remove(path);
             RecentFilesChanged?.Invoke();
-            StatusText = $"File not found: {Path.GetFileName(path)}";
+            StatusText = string.Format(Strings.StatusFileNotFound, Path.GetFileName(path));
             return;
         }
 
@@ -525,14 +534,14 @@ public partial class MainWindowViewModel : ObservableObject
         if (existing is not null)
         {
             SelectedDocument = existing;
-            StatusText = $"Switched to {existing.DisplayName}";
+            StatusText = string.Format(Strings.StatusSwitchedTo, existing.DisplayName);
             return;
         }
 
         var content = await _fileService.ReadFileAsync(path);
         if (content is null)
         {
-            StatusText = $"Could not open: {Path.GetFileName(path)}";
+            StatusText = string.Format(Strings.StatusCouldNotOpen, Path.GetFileName(path));
             return;
         }
 
@@ -546,7 +555,7 @@ public partial class MainWindowViewModel : ObservableObject
         if (existing is not null)
         {
             SelectedDocument = existing;
-            StatusText = $"Switched to {existing.DisplayName}";
+            StatusText = string.Format(Strings.StatusSwitchedTo, existing.DisplayName);
             return;
         }
 
@@ -565,7 +574,7 @@ public partial class MainWindowViewModel : ObservableObject
         Documents.Add(doc);
         SelectedDocument = doc;
         AddRecentFile(path);
-        StatusText = $"Opened {doc.DisplayName}";
+        StatusText = string.Format(Strings.StatusOpened, doc.DisplayName);
     }
 
     // --- Import ---
@@ -582,23 +591,23 @@ public partial class MainWindowViewModel : ObservableObject
             return;
 
         var sourcePath = await _fileService.PickOpenFilePathAsync(
-            $"Import {format.DisplayName()}", format.DisplayName(), format.Patterns());
+            string.Format(Strings.ImportDialogTitle, format.DisplayName()), format.DisplayName(), format.Patterns());
         if (sourcePath is null)
             return;
 
         var name = Path.GetFileNameWithoutExtension(sourcePath);
-        StatusText = $"Importing {Path.GetFileName(sourcePath)}...";
+        StatusText = string.Format(Strings.StatusImporting, Path.GetFileName(sourcePath));
 
         if (format == ImportFormat.PlainText)
         {
             var text = await _fileService.ReadFileAsync(sourcePath);
             if (text is null)
             {
-                await ReportFailureAsync("Import Failed", $"Could not read {Path.GetFileName(sourcePath)}.");
+                await ReportFailureAsync(Strings.ImportFailedTitle, string.Format(Strings.ImportCouldNotRead, Path.GetFileName(sourcePath)));
                 return;
             }
             OpenImported(name, PlainTextImport.ToAsciiDoc(text.Text, name), assetDirectory: null);
-            StatusText = $"Imported {Path.GetFileName(sourcePath)}";
+            StatusText = string.Format(Strings.StatusImported, Path.GetFileName(sourcePath));
             return;
         }
 
@@ -616,14 +625,14 @@ public partial class MainWindowViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            outcome = ImportOutcome.Failure($"Could not read the converted text: {ex.Message}", ex);
+            outcome = ImportOutcome.Failure(string.Format(Strings.ImportCouldNotReadConverted, ex.Message), ex);
             source = "";
         }
         if (!outcome.IsSuccess)
         {
             DeleteAssets(workDir);
             _log?.Error($"Import of {sourcePath} failed: {outcome.ErrorMessage}", outcome.Exception);
-            await ReportFailureAsync("Import Failed", ImportSummary.Describe(outcome));
+            await ReportFailureAsync(Strings.ImportFailedTitle, ImportSummary.Describe(outcome));
             return;
         }
 
@@ -702,7 +711,7 @@ public partial class MainWindowViewModel : ObservableObject
     {
         if (!Directory.Exists(folder))
         {
-            StatusText = $"Folder not found: {folder}";
+            StatusText = string.Format(Strings.StatusFolderNotFound, folder);
             ProjectFolderPath = null;
             return;
         }
@@ -711,7 +720,7 @@ public partial class MainWindowViewModel : ObservableObject
         RefreshProjectTree();
         ShowOutlinePane = true;
         SidebarFilesActive = true;
-        StatusText = $"Folder opened: {Path.GetFileName(folder)}";
+        StatusText = string.Format(Strings.StatusFolderOpened, Path.GetFileName(folder));
         _log?.Info($"Project folder opened: {folder}");
     }
 
@@ -720,7 +729,7 @@ public partial class MainWindowViewModel : ObservableObject
     {
         ProjectFolderPath = null;
         ProjectRoots.Clear();
-        StatusText = "Folder closed";
+        StatusText = Strings.StatusFolderClosed;
     }
 
     [RelayCommand]
@@ -745,11 +754,11 @@ public partial class MainWindowViewModel : ObservableObject
                 ProjectRoots.Add(node);
 
             if (capped)
-                StatusText = $"Folder is large — showing the first {MaxProjectFiles:N0} documents";
+                StatusText = string.Format(Strings.StatusFolderLarge, MaxProjectFiles);
         }
         catch (Exception ex)
         {
-            StatusText = $"Could not read folder: {ex.Message}";
+            StatusText = string.Format(Strings.StatusCouldNotReadFolder, ex.Message);
             _log?.Error("Project tree refresh failed", ex);
         }
     }
@@ -783,13 +792,13 @@ public partial class MainWindowViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            StatusText = $"Could not read folder: {ex.Message}";
+            StatusText = string.Format(Strings.StatusCouldNotReadFolder, ex.Message);
             return;
         }
 
         if (docs.Count == 0)
         {
-            StatusText = "The project folder has no AsciiDoc documents";
+            StatusText = Strings.StatusFolderHasNoDocuments;
             return;
         }
 
@@ -797,19 +806,19 @@ public partial class MainWindowViewModel : ObservableObject
         if (output is null)
             return;
 
-        StatusText = "Exporting website...";
+        StatusText = Strings.StatusExportingWebsite;
 
         var result = await _websiteExportService.ExportAsync(
             ProjectFolderPath, docs, output, CancellationToken.None);
 
         if (result.IsSuccess)
         {
-            StatusText = $"Website exported — {docs.Count} page(s) → {output}";
+            StatusText = string.Format(Strings.StatusWebsiteExported, docs.Count, output);
         }
         else
         {
             _log?.Error($"Website export failed: {result.ErrorMessage}");
-            await ReportExportFailureAsync(result.ErrorMessage ?? "Website export failed");
+            await ReportExportFailureAsync(result.ErrorMessage ?? Strings.WebsiteExportFailed);
         }
     }
 
@@ -824,7 +833,7 @@ public partial class MainWindowViewModel : ObservableObject
             return; // Conflict handled or save cancelled
 
         if (await WriteDocumentAsync(doc, saveAs: false))
-            StatusText = $"Saved {doc.DisplayName}";
+            StatusText = string.Format(Strings.StatusSaved, doc.DisplayName);
     }
 
     [RelayCommand]
@@ -834,7 +843,7 @@ public partial class MainWindowViewModel : ObservableObject
     private async Task SaveAsAsync(DocumentViewModel doc)
     {
         if (await WriteDocumentAsync(doc, saveAs: true))
-            StatusText = $"Saved {doc.DisplayName}";
+            StatusText = string.Format(Strings.StatusSaved, doc.DisplayName);
     }
 
     [RelayCommand]
@@ -863,7 +872,7 @@ public partial class MainWindowViewModel : ObservableObject
             }
         }
 
-        StatusText = "All documents saved";
+        StatusText = Strings.StatusAllSaved;
     }
 
     /// <summary>
@@ -902,7 +911,7 @@ public partial class MainWindowViewModel : ObservableObject
         catch (Exception ex)
         {
             _log?.Error($"Save failed: {doc.DisplayName}", ex);
-            await ReportFailureAsync("Save Failed", $"Could not save {doc.DisplayName}: {ex.Message}");
+            await ReportFailureAsync(Strings.SaveFailedTitle, string.Format(Strings.SaveCouldNotSave, doc.DisplayName, ex.Message));
             return false;
         }
 
@@ -912,14 +921,14 @@ public partial class MainWindowViewModel : ObservableObject
             {
                 var kept = MoveImportedAssets(doc, Path.GetDirectoryName(path)!);
                 if (kept.Count > 0)
-                    await ReportFailureAsync("Images Not Replaced",
-                        $"{doc.DisplayName} was saved, but these files already existed and were kept, so the document may show them instead of the imported images:\n{string.Join("\n", kept)}");
+                    await ReportFailureAsync(Strings.ImagesNotReplacedTitle,
+                        string.Format(Strings.ImagesNotReplaced, doc.DisplayName, string.Join("\n", kept)));
             }
             catch (Exception ex)
             {
                 // The text is saved; the images stay in the private folder for the next save.
                 _log?.Error($"Copying imported images beside {path} failed", ex);
-                await ReportFailureAsync("Images Not Copied", $"{doc.DisplayName} was saved, but its images could not be copied: {ex.Message}");
+                await ReportFailureAsync(Strings.ImagesNotCopiedTitle, string.Format(Strings.ImagesNotCopied, doc.DisplayName, ex.Message));
             }
         }
         if (!string.Equals(path, doc.FilePath, StringComparison.Ordinal))
@@ -977,7 +986,7 @@ public partial class MainWindowViewModel : ObservableObject
                     doc.FileEncoding = content.Encoding;
                     UpdateLastKnownWriteTime(doc);
                     RemoveRecoverySnapshot(doc);
-                    StatusText = $"Reloaded {doc.DisplayName} from disk";
+                    StatusText = string.Format(Strings.StatusReloaded, doc.DisplayName);
                 }
                 return true;
 
@@ -1022,7 +1031,7 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     private Task<string?> PickStyleAsync()
-        => _fileService.PickOpenFilePathAsync("Choose Style", "asciidoctor-pdf Theme", ["*.yml", "*.yaml"]);
+        => _fileService.PickOpenFilePathAsync(Strings.DialogChooseStyle, Strings.FilterPdfTheme, ["*.yml", "*.yaml"]);
 
     private async Task ExportWithAsync(ExportFormat format, string? stylePath)
     {
@@ -1055,7 +1064,7 @@ public partial class MainWindowViewModel : ObservableObject
         if (outputPath is null)
             return;
 
-        StatusText = $"Exporting {format.DisplayName()}...";
+        StatusText = string.Format(Strings.StatusExporting, format.DisplayName());
 
         var basePath = SelectedDocument.BaseDirectory;
 
@@ -1067,12 +1076,12 @@ public partial class MainWindowViewModel : ObservableObject
 
         if (result.IsSuccess)
         {
-            StatusText = $"Exported to {Path.GetFileName(outputPath)}";
+            StatusText = string.Format(Strings.StatusExportedTo, Path.GetFileName(outputPath));
         }
         else
         {
             _log?.Error($"{format.DisplayName()} export failed: {result.ErrorMessage}");
-            await ReportExportFailureAsync(result.ErrorMessage ?? $"{format.DisplayName()} export failed.");
+            await ReportExportFailureAsync(result.ErrorMessage ?? string.Format(Strings.ExportFailed, format.DisplayName()));
         }
     }
 
@@ -1080,7 +1089,7 @@ public partial class MainWindowViewModel : ObservableObject
     /// Export failures get a dialog: the status line alone is overwritten by
     /// the next render, so the failure would go unnoticed.
     /// </summary>
-    private Task ReportExportFailureAsync(string message) => ReportFailureAsync("Export Failed", message);
+    private Task ReportExportFailureAsync(string message) => ReportFailureAsync(Strings.ExportFailedTitle, message);
 
     private async Task ReportFailureAsync(string title, string message)
     {
@@ -1124,7 +1133,7 @@ public partial class MainWindowViewModel : ObservableObject
                 return;
         }
 
-        StatusText = $"Exporting {profile.Name}...";
+        StatusText = string.Format(Strings.StatusExporting, profile.Name);
 
         var basePath = SelectedDocument.BaseDirectory;
 
@@ -1160,14 +1169,14 @@ public partial class MainWindowViewModel : ObservableObject
             return;
 
         StylePath = path;
-        StatusText = $"Style: {Path.GetFileName(path)}";
+        StatusText = string.Format(Strings.StatusStyle, Path.GetFileName(path));
     }
 
     [RelayCommand]
     private void ResetStyle()
     {
         StylePath = null;
-        StatusText = "Style: built-in";
+        StatusText = Strings.StatusStyleBuiltIn;
     }
 
     // --- Close commands ---
@@ -1214,7 +1223,7 @@ public partial class MainWindowViewModel : ObservableObject
             SelectedDocument = Documents[Math.Min(index, Documents.Count - 1)];
         }
 
-        StatusText = "Ready";
+        StatusText = Strings.Ready;
     }
 
     [RelayCommand]
@@ -1300,6 +1309,27 @@ public partial class MainWindowViewModel : ObservableObject
 
     [RelayCommand]
     private void SetTheme(AppTheme theme) => CurrentTheme = theme;
+
+    // --- Interface language ---
+
+    [RelayCommand]
+    private void SetUiLanguage(string code)
+    {
+        if (code == UiLanguageCode)
+            return;
+        UiLanguageCode = code;
+        // Said in the chosen language: it is the one the user reads from now on.
+        var culture = code == "" ? System.Globalization.CultureInfo.InstalledUICulture : System.Globalization.CultureInfo.GetCultureInfo(code);
+        StatusText = Strings.ResourceManager.GetString(nameof(Strings.LanguageAppliesAfterRestart), culture) ?? Strings.LanguageAppliesAfterRestart;
+    }
+
+    partial void OnUiLanguageCodeChanged(string value)
+    {
+        OnPropertyChanged(nameof(IsLanguageSystem));
+        OnPropertyChanged(nameof(IsLanguageEnglish));
+        OnPropertyChanged(nameof(IsLanguageFrench));
+        OnPropertyChanged(nameof(IsLanguageGerman));
+    }
 
     // --- Editor mode ---
 
@@ -1488,8 +1518,8 @@ public partial class MainWindowViewModel : ObservableObject
             doc.RenderError = result.ErrorSummary;
 
             StatusText = result.IsSuccess
-                ? "Render complete"
-                : $"Render failed: {result.ErrorSummary}";
+                ? Strings.StatusRenderComplete
+                : string.Format(Strings.StatusRenderFailed, result.ErrorSummary);
         }
         catch (OperationCanceledException)
         {
@@ -1520,54 +1550,54 @@ public partial class MainWindowViewModel : ObservableObject
     {
         return
         [
-            new("New Document", "Ctrl+N", "File", () => NewDocumentCommand.Execute(null)),
-            new("Open Document", "Ctrl+O", "File", () => OpenDocumentCommand.Execute(null)),
-            new("Open Folder", "Ctrl+Shift+O", "File", () => OpenFolderCommand.Execute(null)),
-            new("Import Word Document", null, "Import", () => ImportCommand.Execute(ImportFormat.Word)),
-            new("Import Markdown", null, "Import", () => ImportCommand.Execute(ImportFormat.Markdown)),
-            new("Import HTML", null, "Import", () => ImportCommand.Execute(ImportFormat.Html)),
-            new("Import PDF", null, "Import", () => ImportCommand.Execute(ImportFormat.Pdf)),
-            new("Import Plain Text", null, "Import", () => ImportCommand.Execute(ImportFormat.PlainText)),
-            new("Close Folder", null, "File", () => CloseFolderCommand.Execute(null), () => HasProject),
-            new("Refresh Folder", null, "File", () => RefreshProjectCommand.Execute(null), () => HasProject),
-            new("Save", "Ctrl+S", "File", () => SaveDocumentCommand.Execute(null)),
-            new("Save As", "Ctrl+Shift+S", "File", () => SaveDocumentAsCommand.Execute(null)),
-            new("Save All", "Ctrl+Alt+S", "File", () => SaveAllCommand.Execute(null)),
-            new("Close Tab", "Ctrl+W", "File", () => CloseTabCommand.Execute(null)),
-            new("Reopen Closed Tab", "Ctrl+Shift+T", "File", () => ReopenClosedTabCommand.Execute(null)),
-            new("Export as PDF", "Ctrl+E", "File", () => ExportCommand.Execute(ExportFormat.Pdf)),
-            new("Export as PDF (Landscape)", null, "File", () => ExportCommand.Execute(ExportFormat.PdfLandscape)),
-            new("Export as HTML", null, "File", () => ExportCommand.Execute(ExportFormat.Html)),
-            new("Export as DocBook", null, "File", () => ExportCommand.Execute(ExportFormat.DocBook)),
-            new("Export as EPUB", null, "File", () => ExportCommand.Execute(ExportFormat.Epub)),
-            new("Export Website", null, "File", () => ExportWebsiteCommand.Execute(null), () => HasProject),
-            new("Load Style", null, "Style", () => LoadStyleCommand.Execute(null)),
-            new("Use Built-in Style", null, "Style", () => ResetStyleCommand.Execute(null)),
-            new("Export as PDF with Style", null, "File", () => ExportWithStyleCommand.Execute(ExportFormat.Pdf)),
-            new("PDF Title: Full Title", null, "File", () => SetPdfTitleRuleCommand.Execute(PdfTitleRule.FullTitle)),
-            new("PDF Title: Up to First Colon", null, "File", () => SetPdfTitleRuleCommand.Execute(PdfTitleRule.UpToFirstColon)),
-            new("Toggle Edit PDF Title Before Export", null, "File", () => ToggleAskPdfTitleCommand.Execute(null)),
-            new("Export as HTML with Style", null, "File", () => ExportWithStyleCommand.Execute(ExportFormat.Html)),
-            new("Export as EPUB with Style", null, "File", () => ExportWithStyleCommand.Execute(ExportFormat.Epub)),
-            new("Source Mode", null, "View", () => SetEditorModeCommand.Execute(EditorMode.Source)),
-            new("Split Mode", null, "View", () => SetEditorModeCommand.Execute(EditorMode.Split)),
-            new("WYSIWYG Mode", null, "View", () => SetEditorModeCommand.Execute(EditorMode.Wysiwyg)),
-            new("Toggle Title & TOC", null, "View", () => ToggleShowTitleAndTocCommand.Execute(null)),
-            new("Toggle Sync Scrolling", null, "View", () => ToggleSyncScrollingCommand.Execute(null)),
-            new("Toggle Editor Word Wrap", null, "View", () => ToggleEditorWordWrapCommand.Execute(null)),
-            new("Toggle Preview Word Wrap", null, "View", () => TogglePreviewWordWrapCommand.Execute(null)),
-            new("Toggle Page Preview", null, "View", () => TogglePagePreviewCommand.Execute(null)),
-            new("Toggle Outline Pane", "Ctrl+B", "View", () => ToggleOutlinePaneCommand.Execute(null)),
-            new("Zoom In", "Ctrl++", "View", () => ZoomInCommand.Execute(null)),
-            new("Zoom Out", "Ctrl+-", "View", () => ZoomOutCommand.Execute(null)),
-            new("Reset Zoom", "Ctrl+0", "View", () => ZoomResetCommand.Execute(null)),
-            new("Toggle Fit Width", null, "View", () => TogglePreviewFitWidthCommand.Execute(null)),
-            new("Theme: Light", null, "Theme", () => SetThemeCommand.Execute(AppTheme.Light)),
-            new("Theme: Dark", null, "Theme", () => SetThemeCommand.Execute(AppTheme.Dark)),
-            new("Theme: System", null, "Theme", () => SetThemeCommand.Execute(AppTheme.System)),
-            new("Next Tab", "Ctrl+Tab", "Navigation", () => NextTabCommand.Execute(null)),
-            new("Previous Tab", "Ctrl+Shift+Tab", "Navigation", () => PreviousTabCommand.Execute(null)),
-            new("AsciiDoc Syntax Reference", "F1", "Help", () => ToggleSyntaxReferenceCommand.Execute(null)),
+            new(Strings.CommandNewDocument, "Ctrl+N", Strings.CommandCategoryFile, () => NewDocumentCommand.Execute(null)),
+            new(Strings.CommandOpenDocument, "Ctrl+O", Strings.CommandCategoryFile, () => OpenDocumentCommand.Execute(null)),
+            new(Strings.CommandOpenFolder, "Ctrl+Shift+O", Strings.CommandCategoryFile, () => OpenFolderCommand.Execute(null)),
+            new(Strings.CommandImportWordDocument, null, Strings.CommandCategoryImport, () => ImportCommand.Execute(ImportFormat.Word)),
+            new(Strings.CommandImportMarkdown, null, Strings.CommandCategoryImport, () => ImportCommand.Execute(ImportFormat.Markdown)),
+            new(Strings.CommandImportHTML, null, Strings.CommandCategoryImport, () => ImportCommand.Execute(ImportFormat.Html)),
+            new(Strings.CommandImportPDF, null, Strings.CommandCategoryImport, () => ImportCommand.Execute(ImportFormat.Pdf)),
+            new(Strings.CommandImportPlainText, null, Strings.CommandCategoryImport, () => ImportCommand.Execute(ImportFormat.PlainText)),
+            new(Strings.CommandCloseFolder, null, Strings.CommandCategoryFile, () => CloseFolderCommand.Execute(null), () => HasProject),
+            new(Strings.CommandRefreshFolder, null, Strings.CommandCategoryFile, () => RefreshProjectCommand.Execute(null), () => HasProject),
+            new(Strings.CommandSave, "Ctrl+S", Strings.CommandCategoryFile, () => SaveDocumentCommand.Execute(null)),
+            new(Strings.CommandSaveAs, "Ctrl+Shift+S", Strings.CommandCategoryFile, () => SaveDocumentAsCommand.Execute(null)),
+            new(Strings.CommandSaveAll, "Ctrl+Alt+S", Strings.CommandCategoryFile, () => SaveAllCommand.Execute(null)),
+            new(Strings.CommandCloseTab, "Ctrl+W", Strings.CommandCategoryFile, () => CloseTabCommand.Execute(null)),
+            new(Strings.CommandReopenClosedTab, "Ctrl+Shift+T", Strings.CommandCategoryFile, () => ReopenClosedTabCommand.Execute(null)),
+            new(Strings.CommandExportAsPDF, "Ctrl+E", Strings.CommandCategoryFile, () => ExportCommand.Execute(ExportFormat.Pdf)),
+            new(Strings.CommandExportAsPDFLandscape, null, Strings.CommandCategoryFile, () => ExportCommand.Execute(ExportFormat.PdfLandscape)),
+            new(Strings.CommandExportAsHTML, null, Strings.CommandCategoryFile, () => ExportCommand.Execute(ExportFormat.Html)),
+            new(Strings.CommandExportAsDocBook, null, Strings.CommandCategoryFile, () => ExportCommand.Execute(ExportFormat.DocBook)),
+            new(Strings.CommandExportAsEPUB, null, Strings.CommandCategoryFile, () => ExportCommand.Execute(ExportFormat.Epub)),
+            new(Strings.CommandExportWebsite, null, Strings.CommandCategoryFile, () => ExportWebsiteCommand.Execute(null), () => HasProject),
+            new(Strings.CommandLoadStyle, null, Strings.CommandCategoryStyle, () => LoadStyleCommand.Execute(null)),
+            new(Strings.CommandUseBuiltInStyle, null, Strings.CommandCategoryStyle, () => ResetStyleCommand.Execute(null)),
+            new(Strings.CommandExportAsPDFWithStyle, null, Strings.CommandCategoryFile, () => ExportWithStyleCommand.Execute(ExportFormat.Pdf)),
+            new(Strings.CommandPDFTitleFullTitle, null, Strings.CommandCategoryFile, () => SetPdfTitleRuleCommand.Execute(PdfTitleRule.FullTitle)),
+            new(Strings.CommandPDFTitleUpToFirstColon, null, Strings.CommandCategoryFile, () => SetPdfTitleRuleCommand.Execute(PdfTitleRule.UpToFirstColon)),
+            new(Strings.CommandToggleEditPDFTitleBeforeExport, null, Strings.CommandCategoryFile, () => ToggleAskPdfTitleCommand.Execute(null)),
+            new(Strings.CommandExportAsHTMLWithStyle, null, Strings.CommandCategoryFile, () => ExportWithStyleCommand.Execute(ExportFormat.Html)),
+            new(Strings.CommandExportAsEPUBWithStyle, null, Strings.CommandCategoryFile, () => ExportWithStyleCommand.Execute(ExportFormat.Epub)),
+            new(Strings.CommandSourceMode, null, Strings.CommandCategoryView, () => SetEditorModeCommand.Execute(EditorMode.Source)),
+            new(Strings.CommandSplitMode, null, Strings.CommandCategoryView, () => SetEditorModeCommand.Execute(EditorMode.Split)),
+            new(Strings.CommandWYSIWYGMode, null, Strings.CommandCategoryView, () => SetEditorModeCommand.Execute(EditorMode.Wysiwyg)),
+            new(Strings.CommandToggleTitleTOC, null, Strings.CommandCategoryView, () => ToggleShowTitleAndTocCommand.Execute(null)),
+            new(Strings.CommandToggleSyncScrolling, null, Strings.CommandCategoryView, () => ToggleSyncScrollingCommand.Execute(null)),
+            new(Strings.CommandToggleEditorWordWrap, null, Strings.CommandCategoryView, () => ToggleEditorWordWrapCommand.Execute(null)),
+            new(Strings.CommandTogglePreviewWordWrap, null, Strings.CommandCategoryView, () => TogglePreviewWordWrapCommand.Execute(null)),
+            new(Strings.CommandTogglePagePreview, null, Strings.CommandCategoryView, () => TogglePagePreviewCommand.Execute(null)),
+            new(Strings.CommandToggleOutlinePane, "Ctrl+B", Strings.CommandCategoryView, () => ToggleOutlinePaneCommand.Execute(null)),
+            new(Strings.CommandZoomIn, "Ctrl++", Strings.CommandCategoryView, () => ZoomInCommand.Execute(null)),
+            new(Strings.CommandZoomOut, "Ctrl+-", Strings.CommandCategoryView, () => ZoomOutCommand.Execute(null)),
+            new(Strings.CommandResetZoom, "Ctrl+0", Strings.CommandCategoryView, () => ZoomResetCommand.Execute(null)),
+            new(Strings.CommandToggleFitWidth, null, Strings.CommandCategoryView, () => TogglePreviewFitWidthCommand.Execute(null)),
+            new(Strings.CommandThemeLight, null, Strings.CommandCategoryTheme, () => SetThemeCommand.Execute(AppTheme.Light)),
+            new(Strings.CommandThemeDark, null, Strings.CommandCategoryTheme, () => SetThemeCommand.Execute(AppTheme.Dark)),
+            new(Strings.CommandThemeSystem, null, Strings.CommandCategoryTheme, () => SetThemeCommand.Execute(AppTheme.System)),
+            new(Strings.CommandNextTab, "Ctrl+Tab", Strings.CommandCategoryNavigation, () => NextTabCommand.Execute(null)),
+            new(Strings.CommandPreviousTab, "Ctrl+Shift+Tab", Strings.CommandCategoryNavigation, () => PreviousTabCommand.Execute(null)),
+            new(Strings.CommandAsciiDocSyntaxReference, "F1", Strings.CommandCategoryHelp, () => ToggleSyntaxReferenceCommand.Execute(null)),
         ];
     }
 }

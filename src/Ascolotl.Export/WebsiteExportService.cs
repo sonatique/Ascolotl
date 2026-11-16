@@ -4,6 +4,7 @@ using AdocNet.Parser;
 using Ascolotl.Core.Editing;
 using Ascolotl.Core.Models;
 using Ascolotl.Core.Services;
+using Ascolotl.Core.Resources;
 
 namespace Ascolotl.Export;
 
@@ -24,7 +25,7 @@ public sealed class WebsiteExportService : IWebsiteExportService
         try
         {
             if (relativeDocPaths.Count == 0)
-                return ExportResult.Failure("The project has no documents to export.");
+                return ExportResult.Failure(Strings.WebsiteNoDocuments);
 
             // a.adoc and a.asciidoc would both become a.html: refuse rather than
             // let one page silently replace the other.
@@ -33,7 +34,7 @@ public sealed class WebsiteExportService : IWebsiteExportService
                 .FirstOrDefault(g => g.Count() > 1);
             if (clash is not null)
                 return ExportResult.Failure(
-                    $"{string.Join(" and ", clash)} would both become {clash.Key}. Rename one of them, then export again.");
+                    string.Format(Strings.WebsiteNameClash, string.Join(Strings.ListAnd, clash), clash.Key));
 
             // Copied first so a stale guide.html in the project never replaces the rendered page.
             await Task.Run(() => CopyProjectFiles(projectRoot, outputFolder, cancellationToken), cancellationToken);
@@ -88,7 +89,7 @@ public sealed class WebsiteExportService : IWebsiteExportService
         }
         catch (Exception ex)
         {
-            return ExportResult.Failure($"Website export failed: {ex.Message}");
+            return ExportResult.Failure(string.Format(Strings.WebsiteExportFailedWithReason, ex.Message));
         }
     }
 

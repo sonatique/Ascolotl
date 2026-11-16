@@ -9,6 +9,7 @@ using Avalonia.VisualTree;
 using Ascolotl.Core.Models;
 using Ascolotl.Core.Services;
 using Ascolotl.Core.ViewModels;
+using Ascolotl.Core.Resources;
 
 namespace Ascolotl.App.Views;
 
@@ -191,7 +192,7 @@ public partial class MainWindow : Window
                 CommandParameter = profile,
             };
             ToolTip.SetTip(item,
-                $"{profile.Format.DisplayName()} · {profile.Theme.DisplayName()} → {profile.OutputFolder ?? "next to the document"}");
+                $"{profile.Format.DisplayName()} · {profile.Theme.DisplayName()} → {profile.OutputFolder ?? Strings.ProfileNextToDocument}");
             added.Add(item);
             exportMenu.Items.Insert(index++, item);
         }
@@ -325,7 +326,12 @@ public partial class MainWindow : Window
     {
         if (_viewModel is null) return;
 
-        EditorModeText.Text = _viewModel.EditorMode.ToString();
+        EditorModeText.Text = _viewModel.EditorMode switch
+        {
+            EditorMode.Source => Strings.ModeSource,
+            EditorMode.Split => Strings.ModeSplit,
+            _ => Strings.ModeWysiwyg,
+        };
 
         // Unsubscribe from the previous document to avoid leak
         if (_statusBarDoc is not null)
@@ -338,7 +344,7 @@ public partial class MainWindow : Window
         if (doc is not null)
         {
             ZoomText.Text = ZoomLabel(doc);
-            CursorPositionText.Text = $"Ln {doc.CursorLine}, Col {doc.CursorColumn}";
+            CursorPositionText.Text = string.Format(Strings.CursorPosition, doc.CursorLine, doc.CursorColumn);
 
             _statusBarDoc = doc;
             _statusBarDoc.PropertyChanged += OnSelectedDocPropertyChanged;
@@ -346,7 +352,7 @@ public partial class MainWindow : Window
         else
         {
             ZoomText.Text = "100%";
-            CursorPositionText.Text = "Ln 1, Col 1";
+            CursorPositionText.Text = Strings.Ln1Col1;
         }
     }
 
@@ -357,7 +363,7 @@ public partial class MainWindow : Window
         if (e.PropertyName == nameof(DocumentViewModel.CursorLine)
             || e.PropertyName == nameof(DocumentViewModel.CursorColumn))
         {
-            CursorPositionText.Text = $"Ln {doc.CursorLine}, Col {doc.CursorColumn}";
+            CursorPositionText.Text = string.Format(Strings.CursorPosition, doc.CursorLine, doc.CursorColumn);
         }
         else if (e.PropertyName == nameof(DocumentViewModel.ZoomLevel))
         {
@@ -366,7 +372,7 @@ public partial class MainWindow : Window
     }
 
     private string ZoomLabel(DocumentViewModel doc)
-        => _viewModel?.PreviewFitWidth == true ? "Fit" : $"{doc.ZoomLevel}%";
+        => _viewModel?.PreviewFitWidth == true ? Strings.ZoomFit : $"{doc.ZoomLevel}%";
 
     private void RebuildRecentFilesMenu(MainWindowViewModel vm)
     {
@@ -497,7 +503,7 @@ public partial class MainWindow : Window
         var editorView = FindDescendant<SourceEditorView>(EditorPane);
         if (editorView is null)
         {
-            _viewModel.StatusText = "Switch to Source or Split mode to insert syntax";
+            _viewModel.StatusText = Strings.StatusSwitchModeToInsert;
             return;
         }
 
@@ -606,7 +612,7 @@ public partial class MainWindow : Window
                 ToggleType = MenuItemToggleType.Radio,
                 IsChecked = doc == vm.SelectedDocument,
             };
-            ToolTip.SetTip(item, doc.FilePath ?? "Not saved yet");
+            ToolTip.SetTip(item, doc.FilePath ?? Strings.TabNotSavedYet);
             item.Click += (_, _) => vm.SelectedDocument = doc;
             flyout.Items.Add(item);
         }

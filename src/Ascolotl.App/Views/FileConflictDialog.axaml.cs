@@ -1,5 +1,6 @@
 using Avalonia.Controls;
-using Ascolotl.Core.Models;
+using Ascolotl.Core.Models;
+using Ascolotl.Core.Resources;
 
 namespace Ascolotl.App.Views;
 
@@ -14,7 +15,7 @@ public partial class FileConflictDialog : Window
 
     public FileConflictDialog(string documentName) : this()
     {
-        MessageText.Text = $"\"{documentName}\" has been modified outside Ascolotl. What would you like to do?";
+        MessageText.Text = string.Format(Strings.FileConflictMessage, documentName);
     }
 
     private void OnOverwriteClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

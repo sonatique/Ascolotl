@@ -1,18 +1,19 @@
 using System.Text;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
-using Ascolotl.Core.Services;
+using Ascolotl.Core.Services;
+using Ascolotl.Core.Resources;
 
 namespace Ascolotl.App.Services;
 
 public sealed class AvaloniaFileService : IFileService
 {
-    private static readonly FilePickerFileType AdocFileType = new("AsciiDoc Files")
+    private static readonly FilePickerFileType AdocFileType = new(Strings.FileTypeAsciiDoc)
     {
         Patterns = ["*.adoc", "*.asciidoc"],
     };
 
-    private static readonly FilePickerFileType TextFileType = new("Text Files")
+    private static readonly FilePickerFileType TextFileType = new(Strings.FileTypeText)
     {
         Patterns = ["*.txt"],
     };
@@ -28,7 +29,7 @@ public sealed class AvaloniaFileService : IFileService
     {
         var files = await _window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Open AsciiDoc File",
+            Title = Strings.DialogOpenAsciiDocFile,
             AllowMultiple = false,
             FileTypeFilter = [AdocFileType, TextFileType, FilePickerFileTypes.All],
         });
@@ -61,7 +62,7 @@ public sealed class AvaloniaFileService : IFileService
     {
         var file = await _window.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Save AsciiDoc File",
+            Title = Strings.DialogSaveAsciiDocFile,
             SuggestedFileName = suggestedName,
             DefaultExtension = "adoc",
             FileTypeChoices = [AdocFileType, TextFileType, FilePickerFileTypes.All],
@@ -91,7 +92,7 @@ public sealed class AvaloniaFileService : IFileService
 
         var file = await _window.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = $"Export as {filterName}",
+            Title = string.Format(Strings.DialogExportAs, filterName),
             SuggestedFileName = suggestedName,
             DefaultExtension = extension,
             FileTypeChoices = [fileType],
@@ -121,7 +122,7 @@ public sealed class AvaloniaFileService : IFileService
     {
         var folders = await _window.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = "Open Folder",
+            Title = Strings.DialogOpenFolder,
             AllowMultiple = false,
         });
 

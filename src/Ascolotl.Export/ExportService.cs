@@ -5,7 +5,8 @@ using AdocNet.Converters.Html;
 using AdocNet.Converters.Pdf;
 using AdocNet.Parser;
 using Ascolotl.Core.Models;
-using Ascolotl.Core.Services;
+using Ascolotl.Core.Services;
+using Ascolotl.Core.Resources;
 
 namespace Ascolotl.Export;
 
@@ -38,7 +39,7 @@ public sealed class ExportService : IExportService
                     ? null
                     : PdfThemeResolver.ResolveThemePath(attributes, docDir, stylePath);
                 if (themePath is not null && !File.Exists(themePath))
-                    return ExportResult.Failure($"Style not found: {themePath}");
+                    return ExportResult.Failure(string.Format(Strings.ExportStyleNotFound, themePath));
                 var styleCss = themePath is not null && format is ExportFormat.Html or ExportFormat.Epub
                     ? StyleCss.From(PdfThemeResolver.Load(themePath, attributes, docDir))
                     : null;
@@ -84,7 +85,7 @@ public sealed class ExportService : IExportService
                         new EpubRenderer().Render(parsed.Document, ms, new EpubRenderOptions { CustomCss = styleCss });
                         break;
                     default:
-                        return ExportResult.Failure($"Unsupported export format: {format}");
+                        return ExportResult.Failure(string.Format(Strings.ExportUnsupportedFormat, format));
                 }
 
                 Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
@@ -92,7 +93,7 @@ public sealed class ExportService : IExportService
 
                 return File.Exists(outputPath)
                     ? ExportResult.Success()
-                    : ExportResult.Failure($"{format.DisplayName()} file was not created.");
+                    : ExportResult.Failure(string.Format(Strings.ExportFileNotCreated, format.DisplayName()));
             }
             catch (OperationCanceledException)
             {
@@ -101,12 +102,11 @@ public sealed class ExportService : IExportService
             catch (IOException ex) when (IsInUse(ex))
             {
                 return ExportResult.Failure(
-                    $"{Path.GetFileName(outputPath)} is open in another program, so it can't be replaced. " +
-                    "Close it there, then export again.");
+                    string.Format(Strings.ExportFileInUse, Path.GetFileName(outputPath)));
             }
             catch (Exception ex)
             {
-                return ExportResult.Failure($"{format.DisplayName()} export failed: {ex.Message}");
+                return ExportResult.Failure(string.Format(Strings.ExportFailedWithReason, format.DisplayName(), ex.Message));
             }
         }, cancellationToken);
     }

@@ -1,5 +1,6 @@
 using Avalonia.Controls;
-using Ascolotl.Core.Models;
+using Ascolotl.Core.Models;
+using Ascolotl.Core.Resources;
 
 namespace Ascolotl.App.Views;
 
@@ -14,7 +15,7 @@ public partial class SaveConfirmationDialog : Window
 
     public SaveConfirmationDialog(string documentName) : this()
     {
-        MessageText.Text = $"Do you want to save changes to \"{documentName}\"?";
+        MessageText.Text = string.Format(Strings.SaveConfirmationMessage, documentName);
     }
 
     private void OnSaveClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

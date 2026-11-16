@@ -1,7 +1,8 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:Ascolotl.Core.Resources"
         x:Class="Ascolotl.App.Views.PdfTitleDialog"
-        Title="Ascolotl — PDF Title"
+        Title="{x:Static res:Strings.AscolotlPDFTitle}"
         SizeToContent="Height"
         Width="560"
         CanResize="False"
@@ -23,7 +24,7 @@
 
         <StackPanel Spacing="12" Margin="24"
                     TextElement.Foreground="{DynamicResource ForgeTextBrush}">
-            <TextBlock Text="Title stored in the PDF's document properties:"
+            <TextBlock Text="{x:Static res:Strings.TitleStoredInThePDFS}"
                        Foreground="{DynamicResource ForgeTextMutedBrush}" />
 
             <TextBox x:Name="TitleBox"
@@ -35,12 +36,12 @@
                         HorizontalAlignment="Right"
                         Spacing="8"
                         Margin="0,8,0,0">
-                <Button Content="Export"
+                <Button Content="{x:Static res:Strings.ExportLabel}"
                         Classes="dialog primary"
                         Click="OnExportClick"
                         IsDefault="True"
                         MinWidth="90" />
-                <Button Content="Cancel"
+                <Button Content="{x:Static res:Strings.Cancel}"
                         Classes="dialog"
                         Click="OnCancelClick"
                         IsCancel="True"
