@@ -14,6 +14,130 @@
   <data name="AscolotlFileChanged" xml:space="preserve"><value>Ascolotl — File Changed</value></data>
   <data name="AscolotlPDFTitle" xml:space="preserve"><value>Ascolotl — PDF Title</value></data>
   <data name="AscolotlRecoverDocuments" xml:space="preserve"><value>Ascolotl — Recover Documents</value></data>
+  <data name="AssistAttrAlignDesc" xml:space="preserve"><value>Horizontal alignment.</value></data>
+  <data name="AssistAttrColsDesc" xml:space="preserve"><value>Table column specification.</value></data>
+  <data name="AssistAttrFormatDesc" xml:space="preserve"><value>Table data format (csv, tsv, dsv).</value></data>
+  <data name="AssistAttrIdDesc" xml:space="preserve"><value>Assign an id / anchor.</value></data>
+  <data name="AssistAttrOptionsDesc" xml:space="preserve"><value>Block options, e.g. header,footer.</value></data>
+  <data name="AssistAttrQuoteDesc" xml:space="preserve"><value>Mark the block as a quotation.</value></data>
+  <data name="AssistAttrRoleDesc" xml:space="preserve"><value>Assign a CSS role.</value></data>
+  <data name="AssistAttrSourceDesc" xml:space="preserve"><value>Mark the block as source with a language.</value></data>
+  <data name="AssistAttrTitleDesc" xml:space="preserve"><value>Caption / title for the block.</value></data>
+  <data name="AssistAttrWidthDesc" xml:space="preserve"><value>Set the block width.</value></data>
+  <data name="AssistBlockAdmonitionblockDesc" xml:space="preserve"><value>Multi-line admonition (NOTE/TIP/IMPORTANT/WARNING/CAUTION).</value></data>
+  <data name="AssistBlockAdmonitionblockLabel" xml:space="preserve"><value>Admonition block</value></data>
+  <data name="AssistBlockAnchorDesc" xml:space="preserve"><value>Define an anchor / cross-reference target.</value></data>
+  <data name="AssistBlockAnchorLabel" xml:space="preserve"><value>Anchor</value></data>
+  <data name="AssistBlockAttributeDesc" xml:space="preserve"><value>Document attribute entry.</value></data>
+  <data name="AssistBlockAttributeLabel" xml:space="preserve"><value>Document attribute</value></data>
+  <data name="AssistBlockAudioDesc" xml:space="preserve"><value>Embed an audio clip.</value></data>
+  <data name="AssistBlockAudioLabel" xml:space="preserve"><value>Audio macro</value></data>
+  <data name="AssistBlockCautionDesc" xml:space="preserve"><value>Single-line caution admonition.</value></data>
+  <data name="AssistBlockCautionLabel" xml:space="preserve"><value>CAUTION admonition</value></data>
+  <data name="AssistBlockChecklistDesc" xml:space="preserve"><value>A checklist (task list).</value></data>
+  <data name="AssistBlockChecklistLabel" xml:space="preserve"><value>Checklist</value></data>
+  <data name="AssistBlockCommentDesc" xml:space="preserve"><value>A line comment (not rendered).</value></data>
+  <data name="AssistBlockCommentLabel" xml:space="preserve"><value>Line comment</value></data>
+  <data name="AssistBlockDlistDesc" xml:space="preserve"><value>Description (definition) list.</value></data>
+  <data name="AssistBlockDlistLabel" xml:space="preserve"><value>Description list</value></data>
+  <data name="AssistBlockExampleDesc" xml:space="preserve"><value>Example (delimited) block.</value></data>
+  <data name="AssistBlockExampleLabel" xml:space="preserve"><value>Example block</value></data>
+  <data name="AssistBlockH2Desc" xml:space="preserve"><value>Section heading, level 2.</value></data>
+  <data name="AssistBlockH2Label" xml:space="preserve"><value>Heading level 2</value></data>
+  <data name="AssistBlockH3Desc" xml:space="preserve"><value>Section heading, level 3.</value></data>
+  <data name="AssistBlockH3Label" xml:space="preserve"><value>Heading level 3</value></data>
+  <data name="AssistBlockH4Desc" xml:space="preserve"><value>Section heading, level 4.</value></data>
+  <data name="AssistBlockH4Label" xml:space="preserve"><value>Heading level 4</value></data>
+  <data name="AssistBlockH5Desc" xml:space="preserve"><value>Section heading, level 5.</value></data>
+  <data name="AssistBlockH5Label" xml:space="preserve"><value>Heading level 5</value></data>
+  <data name="AssistBlockIfdefDesc" xml:space="preserve"><value>Render content only when an attribute is set.</value></data>
+  <data name="AssistBlockIfdefLabel" xml:space="preserve"><value>ifdef directive</value></data>
+  <data name="AssistBlockIfevalDesc" xml:space="preserve"><value>Render content only when a condition holds.</value></data>
+  <data name="AssistBlockIfevalLabel" xml:space="preserve"><value>ifeval directive</value></data>
+  <data name="AssistBlockIfndefDesc" xml:space="preserve"><value>Render content only when an attribute is NOT set.</value></data>
+  <data name="AssistBlockIfndefLabel" xml:space="preserve"><value>ifndef directive</value></data>
+  <data name="AssistBlockImageDesc" xml:space="preserve"><value>Block image macro.</value></data>
+  <data name="AssistBlockImageLabel" xml:space="preserve"><value>Block image</value></data>
+  <data name="AssistBlockImportantDesc" xml:space="preserve"><value>Single-line important admonition.</value></data>
+  <data name="AssistBlockImportantLabel" xml:space="preserve"><value>IMPORTANT admonition</value></data>
+  <data name="AssistBlockIncludeDesc" xml:space="preserve"><value>Include another file's contents.</value></data>
+  <data name="AssistBlockIncludeLabel" xml:space="preserve"><value>Include directive</value></data>
+  <data name="AssistBlockListingDesc" xml:space="preserve"><value>Verbatim listing block.</value></data>
+  <data name="AssistBlockListingLabel" xml:space="preserve"><value>Listing block</value></data>
+  <data name="AssistBlockLiteralDesc" xml:space="preserve"><value>Literal (monospaced, verbatim) block.</value></data>
+  <data name="AssistBlockLiteralLabel" xml:space="preserve"><value>Literal block</value></data>
+  <data name="AssistBlockNoteDesc" xml:space="preserve"><value>Single-line note admonition.</value></data>
+  <data name="AssistBlockNoteLabel" xml:space="preserve"><value>NOTE admonition</value></data>
+  <data name="AssistBlockOlistDesc" xml:space="preserve"><value>Ordered (numbered) list.</value></data>
+  <data name="AssistBlockOlistLabel" xml:space="preserve"><value>Numbered list</value></data>
+  <data name="AssistBlockOpenDesc" xml:space="preserve"><value>Open (anonymous) block.</value></data>
+  <data name="AssistBlockOpenLabel" xml:space="preserve"><value>Open block</value></data>
+  <data name="AssistBlockPagebreakDesc" xml:space="preserve"><value>Force a page break (PDF/DocBook).</value></data>
+  <data name="AssistBlockPagebreakLabel" xml:space="preserve"><value>Page break</value></data>
+  <data name="AssistBlockPassblockDesc" xml:space="preserve"><value>Passthrough block (raw output, no processing).</value></data>
+  <data name="AssistBlockPassblockLabel" xml:space="preserve"><value>Passthrough block</value></data>
+  <data name="AssistBlockQuoteDesc" xml:space="preserve"><value>Block quotation with attribution.</value></data>
+  <data name="AssistBlockQuoteLabel" xml:space="preserve"><value>Quote block</value></data>
+  <data name="AssistBlockRuleDesc" xml:space="preserve"><value>Thematic break (horizontal rule).</value></data>
+  <data name="AssistBlockRuleLabel" xml:space="preserve"><value>Thematic break</value></data>
+  <data name="AssistBlockSidebarDesc" xml:space="preserve"><value>Sidebar block.</value></data>
+  <data name="AssistBlockSidebarLabel" xml:space="preserve"><value>Sidebar block</value></data>
+  <data name="AssistBlockSourceDesc" xml:space="preserve"><value>Syntax-highlighted source block.</value></data>
+  <data name="AssistBlockSourceLabel" xml:space="preserve"><value>Source code block</value></data>
+  <data name="AssistBlockStemblockDesc" xml:space="preserve"><value>Block STEM/LaTeX equation.</value></data>
+  <data name="AssistBlockStemblockLabel" xml:space="preserve"><value>STEM (math) block</value></data>
+  <data name="AssistBlockTableDesc" xml:space="preserve"><value>Two-column table.</value></data>
+  <data name="AssistBlockTableLabel" xml:space="preserve"><value>Table</value></data>
+  <data name="AssistBlockTipDesc" xml:space="preserve"><value>Single-line tip admonition.</value></data>
+  <data name="AssistBlockTipLabel" xml:space="preserve"><value>TIP admonition</value></data>
+  <data name="AssistBlockTitleDesc" xml:space="preserve"><value>Title for the following block.</value></data>
+  <data name="AssistBlockTitleLabel" xml:space="preserve"><value>Block title</value></data>
+  <data name="AssistBlockTocDesc" xml:space="preserve"><value>Enable the table of contents.</value></data>
+  <data name="AssistBlockTocLabel" xml:space="preserve"><value>Table of contents</value></data>
+  <data name="AssistBlockUlistDesc" xml:space="preserve"><value>Unordered (bullet) list.</value></data>
+  <data name="AssistBlockUlistLabel" xml:space="preserve"><value>Bullet list</value></data>
+  <data name="AssistBlockVerseDesc" xml:space="preserve"><value>Verse block, preserving line breaks.</value></data>
+  <data name="AssistBlockVerseLabel" xml:space="preserve"><value>Verse block</value></data>
+  <data name="AssistBlockVideoDesc" xml:space="preserve"><value>Embed a video.</value></data>
+  <data name="AssistBlockVideoLabel" xml:space="preserve"><value>Video macro</value></data>
+  <data name="AssistBlockWarningDesc" xml:space="preserve"><value>Single-line warning admonition.</value></data>
+  <data name="AssistBlockWarningLabel" xml:space="preserve"><value>WARNING admonition</value></data>
+  <data name="AssistDocumentAttribute" xml:space="preserve"><value>Document attribute: {0}.</value></data>
+  <data name="AssistInlineAnchorinlineDesc" xml:space="preserve"><value>Inline anchor / cross-reference target.</value></data>
+  <data name="AssistInlineAnchorinlineLabel" xml:space="preserve"><value>Inline anchor</value></data>
+  <data name="AssistInlineBoldDesc" xml:space="preserve"><value>Bold (strong) text.</value></data>
+  <data name="AssistInlineBoldLabel" xml:space="preserve"><value>Bold text</value></data>
+  <data name="AssistInlineBtnDesc" xml:space="preserve"><value>Render a UI button.</value></data>
+  <data name="AssistInlineBtnLabel" xml:space="preserve"><value>UI button</value></data>
+  <data name="AssistInlineFootnoteDesc" xml:space="preserve"><value>A footnote.</value></data>
+  <data name="AssistInlineFootnoteLabel" xml:space="preserve"><value>Footnote</value></data>
+  <data name="AssistInlineImageDesc" xml:space="preserve"><value>Inline image macro.</value></data>
+  <data name="AssistInlineImageLabel" xml:space="preserve"><value>Inline image</value></data>
+  <data name="AssistInlineItalicDesc" xml:space="preserve"><value>Italic (emphasis) text.</value></data>
+  <data name="AssistInlineItalicLabel" xml:space="preserve"><value>Italic text</value></data>
+  <data name="AssistInlineKbdDesc" xml:space="preserve"><value>Render a keyboard shortcut.</value></data>
+  <data name="AssistInlineKbdLabel" xml:space="preserve"><value>Keyboard shortcut</value></data>
+  <data name="AssistInlineLinkDesc" xml:space="preserve"><value>External hyperlink.</value></data>
+  <data name="AssistInlineLinkLabel" xml:space="preserve"><value>External link</value></data>
+  <data name="AssistInlineMarkDesc" xml:space="preserve"><value>Highlighted (marked) text.</value></data>
+  <data name="AssistInlineMarkLabel" xml:space="preserve"><value>Highlight</value></data>
+  <data name="AssistInlineMenuDesc" xml:space="preserve"><value>Render a UI menu path.</value></data>
+  <data name="AssistInlineMenuLabel" xml:space="preserve"><value>Menu selection</value></data>
+  <data name="AssistInlineMonoDesc" xml:space="preserve"><value>Monospace text.</value></data>
+  <data name="AssistInlineMonoLabel" xml:space="preserve"><value>Monospace text</value></data>
+  <data name="AssistInlinePassDesc" xml:space="preserve"><value>Inline passthrough (raw, unprocessed).</value></data>
+  <data name="AssistInlinePassLabel" xml:space="preserve"><value>Inline passthrough</value></data>
+  <data name="AssistInlineRefDesc" xml:space="preserve"><value>Cross-reference to an anchor (angle-bracket form).</value></data>
+  <data name="AssistInlineRefLabel" xml:space="preserve"><value>Cross reference &lt;&lt;&gt;&gt;</value></data>
+  <data name="AssistInlineStemDesc" xml:space="preserve"><value>Inline STEM/LaTeX equation.</value></data>
+  <data name="AssistInlineStemLabel" xml:space="preserve"><value>Inline STEM (math)</value></data>
+  <data name="AssistInlineSubDesc" xml:space="preserve"><value>Subscript text.</value></data>
+  <data name="AssistInlineSubLabel" xml:space="preserve"><value>Subscript</value></data>
+  <data name="AssistInlineSuperDesc" xml:space="preserve"><value>Superscript text.</value></data>
+  <data name="AssistInlineSuperLabel" xml:space="preserve"><value>Superscript</value></data>
+  <data name="AssistInlineXrefDesc" xml:space="preserve"><value>Cross-reference to an anchor or id.</value></data>
+  <data name="AssistInlineXrefLabel" xml:space="preserve"><value>Cross reference</value></data>
+  <data name="AssistSourceLanguage" xml:space="preserve"><value>Source language: {0}.</value></data>
   <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="ChipHtml" xml:space="preserve"><value>HTML…</value></data>
   <data name="ChipImport" xml:space="preserve"><value>Import…</value></data>
