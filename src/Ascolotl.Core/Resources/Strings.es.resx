@@ -102,6 +102,8 @@
   <data name="AssistBlockVideoLabel" xml:space="preserve"><value>Macro de vídeo</value></data>
   <data name="AssistBlockWarningDesc" xml:space="preserve"><value>Aviso WARNING (advertencia) de una línea.</value></data>
   <data name="AssistBlockWarningLabel" xml:space="preserve"><value>Aviso WARNING</value></data>
+  <data name="AssistCrossReferenceTarget" xml:space="preserve"><value>Destino de referencia cruzada.</value></data>
+  <data name="AssistDefinedAttribute" xml:space="preserve"><value>Atributo del documento (definido en este documento).</value></data>
   <data name="AssistDocumentAttribute" xml:space="preserve"><value>Atributo del documento: {0}.</value></data>
   <data name="AssistInlineAnchorinlineDesc" xml:space="preserve"><value>Ancla en el texto, destino de una referencia cruzada.</value></data>
   <data name="AssistInlineAnchorinlineLabel" xml:space="preserve"><value>Ancla en el texto</value></data>

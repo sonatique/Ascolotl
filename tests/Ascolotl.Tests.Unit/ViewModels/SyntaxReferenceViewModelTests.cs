@@ -17,6 +17,16 @@ public class SyntaxReferenceViewModelTests
     ];
 
     [Fact]
+    public void Filter_IgnoresAccents()
+    {
+        var vm = new SyntaxReferenceViewModel(
+            [new("stemblock", "Bloc STEM", "[stem]", "Équation STEM/LaTeX en bloc.", AssistItemKind.Block)]);
+
+        vm.FilterText = "equation";
+        Assert.Single(vm.FilteredItems);
+    }
+
+    [Fact]
     public void DefaultCatalog_IsNotEmpty()
     {
         var vm = new SyntaxReferenceViewModel();

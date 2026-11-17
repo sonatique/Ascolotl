@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Ascolotl.Core.Editing.Assist;
 using Ascolotl.Core.Resources;
 using Ascolotl.Core.Services;
 
@@ -48,6 +49,34 @@ public sealed partial class LocalizationTests
             var count = Placeholders(text).Select(p => int.Parse(PlaceholderIndex().Match(p).Groups[1].Value)).DefaultIfEmpty(-1).Max() + 1;
             if (count > 0)
                 _ = string.Format(culture, value, Enumerable.Repeat<object>(1, count).ToArray()); // throws on a broken format
+        }
+    }
+
+    /// <summary>Catches catalog or scanner entries written as English literals instead of Strings keys.</summary>
+    [Theory]
+    [MemberData(nameof(Translations))]
+    public void SyntaxCatalog_FollowsTheInterfaceLanguage(string code)
+    {
+        var english = AsciiDocAssistCatalog.ReferenceItems;
+        var scannedEnglish = AsciiDocDocScanner.Scan("[[a]]\n:x: 1\n");
+        var previous = CultureInfo.CurrentUICulture;
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(code);
+        try
+        {
+            var translated = AsciiDocAssistCatalog.ReferenceItems;
+            Assert.Equal(english.Count, translated.Count);
+            for (var i = 0; i < english.Count; i++)
+            {
+                Assert.True(english[i].Label != translated[i].Label, $"{code}: label of {english[i].Trigger} is not translated");
+                Assert.True(english[i].Description != translated[i].Description, $"{code}: description of {english[i].Trigger} is not translated");
+            }
+            var scanned = AsciiDocDocScanner.Scan("[[a]]\n:x: 1\n");
+            Assert.NotEqual(scannedEnglish.Anchors[0].Description, scanned.Anchors[0].Description);
+            Assert.NotEqual(scannedEnglish.Attributes[0].Description, scanned.Attributes[0].Description);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = previous;
         }
     }
 

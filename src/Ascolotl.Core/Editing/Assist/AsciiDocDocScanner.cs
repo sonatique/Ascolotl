@@ -1,3 +1,4 @@
+using Ascolotl.Core.Resources;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -45,7 +46,7 @@ public static partial class AsciiDocDocScanner
             var display = string.IsNullOrWhiteSpace(label) ? id : $"{id} — {label.Trim()}";
             anchors.Add(new AssistItem(
                 id, display, id + ">>$0",
-                string.IsNullOrWhiteSpace(label) ? "Cross-reference target." : label!.Trim(),
+                string.IsNullOrWhiteSpace(label) ? Strings.AssistCrossReferenceTarget : label!.Trim(),
                 AssistItemKind.Macro));
         }
 
@@ -68,7 +69,7 @@ public static partial class AsciiDocDocScanner
             if (!seenAttrs.Add(name)) continue;
             attributes.Add(new AssistItem(
                 name, name, name + "}",
-                "Document attribute (defined in this document).",
+                Strings.AssistDefinedAttribute,
                 AssistItemKind.Attribute));
         }
 

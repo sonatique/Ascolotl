@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Ascolotl.Core.Editing.Assist;
 
@@ -57,13 +58,18 @@ public partial class SyntaxReferenceViewModel : ObservableObject
         foreach (var item in _all)
         {
             if (FilterText.Length == 0
-                || item.Label.Contains(FilterText, StringComparison.OrdinalIgnoreCase)
+                || Matches(item.Label)
                 || item.Trigger.Contains(FilterText, StringComparison.OrdinalIgnoreCase)
-                || item.Description.Contains(FilterText, StringComparison.OrdinalIgnoreCase))
+                || Matches(item.Description))
             {
                 FilteredItems.Add(item);
             }
         }
         SelectedIndex = FilteredItems.Count > 0 ? 0 : -1;
     }
+
+    /// <summary>Case- and accent-insensitive, so "equation" finds "Équation".</summary>
+    private bool Matches(string text) =>
+        CultureInfo.CurrentCulture.CompareInfo.IndexOf(text, FilterText,
+            CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
 }

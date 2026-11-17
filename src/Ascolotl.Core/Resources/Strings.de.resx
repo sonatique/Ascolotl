@@ -102,6 +102,8 @@
   <data name="AssistBlockVideoLabel" xml:space="preserve"><value>Video-Makro</value></data>
   <data name="AssistBlockWarningDesc" xml:space="preserve"><value>Einzeiliger Hinweis WARNING (Warnung).</value></data>
   <data name="AssistBlockWarningLabel" xml:space="preserve"><value>Hinweis WARNING</value></data>
+  <data name="AssistCrossReferenceTarget" xml:space="preserve"><value>Verweisziel.</value></data>
+  <data name="AssistDefinedAttribute" xml:space="preserve"><value>Dokumentattribut (in diesem Dokument definiert).</value></data>
   <data name="AssistDocumentAttribute" xml:space="preserve"><value>Dokumentattribut: {0}.</value></data>
   <data name="AssistInlineAnchorinlineDesc" xml:space="preserve"><value>Anker im Text als Verweisziel.</value></data>
   <data name="AssistInlineAnchorinlineLabel" xml:space="preserve"><value>Anker im Text</value></data>
@@ -137,7 +139,7 @@
   <data name="AssistInlineSuperLabel" xml:space="preserve"><value>Hochgestellt</value></data>
   <data name="AssistInlineXrefDesc" xml:space="preserve"><value>Querverweis auf einen Anker oder eine ID.</value></data>
   <data name="AssistInlineXrefLabel" xml:space="preserve"><value>Querverweis</value></data>
-  <data name="AssistSourceLanguage" xml:space="preserve"><value>Quellsprache: {0}.</value></data>
+  <data name="AssistSourceLanguage" xml:space="preserve"><value>Programmiersprache: {0}.</value></data>
   <data name="Cancel" xml:space="preserve"><value>Abbrechen</value></data>
   <data name="ChipHtml" xml:space="preserve"><value>HTML…</value></data>
   <data name="ChipImport" xml:space="preserve"><value>Importieren…</value></data>

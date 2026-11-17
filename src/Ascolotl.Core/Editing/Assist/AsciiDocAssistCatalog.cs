@@ -10,8 +10,9 @@ namespace Ascolotl.Core.Editing.Assist;
 /// </summary>
 public static class AsciiDocAssistCatalog
 {
+    // Entries are built on each access, so their texts follow the current UI language.
     // --- Block-level scaffolds (line start) ---
-    private static readonly AssistItem[] Blocks =
+    private static AssistItem[] Blocks => new AssistItem[]
     {
         new("note", Strings.AssistBlockNoteLabel, "NOTE: ${1:Important note.}$0",
             Strings.AssistBlockNoteDesc, AssistItemKind.Admonition),
@@ -94,7 +95,7 @@ public static class AsciiDocAssistCatalog
     };
 
     // --- Inline macros and markup (mid-line) ---
-    private static readonly AssistItem[] Inlines =
+    private static AssistItem[] Inlines => new AssistItem[]
     {
         new("xref", Strings.AssistInlineXrefLabel, "xref:${1:id}[${2:text}]$0",
             Strings.AssistInlineXrefDesc, AssistItemKind.Macro),
@@ -133,7 +134,7 @@ public static class AsciiDocAssistCatalog
     };
 
     // --- Block attribute names (inside [ … ]) ---
-    private static readonly AssistItem[] Attributes =
+    private static AssistItem[] Attributes => new AssistItem[]
     {
         new("source", "source,<lang>", "source,${1:text}",
             Strings.AssistAttrSourceDesc, AssistItemKind.Attribute),
@@ -180,7 +181,7 @@ public static class AsciiDocAssistCatalog
     /// syntax-reference panel — one source of truth with completion, so the
     /// reference can never drift from what the editor actually offers.
     /// </summary>
-    public static IReadOnlyList<AssistItem> ReferenceItems { get; } =
+    public static IReadOnlyList<AssistItem> ReferenceItems =>
         [.. Blocks, .. Inlines];
 
     public static IReadOnlyList<AssistItem> PoolFor(AssistQuery query)
