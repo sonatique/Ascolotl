@@ -209,6 +209,7 @@
   <data name="CommandZoomIn" xml:space="preserve"><value>Zoom avant</value></data>
   <data name="CommandZoomOut" xml:space="preserve"><value>Zoom arrière</value></data>
   <data name="ConvertADocxToAsciiDocImages" xml:space="preserve"><value>Convertir un .docx en AsciiDoc (images extraites à côté)</value></data>
+  <data name="CouldNotOpenTitle" xml:space="preserve"><value>Ascolotl — Impossible d'ouvrir le fichier</value></data>
   <data name="CtrlO" xml:space="preserve"><value>Ctrl O</value></data>
   <data name="CursorPosition" xml:space="preserve"><value>Li {0}, Col {1}</value></data>
   <data name="DiagnosticAtLine" xml:space="preserve"><value>Ligne {0} : {1}</value></data>
@@ -238,6 +239,7 @@
   <data name="ExportUnsupportedFormat" xml:space="preserve"><value>Format d'export non pris en charge : {0}</value></data>
   <data name="File" xml:space="preserve"><value>_Fichier</value></data>
   <data name="FileConflictMessage" xml:space="preserve"><value>« {0} » a été modifié en dehors d'Ascolotl. Que voulez-vous faire ?</value></data>
+  <data name="FileNotFoundTitle" xml:space="preserve"><value>Ascolotl — Fichier introuvable</value></data>
   <data name="Files" xml:space="preserve"><value>Fichiers</value></data>
   <data name="FileTypeAsciiDoc" xml:space="preserve"><value>Fichiers AsciiDoc</value></data>
   <data name="FileTypeText" xml:space="preserve"><value>Fichiers texte</value></data>
@@ -374,7 +376,13 @@
   <data name="ProfileUnnamed" xml:space="preserve"><value>Sans nom</value></data>
   <data name="Ready" xml:space="preserve"><value>Prêt</value></data>
   <data name="ReadyWhenYouAre" xml:space="preserve"><value>Prêt quand vous l'êtes</value></data>
+  <data name="RecentFileMissing" xml:space="preserve"><value>{0}
+
+Ce fichier a été déplacé, renommé ou supprimé ; il a donc été retiré des fichiers récents.</value></data>
   <data name="RecentFiles" xml:space="preserve"><value>Fichiers _récents</value></data>
+  <data name="RecentFileUnreadable" xml:space="preserve"><value>{0}
+
+Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un autre programme, ou vous n'avez pas le droit de le lire.</value></data>
   <data name="Recover" xml:space="preserve"><value>Récupérer</value></data>
   <data name="RecoverHeadingsTextTablesAndNotes" xml:space="preserve"><value>Récupérer titres, texte, tableaux et remarques d'un PDF (mise en page approximative)</value></data>
   <data name="RecoveryFoundMany" xml:space="preserve"><value>Ascolotl a trouvé {0} documents non enregistrés lors d'une session précédente.</value></data>

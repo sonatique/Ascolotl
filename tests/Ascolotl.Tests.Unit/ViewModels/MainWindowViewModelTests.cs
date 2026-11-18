@@ -466,6 +466,33 @@ public sealed class MainWindowViewModelTests : IDisposable
         Assert.Single(vm.RecentFiles);
         Assert.Equal("/tmp/other.adoc", vm.RecentFiles[0]);
         Assert.Empty(vm.Documents);
+        var (title, message) = Assert.Single(_dialogService.Errors);
+        Assert.Equal("Ascolotl — File Not Found", title);
+        Assert.Contains("/tmp/missing.adoc", message);
+        Assert.Contains("removed from Recent Files", message);
+    }
+
+    [Fact]
+    public async Task OpenRecentFile_ExistingButUnreadable_StaysInList_AndSaysWhy()
+    {
+        var path = Path.GetTempFileName();
+        try
+        {
+            var vm = CreateViewModel();
+            vm.LoadRecentFiles([path]);
+            _fileService.ReadFileResult = null;
+
+            await vm.OpenRecentFileCommand.ExecuteAsync(path);
+
+            Assert.Equal([path], vm.RecentFiles);
+            var (title, message) = Assert.Single(_dialogService.Errors);
+            Assert.Equal("Ascolotl — Could Not Open File", title);
+            Assert.Contains(path, message);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
     }
 
     [Fact]

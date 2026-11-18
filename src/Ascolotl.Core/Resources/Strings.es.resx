@@ -209,6 +209,7 @@
   <data name="CommandZoomIn" xml:space="preserve"><value>Acercar</value></data>
   <data name="CommandZoomOut" xml:space="preserve"><value>Alejar</value></data>
   <data name="ConvertADocxToAsciiDocImages" xml:space="preserve"><value>Convertir un .docx a AsciiDoc (imágenes extraídas al lado)</value></data>
+  <data name="CouldNotOpenTitle" xml:space="preserve"><value>Ascolotl — No se puede abrir el archivo</value></data>
   <data name="CtrlO" xml:space="preserve"><value>Ctrl O</value></data>
   <data name="CursorPosition" xml:space="preserve"><value>Lín {0}, Col {1}</value></data>
   <data name="DiagnosticAtLine" xml:space="preserve"><value>Línea {0}: {1}</value></data>
@@ -238,6 +239,7 @@
   <data name="ExportUnsupportedFormat" xml:space="preserve"><value>Formato de exportación no admitido: {0}</value></data>
   <data name="File" xml:space="preserve"><value>_Archivo</value></data>
   <data name="FileConflictMessage" xml:space="preserve"><value>«{0}» se ha modificado fuera de Ascolotl. ¿Qué desea hacer?</value></data>
+  <data name="FileNotFoundTitle" xml:space="preserve"><value>Ascolotl — Archivo no encontrado</value></data>
   <data name="Files" xml:space="preserve"><value>Archivos</value></data>
   <data name="FileTypeAsciiDoc" xml:space="preserve"><value>Archivos AsciiDoc</value></data>
   <data name="FileTypeText" xml:space="preserve"><value>Archivos de texto</value></data>
@@ -374,7 +376,13 @@
   <data name="ProfileUnnamed" xml:space="preserve"><value>Sin nombre</value></data>
   <data name="Ready" xml:space="preserve"><value>Listo</value></data>
   <data name="ReadyWhenYouAre" xml:space="preserve"><value>Listo cuando usted quiera</value></data>
+  <data name="RecentFileMissing" xml:space="preserve"><value>{0}
+
+Este archivo se ha movido, renombrado o eliminado, por lo que se ha quitado de los archivos recientes.</value></data>
   <data name="RecentFiles" xml:space="preserve"><value>Archivos _recientes</value></data>
+  <data name="RecentFileUnreadable" xml:space="preserve"><value>{0}
+
+Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloqueado o que no tenga permiso para leerlo.</value></data>
   <data name="Recover" xml:space="preserve"><value>Recuperar</value></data>
   <data name="RecoverHeadingsTextTablesAndNotes" xml:space="preserve"><value>Recuperar títulos, texto, tablas y notas de un PDF (maquetación aproximada)</value></data>
   <data name="RecoveryFoundMany" xml:space="preserve"><value>Ascolotl ha encontrado {0} documentos sin guardar de una sesión anterior.</value></data>

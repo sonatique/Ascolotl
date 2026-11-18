@@ -511,11 +511,13 @@ public partial class MainWindowViewModel : ObservableObject
             if (File.Exists(path))
             {
                 StatusText = string.Format(Strings.StatusCouldNotOpen, Path.GetFileName(path));
+                await _dialogService.ShowErrorAsync(Strings.CouldNotOpenTitle, string.Format(Strings.RecentFileUnreadable, path));
                 return;
             }
             RecentFiles.Remove(path);
             RecentFilesChanged?.Invoke();
             StatusText = string.Format(Strings.StatusFileNotFound, Path.GetFileName(path));
+            await _dialogService.ShowErrorAsync(Strings.FileNotFoundTitle, string.Format(Strings.RecentFileMissing, path));
             return;
         }
 

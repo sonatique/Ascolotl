@@ -209,6 +209,7 @@
   <data name="CommandZoomIn" xml:space="preserve"><value>Ingrandisci</value></data>
   <data name="CommandZoomOut" xml:space="preserve"><value>Riduci</value></data>
   <data name="ConvertADocxToAsciiDocImages" xml:space="preserve"><value>Converti un .docx in AsciiDoc (immagini estratte accanto)</value></data>
+  <data name="CouldNotOpenTitle" xml:space="preserve"><value>Ascolotl — Impossibile aprire il file</value></data>
   <data name="CtrlO" xml:space="preserve"><value>Ctrl O</value></data>
   <data name="CursorPosition" xml:space="preserve"><value>Ri {0}, Col {1}</value></data>
   <data name="DiagnosticAtLine" xml:space="preserve"><value>Riga {0}: {1}</value></data>
@@ -238,6 +239,7 @@
   <data name="ExportUnsupportedFormat" xml:space="preserve"><value>Formato di esportazione non supportato: {0}</value></data>
   <data name="File" xml:space="preserve"><value>_File</value></data>
   <data name="FileConflictMessage" xml:space="preserve"><value>«{0}» è stato modificato fuori da Ascolotl. Cosa vuoi fare?</value></data>
+  <data name="FileNotFoundTitle" xml:space="preserve"><value>Ascolotl — File non trovato</value></data>
   <data name="Files" xml:space="preserve"><value>File</value></data>
   <data name="FileTypeAsciiDoc" xml:space="preserve"><value>File AsciiDoc</value></data>
   <data name="FileTypeText" xml:space="preserve"><value>File di testo</value></data>
@@ -374,7 +376,13 @@
   <data name="ProfileUnnamed" xml:space="preserve"><value>Senza nome</value></data>
   <data name="Ready" xml:space="preserve"><value>Pronto</value></data>
   <data name="ReadyWhenYouAre" xml:space="preserve"><value>Pronto quando vuoi</value></data>
+  <data name="RecentFileMissing" xml:space="preserve"><value>{0}
+
+Questo file è stato spostato, rinominato o eliminato, quindi è stato tolto dai file recenti.</value></data>
   <data name="RecentFiles" xml:space="preserve"><value>File _recenti</value></data>
+  <data name="RecentFileUnreadable" xml:space="preserve"><value>{0}
+
+Questo file esiste ma non è stato possibile leggerlo. Forse è bloccato da un altro programma, oppure non hai il permesso di leggerlo.</value></data>
   <data name="Recover" xml:space="preserve"><value>Recupera</value></data>
   <data name="RecoverHeadingsTextTablesAndNotes" xml:space="preserve"><value>Recupera titoli, testo, tabelle e note da un PDF (impaginazione approssimata)</value></data>
   <data name="RecoveryFoundMany" xml:space="preserve"><value>Ascolotl ha trovato {0} documenti non salvati da una sessione precedente.</value></data>

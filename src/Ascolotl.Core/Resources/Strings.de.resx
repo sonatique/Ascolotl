@@ -209,6 +209,7 @@
   <data name="CommandZoomIn" xml:space="preserve"><value>Vergrößern</value></data>
   <data name="CommandZoomOut" xml:space="preserve"><value>Verkleinern</value></data>
   <data name="ConvertADocxToAsciiDocImages" xml:space="preserve"><value>Eine .docx-Datei in AsciiDoc umwandeln (Bilder werden daneben abgelegt)</value></data>
+  <data name="CouldNotOpenTitle" xml:space="preserve"><value>Ascolotl — Datei kann nicht geöffnet werden</value></data>
   <data name="CtrlO" xml:space="preserve"><value>Strg O</value></data>
   <data name="CursorPosition" xml:space="preserve"><value>Z {0}, Sp {1}</value></data>
   <data name="DiagnosticAtLine" xml:space="preserve"><value>Zeile {0}: {1}</value></data>
@@ -238,6 +239,7 @@
   <data name="ExportUnsupportedFormat" xml:space="preserve"><value>Nicht unterstütztes Exportformat: {0}</value></data>
   <data name="File" xml:space="preserve"><value>_Datei</value></data>
   <data name="FileConflictMessage" xml:space="preserve"><value>„{0}“ wurde außerhalb von Ascolotl geändert. Was möchten Sie tun?</value></data>
+  <data name="FileNotFoundTitle" xml:space="preserve"><value>Ascolotl — Datei nicht gefunden</value></data>
   <data name="Files" xml:space="preserve"><value>Dateien</value></data>
   <data name="FileTypeAsciiDoc" xml:space="preserve"><value>AsciiDoc-Dateien</value></data>
   <data name="FileTypeText" xml:space="preserve"><value>Textdateien</value></data>
@@ -374,7 +376,13 @@
   <data name="ProfileUnnamed" xml:space="preserve"><value>Unbenannt</value></data>
   <data name="Ready" xml:space="preserve"><value>Bereit</value></data>
   <data name="ReadyWhenYouAre" xml:space="preserve"><value>Bereit, wenn Sie es sind</value></data>
+  <data name="RecentFileMissing" xml:space="preserve"><value>{0}
+
+Diese Datei wurde verschoben, umbenannt oder gelöscht und deshalb aus den zuletzt geöffneten Dateien entfernt.</value></data>
   <data name="RecentFiles" xml:space="preserve"><value>_Zuletzt geöffnet</value></data>
+  <data name="RecentFileUnreadable" xml:space="preserve"><value>{0}
+
+Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durch ein anderes Programm gesperrt, oder Sie haben keine Leseberechtigung.</value></data>
   <data name="Recover" xml:space="preserve"><value>Wiederherstellen</value></data>
   <data name="RecoverHeadingsTextTablesAndNotes" xml:space="preserve"><value>Überschriften, Text, Tabellen und Hinweise aus einem PDF übernehmen (Layout angenähert)</value></data>
   <data name="RecoveryFoundMany" xml:space="preserve"><value>Ascolotl hat {0} nicht gespeicherte Dokumente aus einer früheren Sitzung gefunden.</value></data>
