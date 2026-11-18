@@ -226,7 +226,7 @@
                                               StrokeThickness="1.5"
                                               VerticalAlignment="Top"
                                               HorizontalAlignment="Center"
-                                              Margin="0,9,0,0"
+                                              Margin="0,11.5,0,0"
                                               Stroke="{DynamicResource ForgeTextBrush}" />
                                     </Panel>
                                 </MenuItem.Header>
