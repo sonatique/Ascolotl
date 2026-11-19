@@ -179,18 +179,23 @@ public partial class DocumentViewModel : ObservableObject
             IsDirty = true;
         }
 
+        _stats = null;
         OnPropertyChanged(nameof(WordCountText));
         OnPropertyChanged(nameof(StatsTooltip));
     }
 
     // --- Document stats (status bar) ---
 
+    // Counted once per text change, however many bindings read it.
+    private Editing.DocumentStatsResult? _stats;
+    private Editing.DocumentStatsResult Stats => _stats ??= Editing.DocumentStats.Count(SourceText);
+
     /// <summary>Compact prose word count for the status bar, e.g. "1,234 words".</summary>
     public string WordCountText
     {
         get
         {
-            var stats = Editing.DocumentStats.Count(SourceText);
+            var stats = Stats;
             return stats.Words == 1 ? Strings.StatsOneWord : string.Format(Strings.StatsWords, stats.Words);
         }
     }
@@ -200,7 +205,7 @@ public partial class DocumentViewModel : ObservableObject
     {
         get
         {
-            var stats = Editing.DocumentStats.Count(SourceText);
+            var stats = Stats;
             return string.Format(Strings.StatsTooltip, stats.ReadingMinutes, stats.Characters);
         }
     }

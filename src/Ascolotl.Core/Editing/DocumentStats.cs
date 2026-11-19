@@ -23,15 +23,13 @@ public static class DocumentStats
             return new DocumentStatsResult(0, 0, 0);
 
         var words = 0;
-        var pos = 0;
-        while (pos <= text.Length)
+        var rest = text.AsSpan();
+        while (true)
         {
-            var nl = text.IndexOf('\n', Math.Min(pos, text.Length));
-            var end = nl < 0 ? text.Length : nl;
-            var line = text[pos..end];
-            words += CountLineWords(line);
+            var nl = rest.IndexOf('\n');
+            words += CountLineWords(nl < 0 ? rest : rest[..nl]);
             if (nl < 0) break;
-            pos = nl + 1;
+            rest = rest[(nl + 1)..];
         }
 
         var minutes = words == 0
@@ -40,16 +38,16 @@ public static class DocumentStats
         return new DocumentStatsResult(words, text.Length, minutes);
     }
 
-    private static int CountLineWords(string line)
+    private static int CountLineWords(ReadOnlySpan<char> line)
     {
         var t = line.TrimStart();
         if (t.Length == 0) return 0;
 
         // Structural lines a reader never reads.
-        if (t.StartsWith("//", StringComparison.Ordinal)) return 0;   // comment
-        if (t[0] == '[' && t.TrimEnd().EndsWith(']')) return 0;       // block attributes / anchor
-        if (t[0] == ':' && t.IndexOf(':', 1) > 1) return 0;           // attribute entry
-        if (IsDelimiter(t)) return 0;                                  // fences, |===, '''
+        if (t.StartsWith("//")) return 0;                                       // comment
+        if (t[0] == '[' && t.TrimEnd().EndsWith(']')) return 0;                 // block attributes / anchor
+        if (t[0] == ':' && t.Length > 2 && t[1] != ':' && t[2..].Contains(':')) return 0; // attribute entry
+        if (IsDelimiter(t)) return 0;                                            // fences, |===, '''
 
         var words = 0;
         var inWord = false;
@@ -69,13 +67,13 @@ public static class DocumentStats
         return words;
     }
 
-    private static bool IsDelimiter(string t)
+    private static bool IsDelimiter(ReadOnlySpan<char> t)
     {
         var s = t.TrimEnd();
-        if (s == "'''" || s == "<<<") return true;
-        if (s.Length >= 3 && s[0] == '|' && s[1..].All(c => c == '=')) return true;
+        if (s.SequenceEqual("'''") || s.SequenceEqual("<<<")) return true;
+        if (s.Length >= 3 && s[0] == '|' && s[1..].IndexOfAnyExcept('=') < 0) return true;
         if (s.Length < 4) return false;
         var c0 = s[0];
-        return (c0 is '-' or '=' or '.' or '*' or '_' or '+') && s.All(c => c == c0);
+        return (c0 is '-' or '=' or '.' or '*' or '_' or '+') && s.IndexOfAnyExcept(c0) < 0;
     }
 }

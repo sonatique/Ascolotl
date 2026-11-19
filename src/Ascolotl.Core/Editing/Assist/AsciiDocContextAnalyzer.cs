@@ -66,19 +66,20 @@ public static class AsciiDocContextAnalyzer
     /// </summary>
     private static bool IsInsideVerbatim(string text, int caretLineStart)
     {
+        // Runs on every caret move over the text above it: no per-line strings.
         string? open = null;
         var i = 0;
         while (i < caretLineStart)
         {
-            var end = i;
-            while (end < text.Length && text[end] != '\n') end++;
-            var line = text[i..end].Trim();
+            var end = text.IndexOf('\n', i);
+            if (end < 0) end = text.Length;
+            var line = text.AsSpan(i, end - i).Trim();
 
             if (open is null)
             {
-                if (IsVerbatimFence(line)) open = line;
+                if (IsVerbatimFence(line)) open = line.ToString();
             }
-            else if (line == open)
+            else if (line.SequenceEqual(open))
             {
                 open = null;
             }
@@ -88,15 +89,8 @@ public static class AsciiDocContextAnalyzer
         return open is not null;
     }
 
-    private static bool IsVerbatimFence(string trimmed)
-    {
-        if (trimmed.Length < 4) return false;
-        var c = trimmed[0];
-        if (c != '-' && c != '.' && c != '+') return false;
-        foreach (var ch in trimmed)
-            if (ch != c) return false;
-        return true;
-    }
+    private static bool IsVerbatimFence(ReadOnlySpan<char> trimmed)
+        => trimmed.Length >= 4 && trimmed[0] is '-' or '.' or '+' && trimmed.IndexOfAnyExcept(trimmed[0]) < 0;
 
     /// <summary>
     /// True when the caret sits between a table's <c>|===</c> delimiters. Used
@@ -115,20 +109,15 @@ public static class AsciiDocContextAnalyzer
         var i = 0;
         while (i < caretLineStart)
         {
-            var end = i;
-            while (end < text.Length && text[end] != '\n') end++;
-            if (IsTableFence(text[i..end].Trim())) inside = !inside;
+            var end = text.IndexOf('\n', i);
+            if (end < 0) end = text.Length;
+            if (IsTableFence(text.AsSpan(i, end - i).Trim())) inside = !inside;
             i = end + 1;
         }
         return inside;
     }
 
     /// <summary>A table delimiter line: <c>|===</c> (or more '=').</summary>
-    public static bool IsTableFence(string trimmed)
-    {
-        if (trimmed.Length < 4 || trimmed[0] != '|') return false;
-        for (var i = 1; i < trimmed.Length; i++)
-            if (trimmed[i] != '=') return false;
-        return true;
-    }
+    public static bool IsTableFence(ReadOnlySpan<char> trimmed)
+        => trimmed.Length >= 4 && trimmed[0] == '|' && trimmed[1..].IndexOfAnyExcept('=') < 0;
 }
