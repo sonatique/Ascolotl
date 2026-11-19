@@ -1038,6 +1038,7 @@ public sealed class MainWindowViewModelTests : IDisposable
         var vm = CreateViewModel();
         vm.NewDocumentCommand.Execute(null);
         vm.SelectedDocument!.SourceText = "= Hello";
+        await vm.PendingRenderTask; // or its "Render complete" can replace the error status
         _fileService.PickSavePathResult = "/tmp/out.pdf";
         _exportService.ExportResult = ExportResult.Failure("asciidoctor-pdf not found");
 
