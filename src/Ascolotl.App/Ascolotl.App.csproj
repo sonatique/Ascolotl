@@ -43,6 +43,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Ascolotl.Tests.Unit" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Ascolotl.Core\Ascolotl.Core.csproj" />
     <ProjectReference Include="..\Ascolotl.Infrastructure\Ascolotl.Infrastructure.csproj" />
     <ProjectReference Include="..\Ascolotl.Export\Ascolotl.Export.csproj" />

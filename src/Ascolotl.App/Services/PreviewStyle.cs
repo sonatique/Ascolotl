@@ -47,8 +47,15 @@ public static class PreviewStyle
         }
     }
 
+    private static (PdfRenderOptions Options, AvaloniaRenderTheme Theme)? _themeCache;
+
+    /// <summary>The preview theme for a style; the same instance while the style
+    /// is unchanged, so its fonts are read once and a re-render can keep the
+    /// visuals drawn with it.</summary>
     public static AvaloniaRenderTheme ThemeFor(PdfRenderOptions o)
     {
+        if (_themeCache is { } c && ReferenceEquals(c.Options, o))
+            return c.Theme;
         var theme = new AvaloniaRenderTheme
         {
             BodyFont = Font(o.FontPath),
@@ -67,6 +74,7 @@ public static class PreviewStyle
         if (Brush(o.CodeBackground) is { } code) theme.CodeBlockBackground = code;
         if (Brush(o.TableBorderColor) is { } border) theme.TableBorderBrush = border;
         if (Brush(o.TableHeaderBackground) is { } header) theme.TableHeaderBackground = header;
+        _themeCache = (o, theme);
         return theme;
     }
 

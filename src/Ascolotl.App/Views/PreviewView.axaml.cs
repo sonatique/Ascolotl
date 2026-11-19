@@ -56,12 +56,9 @@ public partial class PreviewView : UserControl
     private int[] _astToEditor = Array.Empty<int>();
 
     // Bare renderer (WrapInScrollViewer=false) gives us the content panel
-    // directly. We tried IncrementalAvaloniaRenderer for its SectionTag
-    // tagging but the visual tree it produces is nested one section deep,
-    // which collapses the line map to one marker per top-level AST child —
-    // too coarse for clicks inside a long section. Sticking with per-block
-    // positional pairing for now; we can revisit incremental rendering as a
-    // separate perf-focused change once the basic mapping is solid.
+    // directly. IncrementalAvaloniaRenderer nests its output one section deep,
+    // which collapses the line map to one marker per top-level AST child, so
+    // re-renders reuse unchanged block visuals here instead (TryReuseBlocks).
     private static readonly AvaloniaRenderer _avaloniaRenderer = new() { WrapInScrollViewer = false };
     // The renderer's own look, restored when no style is active.
     private static readonly AvaloniaRenderTheme _builtInTheme = _avaloniaRenderer.Theme;
@@ -78,6 +75,16 @@ public partial class PreviewView : UserControl
     // Built by rendering block-by-block via AvaloniaRenderer.Render(BlockLayout),
     // which guarantees one visual per layout block — no positional drift.
     private List<(Control Vis, BlockLayout Block)> _blockMap = new();
+    // What the shown block panel was built around; while a new render keeps it,
+    // only the blocks that changed are rebuilt. Null when nothing reusable is shown.
+    private PreviewFrame? _frame;
+    // Lines the source moved by since a kept block visual was rendered: its
+    // inlines still carry that render's absolute lines (see CurrentRange).
+    private Dictionary<Control, int> _lineShift = new();
+    // The panel child holding a committed in-place edit's frozen editor (the
+    // editor itself, or the table around a cell editor) until the re-render,
+    // which must rebuild that slot even if its block renders the same.
+    private Control? _frozenEditSlot;
     // Guards a single subscription to the shared renderer's LinkClicked.
     private static bool _linkHandlerWired;
 
@@ -307,7 +314,7 @@ public partial class PreviewView : UserControl
             or nameof(DocumentViewModel.RenderError)
             or nameof(DocumentViewModel.LastRenderSucceeded))
         {
-            UpdatePreview(_doc);
+            UpdatePreview(_doc, reuseBlocks: true);
         }
         else if (e.PropertyName == nameof(DocumentViewModel.ZoomLevel))
         {
@@ -321,7 +328,10 @@ public partial class PreviewView : UserControl
         }
     }
 
-    private void UpdatePreview(DocumentViewModel doc)
+    /// <param name="reuseBlocks">A new render of the shown document: keep the
+    /// visuals of blocks that did not change. Other callers changed how the
+    /// preview looks, so they rebuild it all.</param>
+    private void UpdatePreview(DocumentViewModel doc, bool reuseBlocks = false)
     {
         // Every call supersedes a page layout still running, early returns included.
         var generation = ++_renderGeneration;
@@ -335,6 +345,8 @@ public partial class PreviewView : UserControl
         }
         _rebuildPending = false;
         _panelSource = null;
+        var shownFrame = _frame;
+        _frame = null; // set again only once a block panel is shown
 
         if (!doc.LastRenderSucceeded && doc.RenderError is not null)
         {
@@ -381,6 +393,17 @@ public partial class PreviewView : UserControl
                 return;
             }
 
+            var frame = new PreviewFrame(doc, _avaloniaRenderer.Theme, style, _mainVm?.ShowTitleAndToc ?? true,
+                HeaderKey(doc.RenderedDocument),
+                _mainVm?.PreviewFitWidth == true ? Math.Round(PreviewScroll.Viewport.Width) : 0);
+            if (reuseBlocks && frame == shownFrame && TryReuseBlocks(layout))
+            {
+                _frame = frame;
+                _panelSource = doc.RenderedSource;
+                MapAfterNextLayout();
+                return;
+            }
+
             var panel = new StackPanel
             {
                 HorizontalAlignment = HorizontalAlignment.Stretch,
@@ -424,6 +447,8 @@ public partial class PreviewView : UserControl
                 blockMap.Add((vis, block));
             }
             _blockMap = blockMap;
+            _lineShift = new();
+            _frozenEditSlot = null;
             _panelSource = doc.RenderedSource;
 
             // Bottom-spacer so the last block doesn't sit flush against the
@@ -464,54 +489,9 @@ public partial class PreviewView : UserControl
 
             InvalidateMeasureAll(content);
             content.UpdateLayout();
+            _frame = frame;
 
-            // Build the (sourceLine → Y) map once the visual tree has been laid
-            // out. LayoutUpdated fires whenever any descendant is measured/arranged
-            // — we attach once and detach inside the handler so it only fires for
-            // the next layout pass.
-            _lineMap = null;
-            EventHandler? handler = null;
-            handler = (s, e) =>
-            {
-                PreviewScroll.LayoutUpdated -= handler!;
-
-                // Walk the ENTIRE visual subtree (not just direct children)
-                // looking for the deepest-paint Y. If anything paints past
-                // the root panel's reported height, force MinHeight to
-                // accommodate it.
-                if (_renderedRoot is Panel panel)
-                {
-                    var deepBottom = FindDeepestBottom(panel);
-                    if (deepBottom > panel.Bounds.Height + 0.5)
-                        panel.MinHeight = deepBottom;
-                }
-
-                _lineMap = BuildLineMap();
-
-                // A click that committed an edit and landed on another block (or
-                // table cell) queued it; now that the map + _astToEditor are
-                // rebuilt, open it. Posted so it runs after this layout settles.
-                if (_pendingReentry is { } reentry)
-                {
-                    _pendingReentry = null;
-                    Dispatcher.UIThread.Post(() => ConsumeReentry(reentry));
-                }
-
-                // Re-apply the last sync position so the preview doesn't jump
-                // to the top after each re-render. This is the app driving the
-                // preview, NOT a user scroll — suppress reverse-sync so the
-                // resulting offset change doesn't bounce back and yank the
-                // editor (toward the error line, where a parse error truncates
-                // the line-map and any stray sync resolves).
-                if (_lastSyncTotal > 0)
-                {
-                    SuppressReverseSync = true;
-                    SyncToSourceLine(_lastSyncLine, _lastSyncFrac, _lastSyncTotal);
-                    Dispatcher.UIThread.Post(
-                        () => SuppressReverseSync = false, DispatcherPriority.Background);
-                }
-            };
-            PreviewScroll.LayoutUpdated += handler;
+            MapAfterNextLayout();
         }
         catch (Exception ex)
         {
@@ -519,6 +499,161 @@ public partial class PreviewView : UserControl
             StatusOverlay.IsVisible = true;
             StatusText.Text = string.Format(Strings.StatusPreviewRenderFailed, ex.Message);
         }
+    }
+
+    /// <summary>What the block panel's surroundings depend on: while a render
+    /// keeps all of it, only its blocks need updating.</summary>
+    private sealed record PreviewFrame(DocumentViewModel Doc, AvaloniaRenderTheme Theme, PdfRenderOptions? Style,
+        bool ShowTitleAndToc, string Header, double FitViewportWidth);
+
+    // Stamped from the clock on every parse; they must not force a full rebuild.
+    private static readonly HashSet<string> ClockAttributes = new(StringComparer.Ordinal)
+    {
+        "docyear", "docdate", "doctime", "docdatetime",
+        "localyear", "localdate", "localtime", "localdatetime",
+    };
+
+    /// <summary>The title and attributes, which feed the title line, the title page and the style.</summary>
+    private static string HeaderKey(DocumentNode document)
+        => string.Join("\n", document.Attributes
+            .Where(a => !ClockAttributes.Contains(a.Key))
+            .OrderBy(a => a.Key, StringComparer.Ordinal)
+            .Select(a => $"{a.Key}={a.Value}")
+            .Prepend(document.Title ?? string.Empty));
+
+    /// <summary>
+    /// Updates the shown block panel to <paramref name="layout"/> in place:
+    /// the unchanged blocks before and after the edit keep their visuals (and so
+    /// skip rendering, styling and measuring), only the ones between are
+    /// rebuilt. False when the shown panel can't be patched.
+    /// </summary>
+    private bool TryReuseBlocks(DocumentLayout layout)
+    {
+        if (_renderedRoot is not StackPanel panel || _blockMap.Count == 0)
+            return false;
+        var old = _blockMap;
+        var blocks = layout.Children;
+        // The panel holds an optional title line, the block visuals, then a bottom spacer.
+        var lead = panel.Children.Count - old.Count - 1;
+        if (lead < 0)
+            return false;
+        var frozen = _frozenEditSlot is { } slot ? panel.Children.IndexOf(slot) - lead : -1;
+        for (var i = 0; i < old.Count; i++)
+            if (i != frozen && panel.Children[lead + i] != old[i].Vis)
+                return false;
+
+        var same = 0;
+        while (same < old.Count && same < blocks.Count && same != frozen
+               && LayoutEquality.Same(old[same].Block, blocks[same]))
+            same++;
+        var sameAfter = 0;
+        while (sameAfter < old.Count - same && sameAfter < blocks.Count - same && old.Count - 1 - sameAfter != frozen
+               && LayoutEquality.Same(old[^(sameAfter + 1)].Block, blocks[blocks.Count - 1 - sameAfter]))
+            sameAfter++;
+
+        var map = new List<(Control Vis, BlockLayout Block)>(blocks.Count);
+        var shifts = new Dictionary<Control, int>();
+        for (var i = 0; i < same; i++)
+            map.Add(Kept(old[i], blocks[i], shifts));
+        var fresh = new List<Control>();
+        for (var i = same; i < blocks.Count - sameAfter; i++)
+        {
+            if (_avaloniaRenderer.Render(blocks[i]) is not { } vis) continue;
+            fresh.Add(vis);
+            map.Add((vis, blocks[i]));
+        }
+        for (var i = sameAfter; i > 0; i--)
+            map.Add(Kept(old[^i], blocks[blocks.Count - i], shifts));
+
+        panel.Children.RemoveRange(lead + same, old.Count - same - sameAfter);
+        panel.Children.InsertRange(lead + same, fresh);
+        _blockMap = map;
+        _lineShift = shifts;
+        _frozenEditSlot = null;
+        // Re-measured from scratch on the next layout pass (MapAfterNextLayout).
+        panel.MinHeight = 0;
+        panel.InvalidateMeasure();
+        return true;
+    }
+
+    /// <summary>A kept visual now standing for <paramref name="block"/>, which
+    /// may sit lower or higher in the source than when the visual was rendered.</summary>
+    private (Control Vis, BlockLayout Block) Kept(
+        (Control Vis, BlockLayout Block) old, BlockLayout block, Dictionary<Control, int> shifts)
+    {
+        var shift = _lineShift.GetValueOrDefault(old.Vis);
+        if (!block.Source.IsNone && !old.Block.Source.IsNone)
+            shift += block.Source.Start.Line - old.Block.Source.Start.Line;
+        if (shift != 0)
+            shifts[old.Vis] = shift;
+        return (old.Vis, block);
+    }
+
+    /// <summary>An inline's stamped source range, moved to where its block sits now.</summary>
+    internal SourceRange CurrentRange(Visual from, SourceRange range)
+    {
+        if (range.IsNone || _lineShift.Count == 0) return range;
+        for (var v = from; v is not null; v = v.GetVisualParent())
+        {
+            if (v is Control c && _lineShift.TryGetValue(c, out var shift))
+                return new SourceRange(Shift(range.Start), Shift(range.End));
+
+            SourcePosition Shift(SourcePosition p) => p.IsNone ? p : p with { Line = p.Line + shift };
+        }
+        return range;
+    }
+
+    /// <summary>
+    /// Build the (sourceLine → Y) map once the visual tree has been laid
+    /// out. LayoutUpdated fires whenever any descendant is measured/arranged
+    /// — we attach once and detach inside the handler so it only fires for
+    /// the next layout pass.
+    /// </summary>
+    private void MapAfterNextLayout()
+    {
+        _lineMap = null;
+        EventHandler? handler = null;
+        handler = (s, e) =>
+        {
+            PreviewScroll.LayoutUpdated -= handler!;
+
+            // Walk the ENTIRE visual subtree (not just direct children)
+            // looking for the deepest-paint Y. If anything paints past
+            // the root panel's reported height, force MinHeight to
+            // accommodate it.
+            if (_renderedRoot is Panel panel)
+            {
+                var deepBottom = FindDeepestBottom(panel);
+                if (deepBottom > panel.Bounds.Height + 0.5)
+                    panel.MinHeight = deepBottom;
+            }
+
+            _lineMap = BuildLineMap();
+
+            // A click that committed an edit and landed on another block (or
+            // table cell) queued it; now that the map + _astToEditor are
+            // rebuilt, open it. Posted so it runs after this layout settles.
+            if (_pendingReentry is { } reentry)
+            {
+                _pendingReentry = null;
+                Dispatcher.UIThread.Post(() => ConsumeReentry(reentry));
+            }
+
+            // Re-apply the last sync position so the preview doesn't jump
+            // to the top after each re-render. This is the app driving the
+            // preview, NOT a user scroll — suppress reverse-sync so the
+            // resulting offset change doesn't bounce back and yank the
+            // editor (toward the error line, where a parse error truncates
+            // the line-map and any stray sync resolves).
+            if (_lastSyncTotal > 0)
+            {
+                SuppressReverseSync = true;
+                SyncToSourceLine(_lastSyncLine, _lastSyncFrac, _lastSyncTotal);
+                Dispatcher.UIThread.Post(
+                    () => SuppressReverseSync = false, DispatcherPriority.Background);
+            }
+        };
+        PreviewScroll.LayoutUpdated += handler;
     }
 
     /// <summary>
@@ -609,6 +744,7 @@ public partial class PreviewView : UserControl
         }
         _renderedRoot = null;
         _blockMap = [];
+        _lineShift = new();
         _lineMap = null;
 
         EventHandler? handler = null;
@@ -770,6 +906,7 @@ public partial class PreviewView : UserControl
                 int pos = 0;
                 if (!TryFindInlineRange(tb.Inlines, ref pos, hit.TextPosition, SourceRange.None, out sr))
                     sr = SourceRange.None;
+                sr = CurrentRange(tb, sr);
             }
             catch { sr = SourceRange.None; }
 
@@ -1089,6 +1226,7 @@ public partial class PreviewView : UserControl
         var pos = 0;
         if (!TryFindInlineRange(tb.Inlines, ref pos, textPos, SourceRange.None, out var sr) || sr.IsNone)
             return null;
+        sr = CurrentRange(tb, sr);
 
         var editorLine = IncludeExpansionMap.AstLineToEditor(_astToEditor, sr.Start.Line - 1, fallback: -1);
         if (editorLine < 0) return null;
@@ -1242,6 +1380,9 @@ public partial class PreviewView : UserControl
             // Freeze the inline editor until the debounced re-render replaces
             // the panel — the splice below kicks that off via dirty tracking.
             edit.Editor.IsReadOnly = true;
+            _frozenEditSlot = _renderedRoot is Panel panel
+                ? edit.Host.GetSelfAndVisualAncestors().OfType<Control>().FirstOrDefault(c => c.GetVisualParent() == panel)
+                : null;
             _doc.SourceText = _doc.SourceText.Remove(s, len).Insert(s, newSlice);
             if (_mainVm is not null) _mainVm.StatusText = Strings.StatusBlockUpdated;
             _rebuildPending = false; // the splice's own re-render rebuilds the panel
