@@ -1,0 +1,88 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:res="using:Ascolotl.Core.Resources"
+        xmlns:views="using:Ascolotl.App.Views"
+        x:Class="Ascolotl.App.Views.AboutDialog"
+        Title="{x:Static res:Strings.CommandAbout}"
+        SizeToContent="WidthAndHeight"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        FontSize="12.5"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        ExtendClientAreaTitleBarHeightHint="34"
+        Background="{DynamicResource ForgeBgBrush}">
+
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Height="34"
+                Background="{DynamicResource ForgeTitleBarBrush}">
+            <TextBlock Text="{Binding $parent[Window].Title}"
+                       VerticalAlignment="Center" Margin="14,0,0,0"
+                       FontSize="12" FontWeight="Medium"
+                       Foreground="{DynamicResource ForgeTextBrush}" />
+        </Border>
+
+        <StackPanel Spacing="18" Margin="24,20,24,20" Width="400"
+                    TextElement.Foreground="{DynamicResource ForgeTextBrush}">
+            <Grid ColumnDefinitions="Auto,*">
+                <Image Source="avares://Ascolotl/Assets/app-icon.png"
+                       Width="64" Height="64"
+                       RenderOptions.BitmapInterpolationMode="HighQuality"
+                       VerticalAlignment="Top" />
+                <StackPanel Grid.Column="1" Margin="16,2,0,0" Spacing="3">
+                    <TextBlock Text="{x:Static res:Strings.Ascolotl}"
+                               FontSize="20" FontWeight="SemiBold" />
+                    <TextBlock Text="{x:Static res:Strings.AboutTagline}"
+                               Foreground="{DynamicResource ForgeTextMutedBrush}" />
+                    <SelectableTextBlock x:Name="VersionText"
+                                         FontFeatures="tnum=1"
+                                         Foreground="{DynamicResource ForgeTextMutedBrush}" />
+                </StackPanel>
+            </Grid>
+
+            <!-- Where Ascolotl lives; a link appears once it has an address. -->
+            <WrapPanel>
+                <HyperlinkButton x:Name="SourceLink"
+                                 Content="{x:Static res:Strings.AboutSourceLink}"
+                                 NavigateUri="{x:Static views:AppLinks.Source}"
+                                 Classes="about" />
+                <HyperlinkButton x:Name="StoreLink"
+                                 Content="{x:Static res:Strings.AboutStoreLink}"
+                                 Classes="about" />
+                <HyperlinkButton Content="{x:Static res:Strings.AboutLicenseLink}"
+                                 NavigateUri="{x:Static views:AppLinks.License}"
+                                 Classes="about" />
+            </WrapPanel>
+
+            <Border Background="{DynamicResource ForgeAccentSubtleBrush}"
+                    CornerRadius="8" Padding="14,12">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="{x:Static res:Strings.AboutSponsorNote}"
+                               TextWrapping="Wrap" />
+                    <Button x:Name="SponsorButton"
+                            Content="{x:Static res:Strings.AboutSponsorLink}"
+                            Classes="dialog primary"
+                            HorizontalAlignment="Left"
+                            Click="OnSponsorClick" />
+                </StackPanel>
+            </Border>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock x:Name="LegalText"
+                           TextWrapping="Wrap"
+                           FontSize="11"
+                           Margin="0,0,16,0"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource ForgeTextMutedBrush}" />
+                <Button Grid.Column="1"
+                        Content="{x:Static res:Strings.Close}"
+                        Classes="dialog"
+                        Click="OnCloseClick"
+                        IsDefault="True"
+                        IsCancel="True"
+                        MinWidth="90" />
+            </Grid>
+        </StackPanel>
+    </DockPanel>
+
+</Window>

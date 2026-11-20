@@ -258,6 +258,12 @@
         <Style Selector="Button.format:pointerover Path.icon">
             <Setter Property="Stroke" Value="{DynamicResource ForgeTextBrush}" />
         </Style>
+        <!-- About box links: accent text, no chrome. -->
+        <Style Selector="HyperlinkButton.about">
+            <Setter Property="Foreground" Value="{DynamicResource ForgeAccentTextBrush}" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0,0,18,0" />
+        </Style>
         <Style Selector="Border.format-separator">
             <Setter Property="Background" Value="{DynamicResource ForgeBorderBrush}" />
         </Style>

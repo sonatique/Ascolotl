@@ -11,4 +11,7 @@ public interface IDialogService
     Task<string?> AskPdfTitleAsync(string title);
     /// <summary>Tells the user something failed; returns when they dismiss it.</summary>
     Task ShowErrorAsync(string title, string message);
+
+    /// <summary>Name, version and links; returns when the user closes it.</summary>
+    Task ShowAboutAsync();
 }

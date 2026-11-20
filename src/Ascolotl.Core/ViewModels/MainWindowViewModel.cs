@@ -161,6 +161,9 @@ public partial class MainWindowViewModel : ObservableObject
     public SyntaxReferenceViewModel SyntaxReference { get; } = new();
 
     [RelayCommand]
+    private Task ShowAboutAsync() => _dialogService.ShowAboutAsync();
+
+    [RelayCommand]
     private void ToggleSyntaxReference()
     {
         if (SyntaxReference.IsOpen) SyntaxReference.Close();
@@ -1625,6 +1628,7 @@ public partial class MainWindowViewModel : ObservableObject
             new(Strings.CommandNextTab, "Ctrl+Tab", Strings.CommandCategoryNavigation, () => NextTabCommand.Execute(null)),
             new(Strings.CommandPreviousTab, "Ctrl+Shift+Tab", Strings.CommandCategoryNavigation, () => PreviousTabCommand.Execute(null)),
             new(Strings.CommandAsciiDocSyntaxReference, "F1", Strings.CommandCategoryHelp, () => ToggleSyntaxReferenceCommand.Execute(null)),
+            new(Strings.CommandAbout, null, Strings.CommandCategoryHelp, () => ShowAboutCommand.Execute(null)),
         ];
     }
 }

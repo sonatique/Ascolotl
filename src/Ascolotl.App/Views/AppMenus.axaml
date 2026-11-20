@@ -248,4 +248,8 @@
                   Command="{Binding ResetStyleCommand}"
                   IsEnabled="{Binding HasStyle}" />
     </MenuItem>
+    <MenuItem Header="{x:Static res:Strings.Help}">
+        <MenuItem Header="{x:Static res:Strings.MenuAbout}"
+                  Command="{Binding ShowAboutCommand}" />
+    </MenuItem>
 </MenuItem>

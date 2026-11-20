@@ -38,6 +38,8 @@ public sealed class AvaloniaDialogService : IDialogService
     public async Task ShowErrorAsync(string title, string message)
         => await new MessageDialog(title, message).ShowDialog(_owner);
 
+    public async Task ShowAboutAsync() => await new AboutDialog().ShowDialog(_owner);
+
     public async Task<string?> AskPdfTitleAsync(string title)
     {
         var dialog = new PdfTitleDialog(title);

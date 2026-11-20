@@ -504,4 +504,15 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="MenuCopy" xml:space="preserve"><value>Copiar</value></data>
   <data name="MenuPaste" xml:space="preserve"><value>Pegar</value></data>
   <data name="StatusClickTextToFormat" xml:space="preserve"><value>Haga clic en el texto para darle formato</value></data>
+  <data name="Help" xml:space="preserve"><value>Ay_uda</value></data>
+  <data name="MenuAbout" xml:space="preserve"><value>_Acerca de Ascolotl</value></data>
+  <data name="CommandAbout" xml:space="preserve"><value>Acerca de Ascolotl</value></data>
+  <data name="AboutTagline" xml:space="preserve"><value>Forjado para AsciiDoc y Markdown.</value></data>
+  <data name="AboutVersion" xml:space="preserve"><value>Versión {0}</value></data>
+  <data name="AboutSourceLink" xml:space="preserve"><value>Código fuente en GitHub</value></data>
+  <data name="AboutStoreLink" xml:space="preserve"><value>Microsoft Store</value></data>
+  <data name="AboutLicenseLink" xml:space="preserve"><value>Licencia</value></data>
+  <data name="AboutSponsorNote" xml:space="preserve"><value>Si Ascolotl te ahorra tiempo, una pequeña propina lo ayuda a crecer.</value></data>
+  <data name="AboutSponsorLink" xml:space="preserve"><value>Invita al ajolote a un café</value></data>
+  <data name="AboutLicenseNotice" xml:space="preserve"><value>Software libre bajo la GNU GPL v3, sin garantía.</value></data>
 </root>

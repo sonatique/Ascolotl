@@ -46,6 +46,14 @@ public sealed class MockDialogService : IDialogService
         return Task.CompletedTask;
     }
 
+    public int ShowAboutCalled { get; private set; }
+
+    public Task ShowAboutAsync()
+    {
+        ShowAboutCalled++;
+        return Task.CompletedTask;
+    }
+
     public Task<bool> ShowRecoveryDialogAsync(int documentCount)
     {
         ShowRecoveryDialogCalled++;

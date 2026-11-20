@@ -504,4 +504,15 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="MenuCopy" xml:space="preserve"><value>Copy</value></data>
   <data name="MenuPaste" xml:space="preserve"><value>Paste</value></data>
   <data name="StatusClickTextToFormat" xml:space="preserve"><value>Click into the text to format it</value></data>
+  <data name="Help" xml:space="preserve"><value>_Help</value></data>
+  <data name="MenuAbout" xml:space="preserve"><value>_About Ascolotl</value></data>
+  <data name="CommandAbout" xml:space="preserve"><value>About Ascolotl</value></data>
+  <data name="AboutTagline" xml:space="preserve"><value>Forged for AsciiDoc and Markdown.</value></data>
+  <data name="AboutVersion" xml:space="preserve"><value>Version {0}</value></data>
+  <data name="AboutSourceLink" xml:space="preserve"><value>Source code on GitHub</value></data>
+  <data name="AboutStoreLink" xml:space="preserve"><value>Microsoft Store</value></data>
+  <data name="AboutLicenseLink" xml:space="preserve"><value>License</value></data>
+  <data name="AboutSponsorNote" xml:space="preserve"><value>If Ascolotl saves you time, a small tip keeps it growing.</value></data>
+  <data name="AboutSponsorLink" xml:space="preserve"><value>Buy the axolotl a coffee</value></data>
+  <data name="AboutLicenseNotice" xml:space="preserve"><value>Free software under the GNU GPL v3, with no warranty.</value></data>
 </root>
