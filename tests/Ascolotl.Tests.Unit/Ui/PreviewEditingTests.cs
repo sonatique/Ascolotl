@@ -187,6 +187,20 @@ public sealed class PreviewEditingTests
     }
 
     [AvaloniaFact]
+    public void ClickOnLinkText_MapsToTheLinksSource()
+    {
+        var (window, _) = Open("See https://example.org[the docs] here.", EditorMode.Split);
+        var tb = BlockStarting(window, "See");
+        var target = (tb.Inlines!.Text ?? "").IndexOf("docs", StringComparison.Ordinal);
+
+        var pos = 0;
+        Assert.True(PreviewView.TryFindInlineRange(tb.Inlines, ref pos, target, AdocNet.SourceRange.None, out var range));
+        Assert.False(range.IsNone);
+        Assert.Equal(1, range.Start.Line);
+        Assert.InRange(range.Start.Column, 5, 25); // within the link macro, not the paragraph's start
+    }
+
+    [AvaloniaFact]
     public void ClickInAChecklistItem_SkipsItsBox()
     {
         var (window, _) = Open("* [x] Done item", EditorMode.Split);
