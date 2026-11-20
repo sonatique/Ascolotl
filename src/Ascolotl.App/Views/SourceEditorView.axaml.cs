@@ -82,9 +82,17 @@ public partial class SourceEditorView : UserControl
         {
             _currentDocument.PropertyChanged += OnDocumentPropertyChanged;
             LoadTextFromDocument(_currentDocument);
+            ApplyFormat(_currentDocument); // after the text: the syntax hint reads it
             Editor.FontSize = _currentDocument.FontSize;
             UpdateDiagnostics(_currentDocument);
         }
+    }
+
+    private void ApplyFormat(DocumentViewModel doc)
+    {
+        _colorizer.Markdown = doc.IsMarkdown;
+        _assist.Enabled = !doc.IsMarkdown;
+        Editor.TextArea.TextView.Redraw();
     }
 
     private void UpdateDiagnostics(DocumentViewModel doc)
@@ -198,6 +206,10 @@ public partial class SourceEditorView : UserControl
 
             case nameof(DocumentViewModel.Diagnostics):
                 UpdateDiagnostics(_currentDocument);
+                break;
+
+            case nameof(DocumentViewModel.IsMarkdown):
+                ApplyFormat(_currentDocument);
                 break;
         }
     }

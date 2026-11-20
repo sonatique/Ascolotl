@@ -1,6 +1,7 @@
 using System.Text;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using Ascolotl.Core.Models;
 using Ascolotl.Core.Services;
 using Ascolotl.Core.Resources;
 
@@ -11,6 +12,16 @@ public sealed class AvaloniaFileService : IFileService
     private static readonly FilePickerFileType AdocFileType = new(Strings.FileTypeAsciiDoc)
     {
         Patterns = ["*.adoc", "*.asciidoc"],
+    };
+
+    private static readonly FilePickerFileType MarkdownFileType = new(Strings.FileTypeMarkdown)
+    {
+        Patterns = [.. MarkdownFile.Extensions.Select(e => "*" + e)],
+    };
+
+    private static readonly FilePickerFileType DocumentFileType = new(Strings.FileTypeDocuments)
+    {
+        Patterns = [.. AdocFileType.Patterns!, .. MarkdownFileType.Patterns!],
     };
 
     private static readonly FilePickerFileType TextFileType = new(Strings.FileTypeText)
@@ -29,9 +40,9 @@ public sealed class AvaloniaFileService : IFileService
     {
         var files = await _window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = Strings.DialogOpenAsciiDocFile,
+            Title = Strings.DialogOpenDocument,
             AllowMultiple = false,
-            FileTypeFilter = [AdocFileType, TextFileType, FilePickerFileTypes.All],
+            FileTypeFilter = [DocumentFileType, TextFileType, FilePickerFileTypes.All],
         });
 
         if (files.Count == 0)
@@ -60,12 +71,16 @@ public sealed class AvaloniaFileService : IFileService
 
     public async Task<string?> SaveFileAsAsync(string suggestedName, string content, Encoding encoding)
     {
+        // A Markdown document offers Markdown first, so it stays Markdown.
+        var markdown = MarkdownFile.Is(suggestedName);
         var file = await _window.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = Strings.DialogSaveAsciiDocFile,
+            Title = Strings.DialogSaveDocument,
             SuggestedFileName = suggestedName,
-            DefaultExtension = "adoc",
-            FileTypeChoices = [AdocFileType, TextFileType, FilePickerFileTypes.All],
+            DefaultExtension = markdown ? "md" : "adoc",
+            FileTypeChoices = markdown
+                ? [MarkdownFileType, AdocFileType, TextFileType, FilePickerFileTypes.All]
+                : [AdocFileType, MarkdownFileType, TextFileType, FilePickerFileTypes.All],
         });
 
         if (file is null)

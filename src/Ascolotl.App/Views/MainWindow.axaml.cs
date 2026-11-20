@@ -581,7 +581,7 @@ public partial class MainWindow : Window
             if (path is null) continue;
 
             var ext = System.IO.Path.GetExtension(path).ToLowerInvariant();
-            if (ext is ".adoc" or ".asciidoc" or ".txt" or ".asc")
+            if (ext is ".adoc" or ".asciidoc" or ".txt" or ".asc" || MarkdownFile.Is(path))
             {
                 await _viewModel.OpenFileByPathAsync(path);
             }

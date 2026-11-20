@@ -38,12 +38,33 @@ internal sealed class CompletionController
             editor.TextArea.Caret.PositionChanged += (_, _) => UpdateHint();
     }
 
+    private bool _enabled = true;
+
+    /// <summary>Off in Markdown documents: the assist only knows AsciiDoc.</summary>
+    public bool Enabled
+    {
+        get => _enabled;
+        set
+        {
+            if (_enabled == value) return;
+            _enabled = value;
+            if (!value)
+            {
+                _window?.Close();
+                _session?.Finish();
+                _session = null;
+            }
+            UpdateHint();
+        }
+    }
+
     /// <summary>True while a popup or snippet session owns the keyboard — the
     /// host's own key handling (e.g. block-edit Esc/Tab) should defer to us.</summary>
     public bool IsActive => _window is not null || _session is { Active: true };
 
     private void OnTextEntered(object? sender, TextInputEventArgs e)
     {
+        if (!_enabled) return;
         if (_session is { Active: true }) return;
         if (string.IsNullOrEmpty(e.Text)) return;
         if (_window is not null) return; // already filtering live
@@ -52,6 +73,8 @@ internal sealed class CompletionController
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
+        if (!_enabled) return;
+
         // While the popup is open, let it own navigation — but make Tab COMMIT
         // the highlighted suggestion. AvaloniaEdit otherwise lets Tab fall
         // through to a literal tab, which is the "Tab just inserts a tab"
@@ -329,7 +352,7 @@ internal sealed class CompletionController
 
     private void UpdateHint()
     {
-        var hint = SyntaxHint.Describe(_editor.Document.Text, _editor.CaretOffset);
+        var hint = _enabled ? SyntaxHint.Describe(_editor.Document.Text, _editor.CaretOffset) : null;
         _onHint?.Invoke(hint);
     }
 }

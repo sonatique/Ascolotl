@@ -5,7 +5,8 @@ using AvaloniaEdit.Rendering;
 
 namespace Ascolotl.App.Views;
 
-/// <summary>Colours AsciiDoc source in the editor (see <see cref="AsciiDocSyntax"/>).</summary>
+/// <summary>Colours AsciiDoc source in the editor (see <see cref="AsciiDocSyntax"/>),
+/// or Markdown source (see <see cref="MarkdownSyntax"/>).</summary>
 public sealed class AsciiDocColorizer : DocumentColorizingTransformer
 {
     private static readonly IReadOnlyDictionary<SyntaxKind, string> Light = new Dictionary<SyntaxKind, string>
@@ -38,13 +39,15 @@ public sealed class AsciiDocColorizer : DocumentColorizingTransformer
 
     public void UseTheme(bool dark) => _brushes = Brushes(dark ? Dark : Light);
 
+    public bool Markdown { get; set; }
+
     private static Dictionary<SyntaxKind, IBrush> Brushes(IReadOnlyDictionary<SyntaxKind, string> palette)
         => palette.ToDictionary(p => p.Key, p => (IBrush)new SolidColorBrush(Color.Parse(p.Value)));
 
     protected override void ColorizeLine(DocumentLine line)
     {
         var text = CurrentContext.Document.GetText(line);
-        foreach (var span in AsciiDocSyntax.Classify(text))
+        foreach (var span in Markdown ? MarkdownSyntax.Classify(text) : AsciiDocSyntax.Classify(text))
         {
             var brush = _brushes[span.Kind];
             var emphasis = span.Kind is SyntaxKind.Heading or SyntaxKind.Admonition;

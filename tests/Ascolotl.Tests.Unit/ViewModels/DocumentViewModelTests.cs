@@ -98,6 +98,22 @@ public sealed class DocumentViewModelTests : IDisposable
     }
 
     [Fact]
+    public void IsMarkdown_FollowsTheFileExtension()
+    {
+        var doc = DocumentViewModel.CreateNew();
+        var changes = new List<string?>();
+        doc.PropertyChanged += (_, e) => changes.Add(e.PropertyName);
+        Assert.False(doc.IsMarkdown);
+
+        doc.FilePath = "/tmp/notes.MD";
+        Assert.True(doc.IsMarkdown);
+        Assert.Contains(nameof(DocumentViewModel.IsMarkdown), changes);
+
+        doc.FilePath = "/tmp/notes.adoc"; // saved as AsciiDoc
+        Assert.False(doc.IsMarkdown);
+    }
+
+    [Fact]
     public void MarkClean_WithoutFilePath_SetsStateToNew()
     {
         var doc = DocumentViewModel.CreateNew();

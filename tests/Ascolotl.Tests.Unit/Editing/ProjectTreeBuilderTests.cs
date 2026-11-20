@@ -12,11 +12,11 @@ public class ProjectTreeBuilderTests
     // --- FilterDocumentPaths ---
 
     [Fact]
-    public void Filter_KeepsAdocAndAsciidoc_CaseInsensitive()
+    public void Filter_KeepsAsciiDocAndMarkdown_CaseInsensitive()
     {
         var kept = ProjectTreeBuilder.FilterDocumentPaths(
-            ["a.adoc", "b.ASCIIDOC", "c.txt", "d.md", "e.adoc.bak"]).ToList();
-        Assert.Equal(["a.adoc", "b.ASCIIDOC"], kept);
+            ["a.adoc", "b.ASCIIDOC", "c.txt", "d.md", "e.adoc.bak", "f.Markdown"]).ToList();
+        Assert.Equal(["a.adoc", "b.ASCIIDOC", "d.md", "f.Markdown"], kept);
     }
 
     [Fact]

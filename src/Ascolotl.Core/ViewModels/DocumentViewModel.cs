@@ -49,6 +49,10 @@ public partial class DocumentViewModel : ObservableObject
     [ObservableProperty]
     private string? _filePath;
 
+    /// <summary>Markdown rather than AsciiDoc: follows the file's extension, so
+    /// saving as .md switches it. Untitled documents are AsciiDoc.</summary>
+    public bool IsMarkdown => MarkdownFile.Is(FilePath);
+
     /// <summary>
     /// Private folder holding an unsaved import's images. Relative image paths
     /// resolve here until the first save copies them beside the file.
@@ -218,7 +222,11 @@ public partial class DocumentViewModel : ObservableObject
 
     partial void OnDisplayNameChanged(string value) => OnPropertyChanged(nameof(TabTitle));
 
-    partial void OnFilePathChanged(string? value) => OnPropertyChanged(nameof(State));
+    partial void OnFilePathChanged(string? value)
+    {
+        OnPropertyChanged(nameof(State));
+        OnPropertyChanged(nameof(IsMarkdown));
+    }
 
     partial void OnZoomLevelChanged(int value) => OnPropertyChanged(nameof(FontSize));
 }

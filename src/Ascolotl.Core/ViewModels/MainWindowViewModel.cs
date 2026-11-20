@@ -792,7 +792,8 @@ public partial class MainWindowViewModel : ObservableObject
         List<string> docs;
         try
         {
-            docs = EnumerateProjectDocuments();
+            // AsciiDoc pages only: Markdown ones need AdocNet's Markdown parser.
+            docs = EnumerateProjectDocuments().Where(d => !MarkdownFile.Is(d)).ToList();
         }
         catch (Exception ex)
         {

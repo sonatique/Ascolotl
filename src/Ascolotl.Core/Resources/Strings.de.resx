@@ -216,9 +216,9 @@
   <data name="DialogChooseOutputFolder" xml:space="preserve"><value>Zielordner wählen</value></data>
   <data name="DialogChooseStyle" xml:space="preserve"><value>Stil wählen</value></data>
   <data name="DialogExportAs" xml:space="preserve"><value>Als {0} exportieren</value></data>
-  <data name="DialogOpenAsciiDocFile" xml:space="preserve"><value>AsciiDoc-Datei öffnen</value></data>
+  <data name="DialogOpenDocument" xml:space="preserve"><value>Dokument öffnen</value></data>
   <data name="DialogOpenFolder" xml:space="preserve"><value>Ordner öffnen</value></data>
-  <data name="DialogSaveAsciiDocFile" xml:space="preserve"><value>AsciiDoc-Datei speichern</value></data>
+  <data name="DialogSaveDocument" xml:space="preserve"><value>Dokument speichern</value></data>
   <data name="Discard" xml:space="preserve"><value>Verwerfen</value></data>
   <data name="DocBook" xml:space="preserve"><value>_DocBook...</value></data>
   <data name="DonTSave" xml:space="preserve"><value>Nicht speichern</value></data>
@@ -242,6 +242,8 @@
   <data name="FileNotFoundTitle" xml:space="preserve"><value>Ascolotl — Datei nicht gefunden</value></data>
   <data name="Files" xml:space="preserve"><value>Dateien</value></data>
   <data name="FileTypeAsciiDoc" xml:space="preserve"><value>AsciiDoc-Dateien</value></data>
+  <data name="FileTypeDocuments" xml:space="preserve"><value>AsciiDoc- und Markdown-Dateien</value></data>
+  <data name="FileTypeMarkdown" xml:space="preserve"><value>Markdown-Dateien</value></data>
   <data name="FileTypeText" xml:space="preserve"><value>Textdateien</value></data>
   <data name="FilterDocBook" xml:space="preserve"><value>DocBook XML</value></data>
   <data name="FilterEpub" xml:space="preserve"><value>EPUB-Buch</value></data>

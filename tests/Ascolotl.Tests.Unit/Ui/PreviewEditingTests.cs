@@ -144,6 +144,28 @@ public sealed class PreviewEditingTests
         Assert.True(editor.Document.UndoStack.CanUndo);
     }
 
+    [AvaloniaFact]
+    public void SavedAsMarkdown_TheAsciiDocAssistStops()
+    {
+        var (window, vm) = Open("== Section\n\n* item", EditorMode.Split);
+        var doc = vm.SelectedDocument!;
+        var editor = window.GetVisualDescendants().OfType<SourceEditorView>().Single()
+            .GetVisualDescendants().OfType<TextEditor>().First();
+        editor.CaretOffset = 3;
+        Assert.NotEmpty(doc.SyntaxHint);
+
+        doc.FilePath = Path.Combine(Path.GetTempPath(), "notes.md");
+        Assert.Empty(doc.SyntaxHint);
+
+        // Enter after a list item no longer continues the list AsciiDoc's way.
+        editor.CaretOffset = editor.Document.TextLength;
+        editor.TextArea.Focus();
+        window.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+        Pump(window);
+        Assert.Equal("== Section\n\n* item\n", editor.Text.Replace("\r\n", "\n"));
+        Assert.Empty(doc.SyntaxHint);
+    }
+
     /// <summary>The rendered paragraph showing exactly <paramref name="text"/>.</summary>
     private static TextBlock Paragraph(Window window, string text) =>
         Preview(window).GetVisualDescendants().OfType<TextBlock>()

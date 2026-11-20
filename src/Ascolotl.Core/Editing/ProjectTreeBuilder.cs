@@ -9,10 +9,10 @@ namespace Ascolotl.Core.Editing;
 /// </summary>
 public static class ProjectTreeBuilder
 {
-    private static readonly string[] DocumentExtensions = [".adoc", ".asciidoc"];
+    private static readonly string[] DocumentExtensions = [".adoc", ".asciidoc", .. MarkdownFile.Extensions];
 
     /// <summary>
-    /// Keep only AsciiDoc documents, and drop anything under a dot-directory
+    /// Keep only AsciiDoc and Markdown documents, and drop anything under a dot-directory
     /// (.git, .vs, …) — those are never part of the writing project.
     /// </summary>
     public static IEnumerable<string> FilterDocumentPaths(IEnumerable<string> relativePaths)
