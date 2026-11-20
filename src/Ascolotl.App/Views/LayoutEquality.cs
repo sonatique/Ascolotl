@@ -7,8 +7,7 @@ namespace Ascolotl.App.Views;
 /// Whether two layout blocks render the same, wherever they sit in the source:
 /// source ranges are compared relative to their block's first line, so a block
 /// that only moved (lines added or removed above it) still matches. Ranges never
-/// change the rendering, only click-to-source, so an identical range matches as
-/// well (AdocNet gives blocks nested in list items block-relative ranges).
+/// change the rendering, only click-to-source, so an identical range matches as well.
 /// Unknown layout kinds never match, so a newer AdocNet can only cost a re-render.
 /// </summary>
 public sealed class LayoutEquality
