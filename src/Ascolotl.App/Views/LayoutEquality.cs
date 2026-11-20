@@ -61,6 +61,7 @@ public sealed class LayoutEquality
             (SubscriptRun x, SubscriptRun y) => Inlines(x.Children, y.Children),
             (SuperscriptRun x, SuperscriptRun y) => Inlines(x.Children, y.Children),
             (StrikethroughRun x, StrikethroughRun y) => Inlines(x.Children, y.Children),
+            (HighlightRun x, HighlightRun y) => Inlines(x.Children, y.Children),
             (ImageRun x, ImageRun y) => x.Target == y.Target && x.Alt == y.Alt,
             (LineBreakRun, LineBreakRun) => true,
             _ => false,

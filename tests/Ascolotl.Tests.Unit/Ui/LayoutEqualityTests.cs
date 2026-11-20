@@ -45,6 +45,7 @@ public sealed class LayoutEqualityTests
             "DescriptionItemLayout.Description", "DescriptionItemLayout.Term",
             "DescriptionListLayout.Items", "DescriptionListLayout.Source",
             "HeadingLayout.Inlines", "HeadingLayout.Level", "HeadingLayout.Source",
+            "HighlightRun.Children", "HighlightRun.Source",
             "ImageLayout.Alt", "ImageLayout.Height", "ImageLayout.Source", "ImageLayout.Target",
             "ImageLayout.Title", "ImageLayout.Width",
             "ImageRun.Alt", "ImageRun.Source", "ImageRun.Target",
