@@ -695,7 +695,8 @@ public partial class PreviewView : UserControl
     {
         var zoom = doc.ZoomLevel / 100.0;
         if (_mainVm?.PreviewFitWidth == true && PreviewScroll.Viewport.Width > 0)
-            zoom = Math.Clamp((PreviewScroll.Viewport.Width - 2 * FitWidthGap) / pageWidth, 0.25, 4);
+            zoom = Math.Clamp((PreviewScroll.Viewport.Width - PreviewHost.Margin.Left - PreviewHost.Margin.Right
+                - 2 * FitWidthGap) / pageWidth, 0.25, 4);
         _renderedViewportWidth = PreviewScroll.Viewport.Width;
         return new LayoutTransformControl
         {

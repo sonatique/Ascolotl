@@ -3,20 +3,19 @@
              x:Class="Ascolotl.App.Views.PreviewView">
 
     <Panel Background="{DynamicResource ForgeBgBrush}">
-        <!-- Horizontal padding only. Avalonia subtracts ScrollViewer *vertical*
-             padding from the scroll extent (verified: a 16px top padding made
-             extent = desired − 16), which clips the last line at max scroll. So
-             the top/bottom insets live inside the scrolled content instead — a
-             top Margin on the host and a bottom spacer in the panel — where they
-             count toward the extent. -->
+        <!-- No ScrollViewer padding: Avalonia subtracts its vertical padding
+             from the scroll extent (clipping the last line at max scroll) and
+             measures the content without its horizontal padding (so a paragraph
+             laid out 40px too wide was clipped on both sides). The insets are a
+             margin on the host and a bottom spacer in the panel instead, which
+             measure and scroll correctly. -->
         <ScrollViewer x:Name="PreviewScroll"
                       HorizontalScrollBarVisibility="Disabled"
-                      VerticalScrollBarVisibility="Auto"
-                      Padding="20,0">
+                      VerticalScrollBarVisibility="Auto">
             <ContentControl x:Name="PreviewHost"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Top"
-                            Margin="0,16,0,0" />
+                            Margin="20,16,20,0" />
         </ScrollViewer>
 
         <!-- Error overlay — shown instead of preview on render error -->

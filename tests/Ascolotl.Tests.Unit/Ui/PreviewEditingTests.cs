@@ -201,6 +201,32 @@ public sealed class PreviewEditingTests
     }
 
     [AvaloniaFact]
+    public void ParagraphWithALongUrl_StaysInsideThePreviewColumn()
+    {
+        var (window, _) = Open("A paragraph with a long address https://example.org/some/very/long/path/that/keeps/going/and/going/until/it/needs/to/wrap/index.html in the middle.", EditorMode.Split);
+        var tb = BlockStarting(window, "A paragraph");
+        var column = Preview(window).GetVisualDescendants().OfType<ContentControl>().First(c => c.Name == "PreviewHost");
+
+        var left = tb.TranslatePoint(new Point(0, 0), column)!.Value.X;
+        Assert.InRange(left, 0, column.Bounds.Width);
+        Assert.InRange(left + tb.Bounds.Width, 0, column.Bounds.Width + 0.5);
+    }
+
+    [AvaloniaFact]
+    public void FitWidth_FitsThePageInsideTheColumn()
+    {
+        var (window, vm) = Open(string.Join(" ", Enumerable.Repeat("A sentence long enough to fill the page.", 12)), EditorMode.Split);
+        vm.PreviewFitWidth = true;
+        Pump(window);
+        var column = Preview(window).GetVisualDescendants().OfType<ContentControl>().First(c => c.Name == "PreviewHost");
+        var page = column.GetVisualDescendants().OfType<LayoutTransformControl>().First();
+
+        // Scaled to its full width, the page leaves Fit Width's 12px gap on each side of the column.
+        Assert.True(page.Bounds.Width <= column.Bounds.Width - 2 * 12 + 0.5,
+            $"page {page.Bounds.Width} in a {column.Bounds.Width} column");
+    }
+
+    [AvaloniaFact]
     public void ClickInAChecklistItem_SkipsItsBox()
     {
         var (window, _) = Open("* [x] Done item", EditorMode.Split);
