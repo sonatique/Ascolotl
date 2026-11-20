@@ -42,6 +42,30 @@ public sealed class FormatToolbar : Border
     /// <summary>Apply (true) or Cancel (false) pressed.</summary>
     public event Action<bool>? EditActionRequested;
 
+    public static readonly StyledProperty<bool> InTableProperty =
+        AvaloniaProperty.Register<FormatToolbar, bool>(nameof(InTable));
+
+    /// <summary>The caret is in a table: show the row and column tools.</summary>
+    public bool InTable
+    {
+        get => GetValue(InTableProperty);
+        set => SetValue(InTableProperty, value);
+    }
+
+    public event Action<TableOp>? TableRequested;
+
+    private readonly List<Control> _tableTools = [];
+
+    private static readonly (TableOp Op, string Icon)[] TableTools =
+    [
+        (TableOp.RowAbove, "M3.5 12.5 H20.5 V19.5 H3.5 Z M3.5 16 H20.5 M12 3.5 V9.5 M9 6.5 H15"),
+        (TableOp.RowBelow, "M3.5 4.5 H20.5 V11.5 H3.5 Z M3.5 8 H20.5 M12 14.5 V20.5 M9 17.5 H15"),
+        (TableOp.ColumnLeft, "M11.5 3.5 H19.5 V20.5 H11.5 Z M15.5 3.5 V20.5 M6.5 9 V15 M3.5 12 H9.5"),
+        (TableOp.ColumnRight, "M4.5 3.5 H12.5 V20.5 H4.5 Z M8.5 3.5 V20.5 M17.5 9 V15 M14.5 12 H20.5"),
+        (TableOp.DeleteRow, "M3.5 5.5 H20.5 V12.5 H3.5 Z M8.5 17.5 H15.5"),
+        (TableOp.DeleteColumn, "M4.5 3.5 H11.5 V20.5 H4.5 Z M15.5 12 H20.5"),
+    ];
+
     private readonly StackPanel _editActions;
 
     private readonly Dictionary<FormatCommand, Button> _buttons = [];
@@ -84,25 +108,23 @@ public sealed class FormatToolbar : Border
         foreach (var group in Groups)
         {
             if (row.Children.Count > 0)
-                row.Children.Add(new Border { Classes = { "format-separator" }, Width = 1, Height = 14, Margin = new Thickness(6, 0) });
+                row.Children.Add(Separator());
             foreach (var (command, icon) in group)
             {
-                var geometry = Geometry.Parse(icon);
-                geometry.Transform = new ScaleTransform(16 / 24.0, 16 / 24.0);
-                var button = new Button
-                {
-                    Classes = { "format" },
-                    Focusable = false,
-                    Content = new Path { Classes = { "icon" }, Data = geometry, Stretch = Stretch.None, Width = 16, Height = 16 },
-                };
-                var tip = Tooltip(command);
-                ToolTip.SetTip(button, tip);
-                AutomationProperties.SetName(button, tip);
-                button.Click += (_, _) => FormatRequested?.Invoke(command);
+                var button = IconButton(icon, Tooltip(command), () => FormatRequested?.Invoke(command));
                 _buttons[command] = button;
                 row.Children.Add(button);
             }
         }
+        _tableTools.Add(Separator());
+        foreach (var (op, icon) in TableTools)
+            _tableTools.Add(IconButton(icon, TableTooltip(op), () => TableRequested?.Invoke(op)));
+        foreach (var tool in _tableTools)
+        {
+            tool.IsVisible = false;
+            row.Children.Add(tool);
+        }
+
         var apply = EditAction(Strings.InlineApply, Strings.InlineApplyTip, apply: true);
         apply.Classes.Add("apply");
         _editActions = new StackPanel
@@ -126,6 +148,35 @@ public sealed class FormatToolbar : Border
         button.Click += (_, _) => EditActionRequested?.Invoke(apply);
         return button;
     }
+
+    private static Border Separator() =>
+        new() { Classes = { "format-separator" }, Width = 1, Height = 14, Margin = new Thickness(6, 0) };
+
+    private static Button IconButton(string icon, string tip, Action click)
+    {
+        var geometry = Geometry.Parse(icon);
+        geometry.Transform = new ScaleTransform(16 / 24.0, 16 / 24.0);
+        var button = new Button
+        {
+            Classes = { "format" },
+            Focusable = false,
+            Content = new Path { Classes = { "icon" }, Data = geometry, Stretch = Stretch.None, Width = 16, Height = 16 },
+        };
+        ToolTip.SetTip(button, tip);
+        AutomationProperties.SetName(button, tip);
+        button.Click += (_, _) => click();
+        return button;
+    }
+
+    private static string TableTooltip(TableOp op) => op switch
+    {
+        TableOp.RowAbove => Strings.TableRowAbove,
+        TableOp.RowBelow => Strings.TableRowBelow,
+        TableOp.ColumnLeft => Strings.TableColumnLeft,
+        TableOp.ColumnRight => Strings.TableColumnRight,
+        TableOp.DeleteRow => Strings.MenuDeleteRow,
+        _ => Strings.MenuDeleteColumn,
+    };
 
     private static string Tooltip(FormatCommand command) => command switch
     {
@@ -154,5 +205,8 @@ public sealed class FormatToolbar : Border
                 button.IsVisible = TextFormatting.Supports(command, Markdown);
         else if (change.Property == EditOpenProperty)
             _editActions.IsVisible = EditOpen;
+        else if (change.Property == InTableProperty)
+            foreach (var tool in _tableTools)
+                tool.IsVisible = InTable;
     }
 }

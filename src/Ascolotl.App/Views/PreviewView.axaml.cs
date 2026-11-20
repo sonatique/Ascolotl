@@ -1168,6 +1168,7 @@ public partial class PreviewView : UserControl
         BeginEdit(editor, host, start, length, original, restore,
             statusHint: Strings.StatusEditingCell,
             caretInSlice: caretInContent);
+        if (_activeEdit?.Assist is { } assist) assist.CellTableEdit = TableEditAtCell;
         return true;
     }
 
@@ -1459,6 +1460,32 @@ public partial class PreviewView : UserControl
             _doc.IsDirty = false;
     }
 
+    /// <summary>A table edit from the open cell editor: keep the cell's text,
+    /// then edit the table around it.</summary>
+    private void TableEditAtCell(TableOp op)
+    {
+        if (_activeEdit is not { } edit || _doc is null) return;
+        var typed = edit.Editor.Text;
+        CommitBlockEdit(); // the splice starts where the cell's text did
+        // A commit refused because the text changed meanwhile leaves the offset stale.
+        var at = _doc.SourceText.AsSpan(Math.Min(edit.Start, _doc.SourceText.Length));
+        if (at.StartsWith(typed) || at.StartsWith(edit.OriginalSlice))
+            TableEditAt(edit.Start, op);
+    }
+
+    /// <summary>Edit the table around a source offset.</summary>
+    private void TableEditAt(int offset, TableOp op)
+    {
+        if (_doc is null) return;
+        if (TableEditing.Apply(op, _doc.SourceText, offset, _doc.IsMarkdown) is { } e)
+        {
+            _doc.SourceText = _doc.SourceText.Remove(e.Start, e.Length).Insert(e.Start, e.Text);
+            if (_mainVm is not null) _mainVm.StatusText = CompletionController.TableDone(op);
+        }
+        else if (_mainVm is not null)
+            _mainVm.StatusText = Strings.StatusEditTableSourceForLayout;
+    }
+
     private void CancelBlockEdit()
     {
         var edit = _activeEdit;
@@ -1516,10 +1543,29 @@ public partial class PreviewView : UserControl
             // Row/column/merge structure tools — span-aware via the table grid.
             // Guarded: a resolution/menu-build failure must never crash the
             // right-click; it just drops the structural tools and is logged.
-            // They write AsciiDoc table syntax, so Markdown tables don't get them.
+            // Markdown tables get rows and columns through the source text.
             try
             {
-                if (!_doc.IsMarkdown && TryResolveCell(blockVis, table, clickTarget, pointInScroll, out _, out var r, out var c)
+                if (_doc.IsMarkdown && TryResolveCell(blockVis, table, clickTarget, pointInScroll, out _, out var mr, out var mc)
+                    && mr < table.Rows.Count && mc < table.Rows[mr].Cells.Count
+                    && BlockSourceEditing.ResolveEditorSlice(_doc.SourceText, table.Rows[mr].Cells[mc].Source, _astToEditor)
+                        is (int cellStart, _))
+                {
+                    items.Add(new Separator());
+                    items.Add(new MenuItem { Header = Strings.MenuRow, ItemsSource = new[]
+                    {
+                        Cmd(Strings.MenuInsertAbove, () => TableEditAt(cellStart, TableOp.RowAbove)),
+                        Cmd(Strings.MenuInsertBelow, () => TableEditAt(cellStart, TableOp.RowBelow)),
+                        Cmd(Strings.MenuDeleteRow, () => TableEditAt(cellStart, TableOp.DeleteRow)),
+                    } });
+                    items.Add(new MenuItem { Header = Strings.MenuColumn, ItemsSource = new[]
+                    {
+                        Cmd(Strings.MenuInsertLeft, () => TableEditAt(cellStart, TableOp.ColumnLeft)),
+                        Cmd(Strings.MenuInsertRight, () => TableEditAt(cellStart, TableOp.ColumnRight)),
+                        Cmd(Strings.MenuDeleteColumn, () => TableEditAt(cellStart, TableOp.DeleteColumn)),
+                    } });
+                }
+                else if (!_doc.IsMarkdown && TryResolveCell(blockVis, table, clickTarget, pointInScroll, out _, out var r, out var c)
                     && r < table.Rows.Count && c < table.Rows[r].Cells.Count)
                 {
                     items.Add(new Separator());

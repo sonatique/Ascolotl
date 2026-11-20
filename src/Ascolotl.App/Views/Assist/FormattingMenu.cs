@@ -41,6 +41,31 @@ internal static class FormattingMenu
         items.Add(Do(Strings.MenuPaste, editor.Paste));
         items.Add(new Separator());
 
+        if (assist.InTable)
+        {
+            MenuItem Table(TableOp op, string header) => Do(header, () => assist.Table(op));
+            items.Add(new MenuItem
+            {
+                Header = Strings.MenuRow,
+                ItemsSource = new[] { Table(TableOp.RowAbove, Strings.MenuInsertAbove),
+                    Table(TableOp.RowBelow, Strings.MenuInsertBelow), Table(TableOp.DeleteRow, Strings.MenuDeleteRow) },
+            });
+            items.Add(new MenuItem
+            {
+                Header = Strings.MenuColumn,
+                ItemsSource = new[] { Table(TableOp.ColumnLeft, Strings.MenuInsertLeft),
+                    Table(TableOp.ColumnRight, Strings.MenuInsertRight), Table(TableOp.DeleteColumn, Strings.MenuDeleteColumn) },
+            });
+            if (TableEditing.Supports(TableOp.MergeRight, assist.Markdown))
+                items.Add(new MenuItem
+                {
+                    Header = Strings.MenuMerge,
+                    ItemsSource = new[] { Table(TableOp.MergeRight, Strings.MenuMergeRight),
+                        Table(TableOp.MergeDown, Strings.MenuMergeDown), Table(TableOp.SplitCell, Strings.MenuSplitCell) },
+                });
+            items.Add(new Separator());
+        }
+
         AddFormat(Bold, Strings.FormatBold);
         AddFormat(Italic, Strings.FormatItalic);
         AddFormat(Code, Strings.FormatCode);

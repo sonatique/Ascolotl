@@ -126,6 +126,67 @@ public sealed class FormattingTests
         Assert.False(vm.SelectedDocument.IsDirty);
     }
 
+    private const string Table = "Intro.\n\n|===\n| a | b\n| c | d\n|===\n";
+
+    [AvaloniaFact]
+    public void TableTools_ShowInATable_AndInsertARow()
+    {
+        var (window, vm) = Open(Table, EditorMode.Split);
+        var editor = SourceEditor(window);
+        editor.TextArea.Focus();
+        editor.CaretOffset = 2; // in "Intro."
+        Pump(window);
+        Assert.False(ToolbarButton(window, Strings.TableRowBelow).IsEffectivelyVisible);
+
+        editor.CaretOffset = Table.IndexOf("| a", StringComparison.Ordinal) + 2;
+        Pump(window);
+        Click(window, ToolbarButton(window, Strings.TableRowBelow));
+
+        Assert.Equal("Intro.\n\n|===\n| a | b\n| |\n| c | d\n|===\n", vm.SelectedDocument!.SourceText);
+        Assert.True(ToolbarButton(window, Strings.TableRowBelow).IsEffectivelyVisible); // the caret is in the new row
+    }
+
+    [AvaloniaFact]
+    public void TableRightClick_OffersRowsAndColumns_AndMergeOnlyInAsciiDoc()
+    {
+        var (window, vm) = Open(Table, EditorMode.Split);
+        var editor = SourceEditor(window);
+        var assist = CompletionController.For(editor)!;
+        editor.CaretOffset = Table.IndexOf("| a", StringComparison.Ordinal) + 2;
+
+        editor.TextArea.RaiseEvent(new ContextRequestedEventArgs());
+        Assert.Contains(Strings.MenuMerge, Headers(assist.Menu!));
+        var column = assist.Menu!.Items.OfType<MenuItem>().Single(i => i.Header as string == Strings.MenuColumn);
+        column.Items.OfType<MenuItem>().Single(i => i.Header as string == Strings.MenuInsertRight)
+            .RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+        Assert.Equal("Intro.\n\n|===\n| a | | b\n| c | | d\n|===\n", vm.SelectedDocument!.SourceText);
+        assist.Menu.Close();
+
+        vm.SelectedDocument.FilePath = Path.Combine(Path.GetTempPath(), "t.md");
+        editor.Document.Text = "| a | b |\n| --- | --- |\n| c | d |\n";
+        editor.CaretOffset = 2;
+        editor.TextArea.RaiseEvent(new ContextRequestedEventArgs());
+        Assert.Contains(Strings.MenuRow, Headers(assist.Menu!));
+        Assert.DoesNotContain(Strings.MenuMerge, Headers(assist.Menu!));
+        assist.Menu.Close();
+    }
+
+    [AvaloniaFact]
+    public void TableTools_InACellEditor_EditTheWholeTable()
+    {
+        var (window, vm) = Open("|===\n| Rev | Data\n\n| 1.0 | First\n|===\n", EditorMode.Wysiwyg);
+        var cell = Preview(window).GetVisualDescendants().OfType<TextBlock>()
+            .First(t => (t.Inlines is { Count: > 0 } i ? i.Text : t.Text) == "1.0");
+        Click(window, cell);
+        var editor = Preview(window).GetVisualDescendants().OfType<TextEditor>().Single();
+        editor.Document.Insert(editor.Document.TextLength, "1"); // typed text is kept
+
+        Click(window, ToolbarButton(window, Strings.TableColumnRight));
+
+        Assert.Equal("|===\n| Rev | | Data\n\n| 1.01 | | First\n|===\n", vm.SelectedDocument!.SourceText);
+        Assert.Empty(Preview(window).GetVisualDescendants().OfType<TextEditor>());
+    }
+
     [AvaloniaFact]
     public void Toolbar_IsHiddenInTheSourceView()
     {

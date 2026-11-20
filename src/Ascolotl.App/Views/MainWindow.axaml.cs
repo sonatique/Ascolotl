@@ -41,6 +41,11 @@ public partial class MainWindow : Window
 
         // The toolbar formats the editor that last had the keyboard.
         FormatBar.FormatRequested += OnFormatRequested;
+        FormatBar.TableRequested += op =>
+        {
+            if (FormatTarget() is { } target && CompletionController.For(target) is { } assist) assist.Table(op);
+            else if (_viewModel is not null) _viewModel.StatusText = Strings.StatusClickTextToFormat;
+        };
         FormatBar.EditActionRequested += apply =>
             (apply ? _viewModel?.FlushPendingEdits : _viewModel?.CancelPendingEdits)?.Invoke();
         AddHandler(GotFocusEvent, OnAnyGotFocus, RoutingStrategies.Bubble, handledEventsToo: true);
@@ -229,6 +234,10 @@ public partial class MainWindow : Window
         if (e.PropertyName == nameof(MainWindowViewModel.EditorMode))
             UpdateEditorLayout(_viewModel.EditorMode);
 
+        if (e.PropertyName is nameof(MainWindowViewModel.EditorMode) or nameof(MainWindowViewModel.InPlaceEditOpen)
+            or nameof(MainWindowViewModel.SelectedDocument))
+            Dispatcher.UIThread.Post(UpdateTableTools); // after the layout the change brings
+
         if (e.PropertyName is nameof(MainWindowViewModel.EditorMode)
             or nameof(MainWindowViewModel.SelectedDocument))
             UpdateStatusBarExtras();
@@ -300,16 +309,37 @@ public partial class MainWindow : Window
         if ((e.Source as Visual)?.FindAncestorOfType<TextEditor>(includeSelf: true) is { } editor
             && CompletionController.For(editor) is not null)
             _formatTarget = editor;
+        UpdateTableTools();
     }
+
+    /// <summary>The editor the toolbar acts on. A closed in-place editor has left
+    /// the window; the split view falls back to its source editor.</summary>
+    private TextEditor? FormatTarget()
+        => _formatTarget is { IsEffectivelyVisible: true } last && last.GetVisualRoot() == this ? last
+            : _viewModel?.EditorMode == EditorMode.Split ? EditorPane.GetVisualDescendants().OfType<TextEditor>().FirstOrDefault()
+            : null;
+
+    private TextEditor? _caretWatched;
+
+    /// <summary>Show the table tools while the toolbar's editor has its caret in a table.</summary>
+    private void UpdateTableTools()
+    {
+        var target = FormatTarget();
+        if (_caretWatched != target)
+        {
+            if (_caretWatched is not null) _caretWatched.TextArea.Caret.PositionChanged -= OnTargetCaretMoved;
+            _caretWatched = target;
+            if (target is not null) target.TextArea.Caret.PositionChanged += OnTargetCaretMoved;
+        }
+        FormatBar.InTable = target is not null && CompletionController.For(target)?.InTable == true;
+    }
+
+    private void OnTargetCaretMoved(object? sender, EventArgs e) => UpdateTableTools();
 
     private void OnFormatRequested(FormatCommand command)
     {
         if (_viewModel is null) return;
-        // A closed in-place editor has left the window; the split view falls
-        // back to its source editor.
-        var target = _formatTarget is { IsEffectivelyVisible: true } last && last.GetVisualRoot() == this ? last
-            : _viewModel.EditorMode == EditorMode.Split ? EditorPane.GetVisualDescendants().OfType<TextEditor>().FirstOrDefault()
-            : null;
+        var target = FormatTarget();
         if (target is null || CompletionController.For(target) is not { } assist)
         {
             _viewModel.StatusText = Strings.StatusClickTextToFormat;

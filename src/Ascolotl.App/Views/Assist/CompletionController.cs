@@ -7,6 +7,8 @@ using AvaloniaEdit;
 using AvaloniaEdit.CodeCompletion;
 using Ascolotl.Core.Editing;
 using Ascolotl.Core.Editing.Assist;
+using Ascolotl.Core.Resources;
+using Ascolotl.Core.ViewModels;
 
 namespace Ascolotl.App.Views.Assist;
 
@@ -91,6 +93,59 @@ internal sealed class CompletionController
         else
             _editor.CaretOffset = edit.Start + edit.Replacement.Text.Length;
         _editor.TextArea.Focus();
+    }
+
+    /// <summary>Set for an in-place table cell editor, which holds only the cell's
+    /// text: its table edits go to the whole document instead.</summary>
+    public Action<TableOp>? CellTableEdit { get; set; }
+
+    /// <summary>The caret is on a table row (or in a table cell's editor).</summary>
+    public bool InTable
+    {
+        get
+        {
+            if (CellTableEdit is not null) return true;
+            // Cheap first: a table row has a pipe.
+            var line = _editor.Document.GetLineByOffset(_editor.CaretOffset);
+            return _editor.Document.GetText(line).Contains('|')
+                && TableEditing.IsInTable(_editor.Document.Text, _editor.CaretOffset, _markdown);
+        }
+    }
+
+    /// <summary>Edit the table at the caret, as one undo step.</summary>
+    public void Table(TableOp op)
+    {
+        if (CellTableEdit is { } cell)
+        {
+            cell(op);
+            return;
+        }
+        if (TableEditing.Apply(op, _editor.Document.Text, _editor.CaretOffset, _markdown) is not { } edit)
+        {
+            Status(Strings.StatusEditTableSourceForLayout);
+            return;
+        }
+        _editor.Document.Replace(edit.Start, edit.Length, edit.Text);
+        _editor.CaretOffset = edit.Caret;
+        _editor.TextArea.Focus();
+        Status(TableDone(op));
+    }
+
+    /// <summary>The status line after a table edit.</summary>
+    public static string TableDone(TableOp op) => op switch
+    {
+        TableOp.RowAbove or TableOp.RowBelow => Strings.StatusRowInserted,
+        TableOp.DeleteRow => Strings.StatusRowDeleted,
+        TableOp.ColumnLeft or TableOp.ColumnRight => Strings.StatusColumnInserted,
+        TableOp.DeleteColumn => Strings.StatusColumnDeleted,
+        TableOp.MergeRight or TableOp.MergeDown => Strings.StatusCellsMerged,
+        _ => Strings.StatusCellSplit,
+    };
+
+    private void Status(string text)
+    {
+        if (TopLevel.GetTopLevel(_editor)?.DataContext is MainWindowViewModel vm)
+            vm.StatusText = text;
     }
 
     private void OnContextRequested(object? sender, ContextRequestedEventArgs e)
