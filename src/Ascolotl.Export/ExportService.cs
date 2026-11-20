@@ -19,7 +19,7 @@ namespace Ascolotl.Export;
 public sealed class ExportService : IExportService
 {
     public Task<ExportResult> ExportAsync(
-        string source, string? basePath, string outputPath, ExportFormat format,
+        string source, bool markdown, string? basePath, string outputPath, ExportFormat format,
         ExportTheme theme, string? stylePath, PdfExportOptions? pdf, CancellationToken cancellationToken)
     {
         return Task.Run(() =>
@@ -29,7 +29,7 @@ public sealed class ExportService : IExportService
             {
                 // Includes may leave the document's folder (e.g. a shared
                 // ../../copyright.adoc), but not the computer.
-                var parsed = AdocParser.Parse(source, LocalIncludeReader.ParseOptions(basePath));
+                var parsed = DocumentParser.Parse(source, markdown, basePath);
 
                 // The style (the document's :pdf-theme:, else the user's choice)
                 // drives PDF natively and HTML/EPUB through generated CSS.

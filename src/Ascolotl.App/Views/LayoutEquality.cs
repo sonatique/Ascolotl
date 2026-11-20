@@ -29,7 +29,10 @@ public sealed class LayoutEquality
             (CodeBlockLayout x, CodeBlockLayout y) => x.Text == y.Text && x.Language == y.Language,
             (AdmonitionLayout x, AdmonitionLayout y) => x.Kind == y.Kind && Blocks(x.Blocks, y.Blocks),
             (ListLayout x, ListLayout y) => x.Ordered == y.Ordered && All(x.Items, y.Items, Block),
-            (ListItemLayout x, ListItemLayout y) => Inlines(x.Inlines, y.Inlines) && Blocks(x.Blocks, y.Blocks),
+            (ListItemLayout x, ListItemLayout y) => x.Checked == y.Checked && Inlines(x.Inlines, y.Inlines) && Blocks(x.Blocks, y.Blocks),
+            (QuoteLayout x, QuoteLayout y) => x.Attribution == y.Attribution && x.Citation == y.Citation && Blocks(x.Blocks, y.Blocks),
+            (ImageLayout x, ImageLayout y) => x.Target == y.Target && x.Alt == y.Alt && x.Title == y.Title
+                && x.Width == y.Width && x.Height == y.Height,
             (DescriptionListLayout x, DescriptionListLayout y) => All(x.Items, y.Items,
                 (i, j) => Inlines(i.Term, j.Term) && Inlines(i.Description, j.Description)),
             (TableLayout x, TableLayout y) => x.Title == y.Title && x.HasHeader == y.HasHeader
@@ -57,6 +60,8 @@ public sealed class LayoutEquality
             (MonoRun x, MonoRun y) => Inlines(x.Children, y.Children),
             (SubscriptRun x, SubscriptRun y) => Inlines(x.Children, y.Children),
             (SuperscriptRun x, SuperscriptRun y) => Inlines(x.Children, y.Children),
+            (StrikethroughRun x, StrikethroughRun y) => Inlines(x.Children, y.Children),
+            (ImageRun x, ImageRun y) => x.Target == y.Target && x.Alt == y.Alt,
             (LineBreakRun, LineBreakRun) => true,
             _ => false,
         };

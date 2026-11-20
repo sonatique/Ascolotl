@@ -17,8 +17,10 @@ public sealed class MockExportService : IExportService
     public string? LastPdfTitle { get; private set; }
     public bool LastAccessiblePdf { get; private set; }
 
+    public bool LastMarkdown { get; private set; }
+
     public Task<ExportResult> ExportAsync(
-        string source, string? basePath, string outputPath, ExportFormat format,
+        string source, bool markdown, string? basePath, string outputPath, ExportFormat format,
         ExportTheme theme, string? stylePath, PdfExportOptions? pdf, CancellationToken cancellationToken)
     {
         LastPdfTitle = pdf?.Title;
@@ -26,6 +28,7 @@ public sealed class MockExportService : IExportService
         LastStylePath = stylePath;
         ExportCalled++;
         LastSource = source;
+        LastMarkdown = markdown;
         LastBasePath = basePath;
         LastOutputPath = outputPath;
         LastFormat = format;

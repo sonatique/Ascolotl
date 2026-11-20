@@ -17,7 +17,7 @@ public readonly record struct SitePage(string RelativeHtmlPath, string Title);
 /// </summary>
 public static partial class WebsiteBuilder
 {
-    [GeneratedRegex("""(href\s*=\s*")([^"#:]+)\.(adoc|asciidoc)(#[^"]*)?(")""", RegexOptions.IgnoreCase)]
+    [GeneratedRegex("""(href\s*=\s*")([^"#:]+)\.(adoc|asciidoc|md|markdown)(#[^"]*)?(")""", RegexOptions.IgnoreCase)]
     private static partial Regex DocHrefRegex();
 
     /// <summary>Map a source-relative document path to its output path
@@ -31,7 +31,7 @@ public static partial class WebsiteBuilder
 
     /// <summary>
     /// Rewrite links between exported documents: <c>href="…​.adoc"</c> (or
-    /// .asciidoc), with or without a <c>#anchor</c>, becomes the .html
+    /// .asciidoc, .md, .markdown), with or without a <c>#anchor</c>, becomes the .html
     /// equivalent. External URLs (scheme present) are left alone.
     /// </summary>
     public static string RewriteDocLinks(string html) =>
@@ -39,14 +39,10 @@ public static partial class WebsiteBuilder
             m.Groups[1].Value + m.Groups[2].Value + ".html" + m.Groups[4].Value + m.Groups[5].Value);
 
     /// <summary>True when the project provides its own site index (an
-    /// index.adoc at the root), in which case no index is generated.</summary>
+    /// index.adoc or index.md at the root), in which case no index is generated.</summary>
     public static bool HasOwnIndex(IEnumerable<string> relativeDocPaths) =>
-        relativeDocPaths.Any(p =>
-        {
-            var n = p.Replace('\\', '/');
-            return n.Equals("index.adoc", StringComparison.OrdinalIgnoreCase)
-                || n.Equals("index.asciidoc", StringComparison.OrdinalIgnoreCase);
-        });
+        relativeDocPaths.Any(p => p.IndexOfAny(['/', '\\']) < 0
+            && Path.GetFileNameWithoutExtension(p).Equals("index", StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     /// Generate the site index: a minimal, dependency-free HTML page listing

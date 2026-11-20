@@ -8,9 +8,11 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="AdocNet.Parser" Version="1.0.40" />
-    <PackageReference Include="AdocNet.Ast" Version="1.0.40" />
-    <PackageReference Include="AdocNet.Core" Version="1.0.40" />
+    <PackageReference Include="AdocNet.Parser" Version="1.0.41" />
+    <PackageReference Include="AdocNet.Ast" Version="1.0.41" />
+    <PackageReference Include="AdocNet.Core" Version="1.0.41" />
+    <!-- MarkdownParser: Markdown documents parse to the same AST as AsciiDoc. -->
+    <PackageReference Include="AdocNet.Importers" Version="1.0.41" />
   </ItemGroup>
 
   <ItemGroup>

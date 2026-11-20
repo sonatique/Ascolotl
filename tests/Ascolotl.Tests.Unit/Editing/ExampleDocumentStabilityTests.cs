@@ -37,7 +37,7 @@ public sealed class ExampleDocumentStabilityTests
         var baseDir = Path.GetDirectoryName(filePath)!;
 
         var service = new Ascolotl.Core.Services.AdocRenderService();
-        var result = await service.RenderAsync(source, baseDir, standalone: true, CancellationToken.None);
+        var result = await service.RenderAsync(source, baseDir, markdown: false, standalone: true, CancellationToken.None);
 
         Assert.True(result.IsSuccess, $"Render failed for {fileName}: {result.ErrorSummary}");
         Assert.NotNull(result.Document);
@@ -60,7 +60,7 @@ public sealed class ExampleDocumentStabilityTests
         var baseDir = Path.GetDirectoryName(filePath)!;
 
         var service = new Ascolotl.Core.Services.AdocRenderService();
-        var result = await service.RenderAsync(source, baseDir, standalone: true, CancellationToken.None);
+        var result = await service.RenderAsync(source, baseDir, markdown: false, standalone: true, CancellationToken.None);
 
         Assert.True(result.IsSuccess, $"Render failed for {fileName}: {result.ErrorSummary}");
         // Every include resolved: no include diagnostic, and included lines are in the document.
@@ -86,7 +86,7 @@ public sealed class ExampleDocumentStabilityTests
         try
         {
             var service = new ExportService();
-            var result = await service.ExportAsync(SimpleAdoc, null, outputPath, ExportFormat.Pdf, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
+            var result = await service.ExportAsync(SimpleAdoc, false, null, outputPath, ExportFormat.Pdf, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
 
             Assert.True(result.IsSuccess, $"PDF export failed: {result.ErrorMessage}");
             Assert.True(File.Exists(outputPath), "PDF file was not created");
@@ -106,7 +106,7 @@ public sealed class ExampleDocumentStabilityTests
         try
         {
             var service = new ExportService();
-            var result = await service.ExportAsync(SimpleAdoc, ExampleDocumentsPath, outputPath, ExportFormat.Pdf, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
+            var result = await service.ExportAsync(SimpleAdoc, false, ExampleDocumentsPath, outputPath, ExportFormat.Pdf, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
 
             Assert.True(result.IsSuccess, $"PDF export with basePath failed: {result.ErrorMessage}");
             Assert.True(File.Exists(outputPath), "PDF file was not created");
@@ -135,7 +135,7 @@ public sealed class ExampleDocumentStabilityTests
         try
         {
             var service = new ExportService();
-            var result = await service.ExportAsync(adocWithTable, null, outputPath, ExportFormat.Pdf, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
+            var result = await service.ExportAsync(adocWithTable, false, null, outputPath, ExportFormat.Pdf, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
 
             Assert.True(result.IsSuccess, $"PDF export with table failed: {result.ErrorMessage}");
             Assert.True(File.Exists(outputPath), "PDF file was not created");
@@ -157,7 +157,7 @@ public sealed class ExampleDocumentStabilityTests
         try
         {
             var service = new ExportService();
-            var result = await service.ExportAsync(SimpleAdoc, hashDir, outputPath, ExportFormat.Pdf, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
+            var result = await service.ExportAsync(SimpleAdoc, false, hashDir, outputPath, ExportFormat.Pdf, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
 
             Assert.True(result.IsSuccess, $"PDF export with # in basePath failed: {result.ErrorMessage}");
             Assert.True(File.Exists(outputPath), "PDF file was not created");

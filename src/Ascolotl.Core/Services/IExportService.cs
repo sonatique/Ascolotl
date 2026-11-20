@@ -5,7 +5,8 @@ namespace Ascolotl.Core.Services;
 public interface IExportService
 {
     /// <summary>
-    /// Render the given AsciiDoc source to <paramref name="format"/> and write
+    /// Render the given AsciiDoc (or, when <paramref name="markdown"/>, Markdown)
+    /// source to <paramref name="format"/> and write
     /// it to <paramref name="outputPath"/>. <paramref name="basePath"/> is the
     /// directory used for resolving relative <c>include::</c> directives and
     /// image references. <paramref name="theme"/> is the built-in look
@@ -17,6 +18,6 @@ public interface IExportService
     /// accessibility); null means the defaults.
     /// </summary>
     Task<ExportResult> ExportAsync(
-        string source, string? basePath, string outputPath, ExportFormat format,
+        string source, bool markdown, string? basePath, string outputPath, ExportFormat format,
         ExportTheme theme, string? stylePath, PdfExportOptions? pdf, CancellationToken cancellationToken);
 }

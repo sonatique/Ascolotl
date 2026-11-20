@@ -225,7 +225,7 @@ public class DocumentImportServiceTests : IDisposable
     public async Task Pdf_exported_by_Ascolotl_imports_back()
     {
         var pdf = Path.Combine(_dir, "round.pdf");
-        var export = await new ExportService().ExportAsync("= Round Trip\n\nA paragraph that survives.\n", null, pdf,
+        var export = await new ExportService().ExportAsync("= Round Trip\n\nA paragraph that survives.\n", false, null, pdf,
             ExportFormat.Pdf, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
         Assert.True(export.IsSuccess, export.ErrorMessage);
         var adoc = Path.Combine(_dir, "round.adoc");

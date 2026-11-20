@@ -380,6 +380,8 @@ public partial class PreviewView : UserControl
             var docDir = doc.BaseDirectory ?? Directory.GetCurrentDirectory();
             var style = PreviewStyle.Load(_mainVm?.StylePath, doc.RenderedDocument.Attributes, docDir);
             _avaloniaRenderer.Theme = style is null ? _builtInTheme : PreviewStyle.ThemeFor(style);
+            // Relative images load from the document's folder.
+            _avaloniaRenderer.BaseDirectory = doc.BaseDirectory;
             // Print-like page preview: flow the blocks into fixed A4 pages
             // (mirroring the PDF export's default geometry) via AdocNet
             // 1.0.22's PagedAvaloniaRenderer. This is a *reading* mode — the
@@ -393,7 +395,7 @@ public partial class PreviewView : UserControl
                 return;
             }
 
-            var frame = new PreviewFrame(doc, _avaloniaRenderer.Theme, style, _mainVm?.ShowTitleAndToc ?? true,
+            var frame = new PreviewFrame(doc, doc.BaseDirectory, _avaloniaRenderer.Theme, style, _mainVm?.ShowTitleAndToc ?? true,
                 HeaderKey(doc.RenderedDocument),
                 _mainVm?.PreviewFitWidth == true ? Math.Round(PreviewScroll.Viewport.Width) : 0);
             if (reuseBlocks && frame == shownFrame && TryReuseBlocks(layout))
@@ -503,7 +505,7 @@ public partial class PreviewView : UserControl
 
     /// <summary>What the block panel's surroundings depend on: while a render
     /// keeps all of it, only its blocks need updating.</summary>
-    private sealed record PreviewFrame(DocumentViewModel Doc, AvaloniaRenderTheme Theme, PdfRenderOptions? Style,
+    private sealed record PreviewFrame(DocumentViewModel Doc, string? Folder, AvaloniaRenderTheme Theme, PdfRenderOptions? Style,
         bool ShowTitleAndToc, string Header, double FitViewportWidth);
 
     // Stamped from the clock on every parse; they must not force a full rebuild.
@@ -1523,9 +1525,10 @@ public partial class PreviewView : UserControl
             // Row/column/merge structure tools — span-aware via the table grid.
             // Guarded: a resolution/menu-build failure must never crash the
             // right-click; it just drops the structural tools and is logged.
+            // They write AsciiDoc table syntax, so Markdown tables don't get them.
             try
             {
-                if (TryResolveCell(blockVis, table, clickTarget, pointInScroll, out _, out var r, out var c)
+                if (!_doc.IsMarkdown && TryResolveCell(blockVis, table, clickTarget, pointInScroll, out _, out var r, out var c)
                     && r < table.Rows.Count && c < table.Rows[r].Cells.Count)
                 {
                     items.Add(new Separator());
@@ -1595,9 +1598,10 @@ public partial class PreviewView : UserControl
         items.Add(deleteItem);
 
         items.Add(new Separator());
-        items.Add(BuildInsertSubmenu(Strings.MenuInsertAbove,
+        var markdown = _doc.IsMarkdown;
+        items.Add(BuildInsertSubmenu(Strings.MenuInsertAbove, markdown,
             snippet => { if (_doc is not null) _doc.SourceText = BlockInsertion.InsertBefore(_doc.SourceText, start, snippet); }));
-        items.Add(BuildInsertSubmenu(Strings.MenuInsertBelow,
+        items.Add(BuildInsertSubmenu(Strings.MenuInsertBelow, markdown,
             snippet => { if (_doc is not null) _doc.SourceText = BlockInsertion.InsertAfter(_doc.SourceText, start + length, snippet); }));
 
         var menu = new ContextMenu { ItemsSource = items };
@@ -1659,7 +1663,7 @@ public partial class PreviewView : UserControl
             };
         }
 
-        var menu = new ContextMenu { ItemsSource = BuildInsertLeaves(insert) };
+        var menu = new ContextMenu { ItemsSource = BuildInsertLeaves(insert, _doc.IsMarkdown) };
         menu.Open(this);
     }
 
@@ -1673,11 +1677,11 @@ public partial class PreviewView : UserControl
 
     /// <summary>An "Insert …" submenu whose leaves splice a block snippet via
     /// <paramref name="insert"/>.</summary>
-    private static MenuItem BuildInsertSubmenu(string header, Action<string> insert) =>
-        new() { Header = header, ItemsSource = BuildInsertLeaves(insert) };
+    private static MenuItem BuildInsertSubmenu(string header, bool markdown, Action<string> insert) =>
+        new() { Header = header, ItemsSource = BuildInsertLeaves(insert, markdown) };
 
     /// <summary>The shared list of block-type leaf items.</summary>
-    private static List<Control> BuildInsertLeaves(Action<string> insert)
+    private static List<Control> BuildInsertLeaves(Action<string> insert, bool markdown)
     {
         MenuItem Leaf(string label, string snippet)
         {
@@ -1686,8 +1690,21 @@ public partial class PreviewView : UserControl
             return item;
         }
 
-        return new List<Control>
-        {
+        if (markdown)
+            return
+            [
+                Leaf(Strings.InsertParagraph, BlockSnippets.Paragraph),
+                Leaf(Strings.InsertHeadingH2, MarkdownBlockSnippets.Heading(1)),
+                Leaf(Strings.InsertHeadingH3, MarkdownBlockSnippets.Heading(2)),
+                Leaf(Strings.InsertBulletedList, MarkdownBlockSnippets.BulletList),
+                Leaf(Strings.InsertNumberedList, MarkdownBlockSnippets.NumberedList),
+                new Separator(),
+                Leaf(Strings.InsertTable, MarkdownBlockSnippets.Table),
+                Leaf(Strings.InsertCodeBlock, MarkdownBlockSnippets.CodeBlock),
+                Leaf(Strings.InsertHorizontalRule, MarkdownBlockSnippets.ThematicBreak),
+            ];
+        return
+        [
             Leaf(Strings.InsertParagraph, BlockSnippets.Paragraph),
             Leaf(Strings.InsertHeadingH2, BlockSnippets.Heading(1)),
             Leaf(Strings.InsertHeadingH3, BlockSnippets.Heading(2)),
@@ -1698,7 +1715,7 @@ public partial class PreviewView : UserControl
             Leaf(Strings.InsertCodeBlock, BlockSnippets.CodeBlock),
             Leaf(Strings.InsertNote, BlockSnippets.Note),
             Leaf(Strings.InsertHorizontalRule, BlockSnippets.ThematicBreak),
-        };
+        ];
     }
 
     // ── Table structure: resolve the clicked cell + row/column ops ───────

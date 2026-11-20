@@ -27,7 +27,7 @@ public class ExportServiceTests
         var path = Path.Combine(Path.GetTempPath(), $"ascolotl-export-{Guid.NewGuid():N}.{format.Extension()}");
         try
         {
-            var result = await new ExportService().ExportAsync(Sample, null, path, format, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
+            var result = await new ExportService().ExportAsync(Sample, false, null, path, format, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
             var bytes = File.Exists(path) ? await File.ReadAllBytesAsync(path) : [];
             return (result, bytes, path);
         }
@@ -69,7 +69,7 @@ public class ExportServiceTests
             File.WriteAllBytes(Path.Combine(dir, "pic.png"), Convert.FromBase64String(
                 "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="));
             var path = Path.Combine(dir, "out.pdf");
-            var result = await new ExportService().ExportAsync(source, dir, path, format, ExportTheme.Asciidoctor, null, pdf, CancellationToken.None);
+            var result = await new ExportService().ExportAsync(source, false, dir, path, format, ExportTheme.Asciidoctor, null, pdf, CancellationToken.None);
             return (result, File.Exists(path) ? System.Text.Encoding.Latin1.GetString(await File.ReadAllBytesAsync(path)) : "");
         }
         finally

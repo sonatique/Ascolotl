@@ -10,7 +10,7 @@ namespace Ascolotl.Core.Services;
 /// </summary>
 public sealed class AdocRenderService : IRenderService
 {
-    public Task<RenderResult> RenderAsync(string source, string? basePath, bool standalone, CancellationToken cancellationToken)
+    public Task<RenderResult> RenderAsync(string source, string? basePath, bool markdown, bool standalone, CancellationToken cancellationToken)
     {
         // Render is CPU-bound, fully synchronous in AdocNet, and typically
         // completes in 1–70ms on real-world docs. Offload to a worker so the
@@ -28,7 +28,7 @@ public sealed class AdocRenderService : IRenderService
                 if (standalone)
                     attributes["toc"] = "auto";
 
-                var parsed = AdocParser.Parse(source, LocalIncludeReader.ParseOptions(basePath, attributes));
+                var parsed = DocumentParser.Parse(source, markdown, basePath, attributes);
 
                 // When the toggle is off, drop the table of contents even if the
                 // document's own header set `:toc:` — AdocNet honours the

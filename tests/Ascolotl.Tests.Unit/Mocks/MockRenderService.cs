@@ -17,17 +17,20 @@ public sealed class MockRenderService : IRenderService
 
     public bool LastStandalone { get; private set; }
 
-    public Task<RenderResult> RenderAsync(string source, string? basePath, bool standalone, CancellationToken cancellationToken)
+    public bool LastMarkdown { get; private set; }
+
+    public Task<RenderResult> RenderAsync(string source, string? basePath, bool markdown, bool standalone, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         RenderCalled++;
         LastSource = source;
         LastStandalone = standalone;
+        LastMarkdown = markdown;
 
         if (NextResult is not null)
             return Task.FromResult(NextResult);
 
-        var parsed = AdocParser.Parse(source, new ParseOptions { BaseDirectory = basePath });
+        var parsed = markdown ? DocumentParser.Parse(source, markdown: true, basePath) : AdocParser.Parse(source, new ParseOptions { BaseDirectory = basePath });
         return Task.FromResult(RenderResult.Success(parsed.Document, parsed.LineOrigins, parsed.Diagnostics));
     }
 }

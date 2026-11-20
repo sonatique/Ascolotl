@@ -795,8 +795,7 @@ public partial class MainWindowViewModel : ObservableObject
         List<string> docs;
         try
         {
-            // AsciiDoc pages only: Markdown ones need AdocNet's Markdown parser.
-            docs = EnumerateProjectDocuments().Where(d => !MarkdownFile.Is(d)).ToList();
+            docs = EnumerateProjectDocuments();
         }
         catch (Exception ex)
         {
@@ -1079,7 +1078,7 @@ public partial class MainWindowViewModel : ObservableObject
         // Renders straight from the AsciiDoc source via AdocNet's converters —
         // no HTML intermediate and no double-parse against the preview pipeline.
         var result = await _exportService.ExportAsync(
-            SelectedDocument.SourceText, basePath, outputPath, format, ExportTheme.Asciidoctor, stylePath,
+            SelectedDocument.SourceText, SelectedDocument.IsMarkdown, basePath, outputPath, format, ExportTheme.Asciidoctor, stylePath,
             new PdfExportOptions(pdfTitle, AccessiblePdf), CancellationToken.None);
 
         if (result.IsSuccess)
@@ -1146,7 +1145,7 @@ public partial class MainWindowViewModel : ObservableObject
         var basePath = SelectedDocument.BaseDirectory;
 
         var result = await _exportService.ExportAsync(
-            SelectedDocument.SourceText, basePath, outputPath, profile.Format, profile.Theme, StylePath,
+            SelectedDocument.SourceText, SelectedDocument.IsMarkdown, basePath, outputPath, profile.Format, profile.Theme, StylePath,
             new PdfExportOptions(
                 profile.Format is ExportFormat.Pdf or ExportFormat.PdfLandscape
                     ? PdfTitles.From(SelectedDocument.RenderedDocument?.Title, PdfTitleRule)
@@ -1487,7 +1486,9 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void OnSelectedDocumentPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(DocumentViewModel.SourceText) && EditorMode != EditorMode.Source)
+        // Saving as .md (or back) changes the parser, not the text.
+        if (e.PropertyName is nameof(DocumentViewModel.SourceText) or nameof(DocumentViewModel.IsMarkdown)
+            && EditorMode != EditorMode.Source)
             RequestRender();
     }
 
@@ -1524,7 +1525,7 @@ public partial class MainWindowViewModel : ObservableObject
 
             var basePath = doc.BaseDirectory;
 
-            var result = await _renderService.RenderAsync(source, basePath, ShowTitleAndToc, ct);
+            var result = await _renderService.RenderAsync(source, basePath, doc.IsMarkdown, ShowTitleAndToc, ct);
 
             if (ct.IsCancellationRequested)
                 return;

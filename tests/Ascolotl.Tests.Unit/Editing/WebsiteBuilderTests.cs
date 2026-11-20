@@ -49,6 +49,11 @@ public class WebsiteBuilderTests
         Assert.Equal("""<a href="../intro/start.html">Start</a>""", WebsiteBuilder.RewriteDocLinks(html));
     }
 
+    [Fact]
+    public void RewriteDocLinks_RewritesMarkdownHrefs()
+        => Assert.Equal("""<a href="notes.html#top">Notes</a>""",
+            WebsiteBuilder.RewriteDocLinks("""<a href="notes.md#top">Notes</a>"""));
+
     // --- Index ---
 
     [Fact]
@@ -56,6 +61,8 @@ public class WebsiteBuilderTests
     {
         Assert.True(WebsiteBuilder.HasOwnIndex(["index.adoc", "other.adoc"]));
         Assert.False(WebsiteBuilder.HasOwnIndex(["docs/index.adoc", "other.adoc"]));
+        Assert.True(WebsiteBuilder.HasOwnIndex(["index.md"]));
+        Assert.False(WebsiteBuilder.HasOwnIndex([@"docs\index.md"]));
     }
 
     [Fact]

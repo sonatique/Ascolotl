@@ -154,7 +154,7 @@ public sealed partial class RoundTripTests(ITestOutputHelper output) : IDisposab
     private async Task<string> Export(string source, ExportFormat format, string name)
     {
         var path = Path.Combine(_dir, name);
-        var result = await new ExportService().ExportAsync(source, ExamplesPath, path, format,
+        var result = await new ExportService().ExportAsync(source, false, ExamplesPath, path, format,
             ExportTheme.Asciidoctor, null, null, CancellationToken.None);
         Assert.True(result.IsSuccess, result.ErrorMessage);
         return path;

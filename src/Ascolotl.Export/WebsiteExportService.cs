@@ -50,7 +50,7 @@ public sealed class WebsiteExportService : IWebsiteExportService
 
                 // Same parse settings as the preview and the other exports:
                 // includes resolve against the document's folder and may leave it.
-                var parsed = AdocParser.Parse(source, LocalIncludeReader.ParseOptions(Path.GetDirectoryName(sourcePath)));
+                var parsed = DocumentParser.Parse(source, MarkdownFile.Is(rel), Path.GetDirectoryName(sourcePath));
 
                 var html = new HtmlRenderer().RenderToString(parsed.Document, new HtmlRenderOptions
                 {
@@ -106,7 +106,8 @@ public sealed class WebsiteExportService : IWebsiteExportService
             var rel = Path.GetRelativePath(projectRoot, file);
             if (Path.GetFullPath(file).StartsWith(output, StringComparison.OrdinalIgnoreCase)
                 || rel.Split('/', '\\').Any(p => p.StartsWith('.'))
-                || Path.GetExtension(rel).ToLowerInvariant() is ".adoc" or ".asciidoc")
+                || Path.GetExtension(rel).ToLowerInvariant() is ".adoc" or ".asciidoc"
+                || MarkdownFile.Is(rel))
                 continue;
 
             var target = Path.Combine(outputFolder, rel);

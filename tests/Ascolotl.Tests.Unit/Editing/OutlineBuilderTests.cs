@@ -25,6 +25,18 @@ public class OutlineBuilderTests
     }
 
     [Fact]
+    public void Build_MarkdownHeadings_MapToTheirLines()
+    {
+        var parsed = Ascolotl.Core.Services.DocumentParser.Parse("# Title\n\n## First\n\nText.\n\n## Second\n",
+            markdown: true, basePath: null);
+
+        var items = OutlineBuilder.Build(parsed.Document, parsed.LineOrigins);
+
+        Assert.Contains(items, i => i.Title == "First" && i.LineNumber == 2);
+        Assert.Contains(items, i => i.Title == "Second" && i.LineNumber == 6);
+    }
+
+    [Fact]
     public void Build_TitleAndNestedSections()
     {
         // 0:= Doc Title 1: 2:Intro 3: 4:== First 5: 6:text 7: 8:=== Sub A

@@ -216,7 +216,7 @@ public sealed class PdfThemeTests : IDisposable
         using var viewer = new FileStream(output, FileMode.Open, FileAccess.Read, FileShare.None);
 
         var result = await new ExportService().ExportAsync(
-            "= Doc\n\nText.\n", _docDir, output, ExportFormat.Pdf, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
+            "= Doc\n\nText.\n", false, _docDir, output, ExportFormat.Pdf, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
 
         Assert.False(result.IsSuccess);
         Assert.Equal("open.pdf is open in another program, so it can't be replaced. Close it there, then export again.",
@@ -266,13 +266,13 @@ public sealed class PdfThemeTests : IDisposable
     private async Task<ExportResult> Export(string source, ExportFormat format, string? theme)
     {
         var output = Path.Combine(_root, $"out-{Guid.NewGuid():N}.{format.Extension()}");
-        return await new ExportService().ExportAsync(source, _docDir, output, format, ExportTheme.Asciidoctor, theme, null, CancellationToken.None);
+        return await new ExportService().ExportAsync(source, false, _docDir, output, format, ExportTheme.Asciidoctor, theme, null, CancellationToken.None);
     }
 
     private async Task<byte[]> ExportBytes(string source, ExportFormat format, string? theme, string? pdfTitle = null)
     {
         var output = Path.Combine(_root, $"out-{Guid.NewGuid():N}.{format.Extension()}");
-        var result = await new ExportService().ExportAsync(source, _docDir, output, format, ExportTheme.Asciidoctor, theme, new PdfExportOptions(pdfTitle), CancellationToken.None);
+        var result = await new ExportService().ExportAsync(source, false, _docDir, output, format, ExportTheme.Asciidoctor, theme, new PdfExportOptions(pdfTitle), CancellationToken.None);
         Assert.True(result.IsSuccess, result.ErrorMessage);
         return await File.ReadAllBytesAsync(output);
     }

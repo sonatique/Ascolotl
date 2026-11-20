@@ -75,3 +75,17 @@ public static class BlockSnippets
 
     public const string ThematicBreak = "'''";
 }
+
+/// <summary>The Markdown versions of <see cref="BlockSnippets"/>; Markdown has no note.</summary>
+public static class MarkdownBlockSnippets
+{
+    /// <summary>Heading at the given section level (1 → <c>##</c>, as in <see cref="BlockSnippets.Heading"/>).</summary>
+    public static string Heading(int level) =>
+        new string('#', Math.Clamp(level, 1, 5) + 1) + " New heading";
+
+    public const string BulletList = "- First item\n- Second item";
+    public const string NumberedList = "1. First item\n2. Second item";
+    public const string Table = "| Cell | Cell |\n| --- | --- |\n| Cell | Cell |";
+    public const string CodeBlock = "```\ncode\n```";
+    public const string ThematicBreak = "---";
+}
