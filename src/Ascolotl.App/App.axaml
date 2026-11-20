@@ -241,6 +241,27 @@
             <Setter Property="Background" Value="{DynamicResource ForgeHighlightBrush}" />
         </Style>
 
+        <!-- ── Formatting toolbar: quiet icon buttons, hairline separators ── -->
+        <Style Selector="Button.format">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Width" Value="28" />
+            <Setter Property="Height" Value="24" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.format:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ForgeHighlightBrush}" />
+        </Style>
+        <Style Selector="Button.format:pointerover Path.icon">
+            <Setter Property="Stroke" Value="{DynamicResource ForgeTextBrush}" />
+        </Style>
+        <Style Selector="Border.format-separator">
+            <Setter Property="Background" Value="{DynamicResource ForgeBorderBrush}" />
+        </Style>
+
         <!-- ── Outline sidebar: tight rows, full-row hover, accent active ── -->
         <Style Selector="ListBox.outline">
             <Setter Property="Background" Value="Transparent" />

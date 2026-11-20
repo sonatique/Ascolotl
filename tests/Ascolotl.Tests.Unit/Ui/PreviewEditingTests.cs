@@ -16,7 +16,7 @@ namespace Ascolotl.Tests.Unit.Ui;
 /// <summary>In-place preview editing and external edits against the source editor.</summary>
 public sealed class PreviewEditingTests
 {
-    private static (MainWindow Window, MainWindowViewModel Vm) Open(string text, EditorMode mode, int debounceMs = 0,
+    internal static (MainWindow Window, MainWindowViewModel Vm) Open(string text, EditorMode mode, int debounceMs = 0,
         MockFileService? files = null)
     {
         var vm = new MainWindowViewModel(files ?? new MockFileService(), new MockDialogService(), new MockRenderService(),
@@ -32,7 +32,7 @@ public sealed class PreviewEditingTests
         return (window, vm);
     }
 
-    private static void Pump(Window window)
+    internal static void Pump(Window window)
     {
         for (var i = 0; i < 5; i++)
         {
@@ -41,7 +41,7 @@ public sealed class PreviewEditingTests
         }
     }
 
-    private static PreviewView Preview(Window window) =>
+    internal static PreviewView Preview(Window window) =>
         window.GetVisualDescendants().OfType<PreviewView>().Single();
 
     /// <summary>Window point at the centre of the first rendered text in the preview.</summary>
@@ -52,7 +52,7 @@ public sealed class PreviewEditingTests
         return tb.TranslatePoint(new Point(4, tb.Bounds.Height / 2), window)!.Value;
     }
 
-    private static TextEditor OpenInlineEditor(Window window)
+    internal static TextEditor OpenInlineEditor(Window window)
     {
         var p = FirstTextPoint(window);
         window.MouseDown(p, MouseButton.Left);

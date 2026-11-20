@@ -490,4 +490,18 @@ Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un
   <data name="ZoomFit" xml:space="preserve"><value>Ajusté</value></data>
   <data name="ZoomIn" xml:space="preserve"><value>Zoom a_vant</value></data>
   <data name="ZoomOut" xml:space="preserve"><value>Zoom a_rrière</value></data>
+  <data name="FormatBold" xml:space="preserve"><value>Gras</value></data>
+  <data name="FormatItalic" xml:space="preserve"><value>Italique</value></data>
+  <data name="FormatCode" xml:space="preserve"><value>Code</value></data>
+  <data name="FormatLink" xml:space="preserve"><value>Lien</value></data>
+  <data name="FormatHeading" xml:space="preserve"><value>Titre {0}</value></data>
+  <data name="FormatHeadingMenu" xml:space="preserve"><value>Titre</value></data>
+  <data name="FormatQuote" xml:space="preserve"><value>Citation</value></data>
+  <data name="FormatImage" xml:space="preserve"><value>Image</value></data>
+  <data name="FormatInsertMenu" xml:space="preserve"><value>Insérer</value></data>
+  <data name="FormattingToolbar" xml:space="preserve"><value>Mise en forme</value></data>
+  <data name="MenuCut" xml:space="preserve"><value>Couper</value></data>
+  <data name="MenuCopy" xml:space="preserve"><value>Copier</value></data>
+  <data name="MenuPaste" xml:space="preserve"><value>Coller</value></data>
+  <data name="StatusClickTextToFormat" xml:space="preserve"><value>Cliquez dans le texte pour le mettre en forme</value></data>
 </root>

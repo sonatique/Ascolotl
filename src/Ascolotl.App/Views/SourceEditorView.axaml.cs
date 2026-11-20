@@ -91,7 +91,7 @@ public partial class SourceEditorView : UserControl
     private void ApplyFormat(DocumentViewModel doc)
     {
         _colorizer.Markdown = doc.IsMarkdown;
-        _assist.Enabled = !doc.IsMarkdown;
+        _assist.Markdown = doc.IsMarkdown;
         Editor.TextArea.TextView.Redraw();
     }
 

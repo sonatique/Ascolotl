@@ -300,6 +300,18 @@
                         </Panel>
                     </Grid>
 
+                    <!-- Formatting toolbar, for the split and WYSIWYG views. -->
+                    <Panel DockPanel.Dock="Top" IsVisible="{Binding !HasNoDocuments}">
+                        <views:FormatToolbar x:Name="FormatBar"
+                                             IsVisible="{Binding !IsSourceMode}"
+                                             Markdown="{Binding SelectedDocument.IsMarkdown, FallbackValue=False}"
+                                             Height="30"
+                                             Background="{DynamicResource ForgeBgBrush}"
+                                             BorderBrush="{DynamicResource ForgeBorderBrush}"
+                                             BorderThickness="0,0,0,1"
+                                             AutomationProperties.Name="{x:Static res:Strings.FormattingToolbar}" />
+                    </Panel>
+
                     <!-- Content Area: Split layout -->
                     <Grid Name="ContentGrid">
                         <Grid.ColumnDefinitions>

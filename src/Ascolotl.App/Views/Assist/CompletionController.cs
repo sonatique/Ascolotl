@@ -1,8 +1,11 @@
+using System.Runtime.CompilerServices;
+using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using AvaloniaEdit;
 using AvaloniaEdit.CodeCompletion;
+using Ascolotl.Core.Editing;
 using Ascolotl.Core.Editing.Assist;
 
 namespace Ascolotl.App.Views.Assist;
@@ -10,11 +13,14 @@ namespace Ascolotl.App.Views.Assist;
 /// <summary>
 /// Attaches authoring assist to an AvaloniaEdit <see cref="TextEditor"/>:
 /// context-aware completion (auto-trigger + Ctrl+Space), snippet tab-stops,
-/// smart typing (list continuation + delimiter auto-close), and a live
-/// status-bar syntax hint. One controller per editor surface.
+/// smart typing (list continuation + delimiter auto-close), a live
+/// status-bar syntax hint, and the formatting commands of the toolbar and the
+/// right-click menu. One controller per editor surface.
 /// </summary>
 internal sealed class CompletionController
 {
+    private static readonly ConditionalWeakTable<TextEditor, CompletionController> ByEditor = new();
+
     private readonly TextEditor _editor;
     private readonly Action<string?>? _onHint;
     private readonly Func<string>? _documentSource;
@@ -31,32 +37,81 @@ internal sealed class CompletionController
         // editor passes the whole document, since its editor holds one block.
         _documentSource = documentSource;
 
+        ByEditor.AddOrUpdate(editor, this);
         editor.TextArea.TextEntered += OnTextEntered;
+        editor.TextArea.ContextRequested += OnContextRequested;
         // Tunnel so we see Tab/Esc/Enter before the editor's own input handling.
         editor.TextArea.AddHandler(InputElement.KeyDownEvent, OnKeyDown, RoutingStrategies.Tunnel);
         if (_onHint is not null)
             editor.TextArea.Caret.PositionChanged += (_, _) => UpdateHint();
     }
 
-    private bool _enabled = true;
+    /// <summary>The assist attached to <paramref name="editor"/>, if any.</summary>
+    public static CompletionController? For(TextEditor editor)
+        => ByEditor.TryGetValue(editor, out var assist) ? assist : null;
 
-    /// <summary>Off in Markdown documents: the assist only knows AsciiDoc.</summary>
-    public bool Enabled
+    private bool _markdown;
+
+    /// <summary>A Markdown document: formatting writes Markdown, and the
+    /// completion, smart typing and syntax hint (AsciiDoc only) are off.</summary>
+    public bool Markdown
     {
-        get => _enabled;
+        get => _markdown;
         set
         {
-            if (_enabled == value) return;
-            _enabled = value;
-            if (!value)
-            {
-                _window?.Close();
-                _session?.Finish();
-                _session = null;
-            }
+            if (_markdown == value) return;
+            _markdown = value;
+            _window?.Close();
+            _session?.Finish();
+            _session = null;
             UpdateHint();
         }
     }
+
+    /// <summary>Apply <paramref name="command"/> to the selection, leaving the
+    /// keyboard in the editor with the result selected (or its first field, when
+    /// Tab moves through several).</summary>
+    public void Format(FormatCommand command)
+    {
+        var edit = TextFormatting.Apply(command, _markdown, _editor.Document.Text,
+            _editor.SelectionStart, _editor.SelectionLength);
+        _window?.Close();
+        _session?.Finish();
+        _session = null;
+
+        _editor.Document.Replace(edit.Start, edit.Length, edit.Replacement.Text);
+        var stops = edit.Replacement.Stops;
+        if (stops.Count > 1)
+        {
+            OnSnippetActivated(edit.Start, edit.Replacement);
+            return;
+        }
+        if (stops.Count == 1)
+            _editor.Select(edit.Start + stops[0].Start, stops[0].Length);
+        else
+            _editor.CaretOffset = edit.Start + edit.Replacement.Text.Length;
+        _editor.TextArea.Focus();
+    }
+
+    private void OnContextRequested(object? sender, ContextRequestedEventArgs e)
+    {
+        // A right-click outside the selection moves the caret there first.
+        if (e.TryGetPosition(_editor, out var point) && _editor.GetPositionFromPoint(point) is { } position)
+        {
+            var offset = _editor.Document.GetOffset(position.Line, position.Column);
+            var (start, length) = (_editor.SelectionStart, _editor.SelectionLength);
+            if (length == 0 || offset < start || offset > start + length)
+            {
+                _editor.TextArea.ClearSelection();
+                _editor.CaretOffset = offset;
+            }
+        }
+        Menu = FormattingMenu.Open(this, _editor);
+        e.Handled = true;
+    }
+
+    /// <summary>The last right-click menu opened on this editor.</summary>
+    public ContextMenu? Menu { get; private set; }
 
     /// <summary>True while a popup or snippet session owns the keyboard — the
     /// host's own key handling (e.g. block-edit Esc/Tab) should defer to us.</summary>
@@ -64,7 +119,7 @@ internal sealed class CompletionController
 
     private void OnTextEntered(object? sender, TextInputEventArgs e)
     {
-        if (!_enabled) return;
+        if (_markdown) return;
         if (_session is { Active: true }) return;
         if (string.IsNullOrEmpty(e.Text)) return;
         if (_window is not null) return; // already filtering live
@@ -73,8 +128,6 @@ internal sealed class CompletionController
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
-        if (!_enabled) return;
-
         // While the popup is open, let it own navigation — but make Tab COMMIT
         // the highlighted suggestion. AvaloniaEdit otherwise lets Tab fall
         // through to a literal tab, which is the "Tab just inserts a tab"
@@ -113,6 +166,9 @@ internal sealed class CompletionController
                     return;
             }
         }
+
+        // Formatting's fields (above) work in Markdown too; the rest is AsciiDoc.
+        if (_markdown) return;
 
         if (e.Key == Key.Space && e.KeyModifiers.HasFlag(KeyModifiers.Control))
         {
@@ -352,7 +408,7 @@ internal sealed class CompletionController
 
     private void UpdateHint()
     {
-        var hint = _enabled ? SyntaxHint.Describe(_editor.Document.Text, _editor.CaretOffset) : null;
+        var hint = _markdown ? null : SyntaxHint.Describe(_editor.Document.Text, _editor.CaretOffset);
         _onHint?.Invoke(hint);
     }
 }

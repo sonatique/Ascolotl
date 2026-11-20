@@ -490,4 +490,18 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="ZoomFit" xml:space="preserve"><value>Fit</value></data>
   <data name="ZoomIn" xml:space="preserve"><value>Zoom _In</value></data>
   <data name="ZoomOut" xml:space="preserve"><value>Zoom O_ut</value></data>
+  <data name="FormatBold" xml:space="preserve"><value>Bold</value></data>
+  <data name="FormatItalic" xml:space="preserve"><value>Italic</value></data>
+  <data name="FormatCode" xml:space="preserve"><value>Code</value></data>
+  <data name="FormatLink" xml:space="preserve"><value>Link</value></data>
+  <data name="FormatHeading" xml:space="preserve"><value>Heading {0}</value></data>
+  <data name="FormatHeadingMenu" xml:space="preserve"><value>Heading</value></data>
+  <data name="FormatQuote" xml:space="preserve"><value>Quote</value></data>
+  <data name="FormatImage" xml:space="preserve"><value>Image</value></data>
+  <data name="FormatInsertMenu" xml:space="preserve"><value>Insert</value></data>
+  <data name="FormattingToolbar" xml:space="preserve"><value>Formatting</value></data>
+  <data name="MenuCut" xml:space="preserve"><value>Cut</value></data>
+  <data name="MenuCopy" xml:space="preserve"><value>Copy</value></data>
+  <data name="MenuPaste" xml:space="preserve"><value>Paste</value></data>
+  <data name="StatusClickTextToFormat" xml:space="preserve"><value>Click into the text to format it</value></data>
 </root>

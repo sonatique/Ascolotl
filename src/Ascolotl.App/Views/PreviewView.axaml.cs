@@ -1173,7 +1173,7 @@ public partial class PreviewView : UserControl
             // The inline editor holds one block's slice, so feed the whole
             // document for anchor/attribute (document-aware) completion.
             Assist = new CompletionController(editor,
-                documentSource: () => _doc?.SourceText ?? string.Empty) { Enabled = _doc?.IsMarkdown != true },
+                documentSource: () => _doc?.SourceText ?? string.Empty) { Markdown = _doc?.IsMarkdown == true },
         };
 
         if (caretInSlice is int c)
@@ -1358,6 +1358,8 @@ public partial class PreviewView : UserControl
             if (edit is null) return;
             var focused = TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() as Visual;
             if (focused is not null && IsAncestorOrSelf(edit.Host, focused)) return;
+            // The editor's right-click menu holds the keyboard while it is open.
+            if (focused?.FindAncestorOfType<ContextMenu>(includeSelf: true) is not null) return;
             CommitBlockEdit();
         });
     }

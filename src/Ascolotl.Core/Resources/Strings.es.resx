@@ -490,4 +490,18 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="ZoomFit" xml:space="preserve"><value>Ajustado</value></data>
   <data name="ZoomIn" xml:space="preserve"><value>_Acercar</value></data>
   <data name="ZoomOut" xml:space="preserve"><value>Ale_jar</value></data>
+  <data name="FormatBold" xml:space="preserve"><value>Negrita</value></data>
+  <data name="FormatItalic" xml:space="preserve"><value>Cursiva</value></data>
+  <data name="FormatCode" xml:space="preserve"><value>Código</value></data>
+  <data name="FormatLink" xml:space="preserve"><value>Enlace</value></data>
+  <data name="FormatHeading" xml:space="preserve"><value>Encabezado {0}</value></data>
+  <data name="FormatHeadingMenu" xml:space="preserve"><value>Encabezado</value></data>
+  <data name="FormatQuote" xml:space="preserve"><value>Cita</value></data>
+  <data name="FormatImage" xml:space="preserve"><value>Imagen</value></data>
+  <data name="FormatInsertMenu" xml:space="preserve"><value>Insertar</value></data>
+  <data name="FormattingToolbar" xml:space="preserve"><value>Formato</value></data>
+  <data name="MenuCut" xml:space="preserve"><value>Cortar</value></data>
+  <data name="MenuCopy" xml:space="preserve"><value>Copiar</value></data>
+  <data name="MenuPaste" xml:space="preserve"><value>Pegar</value></data>
+  <data name="StatusClickTextToFormat" xml:space="preserve"><value>Haga clic en el texto para darle formato</value></data>
 </root>

@@ -490,4 +490,18 @@ Questo file esiste ma non è stato possibile leggerlo. Forse è bloccato da un a
   <data name="ZoomFit" xml:space="preserve"><value>Adattato</value></data>
   <data name="ZoomIn" xml:space="preserve"><value>In_grandisci</value></data>
   <data name="ZoomOut" xml:space="preserve"><value>Rid_uci</value></data>
+  <data name="FormatBold" xml:space="preserve"><value>Grassetto</value></data>
+  <data name="FormatItalic" xml:space="preserve"><value>Corsivo</value></data>
+  <data name="FormatCode" xml:space="preserve"><value>Codice</value></data>
+  <data name="FormatLink" xml:space="preserve"><value>Link</value></data>
+  <data name="FormatHeading" xml:space="preserve"><value>Titolo {0}</value></data>
+  <data name="FormatHeadingMenu" xml:space="preserve"><value>Titolo</value></data>
+  <data name="FormatQuote" xml:space="preserve"><value>Citazione</value></data>
+  <data name="FormatImage" xml:space="preserve"><value>Immagine</value></data>
+  <data name="FormatInsertMenu" xml:space="preserve"><value>Inserisci</value></data>
+  <data name="FormattingToolbar" xml:space="preserve"><value>Formattazione</value></data>
+  <data name="MenuCut" xml:space="preserve"><value>Taglia</value></data>
+  <data name="MenuCopy" xml:space="preserve"><value>Copia</value></data>
+  <data name="MenuPaste" xml:space="preserve"><value>Incolla</value></data>
+  <data name="StatusClickTextToFormat" xml:space="preserve"><value>Fare clic nel testo per formattarlo</value></data>
 </root>

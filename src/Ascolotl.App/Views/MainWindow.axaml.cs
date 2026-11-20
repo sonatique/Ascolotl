@@ -6,6 +6,9 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using AvaloniaEdit;
+using Ascolotl.App.Views.Assist;
+using Ascolotl.Core.Editing;
 using Ascolotl.Core.Models;
 using Ascolotl.Core.Services;
 using Ascolotl.Core.ViewModels;
@@ -35,6 +38,10 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContextChanged += OnDataContextChanged;
         AddHandler(DragDrop.DropEvent, OnDrop);
+
+        // The toolbar formats the editor that last had the keyboard.
+        FormatBar.FormatRequested += OnFormatRequested;
+        AddHandler(GotFocusEvent, OnAnyGotFocus, RoutingStrategies.Bubble, handledEventsToo: true);
 
         // Zoom gestures: Ctrl+wheel (also what Windows sends for a touchpad
         // pinch) and the macOS touchpad magnify gesture. Tunnel, so the
@@ -281,6 +288,32 @@ public partial class MainWindow : Window
         // the whole content by OffScreenMargin to push it into the visible area.
         var maximized = WindowState == WindowState.Maximized;
         ContentDockPanel.Margin = maximized ? OffScreenMargin : default;
+    }
+
+    // The source editor, or an in-place block editor in the preview.
+    private TextEditor? _formatTarget;
+
+    private void OnAnyGotFocus(object? sender, GotFocusEventArgs e)
+    {
+        if ((e.Source as Visual)?.FindAncestorOfType<TextEditor>(includeSelf: true) is { } editor
+            && CompletionController.For(editor) is not null)
+            _formatTarget = editor;
+    }
+
+    private void OnFormatRequested(FormatCommand command)
+    {
+        if (_viewModel is null) return;
+        // A closed in-place editor has left the window; the split view falls
+        // back to its source editor.
+        var target = _formatTarget is { IsEffectivelyVisible: true } last && last.GetVisualRoot() == this ? last
+            : _viewModel.EditorMode == EditorMode.Split ? EditorPane.GetVisualDescendants().OfType<TextEditor>().FirstOrDefault()
+            : null;
+        if (target is null || CompletionController.For(target) is not { } assist)
+        {
+            _viewModel.StatusText = Strings.StatusClickTextToFormat;
+            return;
+        }
+        assist.Format(command);
     }
 
     private void UpdateEditorLayout(EditorMode mode)
