@@ -29,6 +29,21 @@ public sealed class FormatToolbar : Border
 
     public event Action<FormatCommand>? FormatRequested;
 
+    public static readonly StyledProperty<bool> EditOpenProperty =
+        AvaloniaProperty.Register<FormatToolbar, bool>(nameof(EditOpen));
+
+    /// <summary>An in-place edit is open: show its Apply and Cancel.</summary>
+    public bool EditOpen
+    {
+        get => GetValue(EditOpenProperty);
+        set => SetValue(EditOpenProperty, value);
+    }
+
+    /// <summary>Apply (true) or Cancel (false) pressed.</summary>
+    public event Action<bool>? EditActionRequested;
+
+    private readonly StackPanel _editActions;
+
     private readonly Dictionary<FormatCommand, Button> _buttons = [];
 
     // Outline icons on a 24-unit grid, drawn at 16 px.
@@ -88,7 +103,28 @@ public sealed class FormatToolbar : Border
                 row.Children.Add(button);
             }
         }
-        Child = row;
+        var apply = EditAction(Strings.InlineApply, Strings.InlineApplyTip, apply: true);
+        apply.Classes.Add("apply");
+        _editActions = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(8, 0),
+            Spacing = 4,
+            IsVisible = false,
+            Children = { apply, EditAction(Strings.InlineCancel, Strings.InlineCancelTip, apply: false) },
+        };
+        DockPanel.SetDock(_editActions, Dock.Right);
+        Child = new DockPanel { Children = { _editActions, row } };
+    }
+
+    private Button EditAction(string label, string tip, bool apply)
+    {
+        var button = new Button { Classes = { "format-action" }, Focusable = false, Content = label };
+        ToolTip.SetTip(button, tip);
+        AutomationProperties.SetName(button, tip);
+        button.Click += (_, _) => EditActionRequested?.Invoke(apply);
+        return button;
     }
 
     private static string Tooltip(FormatCommand command) => command switch
@@ -116,5 +152,7 @@ public sealed class FormatToolbar : Border
         if (change.Property == MarkdownProperty)
             foreach (var (command, button) in _buttons)
                 button.IsVisible = TextFormatting.Supports(command, Markdown);
+        else if (change.Property == EditOpenProperty)
+            _editActions.IsVisible = EditOpen;
     }
 }

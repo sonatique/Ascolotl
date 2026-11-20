@@ -41,6 +41,8 @@ public partial class MainWindow : Window
 
         // The toolbar formats the editor that last had the keyboard.
         FormatBar.FormatRequested += OnFormatRequested;
+        FormatBar.EditActionRequested += apply =>
+            (apply ? _viewModel?.FlushPendingEdits : _viewModel?.CancelPendingEdits)?.Invoke();
         AddHandler(GotFocusEvent, OnAnyGotFocus, RoutingStrategies.Bubble, handledEventsToo: true);
 
         // Zoom gestures: Ctrl+wheel (also what Windows sends for a touchpad

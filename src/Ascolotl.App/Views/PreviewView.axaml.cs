@@ -92,7 +92,18 @@ public partial class PreviewView : UserControl
     // swapped for an in-place source editor. Null when not editing.
     // UpdatePreview never rebuilds the panel under it: the rebuild is
     // postponed (_rebuildPending) until the edit is committed or cancelled.
-    private BlockEditState? _activeEdit;
+    private BlockEditState? _openEdit;
+
+    // The toolbar shows Apply and Cancel while an edit is open.
+    private BlockEditState? _activeEdit
+    {
+        get => _openEdit;
+        set
+        {
+            _openEdit = value;
+            if (_mainVm is not null) _mainVm.InPlaceEditOpen = value is not null;
+        }
+    }
     private bool _rebuildPending;
 
     // The source text the current panel's block map was rendered from. Its
@@ -245,6 +256,8 @@ public partial class PreviewView : UserControl
         {
             _mainVm.PropertyChanged -= OnMainVmPropertyChanged;
             _mainVm.FlushPendingEdits = null;
+            _mainVm.CancelPendingEdits = null;
+            _mainVm.InPlaceEditOpen = false;
         }
         _window = null;
     }
@@ -259,6 +272,7 @@ public partial class PreviewView : UserControl
             _mainVm.PropertyChanged += OnMainVmPropertyChanged;
             // Saving and closing must see the open in-place edit's text.
             _mainVm.FlushPendingEdits = CommitBlockEdit;
+            _mainVm.CancelPendingEdits = CancelBlockEdit;
         }
     }
 
@@ -1187,9 +1201,8 @@ public partial class PreviewView : UserControl
 
         // KeyDown must TUNNEL: AvaloniaEdit's TextArea consumes Escape (and
         // would insert a newline for Enter variants) before a bubbling
-        // handler ever sees the key. Tunneling on the host fires first and
-        // also covers the Apply/Cancel buttons. LostFocus bubbles, so the
-        // host hears it from the TextArea and the buttons alike.
+        // handler ever sees the key. LostFocus bubbles, so the host hears it
+        // from the TextArea.
         host.AddHandler(InputElement.KeyDownEvent, OnBlockEditKeyDown, RoutingStrategies.Tunnel);
         host.LostFocus += OnBlockEditLostFocus;
         editor.Focus();
@@ -1275,8 +1288,9 @@ public partial class PreviewView : UserControl
     }
 
     /// <summary>
-    /// Build the in-place editor: an AvaloniaEdit editor over the slice plus
-    /// an Apply/Cancel button bar, wrapped in a highlighted border.
+    /// Build the in-place editor: an AvaloniaEdit editor over the slice, wrapped
+    /// in a highlighted border. Apply and Cancel live in the toolbar, so even a
+    /// narrow table cell holds nothing but the text.
     /// </summary>
     private (TextEditor Editor, Border Host) BuildInlineEditor(string slice, bool compact)
     {
@@ -1291,28 +1305,6 @@ public partial class PreviewView : UserControl
             Padding = compact ? new Thickness(4, 2) : new Thickness(8, 6),
         };
 
-        var applyButton = new Button { Content = Strings.InlineApply, FontSize = 11, Padding = new Thickness(8, 2) };
-        ToolTip.SetTip(applyButton, Strings.InlineApplyTip);
-        applyButton.Click += (_, _) => CommitBlockEdit();
-
-        var cancelButton = new Button { Content = Strings.InlineCancel, FontSize = 11, Padding = new Thickness(8, 2) };
-        ToolTip.SetTip(cancelButton, Strings.InlineCancelTip);
-        cancelButton.Click += (_, _) => CancelBlockEdit();
-
-        var buttons = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            HorizontalAlignment = HorizontalAlignment.Right,
-            Spacing = 6,
-            Margin = new Thickness(4, 2, 4, 4),
-            Children = { applyButton, cancelButton },
-        };
-
-        var dock = new DockPanel();
-        DockPanel.SetDock(buttons, Dock.Bottom);
-        dock.Children.Add(buttons);
-        dock.Children.Add(editor);
-
         var host = new Border
         {
             Background = new SolidColorBrush(Color.Parse(IsDarkTheme ? "#2E2A1C" : "#FFFBE6")),
@@ -1320,7 +1312,7 @@ public partial class PreviewView : UserControl
             BorderThickness = new Thickness(1),
             CornerRadius = new CornerRadius(3),
             Margin = new Thickness(0, 2),
-            Child = dock,
+            Child = editor,
         };
         return (editor, host);
     }
@@ -1351,9 +1343,8 @@ public partial class PreviewView : UserControl
         // Defer one dispatcher tick so the keystroke/click that moved focus
         // finishes processing before the editor is torn down. After the
         // tick, skip the commit when focus merely moved WITHIN the inline
-        // editor host (e.g. onto the Apply/Cancel buttons) — otherwise the
-        // deferred commit would fire before the Cancel button's Click and
-        // turn a cancel into an apply.
+        // editor host. (The toolbar's Apply and Cancel never take the
+        // keyboard, so pressing them doesn't commit here first.)
         Dispatcher.UIThread.Post(() =>
         {
             var edit = _activeEdit;

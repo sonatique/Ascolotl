@@ -97,6 +97,36 @@ public sealed class FormattingTests
     }
 
     [AvaloniaFact]
+    public void Toolbar_AppliesTheInPlaceEdit_AndOffersItOnlyWhileOpen()
+    {
+        var (window, vm) = Open("Hello world", EditorMode.Wysiwyg);
+        Assert.False(ToolbarButton(window, Strings.InlineApplyTip).IsEffectivelyVisible);
+
+        var editor = OpenInlineEditor(window);
+        Assert.Empty(Preview(window).GetVisualDescendants().OfType<Button>()); // nothing to clip in the block
+        editor.Document.Insert(editor.Document.TextLength, " again");
+        Click(window, ToolbarButton(window, Strings.InlineApplyTip));
+
+        Assert.Equal("Hello world again", vm.SelectedDocument!.SourceText.TrimEnd());
+        Assert.Empty(Preview(window).GetVisualDescendants().OfType<TextEditor>());
+        Assert.False(ToolbarButton(window, Strings.InlineApplyTip).IsEffectivelyVisible);
+    }
+
+    [AvaloniaFact]
+    public void Toolbar_CancelsTheInPlaceEdit()
+    {
+        var (window, vm) = Open("Hello world", EditorMode.Wysiwyg);
+        var editor = OpenInlineEditor(window);
+        editor.Document.Insert(editor.Document.TextLength, " again");
+
+        Click(window, ToolbarButton(window, Strings.InlineCancelTip));
+
+        Assert.Equal("Hello world", vm.SelectedDocument!.SourceText);
+        Assert.Empty(Preview(window).GetVisualDescendants().OfType<TextEditor>());
+        Assert.False(vm.SelectedDocument.IsDirty);
+    }
+
+    [AvaloniaFact]
     public void Toolbar_IsHiddenInTheSourceView()
     {
         var (window, vm) = Open("text", EditorMode.Split);

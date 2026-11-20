@@ -894,6 +894,13 @@ public partial class MainWindowViewModel : ObservableObject
     /// </summary>
     public Action? FlushPendingEdits { get; set; }
 
+    /// <summary>Set by the preview: drops an open in-place edit's changes.</summary>
+    public Action? CancelPendingEdits { get; set; }
+
+    /// <summary>An in-place edit is open in the preview; the toolbar offers Apply and Cancel.</summary>
+    [ObservableProperty]
+    private bool _inPlaceEditOpen;
+
     private async Task<bool> WriteDocumentAsync(DocumentViewModel doc, bool saveAs)
     {
         FlushPendingEdits?.Invoke();

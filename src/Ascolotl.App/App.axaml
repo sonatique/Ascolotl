@@ -264,6 +264,23 @@
             <Setter Property="Padding" Value="0" />
             <Setter Property="Margin" Value="0,0,18,0" />
         </Style>
+        <!-- Apply / Cancel of an in-place edit, at the toolbar's right end. -->
+        <Style Selector="Button.format-action">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Height" Value="24" />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.format-action:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ForgeHighlightBrush}" />
+        </Style>
+        <Style Selector="Button.format-action.apply">
+            <Setter Property="Foreground" Value="{DynamicResource ForgeAccentTextBrush}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
         <Style Selector="Border.format-separator">
             <Setter Property="Background" Value="{DynamicResource ForgeBorderBrush}" />
         </Style>
