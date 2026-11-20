@@ -166,6 +166,38 @@ public sealed class PreviewEditingTests
         Assert.Empty(doc.SyntaxHint);
     }
 
+    /// <summary>The text block whose inlines start with <paramref name="start"/>.</summary>
+    private static TextBlock BlockStarting(Window window, string start) =>
+        Preview(window).GetVisualDescendants().OfType<TextBlock>()
+            .First(t => t.Inlines is { Count: > 0 } inlines && (inlines.Text ?? "").StartsWith(start, StringComparison.Ordinal));
+
+    [AvaloniaFact]
+    public void ClickAfterAHardBreak_MapsToTheClickedSourceColumn()
+    {
+        var (window, _) = Open("First line +\nsecond line.", EditorMode.Split);
+        var tb = BlockStarting(window, "First line");
+        // The text layout puts a newline at the break: "s" is one line down.
+        var target = "First line".Length + Environment.NewLine.Length;
+        Assert.True(tb.TextLayout.HitTestTextPosition(target).Y > tb.TextLayout.HitTestTextPosition(0).Y);
+
+        var pos = 0;
+        Assert.True(PreviewView.TryFindInlineRange(tb.Inlines!, ref pos, target, AdocNet.SourceRange.None, out var range));
+        Assert.Equal((2, 1), (range.Start.Line, range.Start.Column));
+        Assert.Equal(target, pos); // the run starts at the click: no drift into the line
+    }
+
+    [AvaloniaFact]
+    public void ClickInAChecklistItem_SkipsItsBox()
+    {
+        var (window, _) = Open("* [x] Done item", EditorMode.Split);
+        var tb = BlockStarting(window, "");
+        var target = (tb.Inlines!.Text ?? "").IndexOf("Done", StringComparison.Ordinal) + 1; // the box counts as one
+
+        var pos = 0;
+        Assert.True(PreviewView.TryFindInlineRange(tb.Inlines, ref pos, target, AdocNet.SourceRange.None, out var range));
+        Assert.Equal(7, range.Start.Column + (target - pos)); // 1-based column of "Done"
+    }
+
     /// <summary>The rendered paragraph showing exactly <paramref name="text"/>.</summary>
     private static TextBlock Paragraph(Window window, string text) =>
         Preview(window).GetVisualDescendants().OfType<TextBlock>()

@@ -1959,7 +1959,7 @@ public partial class PreviewView : UserControl
     /// to it (leaf Run's range, else nearest ancestor Span's). Ranges are
     /// absolute since AdocNet 1.0.10.
     /// </summary>
-    private static bool TryFindInlineRange(
+    internal static bool TryFindInlineRange(
         IEnumerable<Inline> inlines, ref int pos, int target, SourceRange inherited, out SourceRange result)
     {
         foreach (var inline in inlines)
@@ -1982,6 +1982,17 @@ public partial class PreviewView : UserControl
                 case Span span:
                     if (TryFindInlineRange(span.Inlines, ref pos, target, effective, out result))
                         return true;
+                    break;
+
+                // The text layout counts these too: a line break as a newline
+                // (two characters on Windows), an embedded control (the
+                // checklist box) as one.
+                case LineBreak:
+                    pos += Environment.NewLine.Length;
+                    break;
+
+                case InlineUIContainer:
+                    pos += 1;
                     break;
             }
         }
