@@ -12,8 +12,8 @@
 #   - No .NET install or WebView: builds are self-contained; rendering and export are pure-managed via AdocNet.
 #   - Linux: X11, fontconfig and ICU (libicu), present on standard desktop distros.
 #
-# Output: publish/<runtime>/Ascolotl[.exe] -- one self-contained, trimmed, ReadyToRun
-# executable per platform (native libraries included; no .pdb) -- and release archives
+# Output: publish/<runtime>/Ascolotl[.exe] -- one self-contained, trimmed, ReadyToRun,
+# compressed executable per platform (native libraries included; no .pdb) -- and release archives
 # in publish/dist/: Ascolotl-<version>-<runtime>.zip (Windows) or .tar.gz (macOS, Linux;
 # the executable bit is kept).
 
@@ -60,6 +60,7 @@ foreach ($rid in $Runtimes) {
         -p:PublishReadyToRun=true `
         -p:PublishSingleFile=true `
         -p:IncludeNativeLibrariesForSelfExtract=true `
+        -p:EnableCompressionInSingleFile=true `
         -p:PublishTrimmed=true `
         -p:TrimMode=partial `
         -p:DebugType=none
