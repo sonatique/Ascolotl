@@ -14,6 +14,10 @@ left and see it rendered on the right, or edit the rendered page directly. Then
 export to PDF, HTML, EPUB or DocBook. Everything runs locally: no browser engine,
 no Ruby and no Java.
 
+![Split view: AsciiDoc source, live preview and the outline](docs/screenshots/split.png)
+
+![WYSIWYG view: edit the rendered page](docs/screenshots/wysiwyg.png)
+
 ## Features
 
 - **AsciiDoc and Markdown:** open, edit, preview and export `.adoc` and `.md`
@@ -21,9 +25,11 @@ no Ruby and no Java.
   strikethrough, autolinks and footnotes. Syntax colouring follows each file's
   format, and the toolbar and menus write its syntax.
 - **Three ways to work:** Source, Split (source and live preview side by side)
-  and WYSIWYG. Click a rendered block to edit its source in place (in Split, the
-  source pane jumps there too), then apply with `Ctrl+Enter` or cancel with
-  `Esc`. The source text stays the single source of truth.
+  and WYSIWYG. Switch from the toolbar's right end or with `Ctrl+1`, `Ctrl+2`
+  and `Ctrl+3`. Each tab keeps its own view, and files open in WYSIWYG. Click a
+  rendered block to edit its source in place (in Split, the source pane jumps
+  there too), then apply with `Ctrl+Enter` or cancel with `Esc`. The source text
+  stays the single source of truth.
 - **Formatting toolbar and right-click menu** in Split and WYSIWYG: bold,
   italic, code, links, headings, lists, quotes, code blocks, images, tables and,
   in AsciiDoc, notes. Each applies to the selection or inserts at the caret.
@@ -32,8 +38,8 @@ no Ruby and no Java.
   cells can also be merged and split. Markdown tables stay aligned.
 - **Live preview** with images, checklists, quotes and highlighted text. Click
   the preview to jump to the source, and scrolling stays in sync.
-- **Outline panel** to jump between sections, and **project folders** with a
-  file tree.
+- **Outline panel** on the right, as wide as you drag it, to jump between
+  sections, and **project folders** with a file tree.
 - **Export** to PDF (portrait or landscape for wide tables), HTML, EPUB,
   DocBook XML and a linked static website of a whole folder. **Export
   profiles** save one-click export settings. PDFs can be made **accessible**
@@ -44,14 +50,16 @@ no Ruby and no Java.
 - **Page Preview** shows the document as the exported PDF's pages: title page,
   table of contents, headers and footers.
 - **Completion and smart typing:** in AsciiDoc, macros, attributes and block
-  snippets, plus a searchable syntax reference (`F1`). In Markdown, link
-  targets (files, headings, reference labels), code fence languages and block
-  starters. Lists, quotes and code fences continue or close on `Enter`.
+  snippets. In Markdown, link targets (files, headings, reference labels), code
+  fence languages and block starters. Lists, quotes and code fences continue or
+  close on `Enter`. `F1` opens a searchable syntax reference for the file's
+  format.
 - **Import** Word (`.docx`), Markdown, HTML, PDF and plain text files as
   AsciiDoc.
 - **Command palette** (`Ctrl+Shift+P`) to reach every command by name.
-- **Tabs and session restore:** reopen a closed tab and pick up where you left
-  off. Unsaved work is recovered after a crash.
+- **Tabs and session restore:** reopen a closed tab, and come back to the tab
+  you were on, each tab in its view and where it was scrolled. Unsaved work is
+  recovered after a crash.
 - **Light, dark or system theme**, with zoom and word wrap for each pane.
 - **English, French, German, Italian or Spanish** interface, following the system language by
   default (View → Language).
@@ -71,7 +79,13 @@ self-contained, so you don't need to install .NET.
 | Linux (x64) | `Ascolotl-<version>-linux-x64.tar.gz` |
 | Linux (ARM64) | `Ascolotl-<version>-linux-arm64.tar.gz` |
 
-Each archive holds a single executable.
+Each archive holds the executable, its license (`LICENSE.txt`) and the licenses
+of the components it includes (`THIRD-PARTY-NOTICES.txt`, also under
+Help → About → Open-Source Licenses).
+
+The archives don't register file types. To open `.adoc` and `.md` files with a
+double-click, use your system's *Open with* once and choose Ascolotl, with
+*Always* (Windows) or *Change All* (macOS, in Get Info).
 
 **Windows:** unzip the archive and run `Ascolotl.exe`. The build is not signed,
 so SmartScreen may warn you the first time. Choose *More info*, then *Run anyway*.
@@ -110,7 +124,8 @@ tar -xzf Ascolotl-1.0.0-linux-x64.tar.gz && ./Ascolotl
 | Command palette | `Ctrl+Shift+P` |
 | Apply / cancel an in-place edit | `Ctrl+Enter` / `Esc` |
 | Completion | `Ctrl+Space` or `Tab` |
-| AsciiDoc syntax reference | `F1` |
+| Source / Split / WYSIWYG | `Ctrl+1` / `Ctrl+2` / `Ctrl+3` |
+| Syntax reference (AsciiDoc or Markdown) | `F1` |
 | Toggle outline | `Ctrl+B` |
 | Zoom in / out / reset | `Ctrl++` / `Ctrl+-` / `Ctrl+0` |
 
