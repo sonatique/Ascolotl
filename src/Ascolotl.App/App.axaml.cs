@@ -189,6 +189,7 @@ public class App : Application
             _viewModel.OpeningDocuments = true;
 
             RestoreWindowBounds(mainWindow, _settings);
+            mainWindow.SidebarWidth = _settings.SidebarWidth;
 
             mainWindow.Opened += async (_, _) =>
             {
@@ -329,11 +330,12 @@ public class App : Application
         }
     }
 
-    private void SaveWindowBounds(Avalonia.Controls.Window window)
+    private void SaveWindowBounds(Views.MainWindow window)
     {
         if (_settings is null || _settingsService is null)
             return;
 
+        _settings.SidebarWidth = window.SidebarWidth;
         _settings.WindowMaximized = window.WindowState == Avalonia.Controls.WindowState.Maximized;
 
         if (!_settings.WindowMaximized)

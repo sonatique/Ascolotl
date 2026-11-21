@@ -353,11 +353,24 @@ public partial class MainWindow : Window
 
     private GridLength _sidebarWidth = new(220);
 
+    /// <summary>The sidebar's width, also while it is hidden; App keeps it across runs.</summary>
+    public double SidebarWidth
+    {
+        get => OuterGrid.ColumnDefinitions[2].ActualWidth is > 0 and var w ? w : _sidebarWidth.Value;
+        set
+        {
+            if (value is not (>= 120 and <= 4000)) return; // the settings file can hold anything
+            _sidebarWidth = new GridLength(value);
+            var col = OuterGrid.ColumnDefinitions[2];
+            if (col.Width.Value > 0) col.Width = _sidebarWidth;
+        }
+    }
+
     // The column holds the sidebar's width, so the splitter resizes it; a hidden sidebar takes none.
     private void UpdateSidebarColumn()
     {
         var col = OuterGrid.ColumnDefinitions[2];
-        if (col.Width.Value > 0) _sidebarWidth = col.Width;
+        if (col.ActualWidth > 0) _sidebarWidth = new GridLength(col.ActualWidth);
         var show = _viewModel?.ShowOutlinePane == true;
         col.MinWidth = show ? 120 : 0;
         col.Width = show ? _sidebarWidth : new GridLength(0);

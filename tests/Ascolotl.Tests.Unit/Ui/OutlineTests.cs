@@ -1,3 +1,4 @@
+using Ascolotl.App.Views;
 using Ascolotl.Core.Models;
 using Ascolotl.Core.ViewModels;
 using Avalonia;
@@ -19,12 +20,22 @@ public sealed class OutlineTests
     // Text after "Two" too, so the page can scroll it to the top.
     private static readonly string Text = "= Doc\n\n== One\n\n" + Words + "== Two\n\n" + Words;
 
-    private static (Window Window, MainWindowViewModel Vm) OpenWithOutline(EditorMode mode)
+    private static (MainWindow Window, MainWindowViewModel Vm) OpenWithOutline(EditorMode mode)
     {
         var (window, vm) = Open(Text, mode);
         vm.ShowOutlinePane = true;
         Pump(window);
         return (window, vm);
+    }
+
+    private static void DragSidebarSplitter(Window window, double left)
+    {
+        var splitter = window.FindControl<GridSplitter>("SidebarSplitter")!;
+        var p = splitter.TranslatePoint(new Point(2, splitter.Bounds.Height / 2), window)!.Value;
+        window.MouseDown(p, MouseButton.Left);
+        window.MouseMove(p - new Vector(left, 0));
+        window.MouseUp(p - new Vector(left, 0), MouseButton.Left);
+        Pump(window);
     }
 
     private static void ClickOutlineRow(Window window, string title)
@@ -61,13 +72,8 @@ public sealed class OutlineTests
         double Right(Visual v) => v.TranslatePoint(default, window)!.Value.X + v.Bounds.Width;
         var pane = window.FindControl<Border>("OutlinePane")!;
         var preview = window.FindControl<Control>("PreviewPane")!;
-        var splitter = window.FindControl<GridSplitter>("SidebarSplitter")!;
-        var p = splitter.TranslatePoint(new Point(2, splitter.Bounds.Height / 2), window)!.Value;
 
-        window.MouseDown(p, MouseButton.Left);
-        window.MouseMove(p - new Vector(100, 0));
-        window.MouseUp(p - new Vector(100, 0), MouseButton.Left);
-        Pump(window);
+        DragSidebarSplitter(window, 100);
         Assert.Equal(320, pane.Bounds.Width, 0);
         Assert.Equal(window.Bounds.Width, Right(pane), 1);
 
@@ -78,6 +84,27 @@ public sealed class OutlineTests
         vm.ShowOutlinePane = true;
         Pump(window);
         Assert.Equal(320, pane.Bounds.Width, 0);
+    }
+
+    [AvaloniaFact]
+    public void SidebarWidth_IsSaved_AndRestoredOnTheNextStart()
+    {
+        var (window, _) = OpenWithOutline(EditorMode.Split);
+        DragSidebarSplitter(window, 100);
+        Assert.Equal(320, window.SidebarWidth, 0);
+
+        var (next, vm) = Open(Text, EditorMode.Split);
+        next.SidebarWidth = 300; // restored while the sidebar is hidden...
+        vm.ShowOutlinePane = true;
+        Pump(next);
+        var pane = next.FindControl<Border>("OutlinePane")!;
+        Assert.Equal(300, pane.Bounds.Width, 0);
+
+        next.SidebarWidth = 260; // ...or shown
+        foreach (var bad in new[] { double.NaN, -5, 1e9 }) next.SidebarWidth = bad;
+        Pump(next);
+        Assert.Equal(260, pane.Bounds.Width, 0);
+        Assert.Equal(260, next.SidebarWidth, 0);
     }
 
     [AvaloniaFact]

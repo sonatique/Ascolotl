@@ -10,6 +10,7 @@ public sealed class AppSettings
     public bool ShowTitleAndToc { get; set; }
     public bool SyncScrolling { get; set; } = true;
     public bool ShowOutlinePane { get; set; }
+    public double SidebarWidth { get; set; } = 220;
     public bool HamburgerMenu { get; set; } = true;
 
     /// <summary>Print-like page preview (A4 pages) instead of continuous flow.</summary>
