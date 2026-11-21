@@ -92,6 +92,7 @@ public partial class SourceEditorView : UserControl
     {
         _colorizer.Markdown = doc.IsMarkdown;
         _assist.Markdown = doc.IsMarkdown;
+        _assist.DocumentFolder = () => doc.BaseDirectory;
         Editor.TextArea.TextView.Redraw();
     }
 

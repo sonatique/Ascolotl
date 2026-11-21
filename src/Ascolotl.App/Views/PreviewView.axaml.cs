@@ -1181,7 +1181,11 @@ public partial class PreviewView : UserControl
             // The inline editor holds one block's slice, so feed the whole
             // document for anchor/attribute (document-aware) completion.
             Assist = new CompletionController(editor,
-                documentSource: () => _doc?.SourceText ?? string.Empty) { Markdown = _doc?.IsMarkdown == true },
+                documentSource: () => _doc?.SourceText ?? string.Empty)
+            {
+                Markdown = _doc?.IsMarkdown == true,
+                DocumentFolder = () => _doc?.BaseDirectory,
+            },
         };
 
         if (caretInSlice is int c)

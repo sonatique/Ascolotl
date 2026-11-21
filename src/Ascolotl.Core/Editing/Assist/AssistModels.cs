@@ -24,6 +24,14 @@ public enum AssistContextKind
 
     /// <summary>Mid-line prose. Offers inline macros and markup.</summary>
     Inline,
+    /// <summary>Markdown: after an opening code fence. Offers languages.</summary>
+    FenceLanguage,
+    /// <summary>Markdown: after <c>](</c>. Offers files beside the document.</summary>
+    LinkTarget,
+    /// <summary>Markdown: after <c>](#</c>. Offers the document's heading anchors.</summary>
+    Anchor,
+    /// <summary>Markdown: after <c>][</c>. Offers the document's link labels.</summary>
+    ReferenceLabel,
 }
 
 /// <summary>Loose grouping for an item (drives ordering/labelling, not behavior).</summary>

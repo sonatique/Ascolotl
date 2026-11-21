@@ -43,9 +43,12 @@ no Ruby and no Java.
   document's own `:pdf-theme:` still wins.
 - **Page Preview** shows the document as the exported PDF's pages: title page,
   table of contents, headers and footers.
-- **AsciiDoc help:** completion, snippets and a searchable syntax reference
-  (`F1`). Word (`.docx`), Markdown, HTML, PDF and plain text files can be
-  imported as AsciiDoc.
+- **Completion and smart typing:** in AsciiDoc, macros, attributes and block
+  snippets, plus a searchable syntax reference (`F1`). In Markdown, link
+  targets (files, headings, reference labels), code fence languages and block
+  starters. Lists, quotes and code fences continue or close on `Enter`.
+- **Import** Word (`.docx`), Markdown, HTML, PDF and plain text files as
+  AsciiDoc.
 - **Command palette** (`Ctrl+Shift+P`) to reach every command by name.
 - **Tabs and session restore:** reopen a closed tab and pick up where you left
   off. Unsaved work is recovered after a crash.
@@ -106,7 +109,7 @@ tar -xzf Ascolotl-0.0.1-linux-x64.tar.gz && ./Ascolotl
 | Export to PDF | `Ctrl+E` |
 | Command palette | `Ctrl+Shift+P` |
 | Apply / cancel an in-place edit | `Ctrl+Enter` / `Esc` |
-| Completion (AsciiDoc) | `Ctrl+Space` |
+| Completion | `Ctrl+Space` or `Tab` |
 | AsciiDoc syntax reference | `F1` |
 | Toggle outline | `Ctrl+B` |
 | Zoom in / out / reset | `Ctrl++` / `Ctrl+-` / `Ctrl+0` |

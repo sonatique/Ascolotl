@@ -158,8 +158,8 @@ public static class AsciiDocAssistCatalog
             Strings.AssistAttrFormatDesc, AssistItemKind.Attribute),
     };
 
-    // --- Source languages (after "source," inside the attribute list) ---
-    private static readonly string[] Languages =
+    // --- Source languages (after "source," inside the attribute list; Markdown fences too) ---
+    internal static readonly string[] Languages =
     {
         "text", "java", "kotlin", "csharp", "cpp", "c", "python", "javascript",
         "typescript", "ruby", "go", "rust", "bash", "shell", "json", "yaml",

@@ -145,9 +145,9 @@ public sealed class PreviewEditingTests
     }
 
     [AvaloniaFact]
-    public void SavedAsMarkdown_TheAsciiDocAssistStops()
+    public void SavedAsMarkdown_TypingHelpFollowsMarkdown()
     {
-        var (window, vm) = Open("== Section\n\n* item", EditorMode.Split);
+        var (window, vm) = Open("== Section\n\n1. item", EditorMode.Split);
         var doc = vm.SelectedDocument!;
         var editor = window.GetVisualDescendants().OfType<SourceEditorView>().Single()
             .GetVisualDescendants().OfType<TextEditor>().First();
@@ -157,13 +157,30 @@ public sealed class PreviewEditingTests
         doc.FilePath = Path.Combine(Path.GetTempPath(), "notes.md");
         Assert.Empty(doc.SyntaxHint);
 
-        // Enter after a list item no longer continues the list AsciiDoc's way.
+        // Enter continues the numbered list the Markdown way (AsciiDoc wouldn't).
         editor.CaretOffset = editor.Document.TextLength;
         editor.TextArea.Focus();
         window.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
         Pump(window);
-        Assert.Equal("== Section\n\n* item\n", editor.Text.Replace("\r\n", "\n"));
+        Assert.Equal("== Section\n\n1. item\n2. ", editor.Text.Replace("\r\n", "\n"));
         Assert.Empty(doc.SyntaxHint);
+    }
+
+    [AvaloniaFact]
+    public void MarkdownEnter_ClosesACodeFence()
+    {
+        var (window, vm) = Open("```js", EditorMode.Split);
+        vm.SelectedDocument!.FilePath = Path.Combine(Path.GetTempPath(), "notes.md");
+        Pump(window);
+        var editor = SourceEditor(window);
+        editor.CaretOffset = editor.Document.TextLength;
+        editor.TextArea.Focus();
+
+        window.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+        Pump(window);
+
+        Assert.Equal("```js\n\n```", editor.Text.Replace("\r\n", "\n"));
+        Assert.Equal(2, editor.TextArea.Caret.Line);
     }
 
     private static void ClickText(Window window, string text)

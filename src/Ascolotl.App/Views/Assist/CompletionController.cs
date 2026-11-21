@@ -54,8 +54,8 @@ internal sealed class CompletionController
 
     private bool _markdown;
 
-    /// <summary>A Markdown document: formatting writes Markdown, and the
-    /// completion, smart typing and syntax hint (AsciiDoc only) are off.</summary>
+    /// <summary>A Markdown document: formatting, completion and smart typing
+    /// follow Markdown; the status-bar syntax hint (AsciiDoc only) is off.</summary>
     public bool Markdown
     {
         get => _markdown;
@@ -94,6 +94,9 @@ internal sealed class CompletionController
             _editor.CaretOffset = edit.Start + edit.Replacement.Text.Length;
         _editor.TextArea.Focus();
     }
+
+    /// <summary>The document's folder, for completing Markdown link targets.</summary>
+    public Func<string?>? DocumentFolder { get; set; }
 
     /// <summary>Set for an in-place table cell editor, which holds only the cell's
     /// text: its table edits go to the whole document instead.</summary>
@@ -174,7 +177,6 @@ internal sealed class CompletionController
 
     private void OnTextEntered(object? sender, TextInputEventArgs e)
     {
-        if (_markdown) return;
         if (_session is { Active: true }) return;
         if (string.IsNullOrEmpty(e.Text)) return;
         if (_window is not null) return; // already filtering live
@@ -222,9 +224,6 @@ internal sealed class CompletionController
             }
         }
 
-        // Formatting's fields (above) work in Markdown too; the rest is AsciiDoc.
-        if (_markdown) return;
-
         if (e.Key == Key.Space && e.KeyModifiers.HasFlag(KeyModifiers.Control))
         {
             ShowCompletion(force: true);
@@ -234,7 +233,7 @@ internal sealed class CompletionController
 
         // Inside a table, Tab adds the next cell (spreadsheet-style) rather than
         // opening completion.
-        if (e.Key == Key.Tab && e.KeyModifiers == KeyModifiers.None && TryTableCell())
+        if (e.Key == Key.Tab && e.KeyModifiers == KeyModifiers.None && !_markdown && TryTableCell())
         {
             e.Handled = true;
             return;
@@ -282,9 +281,14 @@ internal sealed class CompletionController
 
     /// <summary>Tab as an explicit trigger: open completion when the caret has
     /// something completable, else return false so Tab inserts a literal tab.</summary>
+    private AssistQuery Analyze()
+        => _markdown
+            ? MarkdownAssist.Analyze(_editor.Document.Text, _editor.CaretOffset)
+            : AsciiDocContextAnalyzer.Analyze(_editor.Document.Text, _editor.CaretOffset);
+
     private bool TryTriggerWithTab()
     {
-        var query = AsciiDocContextAnalyzer.Analyze(_editor.Document.Text, _editor.CaretOffset);
+        var query = Analyze();
         if (query.Kind == AssistContextKind.None) return false;
 
         var pool = PoolFor(query);
@@ -293,7 +297,11 @@ internal sealed class CompletionController
         var allowEmpty = query.Kind is AssistContextKind.BlockStart
             or AssistContextKind.AttributeList
             or AssistContextKind.AttributeReference
-            or AssistContextKind.CrossReference;
+            or AssistContextKind.CrossReference
+            or AssistContextKind.FenceLanguage
+            or AssistContextKind.LinkTarget
+            or AssistContextKind.Anchor
+            or AssistContextKind.ReferenceLabel;
         var hasItem = (allowEmpty && string.IsNullOrEmpty(query.Word))
             || pool.Any(i => i.Trigger.StartsWith(query.Word, StringComparison.OrdinalIgnoreCase));
         if (!hasItem) return false;
@@ -306,7 +314,7 @@ internal sealed class CompletionController
     {
         if (_session is { Active: true } && !force) return;
 
-        var query = AsciiDocContextAnalyzer.Analyze(_editor.Document.Text, _editor.CaretOffset);
+        var query = Analyze();
         if (query.Kind == AssistContextKind.None) return;
         if (!force && !ShouldAutoTrigger(query)) return;
 
@@ -346,7 +354,11 @@ internal sealed class CompletionController
 
     private bool ShouldAutoTrigger(AssistQuery query) => query.Kind switch
     {
-        AssistContextKind.BlockStart => query.Word.Length >= 1,
+        // In Markdown, block starters wait for Tab or Ctrl+Space: prose lines
+        // start with words too.
+        AssistContextKind.BlockStart => !_markdown && query.Word.Length >= 1,
+        AssistContextKind.FenceLanguage or AssistContextKind.LinkTarget
+            or AssistContextKind.Anchor or AssistContextKind.ReferenceLabel => true,
         AssistContextKind.AttributeList => true,
         AssistContextKind.AttributeReference => true,
         AssistContextKind.CrossReference => true,
@@ -365,6 +377,8 @@ internal sealed class CompletionController
     /// </summary>
     private IReadOnlyList<AssistItem> PoolFor(AssistQuery query)
     {
+        if (_markdown)
+            return MarkdownAssist.PoolFor(query, DocumentSource(), DocumentFolder?.Invoke());
         switch (query.Kind)
         {
             case AssistContextKind.CrossReference:
@@ -421,6 +435,9 @@ internal sealed class CompletionController
         var lineText = doc.GetText(line.Offset, line.Length);
         var prefix = doc.GetText(line.Offset, caret - line.Offset);
 
+        if (_markdown)
+            return MarkdownEnter(doc, caret, line, lineText, prefix);
+
         // Table: Enter on a cell row starts a new row.
         var lineTrimmed = lineText.TrimStart();
         if (lineTrimmed.StartsWith("|", StringComparison.Ordinal)
@@ -456,6 +473,30 @@ internal sealed class CompletionController
             return true;
         }
 
+        doc.Insert(caret, "\n" + cont.Marker);
+        _editor.CaretOffset = caret + 1 + cont.Marker.Length;
+        return true;
+    }
+
+    /// <summary>Markdown's Enter: close a code fence, continue a list or quote.</summary>
+    private bool MarkdownEnter(AvaloniaEdit.Document.TextDocument doc, int caret,
+        AvaloniaEdit.Document.DocumentLine line, string lineText, string prefix)
+    {
+        if (caret == line.EndOffset && MarkdownAssist.ClosingFenceFor(lineText, doc.Text) is { } fence)
+        {
+            doc.Insert(caret, "\n\n" + fence);
+            _editor.CaretOffset = caret + 1;
+            return true;
+        }
+        if (MarkdownAssist.ContinueList(prefix) is not { } cont) return false;
+        if (cont.TerminateEmpty)
+        {
+            // An empty item or quote line ends the list or quote.
+            doc.Replace(line.Offset, caret - line.Offset, string.Empty);
+            doc.Insert(line.Offset, "\n");
+            _editor.CaretOffset = line.Offset + 1;
+            return true;
+        }
         doc.Insert(caret, "\n" + cont.Marker);
         _editor.CaretOffset = caret + 1 + cont.Marker.Length;
         return true;
