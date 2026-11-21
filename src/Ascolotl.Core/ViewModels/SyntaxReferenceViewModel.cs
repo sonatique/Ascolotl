@@ -2,17 +2,19 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Ascolotl.Core.Editing.Assist;
+using Ascolotl.Core.Resources;
 
 namespace Ascolotl.Core.ViewModels;
 
 /// <summary>
-/// The searchable AsciiDoc syntax reference (F1): filters the assist catalog
+/// The searchable syntax reference (F1), for AsciiDoc or Markdown: filters the assist catalog
 /// by name/trigger/description; the selected entry's snippet is inserted into
 /// the editor by the view.
 /// </summary>
 public partial class SyntaxReferenceViewModel : ObservableObject
 {
-    private readonly IReadOnlyList<AssistItem> _all;
+    private readonly IReadOnlyList<AssistItem> _asciiDoc;
+    private IReadOnlyList<AssistItem> _all;
 
     [ObservableProperty]
     private string _filterText = string.Empty;
@@ -23,11 +25,17 @@ public partial class SyntaxReferenceViewModel : ObservableObject
     [ObservableProperty]
     private bool _isOpen;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Watermark))]
+    private bool _markdown;
+
+    public string Watermark => Markdown ? Strings.SearchMarkdownSyntaxEnterInserts : Strings.SearchAsciiDocSyntaxEnterInserts;
+
     public ObservableCollection<AssistItem> FilteredItems { get; } = [];
 
     public SyntaxReferenceViewModel(IReadOnlyList<AssistItem>? items = null)
     {
-        _all = items ?? AsciiDocAssistCatalog.ReferenceItems;
+        _all = _asciiDoc = items ?? AsciiDocAssistCatalog.ReferenceItems;
         RefreshFilter();
     }
 
@@ -36,9 +44,13 @@ public partial class SyntaxReferenceViewModel : ObservableObject
             ? FilteredItems[SelectedIndex]
             : null;
 
-    public void Open()
+    /// <summary>Opens on the syntax of the document in front.</summary>
+    public void Open(bool markdown = false)
     {
+        Markdown = markdown;
+        _all = markdown ? MarkdownAssistCatalog.ReferenceItems : _asciiDoc;
         FilterText = string.Empty;
+        RefreshFilter(); // also when the filter was already empty
         SelectedIndex = 0;
         IsOpen = true;
     }

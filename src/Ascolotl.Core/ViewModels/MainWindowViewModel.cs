@@ -167,7 +167,7 @@ public partial class MainWindowViewModel : ObservableObject
     private void ToggleSyntaxReference()
     {
         if (SyntaxReference.IsOpen) SyntaxReference.Close();
-        else SyntaxReference.Open();
+        else SyntaxReference.Open(SelectedDocument?.IsMarkdown == true);
     }
 
     public event Action? RecentFilesChanged;

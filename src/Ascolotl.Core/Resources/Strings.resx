@@ -401,6 +401,7 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="SaveCouldNotSave" xml:space="preserve"><value>Could not save {0}: {1}</value></data>
   <data name="SaveFailedTitle" xml:space="preserve"><value>Save Failed</value></data>
   <data name="SearchAsciiDocSyntaxEnterInserts" xml:space="preserve"><value>Search AsciiDoc syntax... (Enter inserts)</value></data>
+  <data name="SearchMarkdownSyntaxEnterInserts" xml:space="preserve"><value>Search Markdown syntax... (Enter inserts)</value></data>
   <data name="ShowTitleTOC" xml:space="preserve"><value>Show _Title &amp; TOC</value></data>
   <data name="SourceMode" xml:space="preserve"><value>_Source Mode</value></data>
   <data name="SplitMode" xml:space="preserve"><value>S_plit Mode</value></data>

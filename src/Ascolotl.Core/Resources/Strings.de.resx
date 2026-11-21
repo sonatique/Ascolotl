@@ -401,6 +401,7 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="SaveCouldNotSave" xml:space="preserve"><value>{0} konnte nicht gespeichert werden: {1}</value></data>
   <data name="SaveFailedTitle" xml:space="preserve"><value>Speichern fehlgeschlagen</value></data>
   <data name="SearchAsciiDocSyntaxEnterInserts" xml:space="preserve"><value>AsciiDoc-Syntax durchsuchen... (Enter fügt ein)</value></data>
+  <data name="SearchMarkdownSyntaxEnterInserts" xml:space="preserve"><value>Markdown-Syntax durchsuchen... (Enter fügt ein)</value></data>
   <data name="ShowTitleTOC" xml:space="preserve"><value>_Titel und Inhaltsverzeichnis anzeigen</value></data>
   <data name="SourceMode" xml:space="preserve"><value>_Quelltextmodus</value></data>
   <data name="SplitMode" xml:space="preserve"><value>_Geteilter Modus</value></data>

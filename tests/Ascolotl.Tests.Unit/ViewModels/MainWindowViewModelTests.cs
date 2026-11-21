@@ -1787,6 +1787,18 @@ public sealed class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public void F1_OnAMarkdownTab_ShowsTheMarkdownSyntax()
+    {
+        var vm = CreateViewModel();
+        _fileService.OpenFileResult = ("/tmp/notes.md", "# Notes");
+        _ = vm.OpenDocumentCommand.ExecuteAsync(null);
+
+        vm.ToggleSyntaxReferenceCommand.Execute(null);
+
+        Assert.True(vm.SyntaxReference.Markdown);
+    }
+
+    [Fact]
     public void SaveSession_FrontTabIndexCountsSavedTabsOnly_AndKeepsTopLines()
     {
         var vm = CreateViewModel();

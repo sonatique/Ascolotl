@@ -475,7 +475,7 @@
             <DockPanel>
                 <TextBox Name="SyntaxReferenceFilter"
                          DockPanel.Dock="Top"
-                         Watermark="{x:Static res:Strings.SearchAsciiDocSyntaxEnterInserts}"
+                         Watermark="{Binding SyntaxReference.Watermark}"
                          Text="{Binding SyntaxReference.FilterText, Mode=TwoWay}"
                          Margin="8"
                          FontSize="14" />

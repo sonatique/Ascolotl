@@ -27,6 +27,55 @@ public class SyntaxReferenceViewModelTests
     }
 
     [Fact]
+    public void MarkdownTab_OpensOnTheMarkdownSyntax_AndBackToAsciiDoc()
+    {
+        var vm = new SyntaxReferenceViewModel();
+
+        vm.Open(markdown: true);
+        Assert.Contains(vm.FilteredItems, i => i.Snippet.StartsWith("## "));
+        Assert.DoesNotContain(vm.FilteredItems, i => i.Snippet.StartsWith("NOTE:"));
+        Assert.Contains("Markdown", vm.Watermark);
+
+        vm.Close();
+        vm.Open();
+        Assert.Contains(vm.FilteredItems, i => i.Snippet.StartsWith("NOTE:"));
+    }
+
+    // Each Markdown entry, as the parser reads it: the export shows the construct, not the marks.
+    [Theory]
+    [InlineData("h2", "<h2")]
+    [InlineData("bold", "<strong>")]
+    [InlineData("italic", "<em>")]
+    [InlineData("mono", "<code>")]
+    [InlineData("link", "<a href")]
+    [InlineData("image", "<img")]
+    [InlineData("ulist", "<ul")]
+    [InlineData("olist", "<ol")]
+    [InlineData("checklist", "class=\"checklist\"")]
+    [InlineData("quote", "<blockquote")]
+    [InlineData("source", "<pre")]
+    [InlineData("table", "<table")]
+    [InlineData("rule", "<hr")]
+    public void MarkdownEntries_RenderAsTheirConstruct(string trigger, string html)
+    {
+        var item = MarkdownAssistCatalog.ReferenceItems.Single(i => i.Trigger == trigger);
+        var parsed = Ascolotl.Core.Services.DocumentParser.Parse(
+            "Before.\n\n" + Snippet.Parse(item.Snippet).Text, markdown: true, basePath: null);
+        using var output = new MemoryStream();
+        new AdocNet.Converters.Html.HtmlRenderer().Render(parsed.Document, output, new AdocNet.Converters.Html.HtmlRenderOptions());
+
+        Assert.Contains(html, System.Text.Encoding.UTF8.GetString(output.ToArray()));
+    }
+
+    [Fact]
+    public void MarkdownEntries_ShowTheirMarkdown_AndCoverEveryTrigger()
+    {
+        var items = MarkdownAssistCatalog.ReferenceItems;
+        Assert.Equal("## Heading", items.Single(i => i.Trigger == "h2").Description);
+        Assert.Equal(items.Count, items.Select(i => i.Trigger).Distinct().Count());
+    }
+
+    [Fact]
     public void DefaultCatalog_IsNotEmpty()
     {
         var vm = new SyntaxReferenceViewModel();

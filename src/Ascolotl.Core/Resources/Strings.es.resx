@@ -401,6 +401,7 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="SaveCouldNotSave" xml:space="preserve"><value>No se pudo guardar {0}: {1}</value></data>
   <data name="SaveFailedTitle" xml:space="preserve"><value>Error al guardar</value></data>
   <data name="SearchAsciiDocSyntaxEnterInserts" xml:space="preserve"><value>Buscar en la sintaxis AsciiDoc... (Intro inserta)</value></data>
+  <data name="SearchMarkdownSyntaxEnterInserts" xml:space="preserve"><value>Buscar en la sintaxis Markdown... (Intro inserta)</value></data>
   <data name="ShowTitleTOC" xml:space="preserve"><value>Mostrar _título e índice</value></data>
   <data name="SourceMode" xml:space="preserve"><value>Modo _código</value></data>
   <data name="SplitMode" xml:space="preserve"><value>Modo d_ividido</value></data>
