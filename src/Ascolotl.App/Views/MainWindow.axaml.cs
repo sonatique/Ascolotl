@@ -139,6 +139,7 @@ public partial class MainWindow : Window
             _viewModel.NewDocumentCreated += OnNewDocumentCreated;
             RebuildRecentFilesMenu(_viewModel);
             UpdateEditorLayout(_viewModel.EditorMode);
+            UpdateSidebarColumn();
             UpdateStatusBarExtras();
             ApplyMenuMode(_viewModel.HamburgerMenu);
             UpdateSidebarTabs();
@@ -232,6 +233,9 @@ public partial class MainWindow : Window
             if (_editorScrollViewer is null || _cachedPreviewView is null)
                 Dispatcher.UIThread.Post(HookEditorScroll, DispatcherPriority.Loaded);
         }
+
+        if (e.PropertyName == nameof(MainWindowViewModel.ShowOutlinePane))
+            UpdateSidebarColumn();
 
         if (e.PropertyName is nameof(MainWindowViewModel.EditorMode) or nameof(MainWindowViewModel.InPlaceEditOpen)
             or nameof(MainWindowViewModel.SelectedDocument))
@@ -345,6 +349,18 @@ public partial class MainWindow : Window
             return;
         }
         assist.Format(command);
+    }
+
+    private GridLength _sidebarWidth = new(220);
+
+    // The column holds the sidebar's width, so the splitter resizes it; a hidden sidebar takes none.
+    private void UpdateSidebarColumn()
+    {
+        var col = OuterGrid.ColumnDefinitions[2];
+        if (col.Width.Value > 0) _sidebarWidth = col.Width;
+        var show = _viewModel?.ShowOutlinePane == true;
+        col.MinWidth = show ? 120 : 0;
+        col.Width = show ? _sidebarWidth : new GridLength(0);
     }
 
     private void UpdateEditorLayout(EditorMode mode)

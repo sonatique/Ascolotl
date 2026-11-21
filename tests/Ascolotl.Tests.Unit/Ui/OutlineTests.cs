@@ -55,6 +55,32 @@ public sealed class OutlineTests
     }
 
     [AvaloniaFact]
+    public void DraggingTheSplitter_ResizesTheSidebar_WhichKeepsItsWidthWhenHidden()
+    {
+        var (window, vm) = OpenWithOutline(EditorMode.Split);
+        double Right(Visual v) => v.TranslatePoint(default, window)!.Value.X + v.Bounds.Width;
+        var pane = window.FindControl<Border>("OutlinePane")!;
+        var preview = window.FindControl<Control>("PreviewPane")!;
+        var splitter = window.FindControl<GridSplitter>("SidebarSplitter")!;
+        var p = splitter.TranslatePoint(new Point(2, splitter.Bounds.Height / 2), window)!.Value;
+
+        window.MouseDown(p, MouseButton.Left);
+        window.MouseMove(p - new Vector(100, 0));
+        window.MouseUp(p - new Vector(100, 0), MouseButton.Left);
+        Pump(window);
+        Assert.Equal(320, pane.Bounds.Width, 0);
+        Assert.Equal(window.Bounds.Width, Right(pane), 1);
+
+        vm.ShowOutlinePane = false;
+        Pump(window);
+        Assert.Equal(window.Bounds.Width, Right(preview), 1); // a hidden sidebar takes no space
+
+        vm.ShowOutlinePane = true;
+        Pump(window);
+        Assert.Equal(320, pane.Bounds.Width, 0);
+    }
+
+    [AvaloniaFact]
     public void CloseCross_HidesTheSidebar()
     {
         var (window, vm) = OpenWithOutline(EditorMode.Split);

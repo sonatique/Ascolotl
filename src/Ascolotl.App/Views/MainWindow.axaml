@@ -243,9 +243,10 @@
 
                 <Grid Name="OuterGrid">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" MinWidth="200" />
                         <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
+                        <!-- Sidebar: sized in code (UpdateSidebarColumn) so the splitter can resize it. -->
+                        <ColumnDefinition Width="0" />
                     </Grid.ColumnDefinitions>
 
                     <!-- Content Area: Split layout -->
@@ -290,7 +291,8 @@
                     </Grid>
 
                     <!-- Outline Splitter -->
-                    <GridSplitter Grid.Column="1"
+                    <GridSplitter Name="SidebarSplitter"
+                                  Grid.Column="1"
                                   Width="4"
                                   IsVisible="{Binding ShowOutlinePane}"
                                   Background="{DynamicResource ForgeBorderBrush}" />
@@ -300,7 +302,6 @@
                          quiet text tabs, no chrome (screen estate). -->
                     <Border Grid.Column="2"
                             Name="OutlinePane"
-                            Width="220"
                             IsVisible="{Binding ShowOutlinePane}"
                             Background="{DynamicResource ForgeBgDeepBrush}">
                         <DockPanel>
