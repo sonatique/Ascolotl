@@ -297,8 +297,8 @@
             <Setter Property="Background" Value="Transparent" />
         </Style>
         <Style Selector="ListBox.outline ListBoxItem">
-            <Setter Property="Padding" Value="12,4" />
-            <Setter Property="MinHeight" Value="24" />
+            <Setter Property="Padding" Value="12,2" />
+            <Setter Property="MinHeight" Value="20" />
             <Setter Property="Foreground" Value="{DynamicResource ForgeTextMutedBrush}" />
             <Setter Property="BorderThickness" Value="2,0,0,0" />
             <Setter Property="BorderBrush" Value="Transparent" />
