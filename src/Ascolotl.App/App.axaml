@@ -289,6 +289,17 @@
             <Setter Property="Foreground" Value="{DynamicResource ForgeAccentTextBrush}" />
             <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
+        <!-- The toolbar's view switch: quiet words, the current view in accent. -->
+        <Style Selector="Button.view">
+            <Setter Property="Foreground" Value="{DynamicResource ForgeTextMutedBrush}" />
+            <Setter Property="Padding" Value="8,0" />
+        </Style>
+        <Style Selector="Button.view.active">
+            <Setter Property="Foreground" Value="{DynamicResource ForgeAccentTextBrush}" />
+        </Style>
+        <Style Selector="Button.view.active /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ForgeHighlightBrush}" />
+        </Style>
         <Style Selector="Border.format-separator">
             <Setter Property="Background" Value="{DynamicResource ForgeBorderBrush}" />
         </Style>

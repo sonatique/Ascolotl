@@ -228,18 +228,44 @@
                     </Panel>
                 </Grid>
 
-                <!-- Formatting toolbar, for the split and WYSIWYG views. -->
-                <Panel DockPanel.Dock="Top" IsVisible="{Binding !HasNoDocuments}">
+                <!-- Toolbar: the view switch at the right end, in every view; the
+                     formatting tools, for the split and WYSIWYG views. -->
+                <Border DockPanel.Dock="Top"
+                        IsVisible="{Binding !HasNoDocuments}"
+                        Height="27"
+                        Background="{DynamicResource ForgeBgBrush}"
+                        BorderBrush="{DynamicResource ForgeBorderBrush}"
+                        BorderThickness="0,0,0,1">
+                    <DockPanel>
+                    <StackPanel Name="ModeSwitch"
+                                DockPanel.Dock="Right"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Spacing="2"
+                                Margin="0,0,8,0">
+                        <Button Classes="format-action view" Classes.active="{Binding IsSourceMode}"
+                                Focusable="False"
+                                Command="{Binding SetEditorModeCommand}"
+                                CommandParameter="{x:Static models:EditorMode.Source}"
+                                Content="{x:Static res:Strings.ModeSource}" />
+                        <Button Classes="format-action view" Classes.active="{Binding IsSplitMode}"
+                                Focusable="False"
+                                Command="{Binding SetEditorModeCommand}"
+                                CommandParameter="{x:Static models:EditorMode.Split}"
+                                Content="{x:Static res:Strings.ModeSplit}" />
+                        <Button Classes="format-action view" Classes.active="{Binding IsWysiwygMode}"
+                                Focusable="False"
+                                Command="{Binding SetEditorModeCommand}"
+                                CommandParameter="{x:Static models:EditorMode.Wysiwyg}"
+                                Content="{x:Static res:Strings.ModeWysiwyg}" />
+                    </StackPanel>
                     <views:FormatToolbar x:Name="FormatBar"
                                          IsVisible="{Binding !IsSourceMode}"
                                          Markdown="{Binding SelectedDocument.IsMarkdown, FallbackValue=False}"
                                          EditOpen="{Binding InPlaceEditOpen}"
-                                         Height="27"
-                                         Background="{DynamicResource ForgeBgBrush}"
-                                         BorderBrush="{DynamicResource ForgeBorderBrush}"
-                                         BorderThickness="0,0,0,1"
                                          AutomationProperties.Name="{x:Static res:Strings.FormattingToolbar}" />
-                </Panel>
+                    </DockPanel>
+                </Border>
 
                 <Grid Name="OuterGrid">
                     <Grid.ColumnDefinitions>
