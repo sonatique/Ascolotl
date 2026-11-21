@@ -89,6 +89,7 @@ public sealed class AboutDialogTests
         var items = help.Items.OfType<MenuItem>().ToList();
 
         Assert.Equal("https://github.com/sonatique/Ascolotl/issues", AppLinks.Issues.ToString());
+        Assert.Equal("https://buymeacoffee.com/sonatique", AppLinks.Sponsor.ToString());
         Assert.Contains(items, m => m.Header as string == Strings.MenuReportIssue && Equals(m.Tag, AppLinks.Issues));
         Assert.Contains(items, m => m.Header as string == Strings.AboutSponsorLink && Equals(m.Tag, AppLinks.Sponsor));
     }

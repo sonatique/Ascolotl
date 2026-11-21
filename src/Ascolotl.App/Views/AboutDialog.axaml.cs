@@ -13,7 +13,8 @@ public static class AppLinks
 {
     public static readonly Uri Source = new("https://github.com/sonatique/Ascolotl");
     public static readonly Uri License = new("https://github.com/sonatique/Ascolotl/blob/main/LICENSE");
-    public static readonly Uri Sponsor = new("https://github.com/sponsors/sonatique");
+    /// <summary>Buy Me a Coffee: tips by card or PayPal, no account needed (GitHub Sponsors needs one).</summary>
+    public static readonly Uri Sponsor = new("https://buymeacoffee.com/sonatique");
     public static readonly Uri Issues = new("https://github.com/sonatique/Ascolotl/issues");
 
     /// <summary>The Store listing: https://apps.microsoft.com/detail/ followed by the
