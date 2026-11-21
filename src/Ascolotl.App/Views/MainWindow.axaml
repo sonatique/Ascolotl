@@ -95,11 +95,6 @@
                                    FontFeatures="tnum=1"
                                    Foreground="{DynamicResource ForgeTextMutedBrush}"
                                    VerticalAlignment="Center" />
-                        <TextBlock Name="EditorModeText"
-                                   Text="{x:Static res:Strings.Split}"
-                                   FontSize="11"
-                                   Foreground="{DynamicResource ForgeTextMutedBrush}"
-                                   VerticalAlignment="Center" />
                         <TextBlock Name="CursorPositionText"
                                    Text="{x:Static res:Strings.Ln1Col1}"
                                    FontSize="11"

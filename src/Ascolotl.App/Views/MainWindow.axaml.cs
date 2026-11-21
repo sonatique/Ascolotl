@@ -419,13 +419,6 @@ public partial class MainWindow : Window
     {
         if (_viewModel is null) return;
 
-        EditorModeText.Text = _viewModel.EditorMode switch
-        {
-            EditorMode.Source => Strings.ModeSource,
-            EditorMode.Split => Strings.ModeSplit,
-            _ => Strings.ModeWysiwyg,
-        };
-
         // Unsubscribe from the previous document to avoid leak
         if (_statusBarDoc is not null)
         {

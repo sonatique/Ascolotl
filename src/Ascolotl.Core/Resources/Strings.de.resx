@@ -403,7 +403,6 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="SearchAsciiDocSyntaxEnterInserts" xml:space="preserve"><value>AsciiDoc-Syntax durchsuchen... (Enter fügt ein)</value></data>
   <data name="ShowTitleTOC" xml:space="preserve"><value>_Titel und Inhaltsverzeichnis anzeigen</value></data>
   <data name="SourceMode" xml:space="preserve"><value>_Quelltextmodus</value></data>
-  <data name="Split" xml:space="preserve"><value>Geteilt</value></data>
   <data name="SplitMode" xml:space="preserve"><value>_Geteilter Modus</value></data>
   <data name="StatsOneWord" xml:space="preserve"><value>1 Wort</value></data>
   <data name="StatsTooltip" xml:space="preserve"><value>≈ {0} Min. Lesezeit · {1:N0} Zeichen</value></data>

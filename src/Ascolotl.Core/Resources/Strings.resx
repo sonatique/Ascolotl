@@ -403,7 +403,6 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="SearchAsciiDocSyntaxEnterInserts" xml:space="preserve"><value>Search AsciiDoc syntax... (Enter inserts)</value></data>
   <data name="ShowTitleTOC" xml:space="preserve"><value>Show _Title &amp; TOC</value></data>
   <data name="SourceMode" xml:space="preserve"><value>_Source Mode</value></data>
-  <data name="Split" xml:space="preserve"><value>Split</value></data>
   <data name="SplitMode" xml:space="preserve"><value>S_plit Mode</value></data>
   <data name="StatsOneWord" xml:space="preserve"><value>1 word</value></data>
   <data name="StatsTooltip" xml:space="preserve"><value>≈ {0} min read · {1:N0} characters</value></data>

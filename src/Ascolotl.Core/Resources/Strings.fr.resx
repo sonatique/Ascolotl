@@ -403,7 +403,6 @@ Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un
   <data name="SearchAsciiDocSyntaxEnterInserts" xml:space="preserve"><value>Rechercher dans la syntaxe AsciiDoc... (Entrée insère)</value></data>
   <data name="ShowTitleTOC" xml:space="preserve"><value>Afficher le _titre et la table des matières</value></data>
   <data name="SourceMode" xml:space="preserve"><value>Mode _source</value></data>
-  <data name="Split" xml:space="preserve"><value>Partagé</value></data>
   <data name="SplitMode" xml:space="preserve"><value>Mode _partagé</value></data>
   <data name="StatsOneWord" xml:space="preserve"><value>1 mot</value></data>
   <data name="StatsTooltip" xml:space="preserve"><value>≈ {0} min de lecture · {1:N0} caractères</value></data>

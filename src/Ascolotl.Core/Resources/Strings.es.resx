@@ -403,7 +403,6 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="SearchAsciiDocSyntaxEnterInserts" xml:space="preserve"><value>Buscar en la sintaxis AsciiDoc... (Intro inserta)</value></data>
   <data name="ShowTitleTOC" xml:space="preserve"><value>Mostrar _título e índice</value></data>
   <data name="SourceMode" xml:space="preserve"><value>Modo _código</value></data>
-  <data name="Split" xml:space="preserve"><value>Dividido</value></data>
   <data name="SplitMode" xml:space="preserve"><value>Modo d_ividido</value></data>
   <data name="StatsOneWord" xml:space="preserve"><value>1 palabra</value></data>
   <data name="StatsTooltip" xml:space="preserve"><value>≈ {0} min de lectura · {1:N0} caracteres</value></data>

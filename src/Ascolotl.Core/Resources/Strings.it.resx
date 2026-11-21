@@ -403,7 +403,6 @@ Questo file esiste ma non è stato possibile leggerlo. Forse è bloccato da un a
   <data name="SearchAsciiDocSyntaxEnterInserts" xml:space="preserve"><value>Cerca nella sintassi AsciiDoc... (Invio inserisce)</value></data>
   <data name="ShowTitleTOC" xml:space="preserve"><value>Mostra _titolo e indice</value></data>
   <data name="SourceMode" xml:space="preserve"><value>Modalità _sorgente</value></data>
-  <data name="Split" xml:space="preserve"><value>Divisa</value></data>
   <data name="SplitMode" xml:space="preserve"><value>Modalità _divisa</value></data>
   <data name="StatsOneWord" xml:space="preserve"><value>1 parola</value></data>
   <data name="StatsTooltip" xml:space="preserve"><value>≈ {0} min di lettura · {1:N0} caratteri</value></data>
