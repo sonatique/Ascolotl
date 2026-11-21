@@ -2171,6 +2171,11 @@ public partial class PreviewView : UserControl
         return map.Count > 0 ? map : null;
     }
 
+    /// <summary>A control's Y in the scrolled content. Measured from the content itself, not
+    /// the viewport plus the offset: a map built just after the offset changed, before the
+    /// content was arranged for it, would be off by that change.</summary>
+    private double? ContentY(Visual vis) => vis.TranslatePoint(default, PreviewHost)?.Y + PreviewHost.Margin.Top;
+
     /// <summary>Record (editorLine → control's content-space Y) for an
     /// absolute source range, keeping the topmost Y per line.</summary>
     private void AddAbsMarker(SortedList<int, double> map, SourceRange src, Control vis, int[] astToEditor)
@@ -2178,9 +2183,7 @@ public partial class PreviewView : UserControl
         if (src.IsNone) return;
         var editorLine = IncludeExpansionMap.AstLineToEditor(astToEditor, src.Start.Line - 1, fallback: -1);
         if (editorLine < 0) return;
-        var tp = vis.TranslatePoint(default, PreviewScroll);
-        if (tp is null) return;
-        var y = tp.Value.Y + PreviewScroll.Offset.Y;
+        if (ContentY(vis) is not { } y) return;
         if (!map.TryGetValue(editorLine, out var existing)) map.Add(editorLine, y);
         else if (y < existing) map[editorLine] = y;
     }
@@ -2202,9 +2205,7 @@ public partial class PreviewView : UserControl
         {
             var r = Grid.GetRow(child);
             if (r < 0) continue;
-            var tp = child.TranslatePoint(default, PreviewScroll);
-            if (tp is null) continue;
-            var y = tp.Value.Y + PreviewScroll.Offset.Y;
+            if (ContentY(child) is not { } y) continue;
             if (!rowY.TryGetValue(r, out var ey) || y < ey) rowY[r] = y;
         }
 

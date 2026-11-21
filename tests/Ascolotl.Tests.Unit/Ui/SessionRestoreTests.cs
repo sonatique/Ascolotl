@@ -20,6 +20,7 @@ public sealed class SessionRestoreTests : IDisposable
         "= Doc\n\n" + string.Concat(Enumerable.Range(1, 200).Select(i => $"== Section {i}\n\nSome words.\n\n"));
 
     private const int Section16 = 62;
+    private const int Section40 = 158;
 
     private readonly List<string> _files = [];
 
@@ -107,6 +108,22 @@ public sealed class SessionRestoreTests : IDisposable
 
         Assert.Equal(Section16, EditorTopLine(window));
         Assert.Equal(Section16, vm.Documents[1].TopLine);
+    }
+
+    [AvaloniaFact]
+    public async Task LeavingWysiwyg_TheSourceShowsWhereThePageWas()
+    {
+        var (window, vm) = await Restore(EditorMode.Wysiwyg, Section16);
+        var scroll = Preview(window).FindControl<ScrollViewer>("PreviewScroll")!;
+        var heading = Preview(window).GetVisualDescendants().OfType<TextBlock>()
+            .First(t => (t.Inlines is { Count: > 0 } i ? i.Text : t.Text) == "Section 40");
+        scroll.Offset = new Vector(0, scroll.Offset.Y + heading.TranslatePoint(default, scroll)!.Value.Y); // the reader scrolls on
+        Pump(window);
+
+        vm.EditorMode = EditorMode.Split;
+        Pump(window);
+
+        Assert.InRange(EditorTopLine(window), Section40 - 1, Section40 + 1);
     }
 
     [AvaloniaFact]
