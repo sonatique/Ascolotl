@@ -1,7 +1,7 @@
 # Publishing Ascolotl on the Microsoft Store
 
 From zero to a published Store listing. `AppxManifest.xml` in this folder
-declares the .adoc/.asciidoc file association and full-trust desktop mode;
+declares the .adoc/.asciidoc and .md/.markdown file associations and full-trust desktop mode;
 `build-msix.ps1` builds the x64 and arm64 packages and bundles them.
 
 ## Phase 1: Developer account (once)
@@ -50,7 +50,7 @@ declares the .adoc/.asciidoc file association and full-trust desktop mode;
     Mode**, install the unpacked package with `Add-AppxPackage -Register`, and
     check:
     - the app starts from the Start menu;
-    - double-clicking an .adoc file opens it in Ascolotl;
+    - double-clicking an .adoc or .md file opens it in Ascolotl;
     - settings and recovery work (a packaged app may keep its data elsewhere).
 12. Optionally run the Windows App Certification Kit (in the SDK) on the
     bundle to catch problems before Microsoft's review does.
