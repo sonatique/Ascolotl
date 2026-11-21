@@ -166,6 +166,47 @@ public sealed class PreviewEditingTests
         Assert.Empty(doc.SyntaxHint);
     }
 
+    private static void ClickText(Window window, string text)
+    {
+        var tb = Preview(window).GetVisualDescendants().OfType<TextBlock>()
+            .First(t => t.IsEffectivelyVisible && (t.Inlines is { Count: > 0 } i ? i.Text : t.Text) == text);
+        var p = tb.TranslatePoint(new Point(4, tb.Bounds.Height / 2), window)!.Value;
+        window.MouseDown(p, MouseButton.Left);
+        window.MouseUp(p, MouseButton.Left);
+        Pump(window);
+    }
+
+    private static TextEditor SourceEditor(Window window) =>
+        window.GetVisualDescendants().OfType<SourceEditorView>().Single()
+            .GetVisualDescendants().OfType<TextEditor>().First();
+
+    [AvaloniaFact]
+    public void SplitClick_OpensTheBlockInPlace_AndJumpsTheSource()
+    {
+        const string text = "First paragraph.\n\nSecond paragraph.";
+        var (window, _) = Open(text, EditorMode.Split);
+
+        ClickText(window, "Second paragraph.");
+
+        Assert.Equal("Second paragraph.", Preview(window).GetVisualDescendants().OfType<TextEditor>().Single().Text.TrimEnd());
+        Assert.Equal(3, SourceEditor(window).TextArea.Caret.Line);
+    }
+
+    [AvaloniaFact]
+    public void SplitClickOnAnotherBlock_WhileEditing_MovesTheEditAndTheSource()
+    {
+        const string text = "First paragraph.\n\nSecond paragraph.";
+        var (window, _) = Open(text, EditorMode.Split);
+        ClickText(window, "First paragraph.");
+        Assert.Equal(1, SourceEditor(window).TextArea.Caret.Line);
+
+        ClickText(window, "Second paragraph.");
+        Pump(window);
+
+        Assert.Equal("Second paragraph.", Preview(window).GetVisualDescendants().OfType<TextEditor>().Single().Text.TrimEnd());
+        Assert.Equal(3, SourceEditor(window).TextArea.Caret.Line);
+    }
+
     /// <summary>The text block whose inlines start with <paramref name="start"/>.</summary>
     private static TextBlock BlockStarting(Window window, string start) =>
         Preview(window).GetVisualDescendants().OfType<TextBlock>()

@@ -259,7 +259,6 @@
   <data name="FormatWordDocument" xml:space="preserve"><value>Documento Word</value></data>
   <data name="FullTitle" xml:space="preserve"><value>Titolo _completo</value></data>
   <data name="GestureClick" xml:space="preserve"><value>clic</value></data>
-  <data name="GestureDoubleClick" xml:space="preserve"><value>doppio clic</value></data>
   <data name="HamburgerMenu" xml:space="preserve"><value>Menu _hamburger</value></data>
   <data name="HintAdmonition" xml:space="preserve"><value>Avviso ({0})</value></data>
   <data name="HintAttributeEntry" xml:space="preserve"><value>Definizione di attributo del documento — :nome: valore</value></data>

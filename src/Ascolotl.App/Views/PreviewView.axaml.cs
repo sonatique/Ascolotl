@@ -801,6 +801,51 @@ public partial class PreviewView : UserControl
     }
 
     /// <summary>
+    /// A press in the preview: commits an open in-place edit, opens the block
+    /// menus on a right-click, and otherwise opens the clicked block (or table
+    /// cell) in place. In Split the source pane jumps to the click too.
+    /// </summary>
+    private void OnPreviewPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        var src = e.Source as Visual;
+        var inScrollBar = IsInScrollBar(src);
+        if (HandlePressDuringEdit(src, inScrollBar, e) || inScrollBar) return;
+
+        // Page preview is a reading mode: no block editing, no insert menus —
+        // the block map isn't built there, so the gestures would misfire.
+        if (_mainVm?.PagePreview == true) return;
+
+        // Block gestures, resolved with the same _blockMap hit-test as
+        // click-to-source tier 2: right-click opens the block context menu.
+        var clickPoint = e.GetPosition(PreviewScroll);
+
+        if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed)
+        {
+            if (TryHitBlock(src, clickPoint, out var menuVis, out var menuBlock))
+                ShowBlockContextMenu(menuVis, menuBlock, src, clickPoint);
+            else
+                ShowInsertMenuAt(clickPoint);  // empty area / gap / empty doc
+            e.Handled = true;
+            return;
+        }
+
+        // A click opens the clicked block (or, in a table, the clicked cell's
+        // content) in place, with the caret at the clicked character. In Split
+        // the source pane jumps there first; the jump leaves the keyboard alone,
+        // so the in-place editor takes it.
+        if (_mainVm?.EditorMode == EditorMode.Split)
+            JumpToSource(src, e);
+        if (TryHitBlock(src, clickPoint, out var vis, out var block))
+        {
+            var entered = block is TableLayout table
+                ? EnterCellEdit(vis, table, src, clickPoint, RenderedCharOffset(src, e))
+                : EnterBlockEdit(vis, block, ResolveClickedBlockOffset(src, e));
+            if (entered)
+                e.Handled = true;
+        }
+    }
+
+    /// <summary>
     /// Click-to-source, in three tiers of decreasing precision:
     /// <list type="number">
     ///   <item>Inline hit-test — the <see cref="TextBlock"/> under the pointer
@@ -814,99 +859,8 @@ public partial class PreviewView : UserControl
     ///   <item>Line-map inverse by Y — clicks in inter-block gaps.</item>
     /// </list>
     /// </summary>
-    private void OnPreviewPointerPressed(object? sender, PointerPressedEventArgs e)
+    private void JumpToSource(Visual? src, PointerPressedEventArgs e)
     {
-        var src = e.Source as Visual;
-        var inScrollBar = IsInScrollBar(src);
-
-        // While an in-place edit is open: presses inside the inline editor
-        // belong to it, scrollbar presses keep it alive (the user may just
-        // be scrolling to check context), and any other press commits (the
-        // preview's content is mostly non-focusable, so we can't rely on
-        // LostFocus alone to fire for clicks into dead space).
-        if (_activeEdit is not null)
-        {
-            // Presses inside the inline editor belong to it; scrollbar presses
-            // keep it alive (the user may just be scrolling for context).
-            if (inScrollBar || IsAncestorOrSelf(_activeEdit.Host, src))
-                return;
-
-            // Otherwise this press commits. If it's a left-click that lands on
-            // ANOTHER block (WYSIWYG), queue that block — or, inside a table,
-            // the specific clicked cell — so the same click also opens it.
-            _pendingReentry = null;
-            if (_mainVm?.EditorMode == EditorMode.Wysiwyg
-                && _doc is not null
-                && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-            {
-                var cp = e.GetPosition(PreviewScroll);
-                if (TryHitBlock(src, cp, out var nextVis, out var nextBlock)
-                    && BlockSourceEditing.ResolveEditorSlice(_doc.SourceText, nextBlock.Source, _astToEditor)
-                        is (int ns, _))
-                {
-                    if (nextBlock is TableLayout nextTable
-                        && TryResolveCell(nextVis, nextTable, src, cp, out _, out var rr, out var ci))
-                        _pendingReentry = (ns, rr, ci);
-                    else if (nextBlock is not TableLayout)
-                        _pendingReentry = (ns, -1, -1);
-                }
-            }
-
-            Dispatcher.UIThread.Post(CommitBlockEdit);
-            e.Handled = true;
-            return;
-        }
-        if (inScrollBar) return;
-
-        // Page preview is a reading mode: no block editing, no insert menus —
-        // the block map isn't built there, so the gestures would misfire.
-        if (_mainVm?.PagePreview == true) return;
-
-        // Block-WYSIWYG gestures, resolved with the same _blockMap hit-test
-        // as click-to-source tier 2: right-click opens the block context
-        // menu; double-click swaps the block (or, inside a table, just the
-        // clicked cell's content) for an in-place source editor.
-        var clickPoint = e.GetPosition(PreviewScroll);
-
-        if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed)
-        {
-            if (TryHitBlock(src, clickPoint, out var menuVis, out var menuBlock))
-                ShowBlockContextMenu(menuVis, menuBlock, src, clickPoint);
-            else
-                ShowInsertMenuAt(clickPoint);  // empty area / gap / empty doc
-            e.Handled = true;
-            return;
-        }
-        if (e.ClickCount >= 2)
-        {
-            if (TryHitBlock(src, clickPoint, out var editVis, out var editBlock))
-            {
-                var entered = editBlock is TableLayout cellTable
-                    ? EnterCellEdit(editVis, cellTable, src, clickPoint, RenderedCharOffset(src, e))
-                    : EnterBlockEdit(editVis, editBlock, ResolveClickedBlockOffset(src, e));
-                if (entered)
-                    e.Handled = true;
-            }
-            return;
-        }
-
-        // WYSIWYG single-click: open the clicked block (or cell) in place with
-        // the caret at the clicked character — "click and type" without a
-        // separate gesture. Split/Source keep single-click for click-to-source
-        // (they have a real source pane to navigate), so this is mode-gated.
-        if (_mainVm?.EditorMode == EditorMode.Wysiwyg)
-        {
-            if (TryHitBlock(src, clickPoint, out var wVis, out var wBlock))
-            {
-                var entered = wBlock is TableLayout wTable
-                    ? EnterCellEdit(wVis, wTable, src, clickPoint, RenderedCharOffset(src, e))
-                    : EnterBlockEdit(wVis, wBlock, ResolveClickedBlockOffset(src, e));
-                if (entered)
-                    e.Handled = true;
-            }
-            return;
-        }
-
         if (_lastSyncTotal <= 1) return;
 
         var pPreview = e.GetPosition(PreviewScroll);
@@ -978,9 +932,45 @@ public partial class PreviewView : UserControl
         SourceLineClicked?.Invoke(line, 0, pPreview.Y);
     }
 
+    /// <summary>
+    /// While an in-place edit is open: presses inside the inline editor belong
+    /// to it, scrollbar presses keep it alive (the user may just be scrolling to
+    /// check context), and any other press commits it (the preview's content is
+    /// mostly non-focusable, so LostFocus alone doesn't fire for clicks into dead
+    /// space). True when the press was dealt with here.
+    /// </summary>
+    private bool HandlePressDuringEdit(Visual? src, bool inScrollBar, PointerPressedEventArgs e)
+    {
+        if (_activeEdit is null) return false;
+        if (inScrollBar || IsAncestorOrSelf(_activeEdit.Host, src))
+            return true;
+
+        // A left-click on ANOTHER block queues that block — or, inside a table,
+        // the specific clicked cell — so the same click also opens it.
+        _pendingReentry = null;
+        if (_doc is not null && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            var cp = e.GetPosition(PreviewScroll);
+            if (TryHitBlock(src, cp, out var nextVis, out var nextBlock)
+                && BlockSourceEditing.ResolveEditorSlice(_doc.SourceText, nextBlock.Source, _astToEditor)
+                    is (int ns, _))
+            {
+                if (nextBlock is TableLayout nextTable
+                    && TryResolveCell(nextVis, nextTable, src, cp, out _, out var rr, out var ci))
+                    _pendingReentry = (ns, rr, ci);
+                else if (nextBlock is not TableLayout)
+                    _pendingReentry = (ns, -1, -1);
+            }
+        }
+
+        Dispatcher.UIThread.Post(CommitBlockEdit);
+        e.Handled = true;
+        return true;
+    }
+
     // ── Block-WYSIWYG: in-place editing ──────────────────────────────────
     //
-    // Modeled on the upstream samples/AdocNet.Avalonia.Editor: a double-
+    // Modeled on the upstream samples/AdocNet.Avalonia.Editor: a
     // clicked block's rendered visual is swapped in the panel for a small
     // AvaloniaEdit editor seeded with the block's source slice; Ctrl+Enter
     // or clicking away commits the slice back into DocumentViewModel
@@ -1423,6 +1413,15 @@ public partial class PreviewView : UserControl
         if (target is null) return;
 
         var (vis, block) = target.Value;
+        if (_mainVm?.EditorMode == EditorMode.Split && _doc is not null)
+        {
+            // The click that queued this block jumps the source pane to it too.
+            var text = _doc.SourceText;
+            var at = Math.Clamp(req.EditorStart, 0, text.Length);
+            var lineStart = at == 0 ? 0 : text.LastIndexOf('\n', at - 1) + 1;
+            var y = vis.TranslatePoint(default, PreviewScroll)?.Y ?? 0;
+            SourceLineClicked?.Invoke(text.AsSpan(0, lineStart).Count('\n'), at - lineStart, y);
+        }
         if (block is TableLayout tbl)
         {
             if (req.CellIndex >= 0)
@@ -1525,9 +1524,7 @@ public partial class PreviewView : UserControl
         }
         var (start, length) = slice.Value;
 
-        // In WYSIWYG mode a single click opens the editor; Split keeps the
-        // double-click gesture (single click navigates the source pane).
-        var gesture = _mainVm?.EditorMode == EditorMode.Wysiwyg ? Strings.GestureClick : Strings.GestureDoubleClick;
+        var gesture = Strings.GestureClick;
 
         var items = new List<Control>();
 

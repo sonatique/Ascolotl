@@ -21,9 +21,9 @@ no Ruby and no Java.
   strikethrough, autolinks and footnotes. Syntax colouring follows each file's
   format, and the toolbar and menus write its syntax.
 - **Three ways to work:** Source, Split (source and live preview side by side)
-  and WYSIWYG. Click a rendered block (double-click in Split) to edit its source
-  in place, then apply with `Ctrl+Enter` or cancel with `Esc`. The source text
-  stays the single source of truth.
+  and WYSIWYG. Click a rendered block to edit its source in place (in Split, the
+  source pane jumps there too), then apply with `Ctrl+Enter` or cancel with
+  `Esc`. The source text stays the single source of truth.
 - **Formatting toolbar and right-click menu** in Split and WYSIWYG: bold,
   italic, code, links, headings, lists, quotes, code blocks, images, tables and,
   in AsciiDoc, notes. Each applies to the selection or inserts at the caret.
