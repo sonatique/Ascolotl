@@ -6,6 +6,8 @@ using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Input;
 using Avalonia.LogicalTree;
+using Avalonia.VisualTree;
+using AvaloniaEdit;
 using static Ascolotl.Tests.Unit.Ui.PreviewEditingTests;
 
 namespace Ascolotl.Tests.Unit.Ui;
@@ -38,6 +40,22 @@ public sealed class ViewSwitchTests
         Assert.True(modeSwitch.IsEffectivelyVisible); // still there to leave Source
         Click(EditorMode.Wysiwyg);
         Click(EditorMode.Split);
+    }
+
+    [AvaloniaFact]
+    public void CtrlDigits_SwitchTheView_ButAltGrDigitsDoNot()
+    {
+        var (window, vm) = Open("= Doc\n", EditorMode.Split);
+        window.GetVisualDescendants().OfType<TextEditor>().First().TextArea.Focus(); // typing in the source
+
+        window.KeyPress(Key.D1, RawInputModifiers.Control, PhysicalKey.Digit1, "1");
+        Assert.Equal(EditorMode.Source, vm.EditorMode);
+        window.KeyPress(Key.NumPad3, RawInputModifiers.Control, PhysicalKey.NumPad3, "3");
+        Assert.Equal(EditorMode.Wysiwyg, vm.EditorMode);
+        window.KeyPress(Key.D2, RawInputModifiers.Control | RawInputModifiers.Alt, PhysicalKey.Digit2, "~");
+        Assert.Equal(EditorMode.Wysiwyg, vm.EditorMode); // AltGr+2 types "~" on a French keyboard
+        window.KeyPress(Key.D2, RawInputModifiers.Control, PhysicalKey.Digit2, "2");
+        Assert.Equal(EditorMode.Split, vm.EditorMode);
     }
 
     [AvaloniaFact]

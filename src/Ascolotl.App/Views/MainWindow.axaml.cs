@@ -529,6 +529,12 @@ public partial class MainWindow : Window
             _viewModel.ToggleOutlinePaneCommand.Execute(null);
             e.Handled = true;
         }
+        // Ctrl alone: AltGr (Ctrl+Alt) with a digit types a character on many layouts.
+        else if (e.KeyModifiers == KeyModifiers.Control && ViewForKey(e.Key) is { } view)
+        {
+            _viewModel.SetEditorModeCommand.Execute(view);
+            e.Handled = true;
+        }
         else if (e.Key == Key.Escape && _viewModel.CommandPalette.IsOpen)
         {
             _viewModel.CommandPalette.Close();
@@ -547,6 +553,14 @@ public partial class MainWindow : Window
             e.Handled = true;
         }
     }
+
+    private static EditorMode? ViewForKey(Key key) => key switch
+    {
+        Key.D1 or Key.NumPad1 => EditorMode.Source,
+        Key.D2 or Key.NumPad2 => EditorMode.Split,
+        Key.D3 or Key.NumPad3 => EditorMode.Wysiwyg,
+        _ => null,
+    };
 
     // --- Syntax reference routing ---
 
