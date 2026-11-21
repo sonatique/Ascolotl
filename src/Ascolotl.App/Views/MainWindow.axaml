@@ -40,13 +40,17 @@
                                    FontSize="11"
                                    Foreground="{DynamicResource ForgeTextMutedBrush}"
                                    VerticalAlignment="Center" />
-                        <!-- Authoring-assist syntax hint for the caret context. -->
-                        <TextBlock Text="{Binding SelectedDocument.SyntaxHint}"
-                                   IsVisible="{Binding SelectedDocument.HasSyntaxHint}"
-                                   FontSize="11"
-                                   FontStyle="Italic"
-                                   Foreground="{DynamicResource ForgeTextMutedBrush}"
-                                   VerticalAlignment="Center" />
+                        <!-- Authoring-assist syntax hint for the caret context, while
+                             the source shows. -->
+                        <Panel IsVisible="{Binding !IsWysiwygMode}">
+                            <TextBlock Name="SyntaxHintText"
+                                       Text="{Binding SelectedDocument.SyntaxHint}"
+                                       IsVisible="{Binding SelectedDocument.HasSyntaxHint}"
+                                       FontSize="11"
+                                       FontStyle="Italic"
+                                       Foreground="{DynamicResource ForgeTextMutedBrush}"
+                                       VerticalAlignment="Center" />
+                        </Panel>
                         <!-- Parser diagnostics count (errors / warnings); hover
                              for the messages. -->
                         <StackPanel Orientation="Horizontal" Spacing="4"

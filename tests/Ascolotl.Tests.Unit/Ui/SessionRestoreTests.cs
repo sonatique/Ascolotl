@@ -1,5 +1,6 @@
 using Ascolotl.App.Views;
 using Ascolotl.Core.Models;
+using Ascolotl.Core.Resources;
 using Ascolotl.Core.ViewModels;
 using Ascolotl.Tests.Unit.Mocks;
 using Avalonia;
@@ -71,6 +72,9 @@ public sealed class SessionRestoreTests : IDisposable
 
         Assert.Same(vm.Documents[1], vm.SelectedDocument); // not the first tab the tab strip picks
         Assert.Equal(Section16, EditorTopLine(window));
+        // The caret comes along, so the status-bar hint speaks of what shows, not of line 1.
+        Assert.Equal(Section16 + 1, vm.SelectedDocument!.CursorLine);
+        Assert.Equal(string.Format(Strings.HintSectionHeading, 1), vm.SelectedDocument.SyntaxHint);
     }
 
     [AvaloniaFact]

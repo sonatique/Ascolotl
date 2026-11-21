@@ -1,4 +1,5 @@
 using Ascolotl.Core.Models;
+using Ascolotl.Core.Resources;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless;
@@ -37,5 +38,19 @@ public sealed class ViewSwitchTests
         Assert.True(modeSwitch.IsEffectivelyVisible); // still there to leave Source
         Click(EditorMode.Wysiwyg);
         Click(EditorMode.Split);
+    }
+
+    [AvaloniaFact]
+    public void SyntaxHint_ShowsWithTheSource_NotInWysiwyg()
+    {
+        var (window, vm) = Open("= Doc\n\nSome words.\n", EditorMode.Split);
+        var hint = window.FindControl<TextBlock>("SyntaxHintText")!;
+        Assert.Equal(Strings.HintDocumentTitle, hint.Text); // the caret is on line 1
+        Assert.True(hint.IsEffectivelyVisible);
+
+        vm.EditorMode = EditorMode.Wysiwyg;
+        Pump(window);
+
+        Assert.False(hint.IsEffectivelyVisible); // the source it describes is hidden
     }
 }

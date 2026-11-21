@@ -101,6 +101,8 @@ public partial class SourceEditorView : UserControl
             if (!ReferenceEquals(doc, _currentDocument)) return;
             _restoringTopLine = false;
             var line = Math.Clamp(doc.TopLine + 1, 1, Editor.Document.LineCount);
+            // The caret comes too: typing and the status-bar hint follow what you see.
+            Editor.CaretOffset = Editor.Document.GetLineByNumber(line).Offset;
             if (Editor.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault() is { } scroll)
                 scroll.Offset = new Vector(scroll.Offset.X, Editor.TextArea.TextView.GetVisualTopByDocumentLine(line));
         }, DispatcherPriority.Loaded);
