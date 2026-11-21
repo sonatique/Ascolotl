@@ -25,6 +25,31 @@ public sealed class TabStripTests
         return (window, vm);
     }
 
+    [AvaloniaTheory]
+    [InlineData("Dark")]
+    [InlineData("Light")]
+    public void TabBackgrounds_StayOpaque_EvenMidFade(string theme)
+    {
+        // A tab's background fades between states. A see-through end colour
+        // (Transparent is transparent white) makes the fade pass through grey.
+        Avalonia.Application.Current!.RequestedThemeVariant =
+            theme == "Dark" ? Avalonia.Styling.ThemeVariant.Dark : Avalonia.Styling.ThemeVariant.Light;
+        try
+        {
+            var (window, vm) = Open(2);
+            vm.SelectedDocument = vm.Documents[0]; // the second tab fades from selected to idle
+            Dispatcher.UIThread.RunJobs();
+            window.UpdateLayout();
+
+            foreach (var tab in window.GetVisualDescendants().OfType<Avalonia.Controls.Primitives.TabStripItem>())
+                Assert.Equal(255, ((Avalonia.Media.ISolidColorBrush)tab.Background!).Color.A);
+        }
+        finally
+        {
+            Avalonia.Application.Current.RequestedThemeVariant = Avalonia.Styling.ThemeVariant.Default;
+        }
+    }
+
     [AvaloniaFact]
     public void FewTabs_NoAllTabsButton()
     {

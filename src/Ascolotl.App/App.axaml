@@ -33,6 +33,11 @@
                     <!-- Title bar: one step off the editor surface, warm neutral. -->
                     <SolidColorBrush x:Key="ForgeTitleBarBrush" Color="#191715" />
                     <SolidColorBrush x:Key="ForgeHighlightBrush" Color="#12FFFFFF" />
+                    <!-- Tabs fade between these, so they're opaque: a fade to a
+                         see-through colour passes through grey. Idle = title bar;
+                         hover = the highlight laid over it. -->
+                    <SolidColorBrush x:Key="ForgeTabIdleBrush" Color="#191715" />
+                    <SolidColorBrush x:Key="ForgeTabHoverBrush" Color="#292725" />
 
                     <!-- Menu dropdowns: retheme Fluent's default gray flyout surface,
                          text, hover, submenu chevron and separators to the Forge palette. -->
@@ -77,6 +82,8 @@
                     <!-- Title bar: one step off the editor surface, warm neutral. -->
                     <SolidColorBrush x:Key="ForgeTitleBarBrush" Color="#F4F2EE" />
                     <SolidColorBrush x:Key="ForgeHighlightBrush" Color="#0A000000" />
+                    <SolidColorBrush x:Key="ForgeTabIdleBrush" Color="#F4F2EE" />
+                    <SolidColorBrush x:Key="ForgeTabHoverBrush" Color="#EAE8E4" />
 
                     <!-- Menu dropdowns: retheme Fluent's default gray flyout surface,
                          text, hover, submenu chevron and separators to the Forge palette. -->
@@ -136,7 +143,7 @@
         </Style>
         <Style Selector="TabStripItem">
             <Setter Property="Foreground" Value="{DynamicResource ForgeTabTextBrush}" />
-            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Background" Value="{DynamicResource ForgeTabIdleBrush}" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="14,0,8,0" />
             <Setter Property="Height" Value="27" />
@@ -178,7 +185,7 @@
         </Style>
         <Style Selector="TabStripItem:pointerover">
             <Setter Property="Foreground" Value="{DynamicResource ForgeTextBrush}" />
-            <Setter Property="Background" Value="{DynamicResource ForgeHighlightBrush}" />
+            <Setter Property="Background" Value="{DynamicResource ForgeTabHoverBrush}" />
         </Style>
         <Style Selector="TabStripItem:selected">
             <Setter Property="Foreground" Value="{DynamicResource ForgeTextBrush}" />
