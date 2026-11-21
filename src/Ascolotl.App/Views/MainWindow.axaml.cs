@@ -232,7 +232,12 @@ public partial class MainWindow : Window
         if (_viewModel is null) return;
 
         if (e.PropertyName == nameof(MainWindowViewModel.EditorMode))
+        {
             UpdateEditorLayout(_viewModel.EditorMode);
+            // A pane the old mode hid only gets its view now: hook it for scroll sync.
+            if (_editorScrollViewer is null || _cachedPreviewView is null)
+                Dispatcher.UIThread.Post(HookEditorScroll, DispatcherPriority.Loaded);
+        }
 
         if (e.PropertyName is nameof(MainWindowViewModel.EditorMode) or nameof(MainWindowViewModel.InPlaceEditOpen)
             or nameof(MainWindowViewModel.SelectedDocument))
