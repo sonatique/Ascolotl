@@ -26,12 +26,6 @@ public partial class MainWindow : Window
     private AvaloniaEdit.TextEditor? _cachedTextEditor;
     private PreviewView? _cachedPreviewView;
     private bool _pendingNewDocFocus;
-    // Highest editor scroll offset we've seen where the preview was still
-    // able to follow (i.e. didn't saturate at its max). Updated continuously
-    // as the user scrolls; used to snap the editor back when it tries to
-    // scroll further forward than the preview can reach. Reset whenever the
-    // editor is rebound to a different document.
-    private double _editorMaxValidOffset;
 
     public MainWindow()
     {
@@ -786,10 +780,6 @@ public partial class MainWindow : Window
             _cachedPreviewView.SourceLineClicked -= OnPreviewSourceLineClicked;
         }
 
-        // New editor binding — discard any saturation cap that referred to
-        // the previous document's metrics.
-        _editorMaxValidOffset = 0;
-
         var editorView = FindDescendant<SourceEditorView>(EditorPane);
         if (editorView is null) return;
 
@@ -869,7 +859,6 @@ public partial class MainWindow : Window
             var docLine = doc.GetLineByNumber(clampedLine + 1);
             var caretOffset = docLine.Offset + Math.Clamp(column, 0, docLine.Length);
             _cachedTextEditor.CaretOffset = caretOffset;
-            _editorMaxValidOffset = targetY;
         }
         finally
         {
@@ -928,10 +917,6 @@ public partial class MainWindow : Window
         if (_cachedPreviewView is not null) _cachedPreviewView.SuppressReverseSync = true;
         _editorScrollViewer.Offset = new Vector(_editorScrollViewer.Offset.X, targetY);
         ClearSyncFlagsAfterLayout();
-
-        // Also update the editor's max-valid offset so the saturation clamp
-        // doesn't snap the user back when they next scroll the editor.
-        _editorMaxValidOffset = targetY;
     }
 
     /// <summary>
@@ -992,38 +977,14 @@ public partial class MainWindow : Window
         if (_cachedPreviewView is not null) _cachedPreviewView.SuppressReverseSync = true;
         try
         {
-            var canFollow = SyncPreviewToLine(line, frac, totalLines);
-            if (canFollow)
-            {
-                // Preview reached the requested position. Remember this
-                // editor offset as the furthest we've successfully synced.
-                _editorMaxValidOffset = sv.Offset.Y;
-            }
-            else if (sv.Offset.Y > _editorMaxValidOffset)
-            {
-                // Preview is already at its end — scrolling the editor
-                // further would visibly desync the panes. Snap the editor
-                // back to the last offset where the preview could still
-                // follow.
-                sv.Offset = new Vector(sv.Offset.X, _editorMaxValidOffset);
-            }
-            else
-            {
-                // User scrolled backward past a saturation point; the new
-                // offset is below the cap, so accept it as the new cap.
-                _editorMaxValidOffset = sv.Offset.Y;
-            }
+            // Once the preview is at its end it stays there while the source
+            // scrolls on; pulling the source back made it jump at its bottom.
+            _cachedPreviewView?.SyncToSourceLine(line, frac, totalLines);
         }
         finally
         {
             ClearSyncFlagsAfterLayout();
         }
-    }
-
-    private bool SyncPreviewToLine(int line, double frac, int totalLines)
-    {
-        if (_cachedPreviewView is null) return true;
-        return _cachedPreviewView.SyncToSourceLine(line, frac, totalLines);
     }
 
     private static T? FindDescendant<T>(Visual visual) where T : Visual

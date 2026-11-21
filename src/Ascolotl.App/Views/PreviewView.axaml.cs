@@ -2037,36 +2037,20 @@ public partial class PreviewView : UserControl
     /// Tells the preview to scroll so that the given source line is at the
     /// top. When a (line → Y) marker map is available from the last render,
     /// uses linear interpolation between markers; otherwise falls back to a
-    /// ratio-based mapping over total source lines.
+    /// ratio-based mapping over total source lines. Clamped to the preview's
+    /// scroll range.
     /// </summary>
-    /// <returns>
-    /// True when the requested position was reached, false when it would
-    /// have required scrolling past the preview's maximum — the caller can
-    /// use this signal to clamp the editor's scroll so it can't drift past
-    /// the point where the preview is already at its end.
-    /// </returns>
-    public bool SyncToSourceLine(int sourceLine, double fraction, int totalSourceLines)
+    public void SyncToSourceLine(int sourceLine, double fraction, int totalSourceLines)
     {
         _lastSyncLine = sourceLine;
         _lastSyncFrac = fraction;
         _lastSyncTotal = totalSourceLines;
 
-        if (totalSourceLines <= 1) return true;
+        if (totalSourceLines <= 1) return;
 
-        var maxScroll = Math.Max(0, PreviewScroll.Extent.Height - PreviewScroll.Viewport.Height);
-        var rawOffset = ScrollSyncCalculator.ComputePreviewOffset(
-            sourceLine, fraction, _lineMap,
-            PreviewScroll.Extent.Height, PreviewScroll.Viewport.Height,
-            totalSourceLines);
-
-        var clamped = Math.Min(rawOffset, maxScroll);
-        PreviewScroll.Offset = new Vector(PreviewScroll.Offset.X, clamped);
-
-        // Compute against the un-clamped target so consumers can detect that
-        // the requested position lay past the preview's max. ComputePreview-
-        // Offset already clamps internally, but only by maxScroll; so an
-        // exact-max value is the saturation signal.
-        return rawOffset < maxScroll - 0.5;
+        PreviewScroll.Offset = new Vector(PreviewScroll.Offset.X, ScrollSyncCalculator.ComputePreviewOffset(
+            sourceLine, fraction, _lineMap, PreviewScroll.Extent.Height, PreviewScroll.Viewport.Height,
+            totalSourceLines));
     }
 
     /// <summary>

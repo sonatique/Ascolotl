@@ -35,4 +35,28 @@ public sealed class ScrollSyncTests
         Assert.True(preview.Offset.Y > preview.Extent.Height / 4,
             $"preview offset {preview.Offset.Y} of {preview.Extent.Height} after source offset {source.Offset.Y} of {source.Extent.Height}");
     }
+
+    [AvaloniaFact]
+    public void Split_SourceScrollsToItsEnd_WithoutBeingPulledBack()
+    {
+        // The source can scroll below its last line, further than the preview
+        // can follow; pulling it back made it jump at its bottom.
+        var (window, _) = Open(Text, EditorMode.Split);
+        var editor = window.GetVisualDescendants().OfType<TextEditor>().First(e => e.IsEffectivelyVisible);
+        var source = editor.GetVisualDescendants().OfType<ScrollViewer>().First();
+        var preview = Preview(window).FindControl<ScrollViewer>("PreviewScroll")!;
+        var sourceMax = source.Extent.Height - source.Viewport.Height;
+        var backward = false;
+        source.ScrollChanged += (_, e) => backward |= e.OffsetDelta.Y < 0;
+
+        for (var step = 1; step <= 4; step++)
+        {
+            source.Offset = new Vector(0, sourceMax * step / 4);
+            Pump(window);
+        }
+
+        Assert.False(backward, "the source moved backward");
+        Assert.Equal(sourceMax, source.Offset.Y, 1);
+        Assert.Equal(preview.Extent.Height - preview.Viewport.Height, preview.Offset.Y, 1);
+    }
 }
