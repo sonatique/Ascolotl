@@ -80,7 +80,7 @@ so SmartScreen may warn you the first time. Choose *More info*, then *Run anyway
 flag, then start the app:
 
 ```bash
-tar -xzf Ascolotl-0.0.1-osx-arm64.tar.gz
+tar -xzf Ascolotl-1.0.0-osx-arm64.tar.gz
 ```
 
 ```bash
@@ -95,7 +95,7 @@ xattr -d com.apple.quarantine Ascolotl
 distributions include. Unpack the archive and run `./Ascolotl`:
 
 ```bash
-tar -xzf Ascolotl-0.0.1-linux-x64.tar.gz && ./Ascolotl
+tar -xzf Ascolotl-1.0.0-linux-x64.tar.gz && ./Ascolotl
 ```
 
 ## Keyboard shortcuts
@@ -157,7 +157,7 @@ Markdown) parser and renderer.
 
 ## License
 
-Copyright (C) 2026 sylvain@sonatique.net
+Copyright (C) 2026 Sylvain Fasel
 
 Ascolotl is free software, licensed under the
 [GNU General Public License v3.0](LICENSE).

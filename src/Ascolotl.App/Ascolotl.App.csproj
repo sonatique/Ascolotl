@@ -10,9 +10,9 @@
     <RootNamespace>Ascolotl.App</RootNamespace>
     <ApplicationIcon Condition="Exists('Resources\app.ico')">Resources\app.ico</ApplicationIcon>
     <AssemblyName>Ascolotl</AssemblyName>
-    <Version>0.0.1</Version>
+    <Version>1.0.0</Version>
     <Product>Ascolotl</Product>
-    <Copyright>Copyright (C) 2026 sylvain@sonatique.net</Copyright>
+    <Copyright>Copyright (C) 2026 Sylvain Fasel</Copyright>
     <Description>AsciiDoc source editor with live preview and PDF export</Description>
     <!-- Settings and recovery files use reflection-based System.Text.Json, which a
          trimmed publish disables by default (settings would silently reset). -->
