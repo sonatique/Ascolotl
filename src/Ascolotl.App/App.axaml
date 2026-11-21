@@ -146,7 +146,7 @@
             <Setter Property="Background" Value="{DynamicResource ForgeTabIdleBrush}" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="14,0,8,1" />
-            <Setter Property="Height" Value="27" />
+            <Setter Property="Height" Value="25" />
             <Setter Property="MinHeight" Value="0" />
             <Setter Property="MaxWidth" Value="240" />
             <Setter Property="Margin" Value="0,5,1,0" />

@@ -14,7 +14,7 @@
         DragDrop.AllowDrop="True"
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaChromeHints="PreferSystemChrome"
-        ExtendClientAreaTitleBarHeightHint="32"
+        ExtendClientAreaTitleBarHeightHint="30"
         Background="{DynamicResource ForgeBgBrush}">
 
     <Window.Resources>
@@ -196,7 +196,7 @@
                          in code-behind between a single ☰ item (hamburger) and
                          inline File/View, driven by the HamburgerMenu setting. -->
                     <Grid DockPanel.Dock="Top"
-                          Height="32"
+                          Height="30"
                           Background="{DynamicResource ForgeTitleBarBrush}"
                           ColumnDefinitions="Auto,Auto,*">
                         <Image Grid.Column="0"
@@ -219,14 +219,14 @@
                                 <MenuItem.Header>
                                     <!-- The menu item top-biases its content; position
                                          the icon with an explicit top margin (tunable). -->
-                                    <Panel Width="32" Height="32">
+                                    <Panel Width="32" Height="30">
                                         <Path Classes="icon"
                                               Data="{StaticResource IconMenuGeometry}"
                                               Width="14" Height="14"
                                               StrokeThickness="1.5"
                                               VerticalAlignment="Top"
                                               HorizontalAlignment="Center"
-                                              Margin="0,11.5,0,0"
+                                              Margin="0,10.5,0,0"
                                               Stroke="{DynamicResource ForgeTextBrush}" />
                                     </Panel>
                                 </MenuItem.Header>
