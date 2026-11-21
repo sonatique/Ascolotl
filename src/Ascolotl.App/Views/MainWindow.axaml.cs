@@ -76,8 +76,8 @@ public partial class MainWindow : Window
         // window, and a double-click toggles maximize (standard gestures).
         TitleDragArea.PointerPressed += OnTitleDragPressed;
 
-        // Outline item double-click navigation
-        OutlineList.DoubleTapped += OnOutlineItemDoubleTapped;
+        // A click on an outline row goes to its section.
+        OutlineList.Tapped += OnOutlineItemTapped;
 
         // Sidebar section switcher + project tree navigation
         SidebarOutlineTab.PointerPressed += (_, _) => SetSidebarFilesActive(false);
@@ -707,11 +707,9 @@ public partial class MainWindow : Window
 
     // --- Outline navigation ---
 
-    private void OnOutlineItemDoubleTapped(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void OnOutlineItemTapped(object? sender, TappedEventArgs e)
     {
-        if (_viewModel is null) return;
-
-        if (OutlineList.SelectedItem is OutlineItem item)
+        if (_viewModel is not null && (e.Source as StyledElement)?.DataContext is OutlineItem item)
             _viewModel.NavigateToOutlineItemCommand.Execute(item);
     }
 
@@ -719,8 +717,12 @@ public partial class MainWindow : Window
     {
         Dispatcher.UIThread.Post(() =>
         {
-            var editorView = FindDescendant<SourceEditorView>(EditorPane);
-            editorView?.ScrollToLine(lineNumber);
+            // WYSIWYG hides the source pane, so move the page instead.
+            if (_viewModel?.EditorMode == EditorMode.Wysiwyg)
+                FindDescendant<PreviewView>(PreviewPane)?.ScrollToSourceLine(lineNumber,
+                    (_viewModel.SelectedDocument?.SourceText ?? "").AsSpan().Count('\n') + 1);
+            else
+                FindDescendant<SourceEditorView>(EditorPane)?.ScrollToLine(lineNumber);
         }, DispatcherPriority.Background);
     }
 

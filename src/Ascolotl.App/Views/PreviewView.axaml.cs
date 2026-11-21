@@ -2070,6 +2070,15 @@ public partial class PreviewView : UserControl
     }
 
     /// <summary>
+    /// Scrolls so the given 0-based source line is at the top, without
+    /// touching the Split sync state (a later re-render must not snap back).
+    /// Without a line map (Page Preview) the position is proportional.
+    /// </summary>
+    public void ScrollToSourceLine(int sourceLine, int totalSourceLines) =>
+        PreviewScroll.Offset = new Vector(PreviewScroll.Offset.X, ScrollSyncCalculator.ComputePreviewOffset(
+            sourceLine, 0, _lineMap, PreviewScroll.Extent.Height, PreviewScroll.Viewport.Height, totalSourceLines));
+
+    /// <summary>
     /// Walk the visual subtree and return the maximum Y-coordinate of any
     /// painted descendant, in <paramref name="root"/>'s coordinate space.
     /// Uses TranslatePoint per descendant to get correct nested coords.
