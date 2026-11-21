@@ -18,6 +18,9 @@ public partial class DocumentViewModel : ObservableObject
     /// <summary>0-based source line at the top of the view, kept per tab and across sessions.</summary>
     public int TopLine { get; set; }
 
+    /// <summary>The view this tab shows: each tab keeps its own.</summary>
+    public EditorMode EditorMode { get; set; } = EditorMode.Wysiwyg;
+
     /// <summary>Encoding the file was read with, reused on save; null = UTF-8 without BOM.</summary>
     public System.Text.Encoding? FileEncoding { get; set; }
 

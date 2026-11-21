@@ -42,7 +42,7 @@ public partial class MainWindowViewModel : ObservableObject
     private string _statusText = Strings.Ready;
 
     [ObservableProperty]
-    private EditorMode _editorMode = EditorMode.Split;
+    private EditorMode _editorMode = EditorMode.Wysiwyg;
 
     [ObservableProperty]
     private bool _showTitleAndToc;
@@ -406,6 +406,7 @@ public partial class MainWindowViewModel : ObservableObject
             doc.LastKnownWriteTime = writeTime;
             doc.FileEncoding = content.Encoding;
             doc.TopLine = sessionDoc.TopLine;
+            if (Enum.IsDefined(sessionDoc.EditorMode)) doc.EditorMode = sessionDoc.EditorMode;
 
             Documents.Add(doc);
         }
@@ -447,6 +448,7 @@ public partial class MainWindowViewModel : ObservableObject
                 FilePath = doc.FilePath,
                 DisplayName = doc.DisplayName,
                 TopLine = doc.TopLine,
+                EditorMode = doc.EditorMode,
             });
         }
 
@@ -1470,13 +1472,17 @@ public partial class MainWindowViewModel : ObservableObject
         if (newValue is not null)
         {
             newValue.PropertyChanged += OnSelectedDocumentPropertyChanged;
-            if (EditorMode != EditorMode.Source)
+            if (EditorMode != newValue.EditorMode)
+                EditorMode = newValue.EditorMode; // renders the document unless Source
+            else if (EditorMode != EditorMode.Source)
                 RequestRender(immediate: true);
         }
     }
 
     partial void OnEditorModeChanged(EditorMode value)
     {
+        if (SelectedDocument is not null)
+            SelectedDocument.EditorMode = value;
         if (value != EditorMode.Source && SelectedDocument is not null)
             RequestRender(immediate: true);
 

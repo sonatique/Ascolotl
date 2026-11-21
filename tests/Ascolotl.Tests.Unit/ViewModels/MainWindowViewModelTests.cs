@@ -786,11 +786,19 @@ public sealed class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
-    public void EditorMode_DefaultIsSplit()
+    public void EditorMode_IsPerTab_AndANewTabStartsInWysiwyg()
     {
         var vm = CreateViewModel();
+        vm.NewDocumentCommand.Execute(null);
+        var a = vm.SelectedDocument!;
+        Assert.Equal(EditorMode.Wysiwyg, vm.EditorMode);
+        vm.SetEditorModeCommand.Execute(EditorMode.Source);
 
-        Assert.Equal(EditorMode.Split, vm.EditorMode);
+        vm.NewDocumentCommand.Execute(null);
+        Assert.Equal(EditorMode.Wysiwyg, vm.EditorMode);
+        vm.SelectedDocument = a;
+        Assert.Equal(EditorMode.Source, vm.EditorMode);
+        Assert.True(vm.IsSourceMode);
     }
 
     // --- Render Pipeline ---
@@ -799,8 +807,8 @@ public sealed class MainWindowViewModelTests : IDisposable
     public async Task Render_SplitMode_SourceChange_TriggersRender()
     {
         var vm = CreateViewModel();
-        vm.SetEditorModeCommand.Execute(EditorMode.Split);
         vm.NewDocumentCommand.Execute(null);
+        vm.SetEditorModeCommand.Execute(EditorMode.Split);
         _renderService.RenderCalled = 0; // Reset from mode switch + new doc
 
         vm.SelectedDocument!.SourceText = "= Hello";
@@ -817,8 +825,8 @@ public sealed class MainWindowViewModelTests : IDisposable
     {
         // Session restore: the tab strip selects the first tab, then the saved one.
         var vm = CreateViewModel();
-        vm.SetEditorModeCommand.Execute(EditorMode.Split);
         vm.NewDocumentCommand.Execute(null);
+        vm.SetEditorModeCommand.Execute(EditorMode.Split);
         vm.NewDocumentCommand.Execute(null);
         vm.Documents[0].SourceText = "= First";
         vm.Documents[1].SourceText = "= Second";
@@ -837,8 +845,9 @@ public sealed class MainWindowViewModelTests : IDisposable
     public async Task Render_SourceMode_DoesNotTriggerRender()
     {
         var vm = CreateViewModel();
-        vm.SetEditorModeCommand.Execute(EditorMode.Source);
         vm.NewDocumentCommand.Execute(null);
+        vm.SetEditorModeCommand.Execute(EditorMode.Source);
+        await vm.PendingRenderTask; // the new tab's WYSIWYG render
         _renderService.RenderCalled = 0;
 
         vm.SelectedDocument!.SourceText = "= Hello";
@@ -851,8 +860,8 @@ public sealed class MainWindowViewModelTests : IDisposable
     public async Task Render_SwitchToSplit_TriggersRender()
     {
         var vm = CreateViewModel();
-        vm.SetEditorModeCommand.Execute(EditorMode.Source);
         vm.NewDocumentCommand.Execute(null);
+        vm.SetEditorModeCommand.Execute(EditorMode.Source);
         vm.SelectedDocument!.SourceText = "= Hello";
         _renderService.RenderCalled = 0; // Reset — Source mode, no render expected
 
@@ -868,8 +877,8 @@ public sealed class MainWindowViewModelTests : IDisposable
         var vm = CreateViewModel();
         var rendered = AdocNet.Parser.AdocParser.Parse("= Rendered").Document;
         _renderService.NextResult = RenderResult.Success(rendered);
-        vm.SetEditorModeCommand.Execute(EditorMode.Split);
         vm.NewDocumentCommand.Execute(null);
+        vm.SetEditorModeCommand.Execute(EditorMode.Split);
         await vm.PendingRenderTask;
 
         Assert.Same(rendered, vm.SelectedDocument!.RenderedDocument);
@@ -882,8 +891,8 @@ public sealed class MainWindowViewModelTests : IDisposable
     {
         var vm = CreateViewModel();
         _renderService.NextResult = RenderResult.Failure("asciidoctor not found");
-        vm.SetEditorModeCommand.Execute(EditorMode.Split);
         vm.NewDocumentCommand.Execute(null);
+        vm.SetEditorModeCommand.Execute(EditorMode.Split);
         await vm.PendingRenderTask;
 
         Assert.False(vm.SelectedDocument!.LastRenderSucceeded);
@@ -896,8 +905,8 @@ public sealed class MainWindowViewModelTests : IDisposable
     {
         var vm = CreateViewModel();
         _renderService.NextResult = RenderResult.Failure("error");
-        vm.SetEditorModeCommand.Execute(EditorMode.Split);
         vm.NewDocumentCommand.Execute(null);
+        vm.SetEditorModeCommand.Execute(EditorMode.Split);
         await vm.PendingRenderTask;
 
         // Editing should still work after render failure
@@ -912,8 +921,8 @@ public sealed class MainWindowViewModelTests : IDisposable
     {
         var vm = CreateViewModel();
         _renderService.NextResult = RenderResult.Success();
-        vm.SetEditorModeCommand.Execute(EditorMode.Split);
         vm.NewDocumentCommand.Execute(null);
+        vm.SetEditorModeCommand.Execute(EditorMode.Split);
         vm.SelectedDocument!.SourceText = "= My Document";
         await vm.PendingRenderTask;
 
@@ -925,8 +934,8 @@ public sealed class MainWindowViewModelTests : IDisposable
     public async Task Render_TabSwitch_TriggersRenderForNewDoc()
     {
         var vm = CreateViewModel();
-        vm.SetEditorModeCommand.Execute(EditorMode.Split);
         vm.NewDocumentCommand.Execute(null);
+        vm.SetEditorModeCommand.Execute(EditorMode.Split);
         vm.SelectedDocument!.SourceText = "doc1";
         await vm.PendingRenderTask;
 
@@ -946,8 +955,8 @@ public sealed class MainWindowViewModelTests : IDisposable
     {
         var vm = CreateViewModel();
         _renderService.NextResult = RenderResult.Success();
-        vm.SetEditorModeCommand.Execute(EditorMode.Source);
         vm.NewDocumentCommand.Execute(null);
+        vm.SetEditorModeCommand.Execute(EditorMode.Source);
         vm.SetEditorModeCommand.Execute(EditorMode.Split);
         await vm.PendingRenderTask;
 
@@ -959,8 +968,8 @@ public sealed class MainWindowViewModelTests : IDisposable
     {
         var vm = CreateViewModel();
         _renderService.NextResult = RenderResult.Failure("parse error");
-        vm.SetEditorModeCommand.Execute(EditorMode.Source);
         vm.NewDocumentCommand.Execute(null);
+        vm.SetEditorModeCommand.Execute(EditorMode.Source);
         vm.SetEditorModeCommand.Execute(EditorMode.Split);
         await vm.PendingRenderTask;
 
@@ -1400,8 +1409,8 @@ public sealed class MainWindowViewModelTests : IDisposable
     public async Task Render_PopulatesOutlineItems()
     {
         var vm = CreateViewModel();
-        vm.SetEditorModeCommand.Execute(EditorMode.Split);
         vm.NewDocumentCommand.Execute(null);
+        vm.SetEditorModeCommand.Execute(EditorMode.Split);
         vm.SelectedDocument!.SourceText = "= Title\n\n== Chapter One\n\n== Chapter Two";
         await vm.PendingRenderTask;
 
@@ -1788,11 +1797,13 @@ public sealed class MainWindowViewModelTests : IDisposable
         _ = vm.OpenDocumentCommand.ExecuteAsync(null);
         vm.Documents[2].TopLine = 42;
         vm.SelectedDocument = vm.Documents[2];
+        vm.SetEditorModeCommand.Execute(EditorMode.Split);
 
         vm.SaveSession();
 
         Assert.Equal(1, _sessionStore.LastSavedState!.SelectedIndex);
         Assert.Equal([0, 42], _sessionStore.LastSavedState.OpenDocuments.Select(d => d.TopLine));
+        Assert.Equal([EditorMode.Wysiwyg, EditorMode.Split], _sessionStore.LastSavedState.OpenDocuments.Select(d => d.EditorMode));
     }
 
     [Fact]
@@ -1807,8 +1818,8 @@ public sealed class MainWindowViewModelTests : IDisposable
             OpenDocuments =
             [
                 new() { DocumentId = "gone", FilePath = Path.Combine(Path.GetTempPath(), $"gone-{Guid.NewGuid():N}.adoc"), DisplayName = "gone.adoc" },
-                new() { DocumentId = "a", FilePath = a, DisplayName = "a.adoc" },
-                new() { DocumentId = "b", FilePath = b, DisplayName = "b.adoc", TopLine = 7 },
+                new() { DocumentId = "a", FilePath = a, DisplayName = "a.adoc", EditorMode = (EditorMode)42 },
+                new() { DocumentId = "b", FilePath = b, DisplayName = "b.adoc", TopLine = 7, EditorMode = EditorMode.Source },
             ],
         };
 
@@ -1816,6 +1827,8 @@ public sealed class MainWindowViewModelTests : IDisposable
 
         Assert.Equal("b", vm.SelectedDocument!.SourceText);
         Assert.Equal(7, vm.SelectedDocument.TopLine);
+        Assert.Equal(EditorMode.Source, vm.EditorMode);
+        Assert.Equal(EditorMode.Wysiwyg, vm.Documents[0].EditorMode); // an unknown mode in the file
     }
 
     [Fact]

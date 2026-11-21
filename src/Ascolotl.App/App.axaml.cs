@@ -86,7 +86,6 @@ public class App : Application
             {
                 CurrentTheme = _settings.Theme,
                 UiLanguageCode = _settings.Language,
-                EditorMode = _settings.EditorMode,
                 ShowTitleAndToc = _settings.ShowTitleAndToc,
                 SyncScrolling = _settings.SyncScrolling,
                 ShowOutlinePane = _settings.ShowOutlinePane,
@@ -112,11 +111,6 @@ public class App : Application
                 else if (e.PropertyName == nameof(MainWindowViewModel.UiLanguageCode))
                 {
                     _settings.Language = _viewModel.UiLanguageCode;
-                    SaveSettings();
-                }
-                else if (e.PropertyName == nameof(MainWindowViewModel.EditorMode))
-                {
-                    _settings.EditorMode = _viewModel.EditorMode;
                     SaveSettings();
                 }
                 else if (e.PropertyName == nameof(MainWindowViewModel.ShowTitleAndToc))

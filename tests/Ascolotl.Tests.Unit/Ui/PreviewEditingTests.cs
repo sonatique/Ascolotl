@@ -20,11 +20,11 @@ public sealed class PreviewEditingTests
         MockFileService? files = null)
     {
         var vm = new MainWindowViewModel(files ?? new MockFileService(), new MockDialogService(), new MockRenderService(),
-            new MockExportService(), new MockRecoveryStore(), new MockSessionStore(), new MockAppLog(), debounceMs)
-        { EditorMode = mode };
+            new MockExportService(), new MockRecoveryStore(), new MockSessionStore(), new MockAppLog(), debounceMs);
         var window = new MainWindow { DataContext = vm, Width = 1000, Height = 700 };
         window.Show();
         vm.NewDocumentCommand.Execute(null);
+        vm.EditorMode = mode;
         vm.SelectedDocument!.SourceText = text;
         vm.RequestRender(immediate: true);
         Pump(window);

@@ -41,7 +41,6 @@ public sealed class JsonSettingsServiceTests : IDisposable
         var original = new AppSettings
         {
             Theme = AppTheme.Dark,
-            EditorMode = EditorMode.Source,
             ShowTitleAndToc = true,
             SyncScrolling = false,
             WindowWidth = 1920,
@@ -54,7 +53,6 @@ public sealed class JsonSettingsServiceTests : IDisposable
         var loaded = service.Load();
 
         Assert.Equal(AppTheme.Dark, loaded.Theme);
-        Assert.Equal(EditorMode.Source, loaded.EditorMode);
         Assert.True(loaded.ShowTitleAndToc);
         Assert.False(loaded.SyncScrolling);
         Assert.Equal(1920, loaded.WindowWidth);
@@ -92,7 +90,6 @@ public sealed class JsonSettingsServiceTests : IDisposable
         var settings = new AppSettings();
 
         Assert.Equal(AppTheme.System, settings.Theme);
-        Assert.Equal(EditorMode.Split, settings.EditorMode);
         Assert.False(settings.ShowTitleAndToc);
         Assert.True(settings.SyncScrolling);
         Assert.Equal(1280, settings.WindowWidth);

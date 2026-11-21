@@ -44,14 +44,13 @@ public sealed class SessionRestoreTests : IDisposable
                 SelectedIndex = 1,
                 OpenDocuments =
                 [
-                    new() { DocumentId = "a", FilePath = TempFile(), DisplayName = "a.adoc" },
-                    new() { DocumentId = "b", FilePath = TempFile(), DisplayName = "b.adoc", TopLine = frontTopLine },
+                    new() { DocumentId = "a", FilePath = TempFile(), DisplayName = "a.adoc", EditorMode = mode },
+                    new() { DocumentId = "b", FilePath = TempFile(), DisplayName = "b.adoc", TopLine = frontTopLine, EditorMode = mode },
                 ],
             },
         };
         var vm = new MainWindowViewModel(new MockFileService(), new MockDialogService(), new MockRenderService(),
-            new MockExportService(), new MockRecoveryStore(), sessions, new MockAppLog(), debounceMs: 0)
-        { EditorMode = mode };
+            new MockExportService(), new MockRecoveryStore(), sessions, new MockAppLog(), debounceMs: 0);
         var window = new MainWindow { DataContext = vm, Width = 1000, Height = 700 };
         window.Show();
         await vm.RestoreSessionAsync();
@@ -102,5 +101,21 @@ public sealed class SessionRestoreTests : IDisposable
 
         Assert.Equal(Section16, EditorTopLine(window));
         Assert.Equal(Section16, vm.Documents[1].TopLine);
+    }
+
+    [AvaloniaFact]
+    public async Task EachTab_ComesBackInItsOwnView_AtItsPosition()
+    {
+        var (window, vm) = await Restore(EditorMode.Split, Section16);
+        vm.Documents[0].EditorMode = EditorMode.Wysiwyg;
+
+        vm.SelectedDocument = vm.Documents[0];
+        Pump(window);
+        Assert.Equal(EditorMode.Wysiwyg, vm.EditorMode);
+        vm.SelectedDocument = vm.Documents[1];
+        Pump(window);
+
+        Assert.Equal(EditorMode.Split, vm.EditorMode);
+        Assert.Equal(Section16, EditorTopLine(window));
     }
 }
