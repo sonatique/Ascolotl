@@ -52,6 +52,10 @@
                 <HyperlinkButton Content="{x:Static res:Strings.AboutLicenseLink}"
                                  NavigateUri="{x:Static views:AppLinks.License}"
                                  Classes="about" />
+                <HyperlinkButton x:Name="NoticesLink"
+                                 Content="{x:Static res:Strings.AboutNoticesLink}"
+                                 Classes="about"
+                                 Click="OnNoticesClick" />
             </WrapPanel>
 
             <Border Background="{DynamicResource ForgeAccentSubtleBrush}"

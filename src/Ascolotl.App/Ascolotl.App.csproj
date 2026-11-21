@@ -40,6 +40,13 @@
   <ItemGroup>
     <AvaloniaResource Include="Assets\Fonts\JetBrainsMono-Regular.ttf" />
     <AvaloniaResource Include="Assets\app-icon.png" />
+    <!-- Licenses: shown from the About box, and beside the app in every download. -->
+    <AvaloniaResource Include="..\..\THIRD-PARTY-NOTICES.txt" Link="Assets\THIRD-PARTY-NOTICES.txt" />
+    <None Include="..\..\THIRD-PARTY-NOTICES.txt" Link="THIRD-PARTY-NOTICES.txt"
+          CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+    <!-- .txt: opens on a double-click, and the archive keeps extensionless files for the app. -->
+    <None Include="..\..\LICENSE" Link="LICENSE.txt"
+          CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
   </ItemGroup>
 
   <ItemGroup>

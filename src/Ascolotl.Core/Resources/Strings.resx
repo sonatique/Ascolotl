@@ -511,6 +511,7 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="AboutSourceLink" xml:space="preserve"><value>Source code on GitHub</value></data>
   <data name="AboutStoreLink" xml:space="preserve"><value>Microsoft Store</value></data>
   <data name="AboutLicenseLink" xml:space="preserve"><value>License</value></data>
+  <data name="AboutNoticesLink" xml:space="preserve"><value>Open-Source Licenses</value></data>
   <data name="AboutSponsorNote" xml:space="preserve"><value>If Ascolotl saves you time, a small tip keeps it growing.</value></data>
   <data name="AboutSponsorLink" xml:space="preserve"><value>Buy the axolotl a coffee</value></data>
   <data name="MenuReportIssue" xml:space="preserve"><value>_Report an Issue or Suggestion</value></data>

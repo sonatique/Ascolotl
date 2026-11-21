@@ -1,3 +1,5 @@
+using System.Reflection;
+using System.Text.Json;
 using Ascolotl.App.Views;
 using Ascolotl.Core.Resources;
 using Ascolotl.Tests.Unit.Mocks;
@@ -32,6 +34,45 @@ public sealed class AboutDialogTests
         Assert.Contains(Strings.AboutLicenseNotice,
             dialog.GetLogicalDescendants().OfType<TextBlock>().Single(t => t.Name == "LegalText").Text);
         dialog.Close();
+    }
+
+    [AvaloniaFact]
+    public void Notices_NameEveryPackageTheAppShips_AndOpenFromTheAboutBox()
+    {
+        var notices = AboutDialog.ThirdPartyNotices();
+        var packages = AppPackages();
+        Assert.Contains("SkiaSharp", packages); // the walk reached the native graphics stack
+        var missing = packages.Where(id => !notices.Contains($"\n{id} ", StringComparison.Ordinal)).ToList();
+        Assert.True(missing.Count == 0, $"Run tools/notices/make_notices.py: no notice for {string.Join(", ", missing)}");
+        Assert.Contains("JetBrains Mono", notices); // fonts shipped inside packages and the app
+        Assert.Contains("Inter typeface", notices);
+
+        var dialog = new AboutDialog();
+        dialog.Show();
+        Assert.True(dialog.FindControl<HyperlinkButton>("NoticesLink")!.IsVisible);
+        Assert.DoesNotContain("@", dialog.FindControl<TextBlock>("LegalText")!.Text); // a name, not an email
+        dialog.Close();
+    }
+
+    /// <summary>The packages Ascolotl.App needs at run time, from this test's deps.json.</summary>
+    private static IEnumerable<string> AppPackages()
+    {
+        using var deps = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,
+            Assembly.GetExecutingAssembly().GetName().Name + ".deps.json")));
+        var target = deps.RootElement.GetProperty("targets").EnumerateObject().First().Value;
+        var libraries = deps.RootElement.GetProperty("libraries");
+        var seen = new HashSet<string>();
+        var app = typeof(AboutDialog).Assembly.GetName().Name + "/";
+        var queue = new Queue<string>([target.EnumerateObject().Single(p => p.Name.StartsWith(app, StringComparison.Ordinal)).Name]);
+        while (queue.TryDequeue(out var key))
+        {
+            if (!seen.Add(key) || !target.TryGetProperty(key, out var node)) continue;
+            if (node.TryGetProperty("dependencies", out var children))
+                foreach (var child in children.EnumerateObject())
+                    queue.Enqueue($"{child.Name}/{child.Value.GetString()}");
+        }
+        return seen.Where(k => libraries.TryGetProperty(k, out var lib) && lib.GetProperty("type").GetString() == "package")
+            .Select(k => k[..k.IndexOf('/')]).ToList();
     }
 
     [AvaloniaFact]

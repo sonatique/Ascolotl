@@ -1,6 +1,9 @@
 using System.Reflection;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Platform;
+using AvaloniaEdit;
+using AvaloniaEdit.Document;
 using Ascolotl.Core.Resources;
 
 namespace Ascolotl.App.Views;
@@ -41,6 +44,31 @@ public partial class AboutDialog : Window
         var commit = informational[(plus + 1)..];
         return $"{informational[..plus]} ({commit[..Math.Min(7, commit.Length)]})";
     }
+
+    /// <summary>The licenses of the components Ascolotl ships (tools/notices/make_notices.py).</summary>
+    internal static string ThirdPartyNotices()
+    {
+        using var reader = new StreamReader(AssetLoader.Open(new Uri("avares://Ascolotl/Assets/THIRD-PARTY-NOTICES.txt")));
+        return reader.ReadToEnd();
+    }
+
+    private async void OnNoticesClick(object? sender, RoutedEventArgs e)
+        => await new Window
+        {
+            Title = Strings.AboutNoticesLink,
+            Width = 760,
+            Height = 600,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Content = new TextEditor
+            {
+                Document = new TextDocument(ThirdPartyNotices()),
+                IsReadOnly = true,
+                WordWrap = true,
+                FontFamily = "Cascadia Code,Consolas,monospace",
+                FontSize = 12,
+                Padding = new Avalonia.Thickness(12),
+            },
+        }.ShowDialog(this);
 
     private async void OnSponsorClick(object? sender, RoutedEventArgs e)
         => await Launcher.LaunchUriAsync(AppLinks.Sponsor);

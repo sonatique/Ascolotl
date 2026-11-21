@@ -511,6 +511,7 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="AboutSourceLink" xml:space="preserve"><value>Quellcode auf GitHub</value></data>
   <data name="AboutStoreLink" xml:space="preserve"><value>Microsoft Store</value></data>
   <data name="AboutLicenseLink" xml:space="preserve"><value>Lizenz</value></data>
+  <data name="AboutNoticesLink" xml:space="preserve"><value>Open-Source-Lizenzen</value></data>
   <data name="AboutSponsorNote" xml:space="preserve"><value>Wenn Ascolotl Ihnen Zeit spart, hilft ein kleines Trinkgeld beim Weiterwachsen.</value></data>
   <data name="AboutSponsorLink" xml:space="preserve"><value>Dem Axolotl einen Kaffee spendieren</value></data>
   <data name="MenuReportIssue" xml:space="preserve"><value>Problem oder Vorschlag _melden</value></data>
