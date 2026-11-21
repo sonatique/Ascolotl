@@ -38,6 +38,33 @@ public sealed class OutlineTests
     }
 
     [AvaloniaFact]
+    public void Sidebar_SitsUnderTheToolbar_AndTheTitleRowSpansTheWindow()
+    {
+        var (window, _) = OpenWithOutline(EditorMode.Split);
+        double Top(Visual v) => v.TranslatePoint(default, window)!.Value.Y;
+
+        var toolbar = window.FindControl<Control>("FormatBar")!;
+        Assert.True(Top(window.FindControl<Border>("OutlinePane")!) >= Top(toolbar) + toolbar.Bounds.Height);
+        Assert.True(window.GetVisualDescendants().OfType<Image>().First().TranslatePoint(default, window)!.Value.X < 20,
+            "the app icon starts the title row at the window's left edge");
+    }
+
+    [AvaloniaFact]
+    public void CloseCross_HidesTheSidebar()
+    {
+        var (window, vm) = OpenWithOutline(EditorMode.Split);
+        var close = window.FindControl<Button>("SidebarCloseButton")!;
+        var p = close.TranslatePoint(new Point(close.Bounds.Width / 2, close.Bounds.Height / 2), window)!.Value;
+
+        window.MouseDown(p, MouseButton.Left);
+        window.MouseUp(p, MouseButton.Left);
+        Pump(window);
+
+        Assert.False(vm.ShowOutlinePane);
+        Assert.False(window.FindControl<Border>("OutlinePane")!.IsVisible);
+    }
+
+    [AvaloniaFact]
     public void Wysiwyg_ScrollsThePageToTheSection()
     {
         var (window, _) = OpenWithOutline(EditorMode.Wysiwyg);

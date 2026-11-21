@@ -116,205 +116,218 @@
                 </Grid>
             </Border>
 
-            <!-- Outer Grid: Outline + Document Area -->
-            <Grid Name="OuterGrid">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+            <!-- Title row and toolbar across the window; below them the
+                 sidebar (outline / files) beside the document. -->
+            <DockPanel>
+                <!-- App icon + menu + tabs all share the top row (this row
+                     also replaces the OS title bar). The menu is reparented
+                     in code-behind between a single ☰ item (hamburger) and
+                     inline File/View, driven by the HamburgerMenu setting. -->
+                <Grid DockPanel.Dock="Top"
+                      Height="30"
+                      Background="{DynamicResource ForgeTitleBarBrush}"
+                      ColumnDefinitions="Auto,Auto,*">
+                    <Image Grid.Column="0"
+                           Source="avares://Ascolotl/Assets/app-icon.png"
+                           Width="16" Height="16"
+                           RenderOptions.BitmapInterpolationMode="HighQuality"
+                           VerticalAlignment="Center"
+                           Margin="9,4,3,0" />
+                    <Menu x:Name="MainMenu"
+                          Grid.Column="1"
+                          VerticalAlignment="Stretch"
+                          MinHeight="0"
+                          Margin="0,0,2,0">
+                        <views:AppMenus x:Name="HamburgerMenuItem"
+                                  VerticalAlignment="Stretch"
+                                  Padding="0"
+                                  MinHeight="0"
+                                  ToolTip.Tip="{x:Static res:Strings.Menu}"
+                                  AutomationProperties.Name="{x:Static res:Strings.MainMenuName}">
+                            <MenuItem.Header>
+                                <!-- The menu item top-biases its content; position
+                                     the icon with an explicit top margin (tunable). -->
+                                <Panel Width="32" Height="30">
+                                    <Path Classes="icon"
+                                          Data="{StaticResource IconMenuGeometry}"
+                                          Width="14" Height="14"
+                                          StrokeThickness="1.5"
+                                          VerticalAlignment="Top"
+                                          HorizontalAlignment="Center"
+                                          Margin="0,10.5,0,0"
+                                          Stroke="{DynamicResource ForgeTextBrush}" />
+                                </Panel>
+                            </MenuItem.Header>
+                        </views:AppMenus>
+                        <!-- The menu-bar set is added in code (MainWindow.ApplyMenuMode). -->
+                    </Menu>
 
-                <!-- Sidebar: Outline, plus the project file tree when a folder
-                     is open. The header doubles as the section switcher — two
-                     quiet text tabs, no chrome (screen estate). -->
-                <Border Grid.Column="0"
-                        Name="OutlinePane"
-                        Width="220"
-                        IsVisible="{Binding ShowOutlinePane}"
-                        Background="{DynamicResource ForgeBgDeepBrush}">
-                    <DockPanel>
-                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="12"
-                                    Margin="14,10,12,8">
-                            <TextBlock Name="SidebarOutlineTab"
-                                       Text="{x:Static res:Strings.Outline}"
-                                       FontSize="11"
-                                       Cursor="Hand"
-                                       Foreground="{DynamicResource ForgeTextMutedBrush}" />
-                            <TextBlock Name="SidebarFilesTab"
-                                       Text="{x:Static res:Strings.Files}"
-                                       FontSize="11"
-                                       Cursor="Hand"
-                                       IsVisible="{Binding HasProject}"
-                                       Foreground="{DynamicResource ForgeTextMutedBrush}" />
-                        </StackPanel>
-                        <Panel>
-                            <ListBox Name="OutlineList"
-                                     Classes="outline"
-                                     ItemsSource="{Binding OutlineItems}"
-                                     SelectionMode="Single"
-                                     IsVisible="{Binding !SidebarFilesActive}"
-                                     Padding="0">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate x:DataType="models:OutlineItem">
-                                        <TextBlock Text="{Binding Title}"
-                                                   Margin="{Binding Level, Converter={StaticResource LevelToMarginConverter}}"
-                                                   FontSize="12.5"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   ToolTip.Tip="{Binding Title}" />
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                            <TreeView Name="ProjectTree"
-                                      ItemsSource="{Binding ProjectRoots}"
-                                      IsVisible="{Binding SidebarFilesActive}"
-                                      SelectionMode="Single"
-                                      Padding="4,0,0,0">
-                                <TreeView.ItemTemplate>
-                                    <TreeDataTemplate ItemsSource="{Binding Children}"
-                                                      x:DataType="models:ProjectNode">
-                                        <TextBlock Text="{Binding Name}"
-                                                   FontSize="12.5"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   ToolTip.Tip="{Binding FullPath}" />
-                                    </TreeDataTemplate>
-                                </TreeView.ItemTemplate>
-                            </TreeView>
-                        </Panel>
-                    </DockPanel>
-                </Border>
-
-                <!-- Outline Splitter -->
-                <GridSplitter Grid.Column="1"
-                              Width="4"
-                              IsVisible="{Binding ShowOutlinePane}"
-                              Background="{DynamicResource ForgeBorderBrush}" />
-
-                <!-- Document Area -->
-                <DockPanel Grid.Column="2">
-                    <!-- App icon + menu + tabs all share the top row (this row
-                         also replaces the OS title bar). The menu is reparented
-                         in code-behind between a single ☰ item (hamburger) and
-                         inline File/View, driven by the HamburgerMenu setting. -->
-                    <Grid DockPanel.Dock="Top"
-                          Height="30"
-                          Background="{DynamicResource ForgeTitleBarBrush}"
-                          ColumnDefinitions="Auto,Auto,*">
-                        <Image Grid.Column="0"
-                               Source="avares://Ascolotl/Assets/app-icon.png"
-                               Width="16" Height="16"
-                               RenderOptions.BitmapInterpolationMode="HighQuality"
-                               VerticalAlignment="Center"
-                               Margin="9,4,3,0" />
-                        <Menu x:Name="MainMenu"
-                              Grid.Column="1"
-                              VerticalAlignment="Stretch"
-                              MinHeight="0"
-                              Margin="0,0,2,0">
-                            <views:AppMenus x:Name="HamburgerMenuItem"
-                                      VerticalAlignment="Stretch"
-                                      Padding="0"
-                                      MinHeight="0"
-                                      ToolTip.Tip="{x:Static res:Strings.Menu}"
-                                      AutomationProperties.Name="{x:Static res:Strings.MainMenuName}">
-                                <MenuItem.Header>
-                                    <!-- The menu item top-biases its content; position
-                                         the icon with an explicit top margin (tunable). -->
-                                    <Panel Width="32" Height="30">
-                                        <Path Classes="icon"
-                                              Data="{StaticResource IconMenuGeometry}"
-                                              Width="14" Height="14"
-                                              StrokeThickness="1.5"
-                                              VerticalAlignment="Top"
-                                              HorizontalAlignment="Center"
-                                              Margin="0,10.5,0,0"
-                                              Stroke="{DynamicResource ForgeTextBrush}" />
-                                    </Panel>
-                                </MenuItem.Header>
-                            </views:AppMenus>
-                            <!-- The menu-bar set is added in code (MainWindow.ApplyMenuMode). -->
-                        </Menu>
-
-                        <!-- Fill: tabs (left, horizontally scrollable when they
-                             overflow) + empty draggable space (right, where the
-                             OS caption buttons overlay). The ScrollViewer's right
-                             margin keeps tabs clear of the caption buttons. -->
-                        <Panel x:Name="TitleDragArea" Grid.Column="2" Background="Transparent">
-                        <DockPanel Margin="0,0,150,0">
-                        <!-- Shown when the tabs overflow: lists every open document. -->
-                        <Button x:Name="AllTabsButton"
-                                DockPanel.Dock="Right"
-                                Classes="all-tabs"
-                                IsVisible="False"
-                                Margin="4,0,0,0"
-                                ToolTip.Tip="{x:Static res:Strings.AllOpenDocuments}"
-                                AutomationProperties.Name="{x:Static res:Strings.AllOpenDocuments}">
-                            <Path Classes="icon"
-                                  Data="{StaticResource IconChevronDownGeometry}"
-                                  Width="12" Height="12" />
-                        </Button>
-                        <ScrollViewer x:Name="TabScroll"
-                                      HorizontalAlignment="Left"
-                                      VerticalAlignment="Stretch"
-                                      HorizontalScrollBarVisibility="Hidden"
-                                      VerticalScrollBarVisibility="Disabled">
-                        <TabStrip ItemsSource="{Binding Documents}"
-                                  SelectedItem="{Binding SelectedDocument}"
+                    <!-- Fill: tabs (left, horizontally scrollable when they
+                         overflow) + empty draggable space (right, where the
+                         OS caption buttons overlay). The ScrollViewer's right
+                         margin keeps tabs clear of the caption buttons. -->
+                    <Panel x:Name="TitleDragArea" Grid.Column="2" Background="Transparent">
+                    <DockPanel Margin="0,0,150,0">
+                    <!-- Shown when the tabs overflow: lists every open document. -->
+                    <Button x:Name="AllTabsButton"
+                            DockPanel.Dock="Right"
+                            Classes="all-tabs"
+                            IsVisible="False"
+                            Margin="4,0,0,0"
+                            ToolTip.Tip="{x:Static res:Strings.AllOpenDocuments}"
+                            AutomationProperties.Name="{x:Static res:Strings.AllOpenDocuments}">
+                        <Path Classes="icon"
+                              Data="{StaticResource IconChevronDownGeometry}"
+                              Width="12" Height="12" />
+                    </Button>
+                    <ScrollViewer x:Name="TabScroll"
                                   HorizontalAlignment="Left"
-                                  VerticalAlignment="Bottom"
-                                  Name="DocumentTabStrip">
-                        <TabStrip.ItemTemplate>
-                            <DataTemplate>
-                                <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center"
-                                      ToolTip.Tip="{Binding FilePath, TargetNullValue='Not saved yet'}">
-                                    <TextBlock Grid.Column="0"
-                                               Text="{Binding DisplayName}"
-                                               TextTrimming="CharacterEllipsis"
-                                               VerticalAlignment="Center" />
-                                    <Panel Grid.Column="1" Width="16" Height="16" Margin="8,0,0,0"
-                                           Classes.dirty="{Binding IsDirty}">
-                                        <Ellipse Classes="modified-dot"
-                                                 Width="7" Height="7"
-                                                 Fill="{DynamicResource ForgeAccentBrush}"
-                                                 IsVisible="{Binding IsDirty}"
-                                                 HorizontalAlignment="Center"
-                                                 VerticalAlignment="Center" />
-                                        <Button Classes="close-tab"
-                                                VerticalAlignment="Center"
-                                                HorizontalAlignment="Center"
-                                                ToolTip.Tip="{x:Static res:Strings.CloseTabTooltip}"
-                                                AutomationProperties.Name="{x:Static res:Strings.CloseTabTooltip}"
-                                                Command="{Binding $parent[Window].DataContext.CloseDocumentCommand}"
-                                                CommandParameter="{Binding}">
-                                            <Path Classes="icon"
-                                                  Data="{StaticResource IconCloseGeometry}"
-                                                  Width="9" Height="9"
-                                                  Stroke="{Binding $parent[Button].Foreground}" />
-                                        </Button>
-                                    </Panel>
-                                </Grid>
-                            </DataTemplate>
-                        </TabStrip.ItemTemplate>
-                        </TabStrip>
-                        </ScrollViewer>
-                        </DockPanel>
-                        </Panel>
-                    </Grid>
-
-                    <!-- Formatting toolbar, for the split and WYSIWYG views. -->
-                    <Panel DockPanel.Dock="Top" IsVisible="{Binding !HasNoDocuments}">
-                        <views:FormatToolbar x:Name="FormatBar"
-                                             IsVisible="{Binding !IsSourceMode}"
-                                             Markdown="{Binding SelectedDocument.IsMarkdown, FallbackValue=False}"
-                                             EditOpen="{Binding InPlaceEditOpen}"
-                                             Height="27"
-                                             Background="{DynamicResource ForgeBgBrush}"
-                                             BorderBrush="{DynamicResource ForgeBorderBrush}"
-                                             BorderThickness="0,0,0,1"
-                                             AutomationProperties.Name="{x:Static res:Strings.FormattingToolbar}" />
+                                  VerticalAlignment="Stretch"
+                                  HorizontalScrollBarVisibility="Hidden"
+                                  VerticalScrollBarVisibility="Disabled">
+                    <TabStrip ItemsSource="{Binding Documents}"
+                              SelectedItem="{Binding SelectedDocument}"
+                              HorizontalAlignment="Left"
+                              VerticalAlignment="Bottom"
+                              Name="DocumentTabStrip">
+                    <TabStrip.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center"
+                                  ToolTip.Tip="{Binding FilePath, TargetNullValue='Not saved yet'}">
+                                <TextBlock Grid.Column="0"
+                                           Text="{Binding DisplayName}"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center" />
+                                <Panel Grid.Column="1" Width="16" Height="16" Margin="8,0,0,0"
+                                       Classes.dirty="{Binding IsDirty}">
+                                    <Ellipse Classes="modified-dot"
+                                             Width="7" Height="7"
+                                             Fill="{DynamicResource ForgeAccentBrush}"
+                                             IsVisible="{Binding IsDirty}"
+                                             HorizontalAlignment="Center"
+                                             VerticalAlignment="Center" />
+                                    <Button Classes="close-tab"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Center"
+                                            ToolTip.Tip="{x:Static res:Strings.CloseTabTooltip}"
+                                            AutomationProperties.Name="{x:Static res:Strings.CloseTabTooltip}"
+                                            Command="{Binding $parent[Window].DataContext.CloseDocumentCommand}"
+                                            CommandParameter="{Binding}">
+                                        <Path Classes="icon"
+                                              Data="{StaticResource IconCloseGeometry}"
+                                              Width="9" Height="9"
+                                              Stroke="{Binding $parent[Button].Foreground}" />
+                                    </Button>
+                                </Panel>
+                            </Grid>
+                        </DataTemplate>
+                    </TabStrip.ItemTemplate>
+                    </TabStrip>
+                    </ScrollViewer>
+                    </DockPanel>
                     </Panel>
+                </Grid>
+
+                <!-- Formatting toolbar, for the split and WYSIWYG views. -->
+                <Panel DockPanel.Dock="Top" IsVisible="{Binding !HasNoDocuments}">
+                    <views:FormatToolbar x:Name="FormatBar"
+                                         IsVisible="{Binding !IsSourceMode}"
+                                         Markdown="{Binding SelectedDocument.IsMarkdown, FallbackValue=False}"
+                                         EditOpen="{Binding InPlaceEditOpen}"
+                                         Height="27"
+                                         Background="{DynamicResource ForgeBgBrush}"
+                                         BorderBrush="{DynamicResource ForgeBorderBrush}"
+                                         BorderThickness="0,0,0,1"
+                                         AutomationProperties.Name="{x:Static res:Strings.FormattingToolbar}" />
+                </Panel>
+
+                <Grid Name="OuterGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Sidebar: Outline, plus the project file tree when a folder
+                         is open. The header doubles as the section switcher — two
+                         quiet text tabs, no chrome (screen estate). -->
+                    <Border Grid.Column="0"
+                            Name="OutlinePane"
+                            Width="220"
+                            IsVisible="{Binding ShowOutlinePane}"
+                            Background="{DynamicResource ForgeBgDeepBrush}">
+                        <DockPanel>
+                            <DockPanel DockPanel.Dock="Top" Margin="14,6,8,4">
+                                <Button Name="SidebarCloseButton"
+                                        DockPanel.Dock="Right"
+                                        Classes="close-tab"
+                                        Focusable="False"
+                                        Command="{Binding ToggleOutlinePaneCommand}"
+                                        ToolTip.Tip="{x:Static res:Strings.Close}"
+                                        AutomationProperties.Name="{x:Static res:Strings.Close}">
+                                    <Path Classes="icon"
+                                          Data="{StaticResource IconCloseGeometry}"
+                                          Width="9" Height="9"
+                                          Stroke="{Binding $parent[Button].Foreground}" />
+                                </Button>
+                                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                                    <TextBlock Name="SidebarOutlineTab"
+                                               Text="{x:Static res:Strings.Outline}"
+                                               FontSize="11"
+                                               Cursor="Hand"
+                                               Foreground="{DynamicResource ForgeTextMutedBrush}" />
+                                    <TextBlock Name="SidebarFilesTab"
+                                               Text="{x:Static res:Strings.Files}"
+                                               FontSize="11"
+                                               Cursor="Hand"
+                                               IsVisible="{Binding HasProject}"
+                                               Foreground="{DynamicResource ForgeTextMutedBrush}" />
+                                </StackPanel>
+                            </DockPanel>
+                            <Panel>
+                                <ListBox Name="OutlineList"
+                                         Classes="outline"
+                                         ItemsSource="{Binding OutlineItems}"
+                                         SelectionMode="Single"
+                                         IsVisible="{Binding !SidebarFilesActive}"
+                                         Padding="0">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate x:DataType="models:OutlineItem">
+                                            <TextBlock Text="{Binding Title}"
+                                                       Margin="{Binding Level, Converter={StaticResource LevelToMarginConverter}}"
+                                                       FontSize="12.5"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       ToolTip.Tip="{Binding Title}" />
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                                <TreeView Name="ProjectTree"
+                                          ItemsSource="{Binding ProjectRoots}"
+                                          IsVisible="{Binding SidebarFilesActive}"
+                                          SelectionMode="Single"
+                                          Padding="4,0,0,0">
+                                    <TreeView.ItemTemplate>
+                                        <TreeDataTemplate ItemsSource="{Binding Children}"
+                                                          x:DataType="models:ProjectNode">
+                                            <TextBlock Text="{Binding Name}"
+                                                       FontSize="12.5"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       ToolTip.Tip="{Binding FullPath}" />
+                                        </TreeDataTemplate>
+                                    </TreeView.ItemTemplate>
+                                </TreeView>
+                            </Panel>
+                        </DockPanel>
+                    </Border>
+
+                    <!-- Outline Splitter -->
+                    <GridSplitter Grid.Column="1"
+                                  Width="4"
+                                  IsVisible="{Binding ShowOutlinePane}"
+                                  Background="{DynamicResource ForgeBorderBrush}" />
 
                     <!-- Content Area: Split layout -->
-                    <Grid Name="ContentGrid">
+                    <Grid Name="ContentGrid" Grid.Column="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
@@ -353,8 +366,8 @@
                         <views:EmptyStateView Grid.Column="0" Grid.ColumnSpan="3"
                                               IsVisible="{Binding HasNoDocuments}" />
                     </Grid>
-                </DockPanel>
-            </Grid>
+                </Grid>
+            </DockPanel>
         </DockPanel>
 
         <!-- Command Palette Backdrop (click-outside-to-close) -->

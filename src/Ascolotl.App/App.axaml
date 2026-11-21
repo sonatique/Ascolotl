@@ -219,6 +219,7 @@
             <Setter Property="Opacity" Value="1" />
         </Style>
         <Style Selector="Button.close-tab:pointerover">
+            <Setter Property="Opacity" Value="1" />
             <Setter Property="Background" Value="{DynamicResource ForgeAccentLightBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource ForgeTextBrush}" />
         </Style>
