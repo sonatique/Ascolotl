@@ -306,7 +306,7 @@
                                              IsVisible="{Binding !IsSourceMode}"
                                              Markdown="{Binding SelectedDocument.IsMarkdown, FallbackValue=False}"
                                              EditOpen="{Binding InPlaceEditOpen}"
-                                             Height="30"
+                                             Height="27"
                                              Background="{DynamicResource ForgeBgBrush}"
                                              BorderBrush="{DynamicResource ForgeBorderBrush}"
                                              BorderThickness="0,0,0,1"

@@ -253,7 +253,7 @@
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Width" Value="28" />
-            <Setter Property="Height" Value="24" />
+            <Setter Property="Height" Value="22" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="CornerRadius" Value="5" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -275,7 +275,7 @@
         <Style Selector="Button.format-action">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Height" Value="24" />
+            <Setter Property="Height" Value="22" />
             <Setter Property="Padding" Value="10,0" />
             <Setter Property="FontSize" Value="12" />
             <Setter Property="CornerRadius" Value="5" />
