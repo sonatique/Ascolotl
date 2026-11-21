@@ -6,7 +6,10 @@ using Ascolotl.Tests.Unit.Mocks;
 using Ascolotl.Core.ViewModels;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
+using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
+using Avalonia.Threading;
+using AvaloniaEdit;
 
 namespace Ascolotl.Tests.Unit.Ui;
 
@@ -49,8 +52,12 @@ public sealed class AboutDialogTests
 
         var dialog = new AboutDialog();
         dialog.Show();
-        Assert.True(dialog.FindControl<HyperlinkButton>("NoticesLink")!.IsVisible);
         Assert.DoesNotContain("@", dialog.FindControl<TextBlock>("LegalText")!.Text); // a name, not an email
+        dialog.FindControl<HyperlinkButton>("NoticesLink")!.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Dispatcher.UIThread.RunJobs();
+        var viewer = Assert.Single(dialog.OwnedWindows);
+        Assert.Contains("SkiaSharp", Assert.IsType<TextEditor>(viewer.Content).Text);
+        viewer.Close();
         dialog.Close();
     }
 
