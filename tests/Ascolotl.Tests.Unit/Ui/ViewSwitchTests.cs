@@ -35,6 +35,7 @@ public sealed class ViewSwitchTests
             Assert.Equal([mode], buttons.Where(x => x.Classes.Contains("active")).Select(x => (EditorMode)x.CommandParameter!));
         }
 
+        Assert.Equal(["Ctrl+1", "Ctrl+2", "Ctrl+3"], buttons.Select(b => ToolTip.GetTip(b) as string)); // Source, Split, WYSIWYG
         Click(EditorMode.Source);
         Assert.False(window.FindControl<Control>("FormatBar")!.IsEffectivelyVisible);
         Assert.True(modeSwitch.IsEffectivelyVisible); // still there to leave Source

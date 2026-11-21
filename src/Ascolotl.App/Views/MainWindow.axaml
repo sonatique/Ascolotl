@@ -246,20 +246,17 @@
                                 Focusable="False"
                                 Command="{Binding SetEditorModeCommand}"
                                 CommandParameter="{x:Static models:EditorMode.Source}"
-                                Content="{x:Static res:Strings.ModeSource}"
-                                ToolTip.Tip="Ctrl+1" />
+                                Content="{x:Static res:Strings.ModeSource}" />
                         <Button Classes="format-action view" Classes.active="{Binding IsSplitMode}"
                                 Focusable="False"
                                 Command="{Binding SetEditorModeCommand}"
                                 CommandParameter="{x:Static models:EditorMode.Split}"
-                                Content="{x:Static res:Strings.ModeSplit}"
-                                ToolTip.Tip="Ctrl+2" />
+                                Content="{x:Static res:Strings.ModeSplit}" />
                         <Button Classes="format-action view" Classes.active="{Binding IsWysiwygMode}"
                                 Focusable="False"
                                 Command="{Binding SetEditorModeCommand}"
                                 CommandParameter="{x:Static models:EditorMode.Wysiwyg}"
-                                Content="{x:Static res:Strings.ModeWysiwyg}"
-                                ToolTip.Tip="Ctrl+3" />
+                                Content="{x:Static res:Strings.ModeWysiwyg}" />
                     </StackPanel>
                     <views:FormatToolbar x:Name="FormatBar"
                                          IsVisible="{Binding !IsSourceMode}"

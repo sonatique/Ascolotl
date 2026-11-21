@@ -70,6 +70,10 @@ public partial class MainWindow : Window
         // window, and a double-click toggles maximize (standard gestures).
         TitleDragArea.PointerPressed += OnTitleDragPressed;
 
+        // The view switch shows its shortcuts: key names, nothing to translate.
+        foreach (var (button, n) in ModeSwitch.Children.OfType<Button>().Select((b, i) => (b, i + 1)))
+            ToolTip.SetTip(button, $"Ctrl+{n}");
+
         // A click on an outline row goes to its section.
         OutlineList.Tapped += OnOutlineItemTapped;
 
