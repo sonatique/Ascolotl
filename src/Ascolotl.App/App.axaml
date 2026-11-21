@@ -351,6 +351,9 @@
              keeps its own larger inline FontSize. -->
         <Style Selector="MenuItem">
             <Setter Property="FontSize" Value="12" />
+            <!-- Dropdown rows a little tighter than Fluent's 4/7; the menu bar's
+                 own items keep their padding (Menu > MenuItem). -->
+            <Setter Property="Padding" Value="11,3,11,5" />
         </Style>
         <Style Selector="Menu > MenuItem:pointerover /template/ Border#PART_LayoutRoot">
             <Setter Property="Background" Value="{DynamicResource ForgeHighlightBrush}" />
