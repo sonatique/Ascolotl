@@ -204,7 +204,7 @@
                                Width="16" Height="16"
                                RenderOptions.BitmapInterpolationMode="HighQuality"
                                VerticalAlignment="Center"
-                               Margin="9,0,3,0" />
+                               Margin="9,4,3,0" />
                         <Menu x:Name="MainMenu"
                               Grid.Column="1"
                               VerticalAlignment="Stretch"

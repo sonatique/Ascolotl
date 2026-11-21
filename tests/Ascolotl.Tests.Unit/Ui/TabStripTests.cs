@@ -1,6 +1,7 @@
 using Ascolotl.App.Views;
 using Ascolotl.Core.ViewModels;
 using Ascolotl.Tests.Unit.Mocks;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Avalonia.Threading;
@@ -23,6 +24,25 @@ public sealed class TabStripTests
         window.UpdateLayout();
         Dispatcher.UIThread.RunJobs();
         return (window, vm);
+    }
+
+    [AvaloniaFact]
+    public void MenuBarAndTabText_ShareALine()
+    {
+        var (window, vm) = Open(1);
+        vm.HamburgerMenu = false;
+        Dispatcher.UIThread.RunJobs();
+        window.UpdateLayout();
+        double Top(Visual v) => v.TranslatePoint(default, window)!.Value.Y;
+
+        var file = window.GetVisualDescendants().OfType<MenuItem>()
+            .First(m => m.Header as string == Ascolotl.Core.Resources.Strings.File);
+        var menuText = file.GetVisualDescendants().OfType<TextBlock>().First(t => t.Bounds.Height > 0);
+        var tab = window.GetVisualDescendants().OfType<Avalonia.Controls.Primitives.TabStripItem>().First();
+        var tabText = tab.GetVisualDescendants().OfType<TextBlock>().First(t => t.Bounds.Height > 0);
+
+        Assert.Equal(Top(tabText), Top(menuText), 0.5);
+        Assert.Equal(9, file.Padding.Left); // the menu bar keeps its own padding, not the dropdown rows'
     }
 
     [AvaloniaTheory]

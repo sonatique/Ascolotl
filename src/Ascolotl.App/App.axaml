@@ -145,7 +145,7 @@
             <Setter Property="Foreground" Value="{DynamicResource ForgeTabTextBrush}" />
             <Setter Property="Background" Value="{DynamicResource ForgeTabIdleBrush}" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="14,0,8,0" />
+            <Setter Property="Padding" Value="14,0,8,1" />
             <Setter Property="Height" Value="27" />
             <Setter Property="MinHeight" Value="0" />
             <Setter Property="MaxWidth" Value="240" />
@@ -342,18 +342,21 @@
         <Style Selector="Menu">
             <Setter Property="Background" Value="Transparent" />
         </Style>
-        <Style Selector="Menu > MenuItem">
-            <Setter Property="Padding" Value="9,4" />
-            <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Foreground" Value="{DynamicResource ForgeTextBrush}" />
-        </Style>
         <!-- Compact menu text (top-level + all submenu items). The ☰ glyph
              keeps its own larger inline FontSize. -->
         <Style Selector="MenuItem">
             <Setter Property="FontSize" Value="12" />
-            <!-- Dropdown rows a little tighter than Fluent's 4/7; the menu bar's
-                 own items keep their padding (Menu > MenuItem). -->
+            <!-- Dropdown rows a little tighter than Fluent's 4/7. -->
             <Setter Property="Padding" Value="11,3,11,5" />
+        </Style>
+        <!-- After the MenuItem style: of two matching styles the later wins, so
+             the menu bar's items keep their own padding. Its text sits 2px low,
+             on the same line as the tabs' text (the tabs hang from the bottom of
+             the title bar). -->
+        <Style Selector="Menu > MenuItem">
+            <Setter Property="Padding" Value="9,6,9,2" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Foreground" Value="{DynamicResource ForgeTextBrush}" />
         </Style>
         <Style Selector="Menu > MenuItem:pointerover /template/ Border#PART_LayoutRoot">
             <Setter Property="Background" Value="{DynamicResource ForgeHighlightBrush}" />
