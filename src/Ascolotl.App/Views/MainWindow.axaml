@@ -37,13 +37,13 @@
                 <Grid ColumnDefinitions="Auto,*,Auto" Margin="12,0">
                     <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
                         <TextBlock Text="{Binding StatusText}"
-                                   FontSize="11.5"
+                                   FontSize="11"
                                    Foreground="{DynamicResource ForgeTextMutedBrush}"
                                    VerticalAlignment="Center" />
                         <!-- Authoring-assist syntax hint for the caret context. -->
                         <TextBlock Text="{Binding SelectedDocument.SyntaxHint}"
                                    IsVisible="{Binding SelectedDocument.HasSyntaxHint}"
-                                   FontSize="11.5"
+                                   FontSize="11"
                                    FontStyle="Italic"
                                    Foreground="{DynamicResource ForgeTextMutedBrush}"
                                    VerticalAlignment="Center" />
@@ -56,7 +56,7 @@
                             <Path Classes="icon" Data="{StaticResource IconErrorGeometry}"
                                   Width="13" Height="13" Stroke="#C0241F" />
                             <TextBlock Text="{Binding SelectedDocument.ErrorCount}"
-                                       FontSize="11.5" FontWeight="SemiBold" Foreground="#C0241F"
+                                       FontSize="11" FontWeight="SemiBold" Foreground="#C0241F"
                                        VerticalAlignment="Center" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="4"
@@ -66,7 +66,7 @@
                             <Path Classes="icon" Data="{StaticResource IconWarningGeometry}"
                                   Width="13" Height="13" Stroke="#E5322B" />
                             <TextBlock Text="{Binding SelectedDocument.WarningCount}"
-                                       FontSize="11.5" FontWeight="SemiBold" Foreground="#E5322B"
+                                       FontSize="11" FontWeight="SemiBold" Foreground="#E5322B"
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </StackPanel>
@@ -78,7 +78,7 @@
                                Text="{Binding SelectedDocument.FilePath, FallbackValue=''}"
                                ToolTip.Tip="{Binding SelectedDocument.FilePath, FallbackValue=''}"
                                TextTrimming="PrefixCharacterEllipsis"
-                               FontSize="11.5"
+                               FontSize="11"
                                Margin="16,0,16,0"
                                Foreground="{DynamicResource ForgeTextMutedBrush}"
                                VerticalAlignment="Center" />
@@ -87,28 +87,28 @@
                              (tooltip keeps the bar quiet — screen estate). -->
                         <TextBlock Text="{Binding SelectedDocument.WordCountText}"
                                    ToolTip.Tip="{Binding SelectedDocument.StatsTooltip}"
-                                   FontSize="11.5"
+                                   FontSize="11"
                                    FontFeatures="tnum=1"
                                    Foreground="{DynamicResource ForgeTextMutedBrush}"
                                    VerticalAlignment="Center" />
                         <TextBlock Name="EditorModeText"
                                    Text="{x:Static res:Strings.Split}"
-                                   FontSize="11.5"
+                                   FontSize="11"
                                    Foreground="{DynamicResource ForgeTextMutedBrush}"
                                    VerticalAlignment="Center" />
                         <TextBlock Name="CursorPositionText"
                                    Text="{x:Static res:Strings.Ln1Col1}"
-                                   FontSize="11.5"
+                                   FontSize="11"
                                    FontFeatures="tnum=1"
                                    Foreground="{DynamicResource ForgeTextMutedBrush}"
                                    VerticalAlignment="Center" />
                         <TextBlock Text="{x:Static res:Strings.UTF8}"
-                                   FontSize="11.5"
+                                   FontSize="11"
                                    Foreground="{DynamicResource ForgeTextMutedBrush}"
                                    VerticalAlignment="Center" />
                         <TextBlock Name="ZoomText"
                                    Text="100%"
-                                   FontSize="11.5"
+                                   FontSize="11"
                                    FontFeatures="tnum=1"
                                    Foreground="{DynamicResource ForgeTextMutedBrush}"
                                    VerticalAlignment="Center" />
@@ -137,12 +137,12 @@
                                     Margin="14,10,12,8">
                             <TextBlock Name="SidebarOutlineTab"
                                        Text="{x:Static res:Strings.Outline}"
-                                       FontSize="11.5"
+                                       FontSize="11"
                                        Cursor="Hand"
                                        Foreground="{DynamicResource ForgeTextMutedBrush}" />
                             <TextBlock Name="SidebarFilesTab"
                                        Text="{x:Static res:Strings.Files}"
-                                       FontSize="11.5"
+                                       FontSize="11"
                                        Cursor="Hand"
                                        IsVisible="{Binding HasProject}"
                                        Foreground="{DynamicResource ForgeTextMutedBrush}" />

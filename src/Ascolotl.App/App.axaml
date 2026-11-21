@@ -27,9 +27,9 @@
                     <SolidColorBrush x:Key="ForgeBgBrush" Color="#1F1D1B" />
                     <SolidColorBrush x:Key="ForgeBgSurfaceBrush" Color="#262321" />
                     <SolidColorBrush x:Key="ForgeBorderBrush" Color="#34302C" />
-                    <SolidColorBrush x:Key="ForgeTextBrush" Color="#ECE7E1" />
-                    <SolidColorBrush x:Key="ForgeTextMutedBrush" Color="#968F88" />
-                    <SolidColorBrush x:Key="ForgeTabTextBrush" Color="#BDB6AF" />
+                    <SolidColorBrush x:Key="ForgeTextBrush" Color="#F5F2EE" />
+                    <SolidColorBrush x:Key="ForgeTextMutedBrush" Color="#B2ABA4" />
+                    <SolidColorBrush x:Key="ForgeTabTextBrush" Color="#D7D1CB" />
                     <!-- Title bar: one step off the editor surface, warm neutral. -->
                     <SolidColorBrush x:Key="ForgeTitleBarBrush" Color="#191715" />
                     <SolidColorBrush x:Key="ForgeHighlightBrush" Color="#12FFFFFF" />
@@ -41,9 +41,9 @@
                     <SolidColorBrush x:Key="MenuFlyoutItemBackground" Color="Transparent" />
                     <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPointerOver" Color="#302C29" />
                     <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPressed" Color="#302C29" />
-                    <SolidColorBrush x:Key="MenuFlyoutItemForeground" Color="#ECE7E1" />
-                    <SolidColorBrush x:Key="MenuFlyoutItemForegroundPointerOver" Color="#ECE7E1" />
-                    <SolidColorBrush x:Key="MenuFlyoutItemForegroundPressed" Color="#ECE7E1" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemForeground" Color="#F5F2EE" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemForegroundPointerOver" Color="#F5F2EE" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemForegroundPressed" Color="#F5F2EE" />
                     <SolidColorBrush x:Key="MenuFlyoutItemKeyboardAcceleratorTextForeground" Color="#7F7973" />
                     <SolidColorBrush x:Key="MenuFlyoutItemKeyboardAcceleratorTextForegroundPointerOver" Color="#968F88" />
                     <SolidColorBrush x:Key="MenuFlyoutSubItemChevron" Color="#968F88" />
@@ -71,9 +71,9 @@
                     <SolidColorBrush x:Key="ForgeBgBrush" Color="#FBFAF8" />
                     <SolidColorBrush x:Key="ForgeBgSurfaceBrush" Color="#F4F2EE" />
                     <SolidColorBrush x:Key="ForgeBorderBrush" Color="#E5E1DA" />
-                    <SolidColorBrush x:Key="ForgeTextBrush" Color="#37352F" />
-                    <SolidColorBrush x:Key="ForgeTextMutedBrush" Color="#8F8B84" />
-                    <SolidColorBrush x:Key="ForgeTabTextBrush" Color="#5F5B54" />
+                    <SolidColorBrush x:Key="ForgeTextBrush" Color="#24221F" />
+                    <SolidColorBrush x:Key="ForgeTextMutedBrush" Color="#6B6761" />
+                    <SolidColorBrush x:Key="ForgeTabTextBrush" Color="#3E3B36" />
                     <!-- Title bar: one step off the editor surface, warm neutral. -->
                     <SolidColorBrush x:Key="ForgeTitleBarBrush" Color="#F4F2EE" />
                     <SolidColorBrush x:Key="ForgeHighlightBrush" Color="#0A000000" />
@@ -85,9 +85,9 @@
                     <SolidColorBrush x:Key="MenuFlyoutItemBackground" Color="Transparent" />
                     <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPointerOver" Color="#F1EEE9" />
                     <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPressed" Color="#F1EEE9" />
-                    <SolidColorBrush x:Key="MenuFlyoutItemForeground" Color="#37352F" />
-                    <SolidColorBrush x:Key="MenuFlyoutItemForegroundPointerOver" Color="#37352F" />
-                    <SolidColorBrush x:Key="MenuFlyoutItemForegroundPressed" Color="#37352F" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemForeground" Color="#24221F" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemForegroundPointerOver" Color="#24221F" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemForegroundPressed" Color="#24221F" />
                     <SolidColorBrush x:Key="MenuFlyoutItemKeyboardAcceleratorTextForeground" Color="#A29E97" />
                     <SolidColorBrush x:Key="MenuFlyoutItemKeyboardAcceleratorTextForegroundPointerOver" Color="#8F8B84" />
                     <SolidColorBrush x:Key="MenuFlyoutSubItemChevron" Color="#8F8B84" />
@@ -144,7 +144,7 @@
             <Setter Property="MaxWidth" Value="240" />
             <Setter Property="Margin" Value="0,5,1,0" />
             <Setter Property="VerticalAlignment" Value="Bottom" />
-            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontSize" Value="12" />
             <Setter Property="Transitions">
                 <Transitions>
                     <BrushTransition Property="Background" Duration="0:0:0.14" Easing="CubicEaseOut" />
@@ -343,7 +343,7 @@
         <!-- Compact menu text (top-level + all submenu items). The ☰ glyph
              keeps its own larger inline FontSize. -->
         <Style Selector="MenuItem">
-            <Setter Property="FontSize" Value="12.5" />
+            <Setter Property="FontSize" Value="12" />
         </Style>
         <Style Selector="Menu > MenuItem:pointerover /template/ Border#PART_LayoutRoot">
             <Setter Property="Background" Value="{DynamicResource ForgeHighlightBrush}" />
