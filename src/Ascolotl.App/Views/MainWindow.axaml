@@ -30,7 +30,7 @@
                    Margin="{Binding $parent[Window].OffScreenMargin}">
             <!-- Segmented status bar -->
             <Border DockPanel.Dock="Bottom"
-                    Height="24"
+                    Height="20"
                     Background="{DynamicResource ForgeBgDeepBrush}"
                     BorderBrush="{DynamicResource ForgeBorderBrush}"
                     BorderThickness="0,1,0,0">
