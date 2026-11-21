@@ -6,6 +6,7 @@
              xmlns:res="using:Ascolotl.Core.Resources"
           xmlns:vm="using:Ascolotl.Core.ViewModels"
           xmlns:models="using:Ascolotl.Core.Models"
+          xmlns:views="using:Ascolotl.App.Views"
           x:Class="Ascolotl.App.Views.AppMenus"
           x:DataType="vm:MainWindowViewModel">
     <MenuItem Header="{x:Static res:Strings.File}">
@@ -249,6 +250,13 @@
                   IsEnabled="{Binding HasStyle}" />
     </MenuItem>
     <MenuItem Header="{x:Static res:Strings.Help}">
+        <MenuItem Header="{x:Static res:Strings.MenuReportIssue}"
+                  Tag="{x:Static views:AppLinks.Issues}"
+                  Click="OnLinkClick" />
+        <MenuItem Header="{x:Static res:Strings.AboutSponsorLink}"
+                  Tag="{x:Static views:AppLinks.Sponsor}"
+                  Click="OnLinkClick" />
+        <Separator />
         <MenuItem Header="{x:Static res:Strings.MenuAbout}"
                   Command="{Binding ShowAboutCommand}" />
     </MenuItem>

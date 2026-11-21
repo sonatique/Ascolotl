@@ -513,6 +513,7 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="AboutLicenseLink" xml:space="preserve"><value>License</value></data>
   <data name="AboutSponsorNote" xml:space="preserve"><value>If Ascolotl saves you time, a small tip keeps it growing.</value></data>
   <data name="AboutSponsorLink" xml:space="preserve"><value>Buy the axolotl a coffee</value></data>
+  <data name="MenuReportIssue" xml:space="preserve"><value>_Report an Issue or Suggestion</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Free software under the GNU GPL v3, with no warranty.</value></data>
   <data name="TableRowAbove" xml:space="preserve"><value>Insert row above</value></data>
   <data name="TableRowBelow" xml:space="preserve"><value>Insert row below</value></data>

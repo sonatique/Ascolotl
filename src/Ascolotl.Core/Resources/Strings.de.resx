@@ -513,6 +513,7 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="AboutLicenseLink" xml:space="preserve"><value>Lizenz</value></data>
   <data name="AboutSponsorNote" xml:space="preserve"><value>Wenn Ascolotl Ihnen Zeit spart, hilft ein kleines Trinkgeld beim Weiterwachsen.</value></data>
   <data name="AboutSponsorLink" xml:space="preserve"><value>Dem Axolotl einen Kaffee spendieren</value></data>
+  <data name="MenuReportIssue" xml:space="preserve"><value>Problem oder Vorschlag _melden</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Freie Software unter der GNU GPL v3, ohne Gewährleistung.</value></data>
   <data name="TableRowAbove" xml:space="preserve"><value>Zeile oberhalb einfügen</value></data>
   <data name="TableRowBelow" xml:space="preserve"><value>Zeile unterhalb einfügen</value></data>

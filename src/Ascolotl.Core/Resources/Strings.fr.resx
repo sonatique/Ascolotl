@@ -513,6 +513,7 @@ Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un
   <data name="AboutLicenseLink" xml:space="preserve"><value>Licence</value></data>
   <data name="AboutSponsorNote" xml:space="preserve"><value>Si Ascolotl vous fait gagner du temps, un petit pourboire l'aide à grandir.</value></data>
   <data name="AboutSponsorLink" xml:space="preserve"><value>Offrir un café à l'axolotl</value></data>
+  <data name="MenuReportIssue" xml:space="preserve"><value>_Signaler un problème ou une suggestion</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Logiciel libre sous GNU GPL v3, sans garantie.</value></data>
   <data name="TableRowAbove" xml:space="preserve"><value>Insérer une ligne au-dessus</value></data>
   <data name="TableRowBelow" xml:space="preserve"><value>Insérer une ligne en dessous</value></data>

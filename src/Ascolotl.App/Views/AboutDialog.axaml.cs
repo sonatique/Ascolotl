@@ -11,6 +11,7 @@ public static class AppLinks
     public static readonly Uri Source = new("https://github.com/sonatique/Ascolotl");
     public static readonly Uri License = new("https://github.com/sonatique/Ascolotl/blob/main/LICENSE");
     public static readonly Uri Sponsor = new("https://github.com/sponsors/sonatique");
+    public static readonly Uri Issues = new("https://github.com/sonatique/Ascolotl/issues");
 
     /// <summary>The Store listing: https://apps.microsoft.com/detail/ followed by the
     /// product ID from Partner Center (Product management &gt; Product identity).</summary>

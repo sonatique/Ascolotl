@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 
 namespace Ascolotl.App.Views;
@@ -22,4 +23,12 @@ public partial class AppMenus : MenuItem
     // object, so find the window from the clicked item.
     private void OnExitClick(object? sender, RoutedEventArgs e)
         => (TopLevel.GetTopLevel(sender as Visual) as Window)?.Close();
+
+    // Help links: each item carries its address in Tag.
+    private async void OnLinkClick(object? sender, RoutedEventArgs e)
+    {
+        if ((sender as MenuItem)?.Tag is Uri uri
+            && Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: { } window })
+            await window.Launcher.LaunchUriAsync(uri);
+    }
 }

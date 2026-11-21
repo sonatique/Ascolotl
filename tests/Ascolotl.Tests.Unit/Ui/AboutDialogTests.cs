@@ -34,6 +34,17 @@ public sealed class AboutDialogTests
         dialog.Close();
     }
 
+    [AvaloniaFact]
+    public void HelpMenu_LinksToIssues_AndTheSponsorPage()
+    {
+        var help = new AppMenus().GetLogicalDescendants().OfType<MenuItem>().Single(m => m.Header as string == Strings.Help);
+        var items = help.Items.OfType<MenuItem>().ToList();
+
+        Assert.Equal("https://github.com/sonatique/Ascolotl/issues", AppLinks.Issues.ToString());
+        Assert.Contains(items, m => m.Header as string == Strings.MenuReportIssue && Equals(m.Tag, AppLinks.Issues));
+        Assert.Contains(items, m => m.Header as string == Strings.AboutSponsorLink && Equals(m.Tag, AppLinks.Sponsor));
+    }
+
     [Fact]
     public void AboutCommand_OpensTheDialog_AndIsInThePalette()
     {
