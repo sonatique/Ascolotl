@@ -38,13 +38,18 @@ public sealed class OutlineTests
     }
 
     [AvaloniaFact]
-    public void Sidebar_SitsUnderTheToolbar_AndTheTitleRowSpansTheWindow()
+    public void Sidebar_SitsUnderTheToolbar_OnTheRight_AndTheTitleRowSpansTheWindow()
     {
         var (window, _) = OpenWithOutline(EditorMode.Split);
         double Top(Visual v) => v.TranslatePoint(default, window)!.Value.Y;
+        double Left(Visual v) => v.TranslatePoint(default, window)!.Value.X;
 
         var toolbar = window.FindControl<Control>("FormatBar")!;
-        Assert.True(Top(window.FindControl<Border>("OutlinePane")!) >= Top(toolbar) + toolbar.Bounds.Height);
+        var pane = window.FindControl<Border>("OutlinePane")!;
+        var preview = window.FindControl<Control>("PreviewPane")!;
+        Assert.True(Top(pane) >= Top(toolbar) + toolbar.Bounds.Height);
+        Assert.True(Left(pane) >= Left(preview) + preview.Bounds.Width, "the sidebar is right of the preview");
+        Assert.Equal(window.Bounds.Width, Left(pane) + pane.Bounds.Width, 1);
         Assert.True(window.GetVisualDescendants().OfType<Image>().First().TranslatePoint(default, window)!.Value.X < 20,
             "the app icon starts the title row at the window's left edge");
     }

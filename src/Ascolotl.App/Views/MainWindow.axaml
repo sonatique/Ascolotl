@@ -243,15 +243,62 @@
 
                 <Grid Name="OuterGrid">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
+
+                    <!-- Content Area: Split layout -->
+                    <Grid Name="ContentGrid" Grid.Column="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Source Editor -->
+                        <ContentControl Grid.Column="0"
+                                        Content="{Binding SelectedDocument}"
+                                        Name="EditorPane">
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate x:DataType="vm:DocumentViewModel">
+                                    <views:SourceEditorView />
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
+
+                        <!-- Splitter -->
+                        <GridSplitter Grid.Column="1"
+                                      Width="5"
+                                      Name="Splitter"
+                                      Background="{DynamicResource ForgeBorderBrush}" />
+
+                        <!-- Preview Pane -->
+                        <ContentControl Grid.Column="2"
+                                        Content="{Binding SelectedDocument}"
+                                        Name="PreviewPane">
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate x:DataType="vm:DocumentViewModel">
+                                    <views:PreviewView />
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
+
+                        <!-- Empty state: covers the split when no document is open. -->
+                        <views:EmptyStateView Grid.Column="0" Grid.ColumnSpan="3"
+                                              IsVisible="{Binding HasNoDocuments}" />
+                    </Grid>
+
+                    <!-- Outline Splitter -->
+                    <GridSplitter Grid.Column="1"
+                                  Width="4"
+                                  IsVisible="{Binding ShowOutlinePane}"
+                                  Background="{DynamicResource ForgeBorderBrush}" />
 
                     <!-- Sidebar: Outline, plus the project file tree when a folder
                          is open. The header doubles as the section switcher — two
                          quiet text tabs, no chrome (screen estate). -->
-                    <Border Grid.Column="0"
+                    <Border Grid.Column="2"
                             Name="OutlinePane"
                             Width="220"
                             IsVisible="{Binding ShowOutlinePane}"
@@ -319,53 +366,6 @@
                             </Panel>
                         </DockPanel>
                     </Border>
-
-                    <!-- Outline Splitter -->
-                    <GridSplitter Grid.Column="1"
-                                  Width="4"
-                                  IsVisible="{Binding ShowOutlinePane}"
-                                  Background="{DynamicResource ForgeBorderBrush}" />
-
-                    <!-- Content Area: Split layout -->
-                    <Grid Name="ContentGrid" Grid.Column="2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Source Editor -->
-                        <ContentControl Grid.Column="0"
-                                        Content="{Binding SelectedDocument}"
-                                        Name="EditorPane">
-                            <ContentControl.ContentTemplate>
-                                <DataTemplate x:DataType="vm:DocumentViewModel">
-                                    <views:SourceEditorView />
-                                </DataTemplate>
-                            </ContentControl.ContentTemplate>
-                        </ContentControl>
-
-                        <!-- Splitter -->
-                        <GridSplitter Grid.Column="1"
-                                      Width="5"
-                                      Name="Splitter"
-                                      Background="{DynamicResource ForgeBorderBrush}" />
-
-                        <!-- Preview Pane -->
-                        <ContentControl Grid.Column="2"
-                                        Content="{Binding SelectedDocument}"
-                                        Name="PreviewPane">
-                            <ContentControl.ContentTemplate>
-                                <DataTemplate x:DataType="vm:DocumentViewModel">
-                                    <views:PreviewView />
-                                </DataTemplate>
-                            </ContentControl.ContentTemplate>
-                        </ContentControl>
-
-                        <!-- Empty state: covers the split when no document is open. -->
-                        <views:EmptyStateView Grid.Column="0" Grid.ColumnSpan="3"
-                                              IsVisible="{Binding HasNoDocuments}" />
-                    </Grid>
                 </Grid>
             </DockPanel>
         </DockPanel>
