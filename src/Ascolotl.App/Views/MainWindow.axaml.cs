@@ -73,6 +73,10 @@ public partial class MainWindow : Window
         // A click on an outline row goes to its section.
         OutlineList.Tapped += OnOutlineItemTapped;
 
+        // A sidebar dragged wide stays inside a narrower window, and widens again with it.
+        OuterGrid.SizeChanged += (_, e) => OuterGrid.ColumnDefinitions[2].MaxWidth =
+            Math.Max(120, e.NewSize.Width - OuterGrid.ColumnDefinitions[0].MinWidth - Math.Max(SidebarSplitter.Width, SidebarSplitter.MinWidth));
+
         // Sidebar section switcher + project tree navigation
         SidebarOutlineTab.PointerPressed += (_, _) => SetSidebarFilesActive(false);
         SidebarFilesTab.PointerPressed += (_, _) => SetSidebarFilesActive(true);
@@ -356,7 +360,7 @@ public partial class MainWindow : Window
     /// <summary>The sidebar's width, also while it is hidden; App keeps it across runs.</summary>
     public double SidebarWidth
     {
-        get => OuterGrid.ColumnDefinitions[2].ActualWidth is > 0 and var w ? w : _sidebarWidth.Value;
+        get => GivenWidth(OuterGrid.ColumnDefinitions[2]) is > 0 and var w ? w : _sidebarWidth.Value;
         set
         {
             if (value is not (>= 120 and <= 4000)) return; // the settings file can hold anything
@@ -366,11 +370,14 @@ public partial class MainWindow : Window
         }
     }
 
+    // The width the splitter gave the column, not what a narrow window leaves of it.
+    private static double GivenWidth(ColumnDefinition col) => col.Width.IsAbsolute ? col.Width.Value : col.ActualWidth;
+
     // The column holds the sidebar's width, so the splitter resizes it; a hidden sidebar takes none.
     private void UpdateSidebarColumn()
     {
         var col = OuterGrid.ColumnDefinitions[2];
-        if (col.ActualWidth > 0) _sidebarWidth = new GridLength(col.ActualWidth);
+        if (GivenWidth(col) is > 0 and var w) _sidebarWidth = new GridLength(w);
         var show = _viewModel?.ShowOutlinePane == true;
         col.MinWidth = show ? 120 : 0;
         col.Width = show ? _sidebarWidth : new GridLength(0);

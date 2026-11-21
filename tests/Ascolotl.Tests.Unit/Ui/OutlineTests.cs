@@ -87,6 +87,30 @@ public sealed class OutlineTests
     }
 
     [AvaloniaFact]
+    public void AWideSidebar_StaysInsideANarrowerWindow_AndWidensBackWithIt()
+    {
+        var (window, vm) = OpenWithOutline(EditorMode.Split);
+        double Right(Visual v) => v.TranslatePoint(default, window)!.Value.X + v.Bounds.Width;
+        var pane = window.FindControl<Border>("OutlinePane")!;
+        DragSidebarSplitter(window, 380);
+        Assert.Equal(600, pane.Bounds.Width, 0);
+
+        window.Width = 600;
+        Pump(window);
+        Assert.Equal(window.Bounds.Width, Right(pane), 1); // not cut off at the right
+        Assert.True(window.FindControl<Grid>("ContentGrid")!.Bounds.Width >= 200 - 0.5, "the editor keeps its room");
+        vm.ShowOutlinePane = false;
+        Pump(window);
+        vm.ShowOutlinePane = true;
+        Pump(window);
+        Assert.Equal(window.Bounds.Width, Right(pane), 1); // also when shown again
+
+        window.Width = 1000;
+        Pump(window);
+        Assert.Equal(600, pane.Bounds.Width, 0);
+    }
+
+    [AvaloniaFact]
     public void SidebarWidth_IsSaved_AndRestoredOnTheNextStart()
     {
         var (window, _) = OpenWithOutline(EditorMode.Split);
