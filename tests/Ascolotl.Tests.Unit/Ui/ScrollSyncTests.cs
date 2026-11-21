@@ -37,11 +37,13 @@ public sealed class ScrollSyncTests
     }
 
     [AvaloniaFact]
-    public void Split_SourceScrollsToItsEnd_WithoutBeingPulledBack()
+    public void Split_SourceAndPreviewReachTheirEndsTogether()
     {
-        // The source can scroll below its last line, further than the preview
-        // can follow; pulling it back made it jump at its bottom.
-        var (window, _) = Open(Text, EditorMode.Split);
+        // The source stops at its last line (no empty screen below it), never
+        // jumps back on the way, and the preview arrives at its end with it.
+        // Ends with one long source line that takes screens in the preview, so
+        // the preview can only reach its end by easing there.
+        var (window, _) = Open(Text + string.Join(' ', Enumerable.Repeat("word", 4000)) + "\n", EditorMode.Split);
         var editor = window.GetVisualDescendants().OfType<TextEditor>().First(e => e.IsEffectivelyVisible);
         var source = editor.GetVisualDescendants().OfType<ScrollViewer>().First();
         var preview = Preview(window).FindControl<ScrollViewer>("PreviewScroll")!;
@@ -57,6 +59,10 @@ public sealed class ScrollSyncTests
 
         Assert.False(backward, "the source moved backward");
         Assert.Equal(sourceMax, source.Offset.Y, 1);
+        var textView = editor.TextArea.TextView;
+        var lastLineBottom = textView.GetVisualTopByDocumentLine(editor.Document.LineCount)
+                             + textView.DefaultLineHeight - source.Offset.Y;
+        Assert.InRange(lastLineBottom, source.Viewport.Height - textView.DefaultLineHeight, source.Viewport.Height + 1);
         Assert.Equal(preview.Extent.Height - preview.Viewport.Height, preview.Offset.Y, 1);
     }
 }

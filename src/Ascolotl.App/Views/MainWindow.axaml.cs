@@ -977,9 +977,12 @@ public partial class MainWindow : Window
         if (_cachedPreviewView is not null) _cachedPreviewView.SuppressReverseSync = true;
         try
         {
-            // Once the preview is at its end it stays there while the source
-            // scrolls on; pulling the source back made it jump at its bottom.
-            _cachedPreviewView?.SyncToSourceLine(line, frac, totalLines);
+            // The source stops at its last line, so over its last screen the
+            // preview eases to its own end; once there it stays while the
+            // source scrolls on (pulling the source back made it jump).
+            var toEnd = ScrollSyncCalculator.EaseToEnd(
+                sv.Offset.Y, sv.Extent.Height - sv.Viewport.Height, sv.Viewport.Height);
+            _cachedPreviewView?.SyncToSourceLine(line, frac, totalLines, toEnd);
         }
         finally
         {

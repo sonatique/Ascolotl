@@ -40,6 +40,7 @@ public partial class PreviewView : UserControl
     // doesn't jump to the top when a debounced re-render replaces the content.
     private int _lastSyncLine;
     private double _lastSyncFrac;
+    private double _lastSyncToEnd;
     private int _lastSyncTotal;
 
     // (sourceLine → Y in preview content) — built after each render by walking
@@ -664,7 +665,7 @@ public partial class PreviewView : UserControl
             if (_lastSyncTotal > 0)
             {
                 SuppressReverseSync = true;
-                SyncToSourceLine(_lastSyncLine, _lastSyncFrac, _lastSyncTotal);
+                SyncToSourceLine(_lastSyncLine, _lastSyncFrac, _lastSyncTotal, _lastSyncToEnd);
                 Dispatcher.UIThread.Post(
                     () => SuppressReverseSync = false, DispatcherPriority.Background);
             }
@@ -2038,19 +2039,23 @@ public partial class PreviewView : UserControl
     /// top. When a (line → Y) marker map is available from the last render,
     /// uses linear interpolation between markers; otherwise falls back to a
     /// ratio-based mapping over total source lines. Clamped to the preview's
-    /// scroll range.
+    /// scroll range, then pulled <paramref name="toEnd"/> of the way to its end
+    /// (see <see cref="ScrollSyncCalculator.EaseToEnd"/>).
     /// </summary>
-    public void SyncToSourceLine(int sourceLine, double fraction, int totalSourceLines)
+    public void SyncToSourceLine(int sourceLine, double fraction, int totalSourceLines, double toEnd = 0)
     {
         _lastSyncLine = sourceLine;
         _lastSyncFrac = fraction;
         _lastSyncTotal = totalSourceLines;
+        _lastSyncToEnd = toEnd;
 
         if (totalSourceLines <= 1) return;
 
-        PreviewScroll.Offset = new Vector(PreviewScroll.Offset.X, ScrollSyncCalculator.ComputePreviewOffset(
+        var max = Math.Max(0, PreviewScroll.Extent.Height - PreviewScroll.Viewport.Height);
+        var y = ScrollSyncCalculator.ComputePreviewOffset(
             sourceLine, fraction, _lineMap, PreviewScroll.Extent.Height, PreviewScroll.Viewport.Height,
-            totalSourceLines));
+            totalSourceLines);
+        PreviewScroll.Offset = new Vector(PreviewScroll.Offset.X, y + (max - y) * toEnd);
     }
 
     /// <summary>

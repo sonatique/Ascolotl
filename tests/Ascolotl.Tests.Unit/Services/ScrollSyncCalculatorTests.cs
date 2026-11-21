@@ -622,4 +622,27 @@ public class ScrollSyncCalculatorTests
             Assert.Equal(sourceLine, line);
         }
     }
+
+    // ── Easing the preview to its end over the editor's last screen ──
+
+    [Theory]
+    [InlineData(0, 0)]       // top
+    [InlineData(500, 0)]     // last screen starts at 1000 - 400 = 600
+    [InlineData(600, 0)]
+    [InlineData(800, 0.5)]
+    [InlineData(1000, 1)]    // bottom
+    public void EaseToEnd_RisesOverTheLastScreen(double offset, double expected) =>
+        Assert.Equal(expected, ScrollSyncCalculator.EaseToEnd(offset, editorMaxOffset: 1000, editorViewport: 400), 6);
+
+    [Fact]
+    public void EaseToEnd_ShortDocument_StartsAtZero()
+    {
+        // Less than a screen to scroll: still 0 at the top and 1 at the bottom.
+        Assert.Equal(0, ScrollSyncCalculator.EaseToEnd(0, editorMaxOffset: 100, editorViewport: 400));
+        Assert.Equal(1, ScrollSyncCalculator.EaseToEnd(100, editorMaxOffset: 100, editorViewport: 400));
+    }
+
+    [Fact]
+    public void EaseToEnd_NothingToScroll_IsZero() =>
+        Assert.Equal(0, ScrollSyncCalculator.EaseToEnd(0, editorMaxOffset: 0, editorViewport: 400));
 }

@@ -25,6 +25,7 @@ public partial class SourceEditorView : UserControl
         InitializeComponent();
         SearchPanel.Install(Editor);
         Editor.Options.HighlightCurrentLine = true;
+        Editor.Options.AllowScrollBelowDocument = false; // the last line stops at the bottom
         Editor.TextArea.TextView.BackgroundRenderers.Add(_diagnosticRenderer);
         Editor.TextArea.TextView.PointerMoved += OnEditorPointerMoved;
 

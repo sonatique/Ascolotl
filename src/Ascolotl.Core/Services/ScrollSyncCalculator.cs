@@ -305,4 +305,15 @@ public static class ScrollSyncCalculator
         var lineFloor = (int)effLine;
         return (Math.Clamp(lineFloor, 0, totalLines - 1), effLine - lineFloor);
     }
+
+    /// <summary>
+    /// How far (0 to 1) to pull the preview toward its own end: 0 until the
+    /// editor's last screen, rising to 1 as the editor reaches its bottom, so
+    /// both panes end together although the editor stops at its last line.
+    /// </summary>
+    public static double EaseToEnd(double editorOffset, double editorMaxOffset, double editorViewport)
+    {
+        var window = Math.Min(editorViewport, editorMaxOffset);
+        return window <= 0 ? 0 : Math.Clamp(1 - (editorMaxOffset - editorOffset) / window, 0, 1);
+    }
 }
