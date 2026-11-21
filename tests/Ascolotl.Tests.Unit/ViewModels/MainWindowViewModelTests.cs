@@ -1778,6 +1778,47 @@ public sealed class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public void SaveSession_FrontTabIndexCountsSavedTabsOnly_AndKeepsTopLines()
+    {
+        var vm = CreateViewModel();
+        vm.NewDocumentCommand.Execute(null); // untitled: not saved
+        _fileService.OpenFileResult = ("/tmp/a.adoc", "a");
+        _ = vm.OpenDocumentCommand.ExecuteAsync(null);
+        _fileService.OpenFileResult = ("/tmp/b.adoc", "b");
+        _ = vm.OpenDocumentCommand.ExecuteAsync(null);
+        vm.Documents[2].TopLine = 42;
+        vm.SelectedDocument = vm.Documents[2];
+
+        vm.SaveSession();
+
+        Assert.Equal(1, _sessionStore.LastSavedState!.SelectedIndex);
+        Assert.Equal([0, 42], _sessionStore.LastSavedState.OpenDocuments.Select(d => d.TopLine));
+    }
+
+    [Fact]
+    public async Task RestoreSession_FrontTabByPath_WhenAnEarlierFileIsGone()
+    {
+        var vm = CreateViewModel();
+        var a = CreateTempFile("a");
+        var b = CreateTempFile("b");
+        _sessionStore.NextLoadResult = new SessionState
+        {
+            SelectedIndex = 2,
+            OpenDocuments =
+            [
+                new() { DocumentId = "gone", FilePath = Path.Combine(Path.GetTempPath(), $"gone-{Guid.NewGuid():N}.adoc"), DisplayName = "gone.adoc" },
+                new() { DocumentId = "a", FilePath = a, DisplayName = "a.adoc" },
+                new() { DocumentId = "b", FilePath = b, DisplayName = "b.adoc", TopLine = 7 },
+            ],
+        };
+
+        await vm.RestoreSessionAsync();
+
+        Assert.Equal("b", vm.SelectedDocument!.SourceText);
+        Assert.Equal(7, vm.SelectedDocument.TopLine);
+    }
+
+    [Fact]
     public async Task CheckAndRecover_UsesWriteTimeStoredWithSnapshot()
     {
         var vm = CreateViewModel();

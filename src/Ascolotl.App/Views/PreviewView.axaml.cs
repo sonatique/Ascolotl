@@ -41,6 +41,7 @@ public partial class PreviewView : UserControl
     private int _lastSyncLine;
     private double _lastSyncFrac;
     private double _lastSyncToEnd;
+    private bool _restoreTopLine; // a tab just shown: back to its TopLine after its first layout
     private int _lastSyncTotal;
 
     // (sourceLine → Y in preview content) — built after each render by walking
@@ -317,6 +318,7 @@ public partial class PreviewView : UserControl
         if (_doc is not null)
         {
             _doc.PropertyChanged += OnDocPropertyChanged;
+            _restoreTopLine = true;
             UpdatePreview(_doc);
         }
     }
@@ -669,8 +671,35 @@ public partial class PreviewView : UserControl
                 Dispatcher.UIThread.Post(
                     () => SuppressReverseSync = false, DispatcherPriority.Background);
             }
+
+            // In WYSIWYG a tab just shown goes back to where it was; in the
+            // other modes the source does it and the preview follows.
+            if (_restoreTopLine)
+            {
+                _restoreTopLine = false;
+                if (_mainVm?.EditorMode == EditorMode.Wysiwyg && _doc is not null)
+                {
+                    SuppressReverseSync = true;
+                    if (_doc.TopLine > 0)
+                        ScrollToSourceLine(_doc.TopLine, SourceLineCount(_doc));
+                    else
+                        PreviewScroll.Offset = new Vector(PreviewScroll.Offset.X, 0);
+                    Dispatcher.UIThread.Post(
+                        () => SuppressReverseSync = false, DispatcherPriority.Background);
+                }
+            }
         };
         PreviewScroll.LayoutUpdated += handler;
+    }
+
+    private static int SourceLineCount(DocumentViewModel doc) => doc.SourceText.AsSpan().Count('\n') + 1;
+
+    /// <summary>In WYSIWYG the page is the view: its top line is the tab's position.</summary>
+    private void RememberTopLine()
+    {
+        if (_restoreTopLine || _doc is null || _lineMap is null || _mainVm?.EditorMode != EditorMode.Wysiwyg) return;
+        _doc.TopLine = ScrollSyncCalculator.ComputeSourceLineFromPreviewY(
+            PreviewScroll.Offset.Y, _lineMap, SourceLineCount(_doc), PreviewScroll.Extent.Height).Line;
     }
 
     /// <summary>
@@ -786,7 +815,6 @@ public partial class PreviewView : UserControl
     private void OnPreviewScrollChanged(object? sender, ScrollChangedEventArgs e)
     {
         if (SuppressReverseSync) return;
-        if (_lastSyncTotal <= 1) return;
         // Only respond to a genuine user scroll, i.e. an actual change in the
         // vertical OFFSET. A re-render that grows or shrinks the preview reports
         // an ExtentDelta with no OffsetDelta — reacting to that would reverse-
@@ -795,6 +823,8 @@ public partial class PreviewView : UserControl
         // parse error, the truncated line-map resolves that to the error line).
         if (Math.Abs(e.OffsetDelta.Y) < 0.5)
             return;
+        RememberTopLine();
+        if (_lastSyncTotal <= 1) return;
 
         var (line, frac) = ScrollSyncCalculator.ComputeSourceLineFromPreviewY(
             PreviewScroll.Offset.Y, _lineMap, _lastSyncTotal, PreviewScroll.Extent.Height);

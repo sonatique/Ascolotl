@@ -15,6 +15,9 @@ public partial class DocumentViewModel : ObservableObject
 
     public DateTime? LastKnownWriteTime { get; set; }
 
+    /// <summary>0-based source line at the top of the view, kept per tab and across sessions.</summary>
+    public int TopLine { get; set; }
+
     /// <summary>Encoding the file was read with, reused on save; null = UTF-8 without BOM.</summary>
     public System.Text.Encoding? FileEncoding { get; set; }
 

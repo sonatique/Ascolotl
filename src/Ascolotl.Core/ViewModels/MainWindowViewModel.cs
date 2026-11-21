@@ -389,6 +389,7 @@ public partial class MainWindowViewModel : ObservableObject
             return results;
         });
 
+        var recovered = Documents.Count > 0; // recovered documents (opened first) keep the focus
         foreach (var (sessionDoc, content, writeTime) in loaded)
         {
             // Skip if already open (e.g. from recovery)
@@ -404,15 +405,21 @@ public partial class MainWindowViewModel : ObservableObject
             doc.MarkClean();
             doc.LastKnownWriteTime = writeTime;
             doc.FileEncoding = content.Encoding;
+            doc.TopLine = sessionDoc.TopLine;
 
             Documents.Add(doc);
         }
 
-        // Recovered documents (opened first) keep the focus.
-        if (SelectedDocument is null && Documents.Count > 0)
-            SelectedDocument = session.SelectedIndex >= 0 && session.SelectedIndex < Documents.Count
-                ? Documents[session.SelectedIndex]
-                : Documents[0];
+        // By path: a file that failed to load shifts the indexes. Set even when
+        // a tab is already selected, as the tab strip selects the first one added.
+        if (!recovered && Documents.Count > 0)
+        {
+            var front = session.SelectedIndex >= 0 && session.SelectedIndex < session.OpenDocuments.Count
+                ? session.OpenDocuments[session.SelectedIndex].FilePath
+                : null;
+            SelectedDocument = Documents.FirstOrDefault(
+                d => string.Equals(d.FilePath, front, StringComparison.OrdinalIgnoreCase)) ?? Documents[0];
+        }
 
         if (Documents.Count > 0)
         {
@@ -425,21 +432,21 @@ public partial class MainWindowViewModel : ObservableObject
     {
         if (_sessionStore is null) return;
 
-        var state = new SessionState
-        {
-            SelectedIndex = SelectedDocument is not null ? Documents.IndexOf(SelectedDocument) : 0,
-        };
+        var state = new SessionState();
 
         foreach (var doc in Documents)
         {
             // Only persist file-backed tabs in session
             if (doc.FilePath is null) continue;
 
+            if (doc == SelectedDocument)
+                state.SelectedIndex = state.OpenDocuments.Count;
             state.OpenDocuments.Add(new SessionDocument
             {
                 DocumentId = doc.DocumentId,
                 FilePath = doc.FilePath,
                 DisplayName = doc.DisplayName,
+                TopLine = doc.TopLine,
             });
         }
 

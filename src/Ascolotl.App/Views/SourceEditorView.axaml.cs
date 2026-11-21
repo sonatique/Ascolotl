@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using AvaloniaEdit;
 using AvaloniaEdit.Search;
 using Ascolotl.App.Views.Assist;
@@ -17,6 +18,7 @@ public partial class SourceEditorView : UserControl
 {
     private DocumentViewModel? _currentDocument;
     private bool _updatingFromEditor;
+    private bool _restoringTopLine;
     private readonly DiagnosticRenderer _diagnosticRenderer = new();
     private readonly CompletionController _assist;
 
@@ -28,6 +30,7 @@ public partial class SourceEditorView : UserControl
         Editor.Options.AllowScrollBelowDocument = false; // the last line stops at the bottom
         Editor.TextArea.TextView.BackgroundRenderers.Add(_diagnosticRenderer);
         Editor.TextArea.TextView.PointerMoved += OnEditorPointerMoved;
+        Editor.TextArea.TextView.ScrollOffsetChanged += OnEditorScrolled;
 
         // Authoring assist: completion, snippet tab-stops, smart typing, and the
         // status-bar syntax hint (pushed onto the active document).
@@ -82,11 +85,33 @@ public partial class SourceEditorView : UserControl
         if (_currentDocument is not null)
         {
             _currentDocument.PropertyChanged += OnDocumentPropertyChanged;
+            _restoringTopLine = true; // the text swap scrolls to the top: not the user
             LoadTextFromDocument(_currentDocument);
             ApplyFormat(_currentDocument); // after the text: the syntax hint reads it
             Editor.FontSize = _currentDocument.FontSize;
             UpdateDiagnostics(_currentDocument);
+            RestoreTopLine(_currentDocument);
         }
+    }
+
+    /// <summary>Back to where this tab was (in this session or the last one), once the text is laid out.</summary>
+    private void RestoreTopLine(DocumentViewModel doc) =>
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (!ReferenceEquals(doc, _currentDocument)) return;
+            _restoringTopLine = false;
+            var line = Math.Clamp(doc.TopLine + 1, 1, Editor.Document.LineCount);
+            if (Editor.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault() is { } scroll)
+                scroll.Offset = new Vector(scroll.Offset.X, Editor.TextArea.TextView.GetVisualTopByDocumentLine(line));
+        }, DispatcherPriority.Loaded);
+
+    // The tab's position, for switching back and the next session. WYSIWYG's
+    // hidden editor doesn't speak for the view: the page does (PreviewView).
+    private void OnEditorScrolled(object? sender, EventArgs e)
+    {
+        if (_restoringTopLine || _currentDocument is null || !Editor.IsEffectivelyVisible) return;
+        var textView = Editor.TextArea.TextView;
+        _currentDocument.TopLine = (textView.GetDocumentLineByVisualTop(textView.ScrollOffset.Y)?.LineNumber ?? 1) - 1;
     }
 
     private void ApplyFormat(DocumentViewModel doc)
