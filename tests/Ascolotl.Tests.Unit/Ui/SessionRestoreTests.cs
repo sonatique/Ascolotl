@@ -36,7 +36,8 @@ public sealed class SessionRestoreTests : IDisposable
         return path;
     }
 
-    private async Task<(MainWindow Window, MainWindowViewModel Vm)> Restore(EditorMode mode, int frontTopLine)
+    private async Task<(MainWindow Window, MainWindowViewModel Vm)> Restore(EditorMode mode, int frontTopLine,
+        double frontPageScroll = 0, bool pagePreview = false)
     {
         var sessions = new MockSessionStore
         {
@@ -46,12 +47,13 @@ public sealed class SessionRestoreTests : IDisposable
                 OpenDocuments =
                 [
                     new() { DocumentId = "a", FilePath = TempFile(), DisplayName = "a.adoc", EditorMode = mode },
-                    new() { DocumentId = "b", FilePath = TempFile(), DisplayName = "b.adoc", TopLine = frontTopLine, EditorMode = mode },
+                    new() { DocumentId = "b", FilePath = TempFile(), DisplayName = "b.adoc", TopLine = frontTopLine, EditorMode = mode, PageScroll = frontPageScroll },
                 ],
             },
         };
         var vm = new MainWindowViewModel(new MockFileService(), new MockDialogService(), new MockRenderService(),
-            new MockExportService(), new MockRecoveryStore(), sessions, new MockAppLog(), debounceMs: 0);
+            new MockExportService(), new MockRecoveryStore(), sessions, new MockAppLog(), debounceMs: 0)
+        { PagePreview = pagePreview };
         var window = new MainWindow { DataContext = vm, Width = 1000, Height = 700 };
         window.Show();
         await vm.RestoreSessionAsync();
@@ -105,6 +107,27 @@ public sealed class SessionRestoreTests : IDisposable
 
         Assert.Equal(Section16, EditorTopLine(window));
         Assert.Equal(Section16, vm.Documents[1].TopLine);
+    }
+
+    [AvaloniaFact]
+    public async Task PagePreview_BringsBackThePagePosition_AndKeepsTheOneScrolledTo()
+    {
+        var (window, vm) = await Restore(EditorMode.Wysiwyg, 0, frontPageScroll: 0.5, pagePreview: true);
+        var scroll = Preview(window).FindControl<ScrollViewer>("PreviewScroll")!;
+        double Fraction() => scroll.Offset.Y / scroll.Extent.Height;
+        // The pages are laid out off the UI thread.
+        for (var i = 0; i < 200 && !(scroll.Extent.Height > 2000 && Fraction() > 0.4); i++)
+        {
+            await Task.Delay(20);
+            Pump(window);
+        }
+        Assert.InRange(Fraction(), 0.49, 0.51);
+
+        scroll.Offset = new Vector(0, scroll.Extent.Height / 4); // the reader scrolls up
+        Pump(window);
+        vm.SaveSession();
+
+        Assert.InRange(vm.Documents[1].PageScroll, 0.24, 0.26);
     }
 
     [AvaloniaFact]

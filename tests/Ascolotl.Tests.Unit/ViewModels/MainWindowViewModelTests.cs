@@ -1796,6 +1796,7 @@ public sealed class MainWindowViewModelTests : IDisposable
         _fileService.OpenFileResult = ("/tmp/b.adoc", "b");
         _ = vm.OpenDocumentCommand.ExecuteAsync(null);
         vm.Documents[2].TopLine = 42;
+        vm.Documents[2].PageScroll = 0.3;
         vm.SelectedDocument = vm.Documents[2];
         vm.SetEditorModeCommand.Execute(EditorMode.Split);
 
@@ -1804,6 +1805,7 @@ public sealed class MainWindowViewModelTests : IDisposable
         Assert.Equal(1, _sessionStore.LastSavedState!.SelectedIndex);
         Assert.Equal([0, 42], _sessionStore.LastSavedState.OpenDocuments.Select(d => d.TopLine));
         Assert.Equal([EditorMode.Wysiwyg, EditorMode.Split], _sessionStore.LastSavedState.OpenDocuments.Select(d => d.EditorMode));
+        Assert.Equal([0, 0.3], _sessionStore.LastSavedState.OpenDocuments.Select(d => d.PageScroll));
     }
 
     [Fact]

@@ -407,6 +407,7 @@ public partial class MainWindowViewModel : ObservableObject
             doc.FileEncoding = content.Encoding;
             doc.TopLine = sessionDoc.TopLine;
             if (Enum.IsDefined(sessionDoc.EditorMode)) doc.EditorMode = sessionDoc.EditorMode;
+            if (sessionDoc.PageScroll is > 0 and <= 1) doc.PageScroll = sessionDoc.PageScroll;
 
             Documents.Add(doc);
         }
@@ -449,6 +450,7 @@ public partial class MainWindowViewModel : ObservableObject
                 DisplayName = doc.DisplayName,
                 TopLine = doc.TopLine,
                 EditorMode = doc.EditorMode,
+                PageScroll = doc.PageScroll,
             });
         }
 

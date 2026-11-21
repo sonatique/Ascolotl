@@ -18,6 +18,10 @@ public partial class DocumentViewModel : ObservableObject
     /// <summary>0-based source line at the top of the view, kept per tab and across sessions.</summary>
     public int TopLine { get; set; }
 
+    /// <summary>In Page Preview, how far down the pages the view is: 0 (top) to 1. Pages
+    /// have no line map, so this is the tab's position there.</summary>
+    public double PageScroll { get; set; }
+
     /// <summary>The view this tab shows: each tab keeps its own.</summary>
     public EditorMode EditorMode { get; set; } = EditorMode.Wysiwyg;
 

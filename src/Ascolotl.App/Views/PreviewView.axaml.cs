@@ -799,8 +799,11 @@ public partial class PreviewView : UserControl
         {
             PreviewScroll.LayoutUpdated -= handler!;
             var max = Math.Max(0, PreviewScroll.Extent.Height - PreviewScroll.Viewport.Height);
+            // A tab just shown goes back to its own place in the pages; a re-render keeps the view's.
+            var y = _restoreTopLine ? doc.PageScroll * PreviewScroll.Extent.Height : savedOffset;
+            _restoreTopLine = false;
             SuppressReverseSync = true;
-            PreviewScroll.Offset = new Vector(PreviewScroll.Offset.X, Math.Min(savedOffset, max));
+            PreviewScroll.Offset = new Vector(PreviewScroll.Offset.X, Math.Min(y, max));
             Dispatcher.UIThread.Post(() => SuppressReverseSync = false, DispatcherPriority.Background);
         };
         PreviewScroll.LayoutUpdated += handler;
@@ -823,6 +826,8 @@ public partial class PreviewView : UserControl
         // parse error, the truncated line-map resolves that to the error line).
         if (Math.Abs(e.OffsetDelta.Y) < 0.5)
             return;
+        if (_mainVm?.PagePreview == true && _doc is not null && PreviewScroll.Extent.Height > 0)
+            _doc.PageScroll = Math.Clamp(PreviewScroll.Offset.Y / PreviewScroll.Extent.Height, 0, 1);
         RememberTopLine();
         if (_lastSyncTotal <= 1) return;
 
