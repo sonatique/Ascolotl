@@ -315,6 +315,11 @@
             <Setter Property="Background" Value="{DynamicResource ForgeAccentSubtleBrush}" />
         </Style>
 
+        <!-- File tree rows as tall as the outline's (Fluent's are 32px). -->
+        <Style Selector="TreeView#ProjectTree TreeViewItem">
+            <Setter Property="MinHeight" Value="25" />
+        </Style>
+
         <!-- ── Thin, low-contrast scrollbars; accent on hover ── -->
         <Style Selector="ScrollBar">
             <Setter Property="Background" Value="Transparent" />
