@@ -146,6 +146,7 @@ public partial class PreviewView : UserControl
     public PreviewView()
     {
         InitializeComponent();
+        PreviewHost.Content = _pages;
         DataContextChanged += OnDataContextChanged;
 
         // Hyperlink clicks (1.0.9): suppress the renderer's default
@@ -365,7 +366,10 @@ public partial class PreviewView : UserControl
         CommitBlockEdit();
 
         if (_doc is not null)
+        {
             _doc.PropertyChanged -= OnDocPropertyChanged;
+            KeepShownPage(_doc);
+        }
 
         _doc = DataContext as DocumentViewModel;
 
@@ -389,7 +393,7 @@ public partial class PreviewView : UserControl
         }
         else if (e.PropertyName == nameof(DocumentViewModel.ZoomLevel))
         {
-            if (PreviewHost.Content is LayoutTransformControl host && _mainVm?.PreviewFitWidth != true)
+            if (Shown is LayoutTransformControl host && _mainVm?.PreviewFitWidth != true)
             {
                 var zoom = _doc.ZoomLevel / 100.0;
                 host.LayoutTransform = new ScaleTransform(zoom, zoom);
@@ -421,7 +425,7 @@ public partial class PreviewView : UserControl
 
         if (!doc.LastRenderSucceeded && doc.RenderError is not null)
         {
-            PreviewHost.Content = null;
+            Shown = null;
             StatusOverlay.IsVisible = true;
             StatusText.Text = doc.RenderError;
             return;
@@ -431,7 +435,7 @@ public partial class PreviewView : UserControl
 
         if (doc.RenderedDocument is null)
         {
-            PreviewHost.Content = null;
+            Shown = null;
             return;
         }
 
@@ -474,6 +478,11 @@ public partial class PreviewView : UserControl
                 _frame = frame;
                 _panelSource = doc.RenderedSource;
                 MapAfterNextLayout();
+                return;
+            }
+            if (!reuseBlocks && TakeKeptPage(doc, frame))
+            {
+                MapAfterNextLayout(); // rebuilds the line map and include offsets from the document
                 return;
             }
 
@@ -554,7 +563,7 @@ public partial class PreviewView : UserControl
                 TextElement.SetFontSize(content, style.FontSize * dip);
             }
             // The title sheet is its own page, like the PDF's page 1.
-            PreviewHost.Content = Zoomed(
+            Shown = Zoomed(
                 titlePage is null ? content
                     : new StackPanel { Spacing = 16, Children = { PageEdge(new Border { Child = titlePage }), content } },
                 content.MaxWidth, doc);
@@ -568,10 +577,77 @@ public partial class PreviewView : UserControl
         }
         catch (Exception ex)
         {
-            PreviewHost.Content = null;
+            Shown = null;
             StatusOverlay.IsVisible = true;
             StatusText.Text = string.Format(Strings.StatusPreviewRenderFailed, ex.Message);
         }
+    }
+
+    // Recently shown tabs keep their built page, so switching back skips rebuilding it:
+    // seconds for a long document. The kept pages stay in the tree, hidden beside the
+    // shown one: attaching a page again re-measures all its text, showing it doesn't.
+    // ponytail: up to three pages of controls are held; building only the visible
+    // blocks (virtualizing) is the real fix.
+    private readonly List<KeptPage> _keptPages = [];
+    private readonly Grid _pages = new();
+    private Control? _shown;
+
+    /// <summary>The page in view; any other page in <see cref="_pages"/> is a kept one, hidden.</summary>
+    private Control? Shown
+    {
+        get => _shown;
+        set
+        {
+            if (_shown is not null && _shown != value)
+            {
+                if (_keptPages.Exists(p => p.Content == _shown)) _shown.IsVisible = false;
+                else _pages.Children.Remove(_shown);
+            }
+            _shown = value;
+            if (value is null) return;
+            if (!_pages.Children.Contains(value)) _pages.Children.Add(value);
+            value.IsVisible = true;
+        }
+    }
+
+    private void Forget(KeptPage page)
+    {
+        _keptPages.Remove(page);
+        if (page.Content != _shown) _pages.Children.Remove(page.Content);
+    }
+
+    private sealed record KeptPage(DocumentViewModel Doc, Control Content, Control? Root,
+        List<(Control Vis, BlockLayout Block)> BlockMap, Dictionary<Control, int> LineShift, PreviewFrame Frame, string? Source);
+
+    /// <summary>Holds on to the page shown for <paramref name="doc"/>, which is being switched away from.</summary>
+    private void KeepShownPage(DocumentViewModel doc)
+    {
+        foreach (var stale in _keptPages.FindAll(p => p.Doc == doc || _mainVm?.Documents.Contains(p.Doc) == false))
+            Forget(stale);
+        // A block panel only (not Page Preview), and not one waiting for an applied edit's re-render.
+        if (_shown is null || _frame is null || _panelSource is null || _frozenEditSlot is not null) return;
+        _keptPages.Add(new(doc, _shown, _renderedRoot, _blockMap, _lineShift, _frame, _panelSource));
+        if (_keptPages.Count > 3) Forget(_keptPages[0]);
+    }
+
+    /// <summary>Shows the page kept for <paramref name="doc"/> when it still matches what would be built.</summary>
+    private bool TakeKeptPage(DocumentViewModel doc, PreviewFrame frame)
+    {
+        if (_keptPages.Find(p => p.Doc == doc) is not { } page) return false;
+        if (page.Frame != frame || page.Source != doc.RenderedSource)
+        {
+            Forget(page);
+            return false;
+        }
+        _keptPages.Remove(page);
+        Shown = page.Content;
+        _renderedRoot = page.Root;
+        _blockMap = page.BlockMap;
+        _lineShift = page.LineShift;
+        _frozenEditSlot = null;
+        _frame = frame;
+        _panelSource = page.Source;
+        return true;
     }
 
     /// <summary>What the block panel's surroundings depend on: while a render
@@ -830,7 +906,7 @@ public partial class PreviewView : UserControl
             var pages = await Task.Run(() => new PdfRenderer().LayoutPages(document, pdf));
             if (generation != _renderGeneration)
                 return;
-            PreviewHost.Content = Zoomed(
+            Shown = Zoomed(
                 _pagedRenderer.Render(layout, pages, PageLayoutOptions.FromPdf(pdf)),
                 pdf.PageWidth * PreviewStyle.DipPerPoint, doc);
         }
@@ -838,7 +914,7 @@ public partial class PreviewView : UserControl
         {
             // async void: an escaping exception would end the app.
             if (generation != _renderGeneration) return;
-            PreviewHost.Content = null;
+            Shown = null;
             StatusOverlay.IsVisible = true;
             StatusText.Text = string.Format(Strings.StatusPagePreviewFailed, ex.Message);
             return;

@@ -5,6 +5,7 @@ using Ascolotl.Core.ViewModels;
 using Ascolotl.Tests.Unit.Mocks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.VisualTree;
 using AvaloniaEdit;
@@ -145,6 +146,27 @@ public sealed class SessionRestoreTests : IDisposable
         vm.SaveSession();
 
         Assert.InRange(vm.Documents[1].PageScroll, 0.24, 0.26);
+    }
+
+    [AvaloniaFact]
+    public async Task SwitchingBack_ShowsTheTabsPageWithoutRebuildingIt_AndItStillEdits()
+    {
+        var (window, vm) = await Restore(EditorMode.Wysiwyg, 0);
+        TextBlock Heading() => Preview(window).GetVisualDescendants().OfType<TextBlock>()
+            .First(t => t.IsEffectivelyVisible && (t.Inlines is { Count: > 0 } i ? i.Text : t.Text) == "Section 1");
+        var shown = Heading();
+
+        vm.SelectedDocument = vm.Documents[0];
+        Pump(window);
+        Assert.NotSame(shown, Heading());
+        vm.SelectedDocument = vm.Documents[1];
+        Pump(window);
+
+        Assert.Same(shown, Heading()); // kept, not rebuilt: seconds for a long document
+        Preview(window).FocusPage();
+        window.KeyPress(Avalonia.Input.Key.Enter, Avalonia.Input.RawInputModifiers.None, Avalonia.Input.PhysicalKey.Enter, "\r");
+        Pump(window);
+        Assert.Equal("== Section 1", Preview(window).GetVisualDescendants().OfType<TextEditor>().Single().Text.TrimEnd());
     }
 
     [AvaloniaFact]
