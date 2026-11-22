@@ -983,8 +983,8 @@ public partial class MainWindowViewModel : ObservableObject
 
         try
         {
-            var currentWriteTime = File.GetLastWriteTimeUtc(doc.FilePath);
-            if (currentWriteTime <= doc.LastKnownWriteTime.Value)
+            // Any other time is a change: sync tools, unzip and restores keep older times.
+            if (!File.Exists(doc.FilePath) || File.GetLastWriteTimeUtc(doc.FilePath) == doc.LastKnownWriteTime.Value)
                 return false;
         }
         catch

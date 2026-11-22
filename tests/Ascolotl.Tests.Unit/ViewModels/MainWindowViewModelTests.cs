@@ -1730,6 +1730,23 @@ public sealed class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public async Task Save_FileReplacedByAnOlderCopy_IsAConflict()
+    {
+        var vm = CreateViewModel();
+        var path = CreateTempFile("on disk");
+        _fileService.OpenFileResult = (path, "on disk");
+        await vm.OpenDocumentCommand.ExecuteAsync(null);
+        var doc = vm.SelectedDocument!;
+        doc.SourceText = "my edits";
+        File.SetLastWriteTimeUtc(path, doc.LastKnownWriteTime!.Value.AddHours(-1)); // a sync keeps the other machine's time
+
+        await vm.SaveDocumentCommand.ExecuteAsync(null);
+
+        Assert.Equal(1, _dialogService.ShowFileConflictCalled);
+        Assert.Equal(0, _fileService.SaveFileCalled);
+    }
+
+    [Fact]
     public async Task SaveAll_ConflictAnsweredSaveAs_SavesTheConflictingDocument()
     {
         var vm = CreateViewModel();
