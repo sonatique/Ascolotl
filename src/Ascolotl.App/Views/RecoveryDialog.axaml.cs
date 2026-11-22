@@ -1,11 +1,12 @@
-using Avalonia.Controls;
+using Avalonia.Controls;
 using Ascolotl.Core.Resources;
 
 namespace Ascolotl.App.Views;
 
 public partial class RecoveryDialog : Window
 {
-    public bool ShouldRecover { get; private set; }
+    // Closing the prompt without choosing keeps the work: only Discard deletes it.
+    public bool ShouldRecover { get; private set; } = true;
 
     public RecoveryDialog()
     {
