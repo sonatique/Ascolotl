@@ -138,6 +138,13 @@ install -Dm644 ascolotl.png ~/.local/share/icons/hicolor/256x256/apps/ascolotl.p
 | Toggle outline | `Ctrl+B` |
 | Zoom in / out / reset | `Ctrl++` / `Ctrl+-` / `Ctrl+0` |
 
+## Screen readers
+
+On Windows (Narrator, NVDA) and macOS (VoiceOver), screen readers can read the
+menus, dialogs, tabs and the WYSIWYG page. The source editor gives them its
+whole text at once, not line by line. On Linux, the UI toolkit Ascolotl uses
+(Avalonia 11) has no screen-reader support yet.
+
 ## Build from source
 
 You need the [.NET 10 SDK](https://dotnet.microsoft.com/download).

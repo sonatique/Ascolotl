@@ -56,7 +56,7 @@ public sealed class AboutDialogTests
         dialog.FindControl<HyperlinkButton>("NoticesLink")!.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         Dispatcher.UIThread.RunJobs();
         var viewer = Assert.Single(dialog.OwnedWindows);
-        Assert.Contains("SkiaSharp", Assert.IsType<TextEditor>(viewer.Content).Text);
+        Assert.Contains("SkiaSharp", Assert.IsAssignableFrom<TextEditor>(viewer.Content).Text);
         viewer.Close();
         dialog.Close();
     }

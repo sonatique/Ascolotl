@@ -28,6 +28,7 @@ public partial class SourceEditorView : UserControl
         SearchPanel.Install(Editor);
         Editor.Options.HighlightCurrentLine = true;
         Editor.Options.AllowScrollBelowDocument = false; // the last line stops at the bottom
+        Avalonia.Automation.AutomationProperties.SetName(Editor.TextArea, Ascolotl.Core.Resources.Strings.ModeSource);
         Editor.TextArea.TextView.BackgroundRenderers.Add(_diagnosticRenderer);
         Editor.TextArea.TextView.PointerMoved += OnEditorPointerMoved;
         Editor.TextArea.TextView.ScrollOffsetChanged += OnEditorScrolled;

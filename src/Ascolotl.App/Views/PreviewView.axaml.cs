@@ -1390,7 +1390,7 @@ public partial class PreviewView : UserControl
     /// </summary>
     private (TextEditor Editor, Border Host) BuildInlineEditor(string slice, bool compact)
     {
-        var editor = new TextEditor
+        var editor = new AccessibleTextEditor(Strings.ModeSource)
         {
             Document = new TextDocument(slice),
             FontFamily = new FontFamily("Cascadia Mono,Consolas,Menlo,monospace"),

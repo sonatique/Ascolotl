@@ -60,7 +60,7 @@ public partial class AboutDialog : Window
             Width = 760,
             Height = 600,
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            Content = new TextEditor
+            Content = new AccessibleTextEditor(Strings.AboutNoticesLink)
             {
                 Document = new TextDocument(ThirdPartyNotices()),
                 IsReadOnly = true,

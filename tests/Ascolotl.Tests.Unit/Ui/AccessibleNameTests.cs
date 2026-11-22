@@ -2,6 +2,7 @@ using Ascolotl.App.Views;
 using Ascolotl.Core.Models;
 using Ascolotl.Core.Resources;
 using Avalonia.Automation.Peers;
+using Avalonia.Automation.Provider;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Headless.XUnit;
@@ -24,6 +25,21 @@ public sealed class AccessibleNameTests
         var tab = window.GetVisualDescendants().OfType<TabStripItem>().Single();
 
         Assert.Equal(vm.SelectedDocument.TabTitle, Announced(tab)); // "Untitled 1 *", not the class name
+    }
+
+    [AvaloniaFact]
+    public void TheSourceEditor_IsANamedEditField_HoldingTheText()
+    {
+        var (window, vm) = Open("= Doc\n\nSome words.\n", EditorMode.Split);
+        var area = window.GetVisualDescendants().OfType<AvaloniaEdit.TextEditor>().First().TextArea;
+
+        var peer = ControlAutomationPeer.CreatePeerForElement(area);
+
+        Assert.Equal(AutomationControlType.Edit, peer.GetAutomationControlType());
+        Assert.Equal(Strings.ModeSource, peer.GetName());
+        var value = Assert.IsAssignableFrom<IValueProvider>(peer);
+        Assert.Equal(vm.SelectedDocument!.SourceText, value.Value);
+        Assert.False(value.IsReadOnly);
     }
 
     [AvaloniaFact]
