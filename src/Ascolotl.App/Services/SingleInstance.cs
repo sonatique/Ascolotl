@@ -11,8 +11,11 @@ namespace Ascolotl.App.Services;
 /// </summary>
 public static class SingleInstance
 {
-    private static readonly string Name =
-        $"Ascolotl-{Environment.UserName}-{Process.GetCurrentProcess().SessionId}";
+    // Per sign-in session on Windows. Elsewhere the session id is the terminal's
+    // (POSIX session), which would let every launch from a new terminal run.
+    private static readonly string Name = OperatingSystem.IsWindows()
+        ? $"Ascolotl-{Environment.UserName}-{Process.GetCurrentProcess().SessionId}"
+        : $"Ascolotl-{Environment.UserName}";
 
     // Held for the process lifetime: its existence marks the running instance.
     private static Mutex? _mutex;
@@ -20,7 +23,9 @@ public static class SingleInstance
     /// <summary>True when this process is the first instance.</summary>
     public static bool Claim()
     {
-        _mutex = new Mutex(initiallyOwned: true, Name, out var createdNew);
+        _mutex = new Mutex(initiallyOwned: true, Name,
+            new NamedWaitHandleOptions { CurrentUserOnly = true, CurrentSessionOnly = OperatingSystem.IsWindows() },
+            out var createdNew);
         return createdNew;
     }
 
@@ -29,7 +34,7 @@ public static class SingleInstance
     {
         try
         {
-            using var pipe = new NamedPipeClientStream(".", Name, PipeDirection.Out);
+            using var pipe = new NamedPipeClientStream(".", Name, PipeDirection.Out, PipeOptions.CurrentUserOnly);
             pipe.Connect(timeout: 3000);
             using var writer = new StreamWriter(pipe);
             foreach (var path in paths)
@@ -53,7 +58,7 @@ public static class SingleInstance
             try
             {
                 await using var pipe = new NamedPipeServerStream(
-                    Name, PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+                    Name, PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
                 await pipe.WaitForConnectionAsync();
                 using var reader = new StreamReader(pipe);
                 var paths = new List<string>();
