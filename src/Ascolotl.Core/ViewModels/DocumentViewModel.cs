@@ -173,10 +173,16 @@ public partial class DocumentViewModel : ObservableObject
     /// <summary>Kept current by the preview while a block is open for editing.</summary>
     public OpenBlockEdit? UnappliedEdit { get; set; }
 
-    /// <summary>What a crash snapshot keeps: the source with the open block's typing in it.</summary>
-    public string RecoveryText => UnappliedEdit is { } e && e.Base == SourceText
-        ? SourceText.Remove(e.Start, e.Length).Insert(e.Start, e.Text)
-        : SourceText;
+    /// <summary>What a crash snapshot keeps: the source with the open block's typing in it.
+    /// Read once, as the crash handler may run off the UI thread.</summary>
+    public string RecoveryText
+    {
+        get
+        {
+            var text = SourceText;
+            return UnappliedEdit is { } e && e.Base == text ? text.Remove(e.Start, e.Length).Insert(e.Start, e.Text) : text;
+        }
+    }
 
     /// <summary>What a screen reader announces for the tab.</summary>
     public override string ToString() => TabTitle;

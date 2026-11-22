@@ -59,12 +59,24 @@ public class ExportServiceTests
     [InlineData(@"image::\\attacker\share\a.png[]", @"\\attacker\share\a.png")]
     [InlineData(":imagesdir: //attacker/share\n\nimage::a.png[]", "a.png")]
     [InlineData("image::img/a.png[] image:https://example.com/a.png[]", null)]
+    [InlineData("image::data:image/png;base64,iVBORw0KGgo=[]", null)]
     public void FirstNetworkImage_FindsImagesOnOtherComputers(string body, string? expected)
     {
         var dir = Path.GetTempPath();
         var document = DocumentParser.Parse($"= Doc\n\n{body}\n", false, dir).Document;
 
         Assert.Equal(expected, ExportService.FirstNetworkImage(document, dir));
+    }
+
+    [Fact]
+    public void FirstNetworkImage_ReadsFileUrlsAsPaths()
+    {
+        if (!OperatingSystem.IsWindows())
+            return; // file://server/share is a network path on Windows only
+        var dir = Path.GetTempPath();
+        var document = DocumentParser.Parse("= Doc\n\nimage::file://attacker/share/a.png[]\n", false, dir).Document;
+
+        Assert.Equal("file://attacker/share/a.png", ExportService.FirstNetworkImage(document, dir));
     }
 
     [Theory]

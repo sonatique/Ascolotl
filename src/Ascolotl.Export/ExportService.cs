@@ -128,9 +128,16 @@ public sealed class ExportService : IExportService
     public static string? FirstNetworkImage(DocumentNode document, string? basePath)
     {
         var imagesDir = document.Attributes.GetValueOrDefault("imagesdir", "");
-        return ImageTargets(new LayoutBuilder().Build(document).Children)
-            .FirstOrDefault(t => !t.Contains("://") // a URL is not opened as a path
-                && LocalIncludeReader.IsBlocked(Path.Combine(basePath ?? "", imagesDir, t), basePath));
+        return ImageTargets(new LayoutBuilder().Build(document).Children).FirstOrDefault(target =>
+        {
+            var path = target;
+            if (Uri.TryCreate(target, UriKind.Absolute, out var uri))
+            {
+                if (!uri.IsFile) return false; // a web or data: address is not opened as a path
+                path = uri.LocalPath; // file://server/share is \\server\share
+            }
+            return LocalIncludeReader.IsBlocked(Path.Combine(basePath ?? "", imagesDir, path), basePath);
+        });
     }
 
     // Every layout kind AdocNet 1.0.43 has (see LayoutEquality); the rest hold no images.
