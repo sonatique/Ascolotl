@@ -62,6 +62,8 @@ public class ExportServiceTests
     [InlineData("image::data:image/png;base64,iVBORw0KGgo=[]", null)]
     public void FirstNetworkImage_FindsImagesOnOtherComputers(string body, string? expected)
     {
+        if (body.Contains('\\') && !OperatingSystem.IsWindows())
+            return; // \\server\share is a network path on Windows only
         var dir = Path.GetTempPath();
         var document = DocumentParser.Parse($"= Doc\n\n{body}\n", false, dir).Document;
 
