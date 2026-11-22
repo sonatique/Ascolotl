@@ -400,6 +400,7 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="SaveButton" xml:space="preserve"><value>Save</value></data>
   <data name="SaveConfirmationMessage" xml:space="preserve"><value>Do you want to save changes to "{0}"?</value></data>
   <data name="SaveCouldNotSave" xml:space="preserve"><value>Could not save {0}: {1}</value></data>
+  <data name="SaveTextKeptIn" xml:space="preserve"><value>The file could not be replaced. Your text is kept in {0}.</value></data>
   <data name="SaveFailedTitle" xml:space="preserve"><value>Save Failed</value></data>
   <data name="SearchAsciiDocSyntaxEnterInserts" xml:space="preserve"><value>Search AsciiDoc syntax... (Enter inserts)</value></data>
   <data name="SearchMarkdownSyntaxEnterInserts" xml:space="preserve"><value>Search Markdown syntax... (Enter inserts)</value></data>

@@ -25,6 +25,29 @@ public sealed class TextFileTests : IDisposable
     }
 
     [Fact]
+    public async Task WriteAsync_ReadOnlyFile_IsRefusedOnEverySystem()
+    {
+        var path = Path.Combine(_dir, "doc.adoc");
+        await File.WriteAllTextAsync(path, "original");
+        if (OperatingSystem.IsWindows())
+            File.SetAttributes(path, FileAttributes.ReadOnly);
+        else
+            File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.GroupRead | UnixFileMode.OtherRead);
+        try
+        {
+            // Linux and macOS would let the rename replace it.
+            await Assert.ThrowsAnyAsync<UnauthorizedAccessException>(() => TextFile.WriteAsync(path, "new", TextFile.Utf8NoBom));
+
+            Assert.Equal("original", await File.ReadAllTextAsync(path));
+            Assert.Single(Directory.GetFiles(_dir));
+        }
+        finally
+        {
+            File.SetAttributes(path, FileAttributes.Normal);
+        }
+    }
+
+    [Fact]
     public async Task Utf8WithBom_KeepsBom()
     {
         var original = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes("= Café\n")).ToArray();

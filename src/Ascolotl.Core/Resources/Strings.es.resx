@@ -400,6 +400,7 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="SaveButton" xml:space="preserve"><value>Guardar</value></data>
   <data name="SaveConfirmationMessage" xml:space="preserve"><value>¿Desea guardar los cambios de «{0}»?</value></data>
   <data name="SaveCouldNotSave" xml:space="preserve"><value>No se pudo guardar {0}: {1}</value></data>
+  <data name="SaveTextKeptIn" xml:space="preserve"><value>No se pudo reemplazar el archivo. Su texto se conserva en {0}.</value></data>
   <data name="SaveFailedTitle" xml:space="preserve"><value>Error al guardar</value></data>
   <data name="SearchAsciiDocSyntaxEnterInserts" xml:space="preserve"><value>Buscar en la sintaxis AsciiDoc... (Intro inserta)</value></data>
   <data name="SearchMarkdownSyntaxEnterInserts" xml:space="preserve"><value>Buscar en la sintaxis Markdown... (Intro inserta)</value></data>

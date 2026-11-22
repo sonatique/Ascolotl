@@ -400,6 +400,7 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="SaveButton" xml:space="preserve"><value>Speichern</value></data>
   <data name="SaveConfirmationMessage" xml:space="preserve"><value>Möchten Sie die Änderungen an „{0}“ speichern?</value></data>
   <data name="SaveCouldNotSave" xml:space="preserve"><value>{0} konnte nicht gespeichert werden: {1}</value></data>
+  <data name="SaveTextKeptIn" xml:space="preserve"><value>Die Datei konnte nicht ersetzt werden. Ihr Text liegt in {0}.</value></data>
   <data name="SaveFailedTitle" xml:space="preserve"><value>Speichern fehlgeschlagen</value></data>
   <data name="SearchAsciiDocSyntaxEnterInserts" xml:space="preserve"><value>AsciiDoc-Syntax durchsuchen... (Enter fügt ein)</value></data>
   <data name="SearchMarkdownSyntaxEnterInserts" xml:space="preserve"><value>Markdown-Syntax durchsuchen... (Enter fügt ein)</value></data>

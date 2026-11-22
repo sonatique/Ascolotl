@@ -1,3 +1,4 @@
+using Ascolotl.Core.Resources;
 using System.Text;
 
 namespace Ascolotl.Core.Services;
@@ -79,10 +80,20 @@ public static class TextFile
     {
         path = new FileInfo(path).ResolveLinkTarget(returnFinalTarget: true)?.FullName ?? path;
         var exists = File.Exists(path);
+        // A rename replaces even a read-only file on Linux and macOS; Windows refuses, and so do we.
+        if (exists && !OperatingSystem.IsWindows())
+            using (new FileStream(path, FileMode.Open, FileAccess.Write, FileShare.ReadWrite)) { }
         var temp = $"{path}.{Guid.NewGuid():N}.tmp";
+        (long Length, DateTime Written)? original = null;
         try
         {
-            await File.WriteAllTextAsync(temp, text, encoding);
+            await using (var stream = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None, 4096, useAsync: true))
+            await using (var writer = new StreamWriter(stream, encoding))
+            {
+                await writer.WriteAsync(text);
+                await writer.FlushAsync();
+                stream.Flush(flushToDisk: true); // on disk before it replaces the original
+            }
             if (!exists)
             {
                 File.Move(temp, path);
@@ -90,6 +101,8 @@ public static class TextFile
             }
             if (!OperatingSystem.IsWindows())
                 File.SetUnixFileMode(temp, File.GetUnixFileMode(path));
+            var info = new FileInfo(path);
+            original = (info.Length, info.LastWriteTimeUtc); // read now: FileInfo reads lazily
             try
             {
                 // Replace keeps the original's attributes and Windows permissions.
@@ -102,10 +115,22 @@ public static class TextFile
                 File.Delete(temp);
             }
         }
+        catch (Exception ex) when (original is not null && File.Exists(temp) && !Unchanged(path, original.Value))
+        {
+            // The swap failed midway: the file may be gone or cut short, so the temp file is the only full copy.
+            throw new IOException(string.Format(Strings.SaveTextKeptIn, temp), ex);
+        }
         catch
         {
             try { File.Delete(temp); } catch { /* best effort */ }
             throw;
         }
+    }
+
+    /// <summary>The file still has the length and time it had before the swap.</summary>
+    private static bool Unchanged(string path, (long Length, DateTime Written) before)
+    {
+        var now = new FileInfo(path);
+        return now.Exists && now.Length == before.Length && now.LastWriteTimeUtc == before.Written;
     }
 }

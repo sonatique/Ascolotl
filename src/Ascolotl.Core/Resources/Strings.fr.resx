@@ -400,6 +400,7 @@ Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un
   <data name="SaveButton" xml:space="preserve"><value>Enregistrer</value></data>
   <data name="SaveConfirmationMessage" xml:space="preserve"><value>Voulez-vous enregistrer les modifications de « {0} » ?</value></data>
   <data name="SaveCouldNotSave" xml:space="preserve"><value>Impossible d'enregistrer {0} : {1}</value></data>
+  <data name="SaveTextKeptIn" xml:space="preserve"><value>Le fichier n'a pas pu être remplacé. Votre texte est conservé dans {0}.</value></data>
   <data name="SaveFailedTitle" xml:space="preserve"><value>Échec de l'enregistrement</value></data>
   <data name="SearchAsciiDocSyntaxEnterInserts" xml:space="preserve"><value>Rechercher dans la syntaxe AsciiDoc... (Entrée insère)</value></data>
   <data name="SearchMarkdownSyntaxEnterInserts" xml:space="preserve"><value>Rechercher dans la syntaxe Markdown... (Entrée insère)</value></data>
