@@ -19,7 +19,8 @@ public sealed class MockRenderService : IRenderService
 
     public bool LastMarkdown { get; private set; }
 
-    public Task<RenderResult> RenderAsync(string source, string? basePath, bool markdown, bool standalone, CancellationToken cancellationToken)
+    public Task<RenderResult> RenderAsync(string source, string? basePath, bool markdown, bool standalone, CancellationToken cancellationToken,
+        string? projectFolder = null)
     {
         cancellationToken.ThrowIfCancellationRequested();
         RenderCalled++;

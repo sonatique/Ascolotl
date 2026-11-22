@@ -6,13 +6,18 @@ namespace Ascolotl.Core.Services;
 /// <summary>
 /// Reads <c>include::</c> targets for the preview and every export. Includes
 /// may leave the document's folder (a shared <c>../copyright.adoc</c>, as with
-/// Asciidoctor's CLI), but are never read from another computer (Windows
+/// Asciidoctor's CLI), but not the folder open in the app, else the document's
+/// Git repository, else its own folder: a page in a cloned repository must not
+/// pull <c>~/.ssh/id_rsa</c> into an exported site. Links can't lead out either.
+/// Nor are includes ever read from another computer (Windows
 /// would sign in to it over SMB and hand it the user's NTLM hash) or from a
 /// device file (<c>/dev/zero</c> never ends), and never past
 /// <see cref="MaxChars"/>.
 /// </summary>
-public sealed class LocalIncludeReader(string? baseDirectory) : IIncludeReader
+public sealed class LocalIncludeReader(string? baseDirectory, string? projectFolder = null) : IIncludeReader
 {
+    private readonly string? _root = IncludeRoot(baseDirectory, projectFolder);
+
     public const int MaxChars = 16 * 1024 * 1024;
 
     // One parse's budget: files that each include the next several times would
@@ -23,7 +28,8 @@ public sealed class LocalIncludeReader(string? baseDirectory) : IIncludeReader
     private long _totalChars;
 
     /// <summary>Parse settings shared by the preview and all exports.</summary>
-    public static ParseOptions ParseOptions(string? basePath, IReadOnlyDictionary<string, string>? attributes = null) => new()
+    public static ParseOptions ParseOptions(string? basePath, IReadOnlyDictionary<string, string>? attributes = null,
+        string? projectFolder = null) => new()
     {
         BaseDirectory = basePath,
         IncludeMaxDepth = 10,
@@ -31,16 +37,18 @@ public sealed class LocalIncludeReader(string? baseDirectory) : IIncludeReader
         // Safe mode would also block ../ includes; this reader does the guarding.
         SafeMode = SafeMode.Unsafe,
         Attributes = attributes,
-        IncludeReader = new LocalIncludeReader(basePath),
+        IncludeReader = new LocalIncludeReader(basePath, projectFolder),
     };
 
     // A blocked path "exists" so that Read's refusal reaches the diagnostics.
-    public bool Exists(string path) => IsBlocked(path, baseDirectory) || File.Exists(path);
+    public bool Exists(string path) => IsBlocked(path, baseDirectory) || OutsideRoot(path) || File.Exists(path);
 
     public string Read(string path)
     {
         if (IsBlocked(path, baseDirectory))
             throw new IOException("network and device paths are not read");
+        if (OutsideRoot(path))
+            throw new IOException("files outside the project, repository or document folder are not read");
         if (++_reads > MaxReads || _totalChars > MaxTotalChars)
             throw new IOException($"the document includes more than {MaxReads} files or {MaxTotalChars / (1024 * 1024)} MB in all");
 
@@ -56,6 +64,54 @@ public sealed class LocalIncludeReader(string? baseDirectory) : IIncludeReader
         }
         _totalChars += text.Length;
         return text.ToString();
+    }
+
+    /// <summary>
+    /// The folder includes stay in: the one open in the app when it holds the document,
+    /// else the document's Git repository, else the document's folder. Null for an
+    /// unsaved document, whose includes are the user's own typing.
+    /// </summary>
+    internal static string? IncludeRoot(string? baseDirectory, string? projectFolder)
+    {
+        if (baseDirectory is null) return null;
+        var dir = Path.GetFullPath(baseDirectory);
+        if (projectFolder is not null && IsInside(dir, Path.GetFullPath(projectFolder)))
+            return Path.GetFullPath(projectFolder);
+        for (var d = new DirectoryInfo(dir); d is not null; d = d.Parent)
+            if (Path.Exists(Path.Combine(d.FullName, ".git")))
+                return d.FullName;
+        return dir;
+    }
+
+    private bool OutsideRoot(string path)
+    {
+        if (_root is null) return false;
+        try
+        {
+            var full = Path.GetFullPath(path);
+            if (!IsInside(full, _root)) return true;
+            // A link below the root may lead out of it: check every one on the way down.
+            for (var p = full; p.Length > _root.Length; p = Path.GetDirectoryName(p)!)
+            {
+                FileSystemInfo item = Directory.Exists(p) ? new DirectoryInfo(p) : new FileInfo(p);
+                if (item.LinkTarget is not null && item.ResolveLinkTarget(returnFinalTarget: true) is { } target
+                    && !IsInside(target.FullName, _root))
+                    return true;
+            }
+            return false;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            return true;
+        }
+    }
+
+    private static bool IsInside(string path, string folder)
+    {
+        var comparison = OperatingSystem.IsLinux() ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+        var root = Path.TrimEndingDirectorySeparator(folder); // keeps C:\ and / whole
+        var prefix = Path.EndsInDirectorySeparator(root) ? root : root + Path.DirectorySeparatorChar;
+        return path.Equals(root, comparison) || path.StartsWith(prefix, comparison);
     }
 
     /// <summary>

@@ -21,7 +21,8 @@ public sealed class MockExportService : IExportService
 
     public Task<ExportResult> ExportAsync(
         string source, bool markdown, string? basePath, string outputPath, ExportFormat format,
-        ExportTheme theme, string? stylePath, PdfExportOptions? pdf, CancellationToken cancellationToken)
+        ExportTheme theme, string? stylePath, PdfExportOptions? pdf, CancellationToken cancellationToken,
+        string? projectFolder = null)
     {
         LastPdfTitle = pdf?.Title;
         LastAccessiblePdf = pdf?.Accessible == true;

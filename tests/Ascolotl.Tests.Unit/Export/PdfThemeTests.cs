@@ -224,8 +224,9 @@ public sealed class PdfThemeTests : IDisposable
     }
 
     [Fact]
-    public async Task Export_IncludeOutsideDocumentFolder_IsExpanded()
+    public async Task Export_IncludeOutsideDocumentFolder_WithinItsRepository_IsExpanded()
     {
+        Directory.CreateDirectory(Path.Combine(_root, ".git"));
         await File.WriteAllTextAsync(Path.Combine(_root, "shared.adoc"), "Shared copyright text.\n");
 
         var html = Encoding.UTF8.GetString(

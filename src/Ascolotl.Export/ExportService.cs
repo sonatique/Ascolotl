@@ -23,7 +23,8 @@ public sealed class ExportService : IExportService
 {
     public Task<ExportResult> ExportAsync(
         string source, bool markdown, string? basePath, string outputPath, ExportFormat format,
-        ExportTheme theme, string? stylePath, PdfExportOptions? pdf, CancellationToken cancellationToken)
+        ExportTheme theme, string? stylePath, PdfExportOptions? pdf, CancellationToken cancellationToken,
+        string? projectFolder = null)
     {
         return Task.Run(() =>
         {
@@ -31,8 +32,8 @@ public sealed class ExportService : IExportService
             try
             {
                 // Includes may leave the document's folder (e.g. a shared
-                // ../../copyright.adoc), but not the computer.
-                var parsed = DocumentParser.Parse(source, markdown, basePath);
+                // ../../copyright.adoc), within its project or repository.
+                var parsed = DocumentParser.Parse(source, markdown, basePath, projectFolder: projectFolder);
                 if (FirstNetworkImage(parsed.Document, basePath) is { } image)
                     return ExportResult.Failure(string.Format(Strings.ExportNetworkImage, image));
 

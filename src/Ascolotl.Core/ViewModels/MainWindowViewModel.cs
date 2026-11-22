@@ -1097,7 +1097,7 @@ public partial class MainWindowViewModel : ObservableObject
         // no HTML intermediate and no double-parse against the preview pipeline.
         var result = await _exportService.ExportAsync(
             SelectedDocument.SourceText, SelectedDocument.IsMarkdown, basePath, outputPath, format, ExportTheme.Asciidoctor, stylePath,
-            new PdfExportOptions(pdfTitle, AccessiblePdf), CancellationToken.None);
+            new PdfExportOptions(pdfTitle, AccessiblePdf), CancellationToken.None, ProjectFolderPath);
 
         if (result.IsSuccess)
         {
@@ -1169,7 +1169,7 @@ public partial class MainWindowViewModel : ObservableObject
                     ? PdfTitles.From(SelectedDocument.RenderedDocument?.Title, PdfTitleRule)
                     : null,
                 AccessiblePdf),
-            CancellationToken.None);
+            CancellationToken.None, ProjectFolderPath);
 
         if (result.IsSuccess)
         {
@@ -1547,7 +1547,7 @@ public partial class MainWindowViewModel : ObservableObject
 
             var basePath = doc.BaseDirectory;
 
-            var result = await _renderService.RenderAsync(source, basePath, doc.IsMarkdown, ShowTitleAndToc, ct);
+            var result = await _renderService.RenderAsync(source, basePath, doc.IsMarkdown, ShowTitleAndToc, ct, ProjectFolderPath);
 
             if (ct.IsCancellationRequested)
                 return;

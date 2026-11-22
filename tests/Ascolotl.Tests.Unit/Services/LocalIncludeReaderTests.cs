@@ -28,6 +28,59 @@ public sealed class LocalIncludeReaderTests
     }
 
     [Fact]
+    public void IncludeRoot_IsTheOpenFolder_ElseTheRepository_ElseTheDocumentFolder()
+    {
+        var top = Directory.CreateTempSubdirectory("ascolotl-root-").FullName;
+        try
+        {
+            var docs = Directory.CreateDirectory(Path.Combine(top, "repo", "docs")).FullName;
+            Assert.Equal(docs, LocalIncludeReader.IncludeRoot(docs, null));
+            Directory.CreateDirectory(Path.Combine(top, "repo", ".git"));
+            Assert.Equal(Path.Combine(top, "repo"), LocalIncludeReader.IncludeRoot(docs, null));
+            Assert.Equal(top, LocalIncludeReader.IncludeRoot(docs, top));
+            Assert.Equal(Path.Combine(top, "repo"), LocalIncludeReader.IncludeRoot(docs, Path.GetTempPath() + "elsewhere"));
+            Assert.Null(LocalIncludeReader.IncludeRoot(null, top)); // unsaved: the user's own typing
+        }
+        finally
+        {
+            Directory.Delete(top, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void IncludesLeavingTheRepository_AreNotRead_EvenThroughALink()
+    {
+        var top = Directory.CreateTempSubdirectory("ascolotl-root-").FullName;
+        try
+        {
+            var repo = Directory.CreateDirectory(Path.Combine(top, "repo")).FullName;
+            Directory.CreateDirectory(Path.Combine(repo, ".git"));
+            File.WriteAllText(Path.Combine(top, "secret.txt"), "SECRET");
+            File.WriteAllText(Path.Combine(repo, "shared.adoc"), "SHARED");
+            var source = $"= Doc\n\ninclude::shared.adoc[]\n\ninclude::../secret.txt[]\n\ninclude::{Path.Combine(top, "secret.txt")}[]\n";
+            try
+            {
+                File.CreateSymbolicLink(Path.Combine(repo, "link.txt"), Path.Combine(top, "secret.txt"));
+                source += "\ninclude::link.txt[]\n";
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { } // Windows without Developer Mode
+
+            var parsed = DocumentParser.Parse(source, false, repo);
+            using var output = new MemoryStream();
+            new AdocNet.Converters.Html.HtmlRenderer().Render(parsed.Document, output, new AdocNet.Converters.Html.HtmlRenderOptions());
+            var text = System.Text.Encoding.UTF8.GetString(output.ToArray());
+
+            Assert.Contains("SHARED", text);
+            Assert.DoesNotContain("SECRET", text);
+            Assert.Contains(parsed.Diagnostics, d => d.Message.Contains("outside the project"));
+        }
+        finally
+        {
+            Directory.Delete(top, recursive: true);
+        }
+    }
+
+    [Fact]
     public async Task IncludesThatMultiply_StopAtTheBudget_AndSaySo()
     {
         // f0 includes f1 four times, f1 includes f2 four times...: 4^10 reads unchecked.

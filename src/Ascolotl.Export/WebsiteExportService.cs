@@ -49,8 +49,8 @@ public sealed class WebsiteExportService : IWebsiteExportService
                 var source = await File.ReadAllTextAsync(sourcePath, cancellationToken);
 
                 // Same parse settings as the preview and the other exports:
-                // includes resolve against the document's folder and may leave it.
-                var parsed = DocumentParser.Parse(source, MarkdownFile.Is(rel), Path.GetDirectoryName(sourcePath));
+                // includes resolve against the document's folder and may leave it, within the project.
+                var parsed = DocumentParser.Parse(source, MarkdownFile.Is(rel), Path.GetDirectoryName(sourcePath), projectFolder: projectRoot);
                 if (ExportService.FirstNetworkImage(parsed.Document, Path.GetDirectoryName(sourcePath)) is { } image)
                     return ExportResult.Failure(string.Format(Strings.ExportNetworkImage, image));
 
