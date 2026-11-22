@@ -14,7 +14,7 @@
 #
 # Output: publish/<runtime>/Ascolotl[.exe] -- one self-contained, trimmed, ReadyToRun,
 # compressed executable per platform (native libraries included; no .pdb) -- and release archives
-# in publish/dist/: Ascolotl-<version>-<runtime>.zip (Windows) or .tar.gz (macOS, Linux;
+# in publish/dist/: Ascolotl-<version>-<runtime>.zip (Windows) or .tar.gz (macOS, as Ascolotl.app; Linux;
 # the executable bit is kept).
 
 param(
@@ -74,7 +74,7 @@ foreach ($rid in $Runtimes) {
 
     New-Item -ItemType Directory -Force $DistDir | Out-Null
     $archive = "$DistDir/Ascolotl-$Version-$rid" + $(if ($rid -like "win-*") { ".zip" } else { ".tar.gz" })
-    dotnet run tools/package/pack.cs -- $outDir $archive
+    dotnet run tools/package/pack.cs -- $outDir $archive $Version docs/branding/icons
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Packaging failed for $rid" -ForegroundColor Red
         exit 1

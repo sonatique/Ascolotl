@@ -79,7 +79,7 @@ self-contained, so you don't need to install .NET.
 | Linux (x64) | `Ascolotl-<version>-linux-x64.tar.gz` |
 | Linux (ARM64) | `Ascolotl-<version>-linux-arm64.tar.gz` |
 
-Each archive holds the executable, its license (`LICENSE.txt`) and the licenses
+Each archive holds the app (`Ascolotl.app` on macOS), its license (`LICENSE.txt`) and the licenses
 of the components it includes (`THIRD-PARTY-NOTICES.txt`, also under
 Help → About → Open-Source Licenses).
 
@@ -90,19 +90,20 @@ double-click, use your system's *Open with* once and choose Ascolotl, with
 **Windows:** unzip the archive and run `Ascolotl.exe`. The build is not signed,
 so SmartScreen may warn you the first time. Choose *More info*, then *Run anyway*.
 
-**macOS:** the build is not signed or notarized. Unpack it, clear the quarantine
-flag, then start the app:
+**macOS:** unpack the archive and move `Ascolotl.app` to Applications. The
+build is not signed or notarized, so clear the quarantine flag once before the
+first start:
 
 ```bash
 tar -xzf Ascolotl-1.0.0-osx-arm64.tar.gz
 ```
 
 ```bash
-xattr -d com.apple.quarantine Ascolotl
+xattr -dr com.apple.quarantine Ascolotl.app
 ```
 
 ```bash
-./Ascolotl
+open Ascolotl.app
 ```
 
 **Linux:** needs X11, fontconfig and ICU (`libicu`), which standard desktop

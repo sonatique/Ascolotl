@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using Ascolotl.App.Services;
@@ -57,7 +58,7 @@ public class App : Application
             // running a second instance. Paths received before startup ends
             // wait in pendingPaths.
             List<string>? pendingPaths = [];
-            _ = SingleInstance.ListenAsync(paths => Dispatcher.UIThread.Post(async () =>
+            void Receive(IReadOnlyList<string> paths) => Dispatcher.UIThread.Post(async () =>
             {
                 if (pendingPaths is not null)
                 {
@@ -68,7 +69,15 @@ public class App : Application
                 if (mainWindow.WindowState == WindowState.Minimized)
                     mainWindow.WindowState = WindowState.Normal;
                 mainWindow.Activate();
-            }));
+            });
+            _ = SingleInstance.ListenAsync(Receive);
+            // macOS hands files opened from Finder to the app as an event, not as arguments.
+            if (TryGetFeature(typeof(IActivatableLifetime)) is IActivatableLifetime activatable)
+                activatable.Activated += (_, e) =>
+                {
+                    if (e is FileActivatedEventArgs opened)
+                        Receive(opened.Files.Select(f => f.TryGetLocalPath()).OfType<string>().ToList());
+                };
 
             var fileService = new AvaloniaFileService(mainWindow);
             var dialogService = new AvaloniaDialogService(mainWindow);
