@@ -34,10 +34,38 @@ public static class PdfThemeResolver
                 ? Path.Combine(docDir, dir.Trim())
                 : docDir;
             var path = Path.GetFullPath(Path.Combine(themesDir, fileName));
-            return LocalIncludeReader.IsBlocked(path, docDir) ? null : path;
+            return LocalIncludeReader.IsBlocked(path, docDir) || NamesBlockedPath(path, docDir) ? null : path;
         }
 
         return string.IsNullOrWhiteSpace(defaultThemePath) ? null : defaultThemePath;
+    }
+
+    /// <summary>
+    /// True when the theme file names a network or device path. Loading a theme opens
+    /// its fonts and images, so a document's theme must not reach another computer
+    /// (on Windows that sends the user's sign-in there). Every word of the YAML is
+    /// checked, so no key or quoting slips by (YAML's escaped "\\\\server" starts with \\ too).
+    /// </summary>
+    internal static bool NamesBlockedPath(string themePath, string docDir)
+    {
+        string yaml;
+        try
+        {
+            if (!File.Exists(themePath)) return false; // reported as missing by the caller
+            yaml = File.ReadAllText(themePath);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return false; // the loader reports it
+        }
+
+        foreach (var word in yaml.Split([' ', '\t', '\r', '\n', '"', '\'', '[', ']', ',', '{', '}'], StringSplitOptions.RemoveEmptyEntries))
+        {
+            var path = word.StartsWith("image:", StringComparison.Ordinal) ? word["image:".Length..] : word;
+            if (path.Length > 1 && LocalIncludeReader.IsBlocked(path, docDir))
+                return true;
+        }
+        return false;
     }
 
     /// <summary>

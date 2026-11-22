@@ -258,6 +258,41 @@ public sealed class PdfThemeTests : IDisposable
             Attrs(("pdf-theme", "corp"), ("pdf-themesdir", @"\\attacker\share")), _docDir, null));
     }
 
+    [Theory]
+    [InlineData(@"font:
+  catalog:
+    Corp:
+      normal: \\attacker\share\f.ttf")]
+    [InlineData(@"font:
+  catalog:
+    Corp:
+      normal: ""\\\\attacker\\share\\f.ttf""")] // YAML-escaped in double quotes
+    [InlineData(@"title-page:
+  logo:
+    image: image:\\attacker\share\l.png[]")]
+    [InlineData(@"page:
+  background-image: image:/dev/zero[]")]
+    public void ResolveThemePath_ThemeNamingANetworkPath_IsIgnored(string yaml)
+    {
+        // Loading the theme would open that path: on Windows, a sign-in sent to the attacker.
+        Assert.Null(PdfThemeResolver.ResolveThemePath(Attrs(("pdf-theme", WriteTheme(yaml))), _docDir, null));
+    }
+
+    [Fact]
+    public void ResolveThemePath_ThemeWithLocalPathsAndAUrl_IsUsed()
+    {
+        var theme = WriteTheme(@"# Based on https://docs.asciidoctor.org/pdf-converter/latest/theme/
+font:
+  catalog:
+    Corp:
+      normal: ""C:\\fonts\\corp.ttf""
+      bold: fonts/corp-bold.ttf
+base:
+  font-color: '#333333'");
+
+        Assert.Equal(theme, PdfThemeResolver.ResolveThemePath(Attrs(("pdf-theme", theme)), _docDir, null));
+    }
+
     private string WriteTheme(string yaml)
     {
         var path = Path.Combine(_root, $"t{Guid.NewGuid():N}-theme.yml");

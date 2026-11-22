@@ -90,14 +90,21 @@ public static class PreviewTitlePage
     }
 
     /// <summary>SVG, PNG or JPEG as an Avalonia image; null when missing or unreadable.</summary>
-    private static IImage? LoadImage(string path)
+    internal static IImage? LoadImage(string path)
     {
         try
         {
             if (!File.Exists(path))
                 return null;
             if (path.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
+            {
+                // The SVG library fetches the files and web addresses an SVG links to.
+                // A logo needs none, and a document's theme must not reach out.
+                if (System.Text.RegularExpressions.Regex.IsMatch(File.ReadAllText(path),
+                        @"(href\s*=\s*[""']|url\(\s*[""']?)\s*(?!#|data:)", System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                    return null;
                 return new SvgImage { Source = SvgSource.Load(path, null, null) };
+            }
             return new Bitmap(path);
         }
         catch (Exception)
