@@ -310,18 +310,46 @@ public class App : Application
 
     private static void RestoreWindowBounds(Avalonia.Controls.Window window, AppSettings settings)
     {
-        window.Width = settings.WindowWidth;
-        window.Height = settings.WindowHeight;
-
-        if (settings.WindowMaximized)
+        var saved = new Avalonia.PixelPoint((int)settings.WindowX, (int)settings.WindowY);
+        var screens = window.Screens.All.Select(s => (s.WorkingArea, s.Scaling)).ToList();
+        if (FitToScreen(saved, settings.WindowWidth, settings.WindowHeight, screens) is { } fit)
         {
-            window.WindowState = Avalonia.Controls.WindowState.Maximized;
+            window.Position = fit.Position; // before maximizing, so it maximizes on that screen
+            window.Width = fit.Width;
+            window.Height = fit.Height;
         }
         else
         {
-            window.Position = new Avalonia.PixelPoint(
-                (int)settings.WindowX, (int)settings.WindowY);
+            // Its screen is gone (undocked, or a minimized window's -32000).
+            var primary = window.Screens.Primary ?? window.Screens.All.FirstOrDefault();
+            window.Width = primary is null ? settings.WindowWidth : Math.Min(settings.WindowWidth, primary.WorkingArea.Width / primary.Scaling);
+            window.Height = primary is null ? settings.WindowHeight : Math.Min(settings.WindowHeight, primary.WorkingArea.Height / primary.Scaling);
+            window.WindowStartupLocation = Avalonia.Controls.WindowStartupLocation.CenterScreen;
         }
+
+        if (settings.WindowMaximized)
+            window.WindowState = Avalonia.Controls.WindowState.Maximized;
+    }
+
+    /// <summary>
+    /// The saved bounds moved and shrunk to fit the screen that holds the title bar's
+    /// left end, or null when no screen does. Position and screen areas are in pixels,
+    /// the size in DIPs.
+    /// </summary>
+    internal static (Avalonia.PixelPoint Position, double Width, double Height)? FitToScreen(
+        Avalonia.PixelPoint position, double width, double height, IEnumerable<(Avalonia.PixelRect Area, double Scaling)> screens)
+    {
+        var grip = new Avalonia.PixelPoint(position.X + 40, position.Y + 10);
+        foreach (var (area, scaling) in screens)
+        {
+            if (!area.Contains(grip)) continue;
+            var w = Math.Min(width, area.Width / scaling);
+            var h = Math.Min(height, area.Height / scaling);
+            var x = Math.Clamp(position.X, area.X, Math.Max(area.X, area.Right - (int)Math.Ceiling(w * scaling)));
+            var y = Math.Clamp(position.Y, area.Y, Math.Max(area.Y, area.Bottom - (int)Math.Ceiling(h * scaling)));
+            return (new Avalonia.PixelPoint(x, y), w, h);
+        }
+        return null;
     }
 
     private void SaveWindowBounds(Views.MainWindow window)
@@ -330,6 +358,12 @@ public class App : Application
             return;
 
         _settings.SidebarWidth = window.SidebarWidth;
+        // A minimized window sits off-screen (-32000 on Windows): keep the bounds from before.
+        if (window.WindowState == Avalonia.Controls.WindowState.Minimized)
+        {
+            SaveSettings();
+            return;
+        }
         _settings.WindowMaximized = window.WindowState == Avalonia.Controls.WindowState.Maximized;
 
         if (!_settings.WindowMaximized)
