@@ -142,7 +142,8 @@ public sealed class RecoveryStore : IRecoveryStore
 
     private static string GetDefaultDirectory() =>
         Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            // Create: on a fresh Mac or Linux, ~/.config may not exist yet, and an empty path would be relative.
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create),
             "Ascolotl",
             "recovery");
 }

@@ -55,7 +55,8 @@ public sealed class SessionStore : ISessionStore
 
     private static string GetDefaultPath() =>
         Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            // Create: on a fresh Mac or Linux, ~/.config may not exist yet, and an empty path would be relative.
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create),
             "Ascolotl",
             "session.json");
 }

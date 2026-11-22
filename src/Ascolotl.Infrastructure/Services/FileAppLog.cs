@@ -87,7 +87,8 @@ public sealed class FileAppLog : IAppLog, IDisposable
 
     private static string GetDefaultLogDirectory() =>
         Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            // Create: on a fresh Mac or Linux, ~/.config may not exist yet, and an empty path would be relative.
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create),
             "Ascolotl",
             "logs");
 }
