@@ -15,6 +15,8 @@ using Ascolotl.Core.Services;
 using Ascolotl.Core.ViewModels;
 using Ascolotl.Export;
 using Avalonia;
+using Avalonia.Automation;
+using Avalonia.Automation.Peers;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Controls.Primitives;
@@ -105,6 +107,7 @@ public partial class PreviewView : UserControl
             _openEdit = value;
             if (_mainVm is not null) _mainVm.InPlaceEditOpen = value is not null;
             if (value is null && _doc is not null) _doc.UnappliedEdit = null;
+            ShowPageKeys();
         }
     }
     private bool _rebuildPending;
@@ -126,10 +129,11 @@ public partial class PreviewView : UserControl
     //   EditorStart — the block's (or, for a table cell, the table's) editor
     //                 start offset, used to re-find the block after re-render.
     //   RowIndex/CellIndex — the clicked cell, or -1/-1 for a whole block.
+    //   AtEnd — the caret goes to the block's end (an Up arrow came from below).
     // If the commit changed the source it's consumed after the debounced
     // re-render rebuilds the block map; if the commit was a no-op it's opened
     // immediately against the live map.
-    private (int EditorStart, int RowIndex, int CellIndex)? _pendingReentry;
+    private (int EditorStart, int RowIndex, int CellIndex, bool AtEnd)? _pendingReentry;
 
     /// <summary>When set, the next block edit selects all its text so the first
     /// keystroke replaces it (used for the fresh "New paragraph." placeholder).</summary>
@@ -147,6 +151,9 @@ public partial class PreviewView : UserControl
     {
         InitializeComponent();
         PreviewHost.Content = _pages;
+        _pages.Children.Add(new Canvas { IsHitTestVisible = false, ZIndex = 1, Children = { _outline } });
+        _outline.Bind(Border.BorderBrushProperty, this.GetResourceObservable("ForgeAccentBrush"));
+        PreviewScroll.LayoutUpdated += (_, _) => PlaceOutline();
         DataContextChanged += OnDataContextChanged;
 
         // Hyperlink clicks (1.0.9): suppress the renderer's default
@@ -209,58 +216,179 @@ public partial class PreviewView : UserControl
             RoutingStrategies.Bubble,
             handledEventsToo: true);
 
-        // Without a mouse: the page takes the keyboard (the arrows and Page Up/Down
-        // scroll it), Enter opens the first block in view, and Shift+F10 or the
-        // Menu key opens that block's menu.
-        PreviewScroll.KeyDown += OnPageKeyDown;
+        // Without a mouse: one block at a time takes the keyboard. The arrows move
+        // between blocks, Enter edits one, Shift+F10 or the Menu key opens its menu.
+        // Handled keys too: the scroll viewer takes Page Up/Down first.
+        PreviewScroll.AddHandler(InputElement.KeyDownEvent, OnPageKeyDown, RoutingStrategies.Bubble, handledEventsToo: true);
+        // Tab or F6 gives the page the keyboard: it goes on to a block. A block or
+        // editor removed by a re-render drops it: it comes back once the new blocks are in.
+        PreviewScroll.GotFocus += (_, e) =>
+        {
+            PlaceOutline();
+            if (e.Source != PreviewScroll || e.NavigationMethod == NavigationMethod.Pointer) return;
+            if (e.NavigationMethod == NavigationMethod.Tab) FocusBlock(CurrentInView());
+            else RefocusSoon();
+        };
+        PreviewScroll.PropertyChanged += (_, e) =>
+        {
+            if (e.Property != IsKeyboardFocusWithinProperty) return;
+            ShowPageKeys();
+            PlaceOutline();
+            if (e.NewValue is false) RefocusSoon(); // it checks, once settled, that the keyboard went nowhere
+        };
     }
 
-    /// <summary>Gives the page the keyboard, e.g. once the source it was in is hidden.</summary>
-    public void FocusPage() => PreviewScroll.Focus(NavigationMethod.Tab);
+    // The block the keyboard is on, or returns to after an edit: an index into _blockMap.
+    private int _current;
 
-    private (Control Vis, BlockLayout Block)? FirstBlockInView()
+    /// <summary>The status bar lists the page's keys while it has the keyboard and no block is open.</summary>
+    private void ShowPageKeys()
     {
-        foreach (var (vis, block) in _blockMap)
-            if (vis.TranslatePoint(new Point(0, vis.Bounds.Height), PreviewScroll) is { Y: > 0 })
-                return (vis, block);
-        return null;
+        if (_mainVm is not null) _mainVm.PageHasKeyboard = PreviewScroll.IsKeyboardFocusWithin && _openEdit is null;
+    }
+
+    private IInputElement? FocusedElement => TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement();
+
+    /// <summary>Puts the keyboard back on a block once the page's blocks have settled.</summary>
+    private void RefocusSoon() => Dispatcher.UIThread.Post(() =>
+    {
+        if (_activeEdit is null && FocusedElement is var f && (f is null || f == PreviewScroll || f is Visual { IsEffectivelyVisible: false }))
+            FocusPage();
+    }, DispatcherPriority.Background);
+
+    /// <summary>Gives the page the keyboard, e.g. once the source it was in is hidden.</summary>
+    public void FocusPage()
+    {
+        if (!FocusBlock(CurrentInView()))
+            PreviewScroll.Focus(NavigationMethod.Tab);
+    }
+
+    private bool InView(Control vis) =>
+        vis.TranslatePoint(default, PreviewScroll) is { } top && top.Y < PreviewScroll.Viewport.Height
+        && vis.TranslatePoint(new Point(0, vis.Bounds.Height), PreviewScroll) is { Y: > 0 };
+
+    /// <summary>The current block, or the first one in view once it has scrolled out of sight; -1 when none is.</summary>
+    private int CurrentInView() =>
+        _current < _blockMap.Count && InView(_blockMap[_current].Vis) ? _current : _blockMap.FindIndex(b => InView(b.Vis));
+
+    /// <summary>Puts the keyboard on block <paramref name="i"/>, named for screen readers. False when it can't take it.</summary>
+    private bool FocusBlock(int i, bool bringIntoView = true)
+    {
+        if (i < 0 || i >= _blockMap.Count || _mainVm?.PagePreview == true) return false;
+        var (vis, block) = _blockMap[i];
+        _current = i;
+        vis.Focusable = true;
+        vis.IsTabStop = false; // the page is one Tab stop
+        vis.FocusAdorner = null; // see PlaceOutline
+        vis.Classes.Add(FocusBlockClass);
+        Describe(vis, block);
+        if (!vis.Focus(NavigationMethod.Directional)) return false;
+        if (bringIntoView) vis.BringIntoView();
+        return true;
+    }
+
+    private const string FocusBlockClass = "focus-block";
+
+    // The block the keyboard is on is outlined clear of its text. The outline is drawn in the
+    // page, under the scroll viewer's clip: a focus adorner is clipped to the block itself.
+    private readonly Border _outline = new() { BorderThickness = new Thickness(2), CornerRadius = new CornerRadius(4), IsVisible = false };
+
+    private void PlaceOutline()
+    {
+        if (PreviewScroll.IsKeyboardFocusWithin && FocusedElement is Control vis && vis.Classes.Contains(FocusBlockClass)
+            && vis.TranslatePoint(default, _pages) is { } tl
+            && vis.TranslatePoint(new Point(vis.Bounds.Width, vis.Bounds.Height), _pages) is { } br)
+        {
+            Canvas.SetLeft(_outline, tl.X - 7);
+            Canvas.SetTop(_outline, tl.Y - 4);
+            _outline.Width = br.X - tl.X + 14;
+            _outline.Height = br.Y - tl.Y + 8;
+            _outline.IsVisible = true;
+        }
+        else
+            _outline.IsVisible = false;
+    }
+
+    private void MakeCurrent(Control vis)
+    {
+        if (_blockMap.FindIndex(b => b.Vis == vis) is var i and >= 0) _current = i;
+    }
+
+    private static void Describe(Control vis, BlockLayout block)
+    {
+        AutomationProperties.SetName(vis, block is ImageLayout image ? image.Alt ?? string.Empty
+            : string.Join(" ", vis.GetSelfAndVisualDescendants().OfType<TextBlock>()
+                .Select(t => t.Inlines is { Count: > 0 } inlines ? inlines.Text : t.Text)
+                .Where(s => !string.IsNullOrWhiteSpace(s))));
+        AutomationProperties.SetControlTypeOverride(vis, block is ImageLayout ? AutomationControlType.Image : AutomationControlType.Text);
+        // A panel's peer is hidden from screen readers unless it says it is content.
+        AutomationProperties.SetAccessibilityView(vis, AccessibilityView.Content);
+        // AdocNet counts sections from 1 (==); for a reader the document title (=) is heading 1.
+        if (block is HeadingLayout heading) AutomationProperties.SetHeadingLevel(vis, heading.Level + 1);
     }
 
     private void OnPageKeyDown(object? sender, KeyEventArgs e)
     {
-        if (e.Source != PreviewScroll) return;
+        // The page or one of its blocks: keys typed in the in-place editor are its own.
+        var on = _blockMap.FindIndex(b => b.Vis == e.Source);
+        if (e.Source != PreviewScroll && on < 0) return;
+        var mods = e.KeyModifiers;
+        if (e.Handled)
+        {
+            // The scroll viewer paged: the keyboard follows to a block still in view.
+            if (e.Key is Key.PageUp or Key.PageDown && on >= 0)
+                Dispatcher.UIThread.Post(() => { if (_activeEdit is null) FocusBlock(CurrentInView(), bringIntoView: false); },
+                    DispatcherPriority.Background);
+            return;
+        }
         // Avalonia opens a menu on these keys only for an attached ContextMenu; the page builds one per block.
-        if (e.Key == Key.Apps && e.KeyModifiers == KeyModifiers.None || e.Key == Key.F10 && e.KeyModifiers == KeyModifiers.Shift)
+        if (e.Key == Key.Apps && mods == KeyModifiers.None || e.Key == Key.F10 && mods == KeyModifiers.Shift)
         {
             if (_mainVm?.PagePreview == true) return;
-            if (FirstBlockInView() is { } block)
-                ShowBlockContextMenu(block.Vis, block.Block, null, block.Vis.TranslatePoint(new Point(1, 1), PreviewScroll) ?? default);
+            if (CurrentInView() is var i and >= 0)
+                ShowBlockContextMenu(_blockMap[i].Vis, _blockMap[i].Block, null, _blockMap[i].Vis.TranslatePoint(new Point(1, 1), PreviewScroll) ?? default);
             else
                 ShowInsertMenuAt(default);
             e.Handled = true;
             return;
         }
-        if (e.KeyModifiers != KeyModifiers.None) return;
-        // The scroll viewer pages on its own, but takes no arrows, Home or End.
-        Action? scroll = e.Key switch
+        // Back out of the page: going back through the page itself would hand the keyboard to a block again.
+        if (e.Key == Key.Tab && mods == KeyModifiers.Shift && on >= 0)
         {
-            Key.Up => PreviewScroll.LineUp,
-            Key.Down => PreviewScroll.LineDown,
-            Key.Home => PreviewScroll.ScrollToHome,
-            Key.End => PreviewScroll.ScrollToEnd,
-            _ => null,
-        };
-        if (scroll is not null)
+            e.Handled = KeyboardNavigationHandler.GetNext(PreviewScroll, NavigationDirection.Previous)?.Focus(NavigationMethod.Tab) == true;
+            return;
+        }
+        if (e.Key is Key.Home or Key.End && mods is KeyModifiers.None or KeyModifiers.Control)
         {
-            scroll();
+            if (e.Key == Key.Home) PreviewScroll.ScrollToHome(); else PreviewScroll.ScrollToEnd();
+            FocusBlock(e.Key == Key.Home ? 0 : _blockMap.Count - 1, bringIntoView: false);
             e.Handled = true;
             return;
         }
-        if (e.Key != Key.Enter || _mainVm?.PagePreview == true || FirstBlockInView() is not { } hit)
+        if (mods != KeyModifiers.None) return;
+        if (e.Key is Key.Up or Key.Down)
+        {
+            var step = e.Key == Key.Up ? -1 : 1;
+            if (_blockMap.Count == 0) // Page Preview: no blocks, the arrows scroll
+            {
+                if (step < 0) PreviewScroll.LineUp(); else PreviewScroll.LineDown();
+            }
+            else if (on < 0 || !InView(_blockMap[on].Vis))
+                FocusBlock(CurrentInView());
+            else if (on + step >= 0 && on + step < _blockMap.Count)
+                FocusBlock(on + step);
+            else if (step < 0) PreviewScroll.ScrollToHome(); // up to the title
+            else PreviewScroll.ScrollToEnd();
+            e.Handled = true;
             return;
-        e.Handled = hit.Block is TableLayout table
-            ? EnterCellEditByIndex(hit.Vis, table, 0, 0)
-            : EnterBlockEdit(hit.Vis, hit.Block);
+        }
+        if (e.Key is not (Key.Enter or Key.F2) || _mainVm?.PagePreview == true) return;
+        var hit = CurrentInView();
+        if (hit < 0) return;
+        var (vis, block) = _blockMap[hit];
+        e.Handled = block is TableLayout table
+            ? EnterCellEditByIndex(vis, table, 0, 0)
+            : EnterBlockEdit(vis, block);
     }
 
     /// <summary>
@@ -300,7 +428,7 @@ public partial class PreviewView : UserControl
         // Queue the re-entry first, then make the change: the debounced re-render
         // rebuilds the block map and ConsumeReentry opens the new paragraph.
         _selectAllOnNextEdit = true;
-        _pendingReentry = (0, -1, -1);
+        _pendingReentry = (0, -1, -1, false);
         _doc.SourceText = BlockSnippets.Paragraph;
     }
 
@@ -315,6 +443,7 @@ public partial class PreviewView : UserControl
             _mainVm.FlushPendingEdits = null;
             _mainVm.CancelPendingEdits = null;
             _mainVm.InPlaceEditOpen = false;
+            _mainVm.PageHasKeyboard = false;
         }
         _window = null;
     }
@@ -1123,9 +1252,9 @@ public partial class PreviewView : UserControl
             {
                 if (nextBlock is TableLayout nextTable
                     && TryResolveCell(nextVis, nextTable, src, cp, out _, out var rr, out var ci))
-                    _pendingReentry = (ns, rr, ci);
+                    _pendingReentry = (ns, rr, ci, false);
                 else if (nextBlock is not TableLayout)
-                    _pendingReentry = (ns, -1, -1);
+                    _pendingReentry = (ns, -1, -1, false);
             }
         }
 
@@ -1213,6 +1342,7 @@ public partial class PreviewView : UserControl
         if (_renderedRoot is not Panel panel) return false;
         var index = panel.Children.IndexOf(blockVis);
         if (index < 0) return false;
+        MakeCurrent(blockVis);
 
         var (start, length) = slice.Value;
         var original = text.Substring(start, length);
@@ -1242,6 +1372,7 @@ public partial class PreviewView : UserControl
         Point pointInScroll, int? caretInContent = null)
     {
         if (_doc is null) return false;
+        MakeCurrent(tableVis);
         if (!TryResolveCell(tableVis, table, clickTarget, pointInScroll,
                 out var cellControl, out var r, out var cellIdx))
             return false;
@@ -1255,6 +1386,7 @@ public partial class PreviewView : UserControl
     /// just-clicked cell after the table re-renders.</summary>
     private bool EnterCellEditByIndex(Control tableVis, TableLayout table, int rowIndex, int cellIndex)
     {
+        MakeCurrent(tableVis);
         var grid = tableVis as Grid ?? FindDescendantGrid(tableVis);
         if (grid is null) return false;
 
@@ -1376,6 +1508,7 @@ public partial class PreviewView : UserControl
         // handler ever sees the key. LostFocus bubbles, so the host hears it
         // from the TextArea.
         host.AddHandler(InputElement.KeyDownEvent, OnBlockEditKeyDown, RoutingStrategies.Tunnel);
+        host.AddHandler(InputElement.KeyDownEvent, OnBlockEditArrow, RoutingStrategies.Bubble, handledEventsToo: true);
         host.LostFocus += OnBlockEditLostFocus;
         editor.Focus();
 
@@ -1501,15 +1634,44 @@ public partial class PreviewView : UserControl
         if (e.Key == Key.Escape)
         {
             CancelBlockEdit();
-            FocusPage(); // the editor is gone: the keyboard stays on the page
+            FocusBlock(_current); // the editor is gone: the keyboard stays on its block
             e.Handled = true;
         }
         else if (e.Key == Key.Enter && e.KeyModifiers.HasFlag(KeyModifiers.Control))
         {
             CommitBlockEdit();
-            FocusPage();
+            FocusBlock(_current); // an applied change: once the block is rendered again
             e.Handled = true;
         }
+        else if (e.Key is Key.Up or Key.Down or Key.Left or Key.Right && e.KeyModifiers == KeyModifiers.None
+                 && _activeEdit.Editor.TextArea.Selection.IsEmpty)
+            _caretBeforeArrow = _activeEdit.Editor.CaretOffset;
+    }
+
+    // Where the caret was before an arrow key: an arrow that can't move it leaves the block.
+    private int? _caretBeforeArrow;
+
+    /// <summary>After the editor's own handling: an arrow at the block's edge goes on to the block beside it.</summary>
+    private void OnBlockEditArrow(object? sender, KeyEventArgs e)
+    {
+        var before = _caretBeforeArrow;
+        _caretBeforeArrow = null;
+        // A whole block, not a table cell: the cells' own navigation is for later.
+        if (before is null || _activeEdit is not { } edit || edit.Editor.CaretOffset != before
+            || edit.Host.GetVisualParent() != _renderedRoot)
+            return;
+        var step = e.Key is Key.Up or Key.Left ? -1 : 1;
+        var target = _current + step;
+        if (_doc is null || target < 0 || target >= _blockMap.Count) return;
+        var block = _blockMap[target].Block;
+        // Opened like a click on another block: at once, or after the applied change's re-render.
+        _pendingReentry = BlockSourceEditing.ResolveEditorSlice(_doc.SourceText, block.Source, _astToEditor) is (int s, _)
+            ? (s, -1, -1, AtEnd: step < 0)
+            : null;
+        _current = target;
+        CommitBlockEdit();
+        if (_pendingReentry is null && _activeEdit is null) FocusBlock(target); // a block from an included file
+        e.Handled = true;
     }
 
     private void OnBlockEditLostFocus(object? sender, RoutedEventArgs e)
@@ -1537,6 +1699,7 @@ public partial class PreviewView : UserControl
         if (edit is null || _doc is null) return;
 
         edit.Host.RemoveHandler(InputElement.KeyDownEvent, OnBlockEditKeyDown);
+        edit.Host.RemoveHandler(InputElement.KeyDownEvent, OnBlockEditArrow);
         edit.Host.LostFocus -= OnBlockEditLostFocus;
         _activeEdit = null;
 
@@ -1562,7 +1725,7 @@ public partial class PreviewView : UserControl
             if (_pendingReentry is { } p)
             {
                 var shifted = BlockSourceEditing.ShiftOffsetForSplice(p.EditorStart, s, len, newSlice.Length);
-                _pendingReentry = (shifted, p.RowIndex, p.CellIndex);
+                _pendingReentry = p with { EditorStart = shifted };
             }
         }
         else
@@ -1589,7 +1752,7 @@ public partial class PreviewView : UserControl
 
     /// <summary>Open the queued chain-re-entry target: re-find its block by
     /// editor offset, then open the whole block or the specific table cell.</summary>
-    private void ConsumeReentry((int EditorStart, int RowIndex, int CellIndex) req)
+    private void ConsumeReentry((int EditorStart, int RowIndex, int CellIndex, bool AtEnd) req)
     {
         var target = FindBlockByEditorStart(req.EditorStart);
         if (target is null) return;
@@ -1604,15 +1767,11 @@ public partial class PreviewView : UserControl
             var y = vis.TranslatePoint(default, PreviewScroll)?.Y ?? 0;
             SourceLineClicked?.Invoke(text.AsSpan(0, lineStart).Count('\n'), at - lineStart, y);
         }
-        if (block is TableLayout tbl)
-        {
-            if (req.CellIndex >= 0)
-                EnterCellEditByIndex(vis, tbl, req.RowIndex, req.CellIndex);
-        }
-        else
-        {
-            EnterBlockEdit(vis, block);
-        }
+        var opened = block is TableLayout tbl
+            ? req.CellIndex >= 0 && EnterCellEditByIndex(vis, tbl, req.RowIndex, req.CellIndex)
+            : EnterBlockEdit(vis, block, req.AtEnd ? int.MaxValue : null);
+        // An arrow that reached a table (or a block it can't open) stops on the block itself.
+        if (!opened) FocusBlock(_blockMap.FindIndex(b => b.Vis == vis));
     }
 
     /// <summary>Locate the block in the current map whose editor slice starts at
@@ -1674,6 +1833,7 @@ public partial class PreviewView : UserControl
         if (edit is null) return;
 
         edit.Host.RemoveHandler(InputElement.KeyDownEvent, OnBlockEditKeyDown);
+        edit.Host.RemoveHandler(InputElement.KeyDownEvent, OnBlockEditArrow);
         edit.Host.LostFocus -= OnBlockEditLostFocus;
         _activeEdit = null;
 

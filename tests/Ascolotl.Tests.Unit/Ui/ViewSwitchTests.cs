@@ -1,6 +1,7 @@
 using Ascolotl.Core.Models;
 using Ascolotl.Core.Resources;
 using Avalonia;
+using Avalonia.Automation.Peers;
 using Avalonia.Controls;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
@@ -59,43 +60,164 @@ public sealed class ViewSwitchTests
         Assert.Equal(EditorMode.Split, vm.EditorMode);
     }
 
+    private static void Press(Window window, Key key, RawInputModifiers mods = RawInputModifiers.None)
+    {
+        window.KeyPress(key, mods, PhysicalKey.None, null);
+        Pump(window);
+    }
+
+    private static object? Focused(Window window) => window.FocusManager!.GetFocusedElement();
+
+    /// <summary>What a screen reader announces for the focused block.</summary>
+    private static string? OnBlock(Window window) =>
+        Focused(window) is Control c && c is not TextEditor ? ControlAutomationPeer.CreatePeerForElement(c).GetName() : null;
+
+    private static TextEditor? BlockEditor(Window window) =>
+        Preview(window).GetVisualDescendants().OfType<TextEditor>().SingleOrDefault(e => !e.IsReadOnly);
+
     [AvaloniaFact]
     public void Wysiwyg_WorksWithoutAMouse()
     {
-        var (window, _) = Open(string.Concat(Enumerable.Range(1, 200).Select(i => $"Paragraph {i}.\n\n")), EditorMode.Split);
+        var (window, vm) = Open(string.Concat(Enumerable.Range(1, 200).Select(i => $"Paragraph {i}.\n\n")), EditorMode.Split);
         window.GetVisualDescendants().OfType<TextEditor>().First().TextArea.Focus(); // typing in the source
         window.KeyPress(Key.D3, RawInputModifiers.Control, PhysicalKey.Digit3, "3");
         Pump(window);
         var page = Preview(window).FindControl<ScrollViewer>("PreviewScroll")!;
-        Assert.True(page.IsFocused); // the hidden source handed it the keyboard
+        Assert.Equal("Paragraph 1.", OnBlock(window)); // the hidden source handed the keyboard to the first block
+        var keys = window.FindControl<TextBlock>("PageKeysText")!;
+        Assert.True(keys.IsEffectivelyVisible); // the status bar lists the page's keys
 
-        window.KeyPress(Key.PageDown, RawInputModifiers.None, PhysicalKey.PageDown, null);
+        Press(window, Key.Down);
+        Assert.Equal("Paragraph 2.", OnBlock(window));
+        Press(window, Key.PageDown);
         Pump(window);
-        var paged = page.Offset.Y;
-        Assert.True(paged > 0);
-        window.KeyPress(Key.Down, RawInputModifiers.None, PhysicalKey.ArrowDown, null);
-        Pump(window);
-        Assert.True(page.Offset.Y > paged);
-        window.KeyPress(Key.Home, RawInputModifiers.None, PhysicalKey.Home, null);
-        Pump(window);
+        Assert.True(page.Offset.Y > 0);
+        var paged = OnBlock(window);
+        Assert.NotEqual("Paragraph 2.", paged); // the keyboard followed the page
+        Assert.StartsWith("Paragraph ", paged);
+        Press(window, Key.End);
+        Assert.Equal("Paragraph 200.", OnBlock(window));
+        Press(window, Key.Home, RawInputModifiers.Control);
         Assert.Equal(0, page.Offset.Y);
+        Assert.Equal("Paragraph 1.", OnBlock(window));
 
-        window.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, "\r");
+        // Enter edits the block; the arrows go on past its edges, to the next block's start or the previous one's end.
+        Press(window, Key.Enter);
+        Assert.Equal("Paragraph 1.", BlockEditor(window)!.Text.TrimEnd());
+        Assert.False(keys.IsEffectivelyVisible); // the editing hint takes over
+        Press(window, Key.Down);
+        Assert.Equal("Paragraph 2.", BlockEditor(window)!.Text.TrimEnd());
+        Assert.Equal(0, BlockEditor(window)!.CaretOffset);
+        Press(window, Key.Left);
+        Assert.Equal("Paragraph 1.", BlockEditor(window)!.Text.TrimEnd());
+        Assert.Equal("Paragraph 1.".Length, BlockEditor(window)!.CaretOffset);
+
+        // A change is applied on the way out.
+        window.KeyTextInput("!");
+        Press(window, Key.Right);
         Pump(window);
-        Assert.Equal("Paragraph 1.", Preview(window).GetVisualDescendants().OfType<TextEditor>().Single().Text.TrimEnd());
-        window.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, null);
+        Assert.StartsWith("Paragraph 1.!\n", vm.SelectedDocument!.SourceText);
+        Assert.Equal("Paragraph 2.", BlockEditor(window)!.Text.TrimEnd());
+
+        Press(window, Key.Escape);
+        Assert.Null(BlockEditor(window));
+        Assert.Equal("Paragraph 2.", OnBlock(window)); // still on the block for the next key
+
+        // Applied with a change: the keyboard waits for the block's new rendering, then sits on it.
+        Press(window, Key.F2);
+        window.KeyTextInput("?");
+        Press(window, Key.Enter, RawInputModifiers.Control);
         Pump(window);
-        Assert.Empty(Preview(window).GetVisualDescendants().OfType<TextEditor>());
-        Assert.True(page.IsFocused); // still on the page for the next key
+        Assert.Null(BlockEditor(window));
+        Assert.Equal("?Paragraph 2.", OnBlock(window));
+        Press(window, Key.Up);
+        Assert.Equal("Paragraph 1.!", OnBlock(window));
+        Press(window, Key.Down);
 
         ContextMenu? opened = null;
         using (ContextMenu.OpenedEvent.AddClassHandler<ContextMenu>((menu, _) => opened = menu))
-        {
-            window.KeyPress(Key.F10, RawInputModifiers.Shift, PhysicalKey.F10, null);
-            Pump(window);
-        }
+            Press(window, Key.F10, RawInputModifiers.Shift);
         Assert.NotNull(opened); // the block menu, as on a right-click
         opened.Close();
+        Pump(window);
+
+        Press(window, Key.Tab, RawInputModifiers.Shift);
+        Assert.False(page.IsKeyboardFocusWithin); // Shift+Tab leaves the page
+        Assert.NotNull(Focused(window));
+        Press(window, Key.Tab);
+        Assert.Equal("?Paragraph 2.", OnBlock(window)); // and Tab comes back to the same block
+    }
+
+    [AvaloniaFact]
+    public void SwitchingTabs_KeepsTheKeyboardOnThePage()
+    {
+        var (window, vm) = Open("First tab.\n", EditorMode.Wysiwyg);
+        var first = vm.SelectedDocument!;
+        vm.NewDocumentCommand.Execute(null);
+        vm.SelectedDocument!.SourceText = "Second tab.\n";
+        vm.RequestRender(immediate: true);
+        Pump(window);
+        Preview(window).FocusPage();
+        Pump(window);
+        Assert.Equal("Second tab.", OnBlock(window));
+
+        Press(window, Key.Tab, RawInputModifiers.Control); // to the first tab and its kept page
+        Pump(window);
+        Assert.Same(first, vm.SelectedDocument);
+        Assert.Equal("First tab.", OnBlock(window)); // not a block of the page now hidden
+        Assert.True(((Control)Focused(window)!).IsEffectivelyVisible);
+    }
+
+    [AvaloniaFact]
+    public void ADialog_KeepsTheKeyboard_ThePageDoesNotTakeItBack()
+    {
+        var (window, _) = Open("First.\n\nSecond.\n", EditorMode.Wysiwyg);
+        Preview(window).FocusPage();
+        Pump(window);
+        Assert.Equal("First.", OnBlock(window));
+
+        var box = new TextBox();
+        var dialog = new Window { Content = box, Width = 300, Height = 200 };
+        _ = dialog.ShowDialog(window);
+        Pump(dialog);
+        box.Focus();
+        Pump(dialog);
+        Pump(window);
+        Assert.True(box.IsFocused);
+        dialog.Close();
+    }
+
+    [AvaloniaFact]
+    public void F6_MovesBetweenTheSourceAndThePage()
+    {
+        var (window, _) = Open("= Doc\n\nFirst.\n\nSecond.\n", EditorMode.Split);
+        var source = window.GetVisualDescendants().OfType<TextEditor>().First();
+        source.TextArea.Focus();
+
+        Press(window, Key.F6);
+        Assert.Equal("First.", OnBlock(window));
+        Press(window, Key.F6);
+        Assert.True(source.TextArea.IsFocused);
+    }
+
+    [AvaloniaFact]
+    public void ABlock_TellsAScreenReaderWhatItIs()
+    {
+        var (window, _) = Open("= Doc\n\n== Ponds\n\nimage::pond.png[A green pond]\n", EditorMode.Wysiwyg);
+        Preview(window).FocusPage();
+        Pump(window);
+
+        var heading = ControlAutomationPeer.CreatePeerForElement((Control)Focused(window)!);
+        Assert.Equal("Ponds", heading.GetName());
+        Assert.Equal(2, heading.GetHeadingLevel());
+        Assert.True(heading.IsControlElement());
+        Assert.True(heading.IsKeyboardFocusable());
+
+        Press(window, Key.Down);
+        var image = ControlAutomationPeer.CreatePeerForElement((Control)Focused(window)!);
+        Assert.Equal("A green pond", image.GetName());
+        Assert.Equal(AutomationControlType.Image, image.GetAutomationControlType());
+        Assert.True(image.IsControlElement()); // a panel, which screen readers skip unless told otherwise
     }
 
     [AvaloniaFact]

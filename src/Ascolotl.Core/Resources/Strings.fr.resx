@@ -423,6 +423,7 @@ Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un
   <data name="StatusCouldNotReadFolder" xml:space="preserve"><value>Impossible de lire le dossier : {0}</value></data>
   <data name="StatusEditCancelled" xml:space="preserve"><value>Modification annulée</value></data>
   <data name="StatusEditDiscarded" xml:space="preserve"><value>Modification abandonnée — le document a changé pendant que le bloc était ouvert</value></data>
+  <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ passer d’un bloc à l’autre · Entrée modifier · Maj+F10 menu · Tab quitter la page</value></data>
   <data name="StatusEditingBlock" xml:space="preserve"><value>Modification du bloc — Appliquer (Ctrl+Entrée) ou cliquer ailleurs pour valider, Échap pour annuler</value></data>
   <data name="StatusEditingCell" xml:space="preserve"><value>Modification de la cellule — Appliquer (Ctrl+Entrée) ou cliquer ailleurs pour valider, Échap pour annuler</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Modifiez la source du tableau pour cette mise en page</value></data>

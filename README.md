@@ -137,12 +137,28 @@ install -Dm644 ascolotl.png ~/.local/share/icons/hicolor/256x256/apps/ascolotl.p
 | Syntax reference (AsciiDoc or Markdown) | `F1` |
 | Toggle outline | `Ctrl+B` |
 | Zoom in / out / reset | `Ctrl++` / `Ctrl+-` / `Ctrl+0` |
+| Move between the source and the page | `F6` |
+
+On the WYSIWYG page (and the page in Split), one block at a time has the keyboard:
+
+| Action | Keys |
+|---|---|
+| Previous / next block | `↑` / `↓` |
+| First / last block | `Home` / `End` |
+| Edit the block (a table: its first cell) | `Enter` or `F2` |
+| Block menu | `Shift+F10` or the Menu key |
+| Leave the page | `Tab` / `Shift+Tab` |
+
+While a block is open, an arrow that can't move further inside it applies the edit and
+opens the block above or below. `Esc` cancels and `Ctrl+Enter` applies; both go back to
+moving between blocks.
 
 ## Screen readers
 
 On Windows (Narrator, NVDA) and macOS (VoiceOver), screen readers can read the
-menus, dialogs, tabs and the WYSIWYG page. The source editor gives them its
-whole text at once, not line by line. On Linux, the UI toolkit Ascolotl uses
+menus, dialogs, tabs and the WYSIWYG page. On the page, the block with the
+keyboard is read out with its text; headings give their level and images their
+alt text. The source editor gives them its whole text at once, not line by line. On Linux, the UI toolkit Ascolotl uses
 (Avalonia 11) has no screen-reader support yet.
 
 ## Build from source

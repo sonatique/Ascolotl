@@ -52,6 +52,13 @@
                                        Foreground="{DynamicResource ForgeTextMutedBrush}"
                                        VerticalAlignment="Center" />
                         </Panel>
+                        <TextBlock Name="PageKeysText"
+                                   Text="{x:Static res:Strings.StatusPageKeys}"
+                                   IsVisible="{Binding PageHasKeyboard}"
+                                   FontSize="11"
+                                   FontStyle="Italic"
+                                   Foreground="{DynamicResource ForgeTextMutedBrush}"
+                                   VerticalAlignment="Center" />
                         <!-- Parser diagnostics count (errors / warnings); hover
                              for the messages. -->
                         <StackPanel Orientation="Horizontal" Spacing="4"

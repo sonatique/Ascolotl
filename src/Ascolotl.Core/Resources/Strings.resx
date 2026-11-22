@@ -423,6 +423,7 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="StatusCouldNotReadFolder" xml:space="preserve"><value>Could not read folder: {0}</value></data>
   <data name="StatusEditCancelled" xml:space="preserve"><value>Edit cancelled</value></data>
   <data name="StatusEditDiscarded" xml:space="preserve"><value>Edit discarded — the document changed while the block was open</value></data>
+  <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ move between blocks · Enter edit · Shift+F10 menu · Tab leave the page</value></data>
   <data name="StatusEditingBlock" xml:space="preserve"><value>Editing block — Apply (Ctrl+Enter) or click away to commit, Esc to cancel</value></data>
   <data name="StatusEditingCell" xml:space="preserve"><value>Editing cell — Apply (Ctrl+Enter) or click away to commit, Esc to cancel</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Edit the table source for this layout</value></data>

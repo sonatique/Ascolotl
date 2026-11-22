@@ -394,6 +394,9 @@ public partial class MainWindow : Window
         switch (mode)
         {
             case EditorMode.Source:
+                // The page is hidden: the keyboard goes to the source.
+                if (PreviewPane.IsKeyboardFocusWithin)
+                    FindDescendant<SourceEditorView>(EditorPane)?.Editor.TextArea.Focus();
                 EditorPane.IsVisible = true;
                 Splitter.IsVisible = false;
                 PreviewPane.IsVisible = false;
@@ -563,6 +566,15 @@ public partial class MainWindow : Window
         else if (e.Key == Key.Escape && _viewModel.SyntaxReference.IsOpen)
         {
             _viewModel.SyntaxReference.Close();
+            e.Handled = true;
+        }
+        // F6 moves between the source and the page.
+        else if (e.Key == Key.F6 && e.KeyModifiers is KeyModifiers.None or KeyModifiers.Shift)
+        {
+            if (PreviewPane.IsVisible && !(EditorPane.IsVisible && PreviewPane.IsKeyboardFocusWithin))
+                FindDescendant<PreviewView>(PreviewPane)?.FocusPage();
+            else
+                FindDescendant<SourceEditorView>(EditorPane)?.Editor.TextArea.Focus();
             e.Handled = true;
         }
     }

@@ -13,7 +13,9 @@
                       Focusable="True"
                       HorizontalScrollBarVisibility="Disabled"
                       VerticalScrollBarVisibility="Auto">
+            <!-- No clip of its own: the block outline reaches past the page edge. -->
             <ContentControl x:Name="PreviewHost"
+                            ClipToBounds="False"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Top"
                             Margin="20,16,20,0" />

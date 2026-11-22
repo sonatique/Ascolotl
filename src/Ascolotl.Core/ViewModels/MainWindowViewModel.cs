@@ -912,6 +912,10 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool _inPlaceEditOpen;
 
+    /// <summary>The page has the keyboard, no block open: the status bar lists its keys.</summary>
+    [ObservableProperty]
+    private bool _pageHasKeyboard;
+
     private async Task<bool> WriteDocumentAsync(DocumentViewModel doc, bool saveAs)
     {
         FlushPendingEdits?.Invoke();

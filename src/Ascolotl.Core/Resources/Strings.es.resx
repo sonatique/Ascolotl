@@ -423,6 +423,7 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="StatusCouldNotReadFolder" xml:space="preserve"><value>No se pudo leer la carpeta: {0}</value></data>
   <data name="StatusEditCancelled" xml:space="preserve"><value>Edición cancelada</value></data>
   <data name="StatusEditDiscarded" xml:space="preserve"><value>Edición descartada — el documento cambió mientras el bloque estaba abierto</value></data>
+  <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ moverse entre bloques · Intro editar · Mayús+F10 menú · Tab salir de la página</value></data>
   <data name="StatusEditingBlock" xml:space="preserve"><value>Editando bloque — Aplicar (Ctrl+Intro) o hacer clic fuera para confirmar, Esc para cancelar</value></data>
   <data name="StatusEditingCell" xml:space="preserve"><value>Editando celda — Aplicar (Ctrl+Intro) o hacer clic fuera para confirmar, Esc para cancelar</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Edite el código de la tabla para esta disposición</value></data>
