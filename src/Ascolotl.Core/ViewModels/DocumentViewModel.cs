@@ -178,6 +178,9 @@ public partial class DocumentViewModel : ObservableObject
         ? SourceText.Remove(e.Start, e.Length).Insert(e.Start, e.Text)
         : SourceText;
 
+    /// <summary>What a screen reader announces for the tab.</summary>
+    public override string ToString() => TabTitle;
+
     public static DocumentViewModel CreateNew()
     {
         return new DocumentViewModel

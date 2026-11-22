@@ -66,4 +66,8 @@ public sealed record AssistItem(
     string Label,
     string Snippet,
     string Description,
-    AssistItemKind Kind = AssistItemKind.Block);
+    AssistItemKind Kind = AssistItemKind.Block)
+{
+    /// <summary>What a screen reader announces for the list row.</summary>
+    public override string ToString() => Label;
+}
