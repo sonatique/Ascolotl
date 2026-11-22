@@ -1,6 +1,7 @@
 namespace Ascolotl.Tests.Unit.Export;
 
 using Ascolotl.Core.Models;
+using Ascolotl.Core.Services;
 using Ascolotl.Export;
 
 /// <summary>
@@ -35,6 +36,35 @@ public class ExportServiceTests
         {
             if (File.Exists(path)) File.Delete(path);
         }
+    }
+
+    // Device paths stand in for network ones here: a test must not reach out to a server.
+    [Theory]
+    [InlineData("image::/dev/zero[]")]
+    [InlineData("|===\n| A | image:/dev/zero[] in a cell\n|===")]
+    [InlineData("* item\n+\nNOTE: In a *bold image:/dev/zero[] run*.")]
+    public async Task Export_ImageOnADevicePath_IsRefused(string body)
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"ascolotl-export-{Guid.NewGuid():N}.pdf");
+
+        var result = await new ExportService().ExportAsync($"= Doc\n\n{body}\n", false, Path.GetTempPath(), path,
+            ExportFormat.Pdf, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
+
+        Assert.False(result.IsSuccess);
+        Assert.Contains("/dev/zero", result.ErrorMessage);
+        Assert.False(File.Exists(path));
+    }
+
+    [Theory]
+    [InlineData(@"image::\\attacker\share\a.png[]", @"\\attacker\share\a.png")]
+    [InlineData(":imagesdir: //attacker/share\n\nimage::a.png[]", "a.png")]
+    [InlineData("image::img/a.png[] image:https://example.com/a.png[]", null)]
+    public void FirstNetworkImage_FindsImagesOnOtherComputers(string body, string? expected)
+    {
+        var dir = Path.GetTempPath();
+        var document = DocumentParser.Parse($"= Doc\n\n{body}\n", false, dir).Document;
+
+        Assert.Equal(expected, ExportService.FirstNetworkImage(document, dir));
     }
 
     [Theory]

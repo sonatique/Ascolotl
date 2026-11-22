@@ -51,6 +51,8 @@ public sealed class WebsiteExportService : IWebsiteExportService
                 // Same parse settings as the preview and the other exports:
                 // includes resolve against the document's folder and may leave it.
                 var parsed = DocumentParser.Parse(source, MarkdownFile.Is(rel), Path.GetDirectoryName(sourcePath));
+                if (ExportService.FirstNetworkImage(parsed.Document, Path.GetDirectoryName(sourcePath)) is { } image)
+                    return ExportResult.Failure(string.Format(Strings.ExportNetworkImage, image));
 
                 var html = new HtmlRenderer().RenderToString(parsed.Document, new HtmlRenderOptions
                 {

@@ -48,6 +48,17 @@ public class WebsiteExportServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task Export_PageWithAnImageOnADevicePath_IsRefused()
+    {
+        File.WriteAllText(Path.Combine(_root, "guide.adoc"), "= Guide\n\nimage::/dev/zero[]\n");
+
+        var result = await new WebsiteExportService().ExportAsync(_root, ["guide.adoc"], _out, CancellationToken.None);
+
+        Assert.False(result.IsSuccess);
+        Assert.Contains("/dev/zero", result.ErrorMessage);
+    }
+
+    [Fact]
     public async Task Export_ProjectWithOwnIndex_DoesNotClobberIt()
     {
         File.WriteAllText(Path.Combine(_root, "index.adoc"), "= My Own Index\n\nHome.\n");

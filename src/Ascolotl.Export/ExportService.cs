@@ -3,6 +3,9 @@ using AdocNet.Converters.DocBook;
 using AdocNet.Converters.Epub;
 using AdocNet.Converters.Html;
 using AdocNet.Converters.Pdf;
+using AdocNet.Ast;
+using AdocNet.Layout;
+using AdocNet.Layout.Builders;
 using AdocNet.Parser;
 using Ascolotl.Core.Models;
 using Ascolotl.Core.Services;
@@ -30,6 +33,8 @@ public sealed class ExportService : IExportService
                 // Includes may leave the document's folder (e.g. a shared
                 // ../../copyright.adoc), but not the computer.
                 var parsed = DocumentParser.Parse(source, markdown, basePath);
+                if (FirstNetworkImage(parsed.Document, basePath) is { } image)
+                    return ExportResult.Failure(string.Format(Strings.ExportNetworkImage, image));
 
                 // The style (the document's :pdf-theme:, else the user's choice)
                 // drives PDF natively and HTML/EPUB through generated CSS.
@@ -114,6 +119,48 @@ public sealed class ExportService : IExportService
             }
         }, cancellationToken);
     }
+
+    /// <summary>
+    /// The first image the document shows from a network or device path, or null.
+    /// The converters open image paths as given, and on Windows opening \\server
+    /// sends the user's sign-in there; an exported page would do the same when viewed.
+    /// </summary>
+    public static string? FirstNetworkImage(DocumentNode document, string? basePath)
+    {
+        var imagesDir = document.Attributes.GetValueOrDefault("imagesdir", "");
+        return ImageTargets(new LayoutBuilder().Build(document).Children)
+            .FirstOrDefault(t => !t.Contains("://") // a URL is not opened as a path
+                && LocalIncludeReader.IsBlocked(Path.Combine(basePath ?? "", imagesDir, t), basePath));
+    }
+
+    // Every layout kind AdocNet 1.0.43 has (see LayoutEquality); the rest hold no images.
+    private static IEnumerable<string> ImageTargets(IEnumerable<BlockLayout> blocks) => blocks.SelectMany(b => b switch
+    {
+        ImageLayout i => [i.Target],
+        ParagraphLayout p => ImageTargets(p.Inlines),
+        HeadingLayout h => ImageTargets(h.Inlines),
+        AdmonitionLayout a => ImageTargets(a.Blocks),
+        QuoteLayout q => ImageTargets(q.Blocks),
+        ListLayout l => ImageTargets(l.Items),
+        ListItemLayout li => ImageTargets(li.Inlines).Concat(ImageTargets(li.Blocks)),
+        DescriptionListLayout d => d.Items.SelectMany(i => ImageTargets(i.Term).Concat(ImageTargets(i.Description))),
+        TableLayout t => t.Rows.SelectMany(r => r.Cells).SelectMany(c => ImageTargets(c.Inlines)),
+        _ => [],
+    });
+
+    private static IEnumerable<string> ImageTargets(IEnumerable<InlineLayout> inlines) => inlines.SelectMany(i => i switch
+    {
+        ImageRun r => [r.Target],
+        LinkRun x => ImageTargets(x.Children),
+        BoldRun x => ImageTargets(x.Children),
+        ItalicRun x => ImageTargets(x.Children),
+        MonoRun x => ImageTargets(x.Children),
+        SubscriptRun x => ImageTargets(x.Children),
+        SuperscriptRun x => ImageTargets(x.Children),
+        StrikethroughRun x => ImageTargets(x.Children),
+        HighlightRun x => ImageTargets(x.Children),
+        _ => [],
+    });
 
     /// <summary>Windows sharing or lock violation: another program holds the file open.</summary>
     private static bool IsInUse(IOException ex) => (ex.HResult & 0xFFFF) is 32 or 33;

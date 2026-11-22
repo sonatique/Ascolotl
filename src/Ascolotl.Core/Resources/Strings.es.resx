@@ -234,6 +234,7 @@
   <data name="ExportFileInUse" xml:space="preserve"><value>{0} está abierto en otro programa y no se puede reemplazar. Ciérrelo allí y vuelva a exportar.</value></data>
   <data name="ExportFileNotCreated" xml:space="preserve"><value>No se ha creado el archivo {0}.</value></data>
   <data name="ExportLabel" xml:space="preserve"><value>Exportar</value></data>
+  <data name="ExportNetworkImage" xml:space="preserve"><value>No se exportó: Ascolotl no lee imágenes de rutas de red o de dispositivo, como {0}.</value></data>
   <data name="ExportStyleNotFound" xml:space="preserve"><value>Estilo no encontrado: {0}</value></data>
   <data name="ExportTheWholeProjectFolderAs" xml:space="preserve"><value>Exportar toda la carpeta del proyecto como un sitio HTML enlazado</value></data>
   <data name="ExportUnsupportedFormat" xml:space="preserve"><value>Formato de exportación no admitido: {0}</value></data>

@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AdocNet.Layout" Version="1.0.43" />
     <PackageReference Include="AdocNet.Parser" Version="1.0.43" />
     <PackageReference Include="AdocNet.Converters.Pdf" Version="1.0.43" />
     <PackageReference Include="AdocNet.Converters.Html" Version="1.0.43" />
