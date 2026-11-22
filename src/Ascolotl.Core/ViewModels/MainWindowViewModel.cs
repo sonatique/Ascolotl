@@ -255,7 +255,7 @@ public partial class MainWindowViewModel : ObservableObject
             {
                 _ownSnapshots.Add(doc.DocumentId);
                 _recoveryStore.SaveSnapshot(
-                    doc.DocumentId, doc.SourceText, doc.FilePath, doc.DisplayName, doc.LastKnownWriteTime);
+                    doc.DocumentId, doc.RecoveryText, doc.FilePath, doc.DisplayName, doc.LastKnownWriteTime);
             }
             catch (Exception ex)
             {
@@ -278,7 +278,7 @@ public partial class MainWindowViewModel : ObservableObject
             try
             {
                 _recoveryStore.SaveSnapshot(
-                    doc.DocumentId, doc.SourceText, doc.FilePath, doc.DisplayName, doc.LastKnownWriteTime);
+                    doc.DocumentId, doc.RecoveryText, doc.FilePath, doc.DisplayName, doc.LastKnownWriteTime);
             }
             catch
             {

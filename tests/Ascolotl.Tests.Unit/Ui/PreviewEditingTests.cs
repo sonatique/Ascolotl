@@ -17,10 +17,10 @@ namespace Ascolotl.Tests.Unit.Ui;
 public sealed class PreviewEditingTests
 {
     internal static (MainWindow Window, MainWindowViewModel Vm) Open(string text, EditorMode mode, int debounceMs = 0,
-        MockFileService? files = null)
+        MockFileService? files = null, MockRecoveryStore? recovery = null)
     {
         var vm = new MainWindowViewModel(files ?? new MockFileService(), new MockDialogService(), new MockRenderService(),
-            new MockExportService(), new MockRecoveryStore(), new MockSessionStore(), new MockAppLog(), debounceMs);
+            new MockExportService(), recovery ?? new MockRecoveryStore(), new MockSessionStore(), new MockAppLog(), debounceMs);
         var window = new MainWindow { DataContext = vm, Width = 1000, Height = 700 };
         window.Show();
         vm.NewDocumentCommand.Execute(null);
@@ -72,6 +72,25 @@ public sealed class PreviewEditingTests
         await vm.SaveDocumentCommand.ExecuteAsync(null);
 
         Assert.Equal("Hello world again", files.LastSavedContent?.TrimEnd());
+    }
+
+    [AvaloniaFact]
+    public void CrashSnapshot_HoldsTheTextTypedInAnOpenBlock()
+    {
+        var recovery = new MockRecoveryStore();
+        var (window, vm) = Open("Hello world\n\nMore.\n", EditorMode.Wysiwyg, recovery: recovery);
+        var editor = OpenInlineEditor(window);
+
+        editor.Document.Insert(editor.Document.TextLength, " again"); // not applied yet
+        vm.RunAutosave();
+        Assert.Equal("Hello world again\n\nMore.\n", recovery.LastSavedSourceText);
+        vm.EmergencyRecoverySave();
+        Assert.Equal(2, recovery.SaveSnapshotCalled);
+        Assert.Equal("Hello world again\n\nMore.\n", recovery.LastSavedSourceText);
+
+        window.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, null);
+        Pump(window);
+        Assert.Equal("Hello world\n\nMore.\n", vm.SelectedDocument!.RecoveryText); // thrown away
     }
 
     [AvaloniaFact]

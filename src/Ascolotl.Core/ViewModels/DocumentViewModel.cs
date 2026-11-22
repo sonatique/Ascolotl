@@ -1,6 +1,6 @@
 using AdocNet.Ast;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Ascolotl.Core.Models;
+using Ascolotl.Core.Models;
 using Ascolotl.Core.Resources;
 
 namespace Ascolotl.Core.ViewModels;
@@ -166,6 +166,17 @@ public partial class DocumentViewModel : ObservableObject
             return IsDirty ? $"{name} *" : name;
         }
     }
+
+    /// <summary>Text typed into a WYSIWYG block that is still open, so not in <see cref="SourceText"/> yet.</summary>
+    public sealed record OpenBlockEdit(string Base, int Start, int Length, string Text);
+
+    /// <summary>Kept current by the preview while a block is open for editing.</summary>
+    public OpenBlockEdit? UnappliedEdit { get; set; }
+
+    /// <summary>What a crash snapshot keeps: the source with the open block's typing in it.</summary>
+    public string RecoveryText => UnappliedEdit is { } e && e.Base == SourceText
+        ? SourceText.Remove(e.Start, e.Length).Insert(e.Start, e.Text)
+        : SourceText;
 
     public static DocumentViewModel CreateNew()
     {

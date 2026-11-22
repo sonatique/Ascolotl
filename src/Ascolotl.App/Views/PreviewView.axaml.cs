@@ -104,6 +104,7 @@ public partial class PreviewView : UserControl
         {
             _openEdit = value;
             if (_mainVm is not null) _mainVm.InPlaceEditOpen = value is not null;
+            if (value is null && _doc is not null) _doc.UnappliedEdit = null;
         }
     }
     private bool _rebuildPending;
@@ -1227,9 +1228,16 @@ public partial class PreviewView : UserControl
         if (caretInSlice is int c)
             editor.CaretOffset = Math.Clamp(c, 0, length);
 
-        // Typed-but-uncommitted text is a change: closing must prompt for it.
+        // Typed-but-uncommitted text is a change: closing must prompt for it,
+        // and a crash snapshot must hold it.
         var doc = _doc;
-        editor.TextChanged += (_, _) => { if (doc is not null) doc.IsDirty = true; };
+        var source = doc?.SourceText ?? string.Empty;
+        editor.TextChanged += (_, _) =>
+        {
+            if (doc is null) return;
+            doc.IsDirty = true;
+            doc.UnappliedEdit = new(source, start, length, editor.Text);
+        };
 
         // KeyDown must TUNNEL: AvaloniaEdit's TextArea consumes Escape (and
         // would insert a newline for Enter variants) before a bubbling
