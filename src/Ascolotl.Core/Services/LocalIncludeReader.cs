@@ -15,6 +15,13 @@ public sealed class LocalIncludeReader(string? baseDirectory) : IIncludeReader
 {
     public const int MaxChars = 16 * 1024 * 1024;
 
+    // One parse's budget: files that each include the next several times would
+    // otherwise multiply into billions of reads (a new reader serves each parse).
+    public const int MaxReads = 5_000;
+    public const long MaxTotalChars = 64L * 1024 * 1024;
+    private int _reads;
+    private long _totalChars;
+
     /// <summary>Parse settings shared by the preview and all exports.</summary>
     public static ParseOptions ParseOptions(string? basePath, IReadOnlyDictionary<string, string>? attributes = null) => new()
     {
@@ -34,6 +41,8 @@ public sealed class LocalIncludeReader(string? baseDirectory) : IIncludeReader
     {
         if (IsBlocked(path, baseDirectory))
             throw new IOException("network and device paths are not read");
+        if (++_reads > MaxReads || _totalChars > MaxTotalChars)
+            throw new IOException($"the document includes more than {MaxReads} files or {MaxTotalChars / (1024 * 1024)} MB in all");
 
         using var reader = new StreamReader(path);
         var text = new StringBuilder();
@@ -45,6 +54,7 @@ public sealed class LocalIncludeReader(string? baseDirectory) : IIncludeReader
                 throw new IOException($"larger than {MaxChars / (1024 * 1024)} MB");
             text.Append(buffer, 0, n);
         }
+        _totalChars += text.Length;
         return text.ToString();
     }
 

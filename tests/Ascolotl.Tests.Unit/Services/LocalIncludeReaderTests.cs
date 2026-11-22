@@ -28,6 +28,30 @@ public sealed class LocalIncludeReaderTests
     }
 
     [Fact]
+    public async Task IncludesThatMultiply_StopAtTheBudget_AndSaySo()
+    {
+        // f0 includes f1 four times, f1 includes f2 four times...: 4^10 reads unchecked.
+        var dir = Directory.CreateTempSubdirectory("ascolotl-fanout-").FullName;
+        try
+        {
+            for (var i = 0; i < 10; i++)
+                File.WriteAllText(Path.Combine(dir, $"f{i}.adoc"),
+                    i == 9 ? "leaf\n" : string.Concat(Enumerable.Repeat($"include::f{i + 1}.adoc[]\n\n", 4)));
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+
+            var result = await new AdocRenderService().RenderAsync(
+                "= Doc\n\ninclude::f0.adoc[]\n", dir, markdown: false, standalone: false, CancellationToken.None);
+
+            Assert.InRange(watch.Elapsed.TotalSeconds, 0, 20);
+            Assert.Contains(result.Diagnostics!, d => d.Message.Contains($"more than {LocalIncludeReader.MaxReads} files"));
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    [Fact]
     public async Task Preview_NetworkInclude_IsNotReadAndIsReported()
     {
         if (!OperatingSystem.IsWindows())
