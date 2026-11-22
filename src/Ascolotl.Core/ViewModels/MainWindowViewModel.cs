@@ -243,7 +243,7 @@ public partial class MainWindowViewModel : ObservableObject
         _autosaveTimer = null;
     }
 
-    internal void RunAutosave()
+    public void RunAutosave()
     {
         if (_recoveryStore is null) return;
 

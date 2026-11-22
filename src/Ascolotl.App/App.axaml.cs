@@ -5,6 +5,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using System.Runtime.InteropServices;
 using Ascolotl.App.Services;
 using Ascolotl.Core.Models;
 using Ascolotl.Core.Services;
@@ -21,6 +22,7 @@ public class App : Application
     private AdocRenderService? _renderService;
     private FileAppLog? _log;
     private MainWindowViewModel? _viewModel;
+    private readonly List<PosixSignalRegistration> _signals = []; // kept alive: a collected registration stops listening
 
     /// <summary>Set by Program when a running instance held the lock but never accepted the files.</summary>
     internal static bool ForwardFailed { get; set; }
@@ -254,6 +256,8 @@ public class App : Application
                 }
 
                 e.Cancel = true;
+                // A system shutdown may not wait for the answer below: snapshot unsaved work first.
+                _viewModel.RunAutosave();
 
                 var canClose = await _viewModel.HandleAppClosingAsync();
                 if (canClose)
@@ -262,6 +266,16 @@ public class App : Application
                     mainWindow.Close();
                 }
             };
+
+            // Logging out, shutting down or `kill` ends the app on Linux and macOS without
+            // closing its window: snapshot unsaved work before the process goes.
+            if (!OperatingSystem.IsWindows())
+                foreach (var signal in new[] { PosixSignal.SIGTERM, PosixSignal.SIGHUP })
+                    _signals.Add(PosixSignalRegistration.Create(signal, _ =>
+                    {
+                        try { Dispatcher.UIThread.Invoke(_viewModel.RunAutosave, DispatcherPriority.Send, CancellationToken.None, TimeSpan.FromSeconds(2)); }
+                        catch (Exception) { /* the process is ending either way */ }
+                    }));
 
             desktop.MainWindow = mainWindow;
         }
