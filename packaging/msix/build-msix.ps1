@@ -62,7 +62,7 @@ foreach ($arch in $Architectures) {
     & $makepri createconfig /cf "$out/$arch/priconfig.xml" /dq en-US /o | Out-Null
     # One index: the default splits scales and languages into resource packs this bundle doesn't build.
     $config = [xml](Get-Content "$out/$arch/priconfig.xml")
-    $config.resources.RemoveChild($config.resources.packaging) | Out-Null
+    if ($config.resources.packaging) { $config.resources.RemoveChild($config.resources.packaging) | Out-Null }
     $config.Save("$out/$arch/priconfig.xml")
     & $makepri new /pr $layout /cf "$out/$arch/priconfig.xml" /of "$layout/resources.pri" /o | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "makepri failed for $arch" }

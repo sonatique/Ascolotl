@@ -9,7 +9,7 @@ namespace Ascolotl.App.Views;
 /// <summary>
 /// AvaloniaEdit's editor, made visible to screen readers. AvaloniaEdit 11 gives them
 /// nothing, so they met an unnamed element with no text. Its text area now presents
-/// itself as an edit field, named <paramref name="name"/>, holding the whole text.
+/// itself as an edit field, with the name given to it, holding the whole text.
 /// ponytail: no line-by-line reading; that needs a text pattern Avalonia 11 lacks.
 /// </summary>
 public class AccessibleTextEditor : TextEditor
