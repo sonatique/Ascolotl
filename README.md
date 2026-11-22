@@ -155,7 +155,8 @@ On the WYSIWYG page (and the page in Split), one block at a time has the keyboar
 
 While a block is open, an arrow that can't move further inside it applies the edit and
 opens the block above or below; below the last block, a new paragraph. `Esc` cancels
-and `Ctrl+Enter` applies; both go back to moving between blocks.
+(a new paragraph goes away again) and `Ctrl+Enter` applies; both go back to moving
+between blocks.
 
 In a table cell, `Tab` and `Shift+Tab` go to the next and previous cell, and the arrows
 go on to the cell beside or below once they can't move further inside the cell. Past the

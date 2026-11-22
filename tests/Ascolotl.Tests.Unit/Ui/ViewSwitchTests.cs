@@ -218,6 +218,13 @@ public sealed class ViewSwitchTests
         Preview(window).FocusPage();
         Pump(window);
         Assert.Equal("One.", OnBlock(window));
+        Press(window, Key.N, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Pump(window);
+        Assert.True(vm.SelectedDocument!.IsDirty);
+        Press(window, Key.Escape);
+        Pump(window);
+        Assert.False(vm.SelectedDocument.IsDirty); // a new paragraph cancelled: as it was
+        Assert.Equal("One.", OnBlock(window));
 
         Press(window, Key.Down, RawInputModifiers.Control | RawInputModifiers.Shift);
         Pump(window);
@@ -247,11 +254,27 @@ public sealed class ViewSwitchTests
 
         Press(window, Key.N, RawInputModifiers.Control | RawInputModifiers.Shift);
         Pump(window);
-        window.KeyTextInput("Four.");
+        foreach (var key in "Four.") // key by key: "F" opens the block list, "Fo" leaves it empty
+            window.KeyTextInput(key.ToString());
         Press(window, Key.Enter, RawInputModifiers.Control);
         Pump(window);
         Assert.Equal("One.\n\nOne.\n\nThree.\n\nFour.", Text().TrimEnd());
         Assert.Equal("Four.", OnBlock(window));
+
+        // Esc takes a new paragraph away again, typed into or not.
+        var withFour = Text();
+        foreach (var typed in new[] { "", "9", "Five" }) // "9": a list that matches nothing from the first key
+        {
+            Press(window, Key.N, RawInputModifiers.Control | RawInputModifiers.Shift);
+            Pump(window);
+            foreach (var key in typed) window.KeyTextInput(key.ToString());
+            Assert.Empty(BlockEditor(window)!.TextArea.StackedInputHandlers); // no list left holding the keys
+            Press(window, Key.Escape);
+            Pump(window);
+            Assert.Null(BlockEditor(window));
+            Assert.Equal(withFour, Text());
+            Assert.Equal("Four.", OnBlock(window));
+        }
 
         // Up from below a table: its last cell.
         vm.SelectedDocument!.SourceText = "|===\n| a | b\n|===\n\nAfter.\n";

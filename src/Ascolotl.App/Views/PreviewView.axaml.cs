@@ -138,6 +138,10 @@ public partial class PreviewView : UserControl
     /// <summary>When set, the next block edit selects all its text so the first
     /// keystroke replaces it (used for the fresh "New paragraph." placeholder).</summary>
     private bool _selectAllOnNextEdit;
+
+    /// <summary>A new paragraph about to open: the text before it, the text with it, where it
+    /// starts, and whether the document had changes. Cancelling it goes back.</summary>
+    private (string Before, string After, int At, bool WasDirty)? _newParagraph;
     // Fit Width: margin each side of the scaled page, the pane width the
     // current render was scaled for, and the resize debounce.
     private const double FitWidthGap = 12;
@@ -1506,6 +1510,8 @@ public partial class PreviewView : UserControl
             WasDirty = _doc?.IsDirty ?? false,
             SourceAtOpen = _doc?.SourceText ?? string.Empty,
             Cell = cell,
+            NewParagraph = _newParagraph is { } added && added.At == start && added.After == _doc?.SourceText
+                ? (added.Before, added.WasDirty) : null,
             // The inline editor holds one block's slice, so feed the whole
             // document for anchor/attribute (document-aware) completion.
             Assist = new CompletionController(editor,
@@ -1515,6 +1521,7 @@ public partial class PreviewView : UserControl
                 DocumentFolder = () => _doc?.BaseDirectory,
             },
         };
+        _newParagraph = null;
 
         if (caretInSlice is int c)
             editor.CaretOffset = Math.Clamp(c, 0, length);
@@ -1778,9 +1785,12 @@ public partial class PreviewView : UserControl
         end = Math.Clamp(end, 0, text.Length);
         // Where BlockInsertion.Join puts it: one blank line after the text before.
         var before = text.AsSpan(0, end).TrimEnd('\n').Length;
+        var at = before == 0 ? 0 : before + 2;
+        var after = BlockInsertion.InsertAfter(text, end, BlockSnippets.Paragraph);
         _selectAllOnNextEdit = true;
-        _pendingReentry = (before == 0 ? 0 : before + 2, -1, -1, false);
-        _doc.SourceText = BlockInsertion.InsertAfter(text, end, BlockSnippets.Paragraph);
+        _pendingReentry = (at, -1, -1, false);
+        _newParagraph = (text, after, at, _doc.IsDirty);
+        _doc.SourceText = after;
     }
 
     private void OnBlockEditLostFocus(object? sender, RoutedEventArgs e)
@@ -1949,6 +1959,13 @@ public partial class PreviewView : UserControl
 
         edit.Restore();
         UndoTypingDirty(edit);
+        // A new paragraph never applied goes again, and the keyboard back to the block above it.
+        if (edit.NewParagraph is { } added && _doc is not null && _doc.SourceText == edit.SourceAtOpen)
+        {
+            _current = Math.Max(0, _current - 1);
+            _doc.SourceText = added.Before;
+            _doc.IsDirty = added.WasDirty;
+        }
         if (_mainVm is not null) _mainVm.StatusText = Strings.StatusEditCancelled;
         if (_rebuildPending && _doc is not null)
             UpdatePreview(_doc);
@@ -2426,6 +2443,8 @@ public partial class PreviewView : UserControl
         public required string SourceAtOpen { get; init; }
         /// <summary>The open table cell, by row and declared cell; null for a whole block.</summary>
         public (int Row, int Cell)? Cell { get; init; }
+        /// <summary>For a new paragraph: the text before it went in, and whether the document had changes.</summary>
+        public (string Before, bool WasDirty)? NewParagraph { get; init; }
 
         /// <summary>Authoring-assist controller for the inline editor, so the
         /// WYSIWYG block editor gets the same completion/snippets/smart-typing

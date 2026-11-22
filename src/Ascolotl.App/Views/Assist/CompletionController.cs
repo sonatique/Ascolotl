@@ -179,8 +179,20 @@ internal sealed class CompletionController
     {
         if (_session is { Active: true }) return;
         if (string.IsNullOrEmpty(e.Text)) return;
-        if (_window is not null) return; // already filtering live
+        if (_window is not null) // already filtering live
+        {
+            HideIfEmpty();
+            return;
+        }
         ShowCompletion(force: false);
+    }
+
+    /// <summary>A list filtered down to nothing shows nothing, yet would still own Esc and Enter.</summary>
+    private void HideIfEmpty()
+    {
+        if (_window is not { } window || window.CompletionList.CurrentList.Count > 0) return;
+        window.Hide();
+        _window = null;
     }
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
@@ -340,7 +352,14 @@ internal sealed class CompletionController
                 window.CompletionList.CompletionData.Add(new AsciiDocCompletionData(item, OnSnippetActivated));
 
             if (!string.IsNullOrEmpty(query.Word))
+            {
                 window.CompletionList.SelectItem(query.Word);
+                if (window.CompletionList.CurrentList.Count == 0)
+                {
+                    window.Hide(); // nothing matches the word: not shown, its hold on the editor let go
+                    return;
+                }
+            }
 
             window.Closed += (_, _) => _window = null;
             _window = window;
