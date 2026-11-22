@@ -251,6 +251,8 @@ public sealed class PdfThemeTests : IDisposable
     [InlineData("//attacker/share/corp.yml")]
     public void ResolveThemePath_NetworkPath_IsIgnored(string theme)
     {
+        if (!OperatingSystem.IsWindows())
+            return; // no network paths elsewhere: //server is /server there
         Assert.Null(PdfThemeResolver.ResolveThemePath(Attrs(("pdf-theme", theme)), _docDir, null));
         Assert.Null(PdfThemeResolver.ResolveThemePath(
             Attrs(("pdf-theme", "corp"), ("pdf-themesdir", @"\\attacker\share")), _docDir, null));

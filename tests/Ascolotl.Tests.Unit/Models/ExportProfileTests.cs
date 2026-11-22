@@ -12,7 +12,7 @@ public class ExportProfileTests
     public void Resolve_ProfileFolder_UsesDocumentBaseName()
     {
         var p = new ExportProfile { Format = ExportFormat.Pdf, OutputFolder = @"C:\out" };
-        var path = p.ResolveOutputPath(@"C:\docs\guide.adoc", "guide.adoc");
+        var path = p.ResolveOutputPath(Path.Combine("docs", "guide.adoc"), "guide.adoc");
         Assert.Equal(Path.Combine(@"C:\out", "guide.pdf"), path);
     }
 
@@ -20,8 +20,8 @@ public class ExportProfileTests
     public void Resolve_NoProfileFolder_UsesDocumentFolder()
     {
         var p = new ExportProfile { Format = ExportFormat.Html };
-        var path = p.ResolveOutputPath(@"C:\docs\guide.adoc", "guide.adoc");
-        Assert.Equal(Path.Combine(@"C:\docs", "guide.html"), path);
+        var path = p.ResolveOutputPath(Path.Combine("docs", "guide.adoc"), "guide.adoc");
+        Assert.Equal(Path.Combine("docs", "guide.html"), path);
     }
 
     [Fact]

@@ -28,7 +28,7 @@ public sealed class DiagnosticMapperTests
     [Fact]
     public void Map_DiagnosticInsideAnInclude_IsUnanchoredButKeepsFileLocation()
     {
-        var mapped = DiagnosticMapper.Map([Warn(7, filePath: @"C:\docs\inc.adoc")]);
+        var mapped = DiagnosticMapper.Map([Warn(7, filePath: Path.Combine("docs", "inc.adoc"))]);
 
         Assert.Single(mapped);
         Assert.True(mapped[0].IsUnanchored);

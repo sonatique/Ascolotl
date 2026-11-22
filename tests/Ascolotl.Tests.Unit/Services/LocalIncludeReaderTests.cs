@@ -30,6 +30,8 @@ public sealed class LocalIncludeReaderTests
     [Fact]
     public async Task Preview_NetworkInclude_IsNotReadAndIsReported()
     {
+        if (!OperatingSystem.IsWindows())
+            return; // \\server\share is a file name elsewhere
         var result = await new AdocRenderService().RenderAsync(
             "= Doc\n\ninclude::\\\\attacker\\share\\x.adoc[]\n", Path.GetTempPath(), markdown: false, standalone: false, CancellationToken.None);
 

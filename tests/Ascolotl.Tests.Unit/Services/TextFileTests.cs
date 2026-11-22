@@ -83,6 +83,8 @@ public sealed class TextFileTests : IDisposable
     [Fact]
     public async Task WriteAsync_Failure_LeavesOriginalIntactAndNoTempFile()
     {
+        if (!OperatingSystem.IsWindows())
+            return; // Unix locks are advisory: the save goes through there
         var path = Path.Combine(_dir, "doc.adoc");
         await File.WriteAllTextAsync(path, "original");
 

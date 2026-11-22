@@ -13,7 +13,7 @@ public class ImportSummaryTests
         new()
         {
             IsSuccess = true,
-            OutputPath = @"C:\docs\guide.adoc",
+            OutputPath = Path.Combine("docs", "guide.adoc"),
             Fidelity = fidelity,
             Images = images,
             Tables = tables,
