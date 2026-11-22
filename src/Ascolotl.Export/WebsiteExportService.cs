@@ -102,7 +102,9 @@ public sealed class WebsiteExportService : IWebsiteExportService
     private static void CopyProjectFiles(string projectRoot, string outputFolder, CancellationToken cancellationToken)
     {
         var output = Path.TrimEndingDirectorySeparator(Path.GetFullPath(outputFolder)) + Path.DirectorySeparatorChar;
-        foreach (var file in Directory.EnumerateFiles(projectRoot, "*", SearchOption.AllDirectories))
+        // Links are skipped: one in a cloned repo can point at ~/.ssh or anything else.
+        var everyRealFile = new EnumerationOptions { RecurseSubdirectories = true, AttributesToSkip = FileAttributes.ReparsePoint };
+        foreach (var file in Directory.EnumerateFiles(projectRoot, "*", everyRealFile))
         {
             cancellationToken.ThrowIfCancellationRequested();
             var rel = Path.GetRelativePath(projectRoot, file);

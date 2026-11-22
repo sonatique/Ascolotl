@@ -48,6 +48,29 @@ public class WebsiteExportServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task Export_DoesNotCopyWhatALinkPointsTo()
+    {
+        var secret = Path.Combine(_out, "..", $"secret-{Guid.NewGuid():N}.txt");
+        File.WriteAllText(secret, "private key");
+        try
+        {
+            Directory.CreateDirectory(Path.Combine(_root, "img"));
+            try { File.CreateSymbolicLink(Path.Combine(_root, "img", "logo.png"), secret); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return; } // Windows without Developer Mode
+            File.WriteAllText(Path.Combine(_root, "guide.adoc"), "= Guide\n\nimage::img/logo.png[]\n");
+
+            var result = await new WebsiteExportService().ExportAsync(_root, ["guide.adoc"], _out, CancellationToken.None);
+
+            Assert.True(result.IsSuccess, result.ErrorMessage);
+            Assert.False(File.Exists(Path.Combine(_out, "img", "logo.png")));
+        }
+        finally
+        {
+            File.Delete(secret);
+        }
+    }
+
+    [Fact]
     public async Task Export_PageWithAnImageOnADevicePath_IsRefused()
     {
         File.WriteAllText(Path.Combine(_root, "guide.adoc"), "= Guide\n\nimage::/dev/zero[]\n");
