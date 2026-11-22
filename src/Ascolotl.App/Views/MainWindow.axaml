@@ -9,6 +9,7 @@
         x:Class="Ascolotl.App.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="{x:Static res:Strings.Ascolotl}"
+        Icon="avares://Ascolotl/Assets/app-icon.png"
         Width="1280" Height="800"
         MinWidth="600" MinHeight="400"
         DragDrop.AllowDrop="True"

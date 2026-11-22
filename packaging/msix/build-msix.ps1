@@ -57,6 +57,16 @@ foreach ($arch in $Architectures) {
         -replace '\$Architecture\$', $arch |
         Set-Content "$layout/AppxManifest.xml" -Encoding utf8
 
+    # Index the icons' 200% and exact-size variants, so Start and the taskbar pick sharp ones.
+    $makepri = Join-Path $makeappx.DirectoryName "makepri.exe"
+    & $makepri createconfig /cf "$out/$arch/priconfig.xml" /dq en-US /o | Out-Null
+    # One index: the default splits scales and languages into resource packs this bundle doesn't build.
+    $config = [xml](Get-Content "$out/$arch/priconfig.xml")
+    $config.resources.RemoveChild($config.resources.packaging) | Out-Null
+    $config.Save("$out/$arch/priconfig.xml")
+    & $makepri new /pr $layout /cf "$out/$arch/priconfig.xml" /of "$layout/resources.pri" /o | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "makepri failed for $arch" }
+
     & $makeappx.FullName pack /d $layout /p "$out/bundle/Ascolotl_${PackageVersion}_$arch.msix" /o
     if ($LASTEXITCODE -ne 0) { throw "makeappx pack failed for $arch" }
 }

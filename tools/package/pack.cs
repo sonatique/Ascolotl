@@ -1,9 +1,10 @@
 // Packs a published runtime folder into a release archive: .zip for Windows,
 // .tar.gz for macOS/Linux with the executable bit set (Windows' tar.exe drops it,
 // so the downloaded app would not start without a chmod). On macOS the executable
-// goes into an Ascolotl.app bundle, so Finder starts it as an app with its icon.
+// goes into an Ascolotl.app bundle, so Finder starts it as an app with its icon;
+// Linux archives carry a desktop entry and its icon for the applications menu.
 // Usage: dotnet run tools/package/pack.cs -- <publish-dir> <output.zip|output.tar.gz> [<version> <icons-dir>]
-// (macOS archives, named *-osx-*, need the version and the folder holding icon-<size>.png.)
+// (macOS and Linux archives need the version and the folder holding icon-<size>.png.)
 using System.Buffers.Binary;
 using System.Formats.Tar;
 using System.IO.Compression;
@@ -16,9 +17,10 @@ if (args.Length is not (2 or 4))
 }
 var (dir, output) = (args[0], args[1]);
 var mac = Path.GetFileName(output).Contains("-osx-");
-if (mac && args.Length != 4)
+var linux = Path.GetFileName(output).Contains("-linux-");
+if ((mac || linux) && args.Length != 4)
 {
-    Console.Error.WriteLine("a macOS archive needs <version> <icons-dir>");
+    Console.Error.WriteLine("a macOS or Linux archive needs <version> <icons-dir>");
     return 2;
 }
 File.Delete(output);
@@ -57,12 +59,36 @@ foreach (var path in Directory.GetFiles(dir).Order())
 if (mac)
 {
     var now = DateTime.UtcNow;
-    using var plist = new MemoryStream(Encoding.UTF8.GetBytes(InfoPlist(args[2])));
+    using var plist = new MemoryStream(Encoding.UTF8.GetBytes(InfoPlist(args[2]).ReplaceLineEndings("\n")));
     Write("Ascolotl.app/Contents/Info.plist", plist, false, now);
     using var icns = new MemoryStream(Icns(args[3]));
     Write("Ascolotl.app/Contents/Resources/Ascolotl.icns", icns, false, now);
 }
+if (linux)
+{
+    var now = DateTime.UtcNow;
+    using var desktop = new MemoryStream(Encoding.UTF8.GetBytes(DesktopEntry().ReplaceLineEndings("\n")));
+    Write("ascolotl.desktop", desktop, false, now);
+    using var icon = File.OpenRead(Path.Combine(args[3], "icon-256.png"));
+    Write("ascolotl.png", icon, false, now);
+}
 return 0;
+
+// StartupWMClass is the X11 window class Avalonia sets: the executable's name.
+static string DesktopEntry() => """
+    [Desktop Entry]
+    Type=Application
+    Name=Ascolotl
+    GenericName=Document Editor
+    Comment=AsciiDoc and Markdown editor with live preview and export
+    Exec=Ascolotl %F
+    Icon=ascolotl
+    Terminal=false
+    Categories=Office;TextEditor;
+    MimeType=text/markdown;text/x-markdown;text/asciidoc;text/x-asciidoc;
+    StartupWMClass=Ascolotl
+
+    """;
 
 static string InfoPlist(string version) => $"""
     <?xml version="1.0" encoding="UTF-8"?>

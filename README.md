@@ -113,6 +113,14 @@ distributions include. Unpack the archive and run `./Ascolotl`:
 tar -xzf Ascolotl-1.0.0-linux-x64.tar.gz && ./Ascolotl
 ```
 
+To add it to your applications menu, with its icon:
+
+```bash
+install -Dm755 Ascolotl ~/.local/bin/Ascolotl
+install -Dm644 ascolotl.desktop ~/.local/share/applications/ascolotl.desktop
+install -Dm644 ascolotl.png ~/.local/share/icons/hicolor/256x256/apps/ascolotl.png
+```
+
 ## Keyboard shortcuts
 
 | Action | Shortcut |
