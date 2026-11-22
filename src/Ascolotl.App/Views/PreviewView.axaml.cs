@@ -207,6 +207,59 @@ public partial class PreviewView : UserControl
             OnPreviewPointerPressed,
             RoutingStrategies.Bubble,
             handledEventsToo: true);
+
+        // Without a mouse: the page takes the keyboard (the arrows and Page Up/Down
+        // scroll it), Enter opens the first block in view, and Shift+F10 or the
+        // Menu key opens that block's menu.
+        PreviewScroll.KeyDown += OnPageKeyDown;
+    }
+
+    /// <summary>Gives the page the keyboard, e.g. once the source it was in is hidden.</summary>
+    public void FocusPage() => PreviewScroll.Focus(NavigationMethod.Tab);
+
+    private (Control Vis, BlockLayout Block)? FirstBlockInView()
+    {
+        foreach (var (vis, block) in _blockMap)
+            if (vis.TranslatePoint(new Point(0, vis.Bounds.Height), PreviewScroll) is { Y: > 0 })
+                return (vis, block);
+        return null;
+    }
+
+    private void OnPageKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Source != PreviewScroll) return;
+        // Avalonia opens a menu on these keys only for an attached ContextMenu; the page builds one per block.
+        if (e.Key == Key.Apps && e.KeyModifiers == KeyModifiers.None || e.Key == Key.F10 && e.KeyModifiers == KeyModifiers.Shift)
+        {
+            if (_mainVm?.PagePreview == true) return;
+            if (FirstBlockInView() is { } block)
+                ShowBlockContextMenu(block.Vis, block.Block, null, block.Vis.TranslatePoint(new Point(1, 1), PreviewScroll) ?? default);
+            else
+                ShowInsertMenuAt(default);
+            e.Handled = true;
+            return;
+        }
+        if (e.KeyModifiers != KeyModifiers.None) return;
+        // The scroll viewer pages on its own, but takes no arrows, Home or End.
+        Action? scroll = e.Key switch
+        {
+            Key.Up => PreviewScroll.LineUp,
+            Key.Down => PreviewScroll.LineDown,
+            Key.Home => PreviewScroll.ScrollToHome,
+            Key.End => PreviewScroll.ScrollToEnd,
+            _ => null,
+        };
+        if (scroll is not null)
+        {
+            scroll();
+            e.Handled = true;
+            return;
+        }
+        if (e.Key != Key.Enter || _mainVm?.PagePreview == true || FirstBlockInView() is not { } hit)
+            return;
+        e.Handled = hit.Block is TableLayout table
+            ? EnterCellEditByIndex(hit.Vis, table, 0, 0)
+            : EnterBlockEdit(hit.Vis, hit.Block);
     }
 
     /// <summary>
@@ -1000,7 +1053,10 @@ public partial class PreviewView : UserControl
             }
         }
 
-        Dispatcher.UIThread.Post(CommitBlockEdit);
+        // The press also moves the keyboard to the page, whose LostFocus may commit
+        // first and open the queued block: that one stays open.
+        var pressed = _activeEdit;
+        Dispatcher.UIThread.Post(() => { if (_activeEdit == pressed) CommitBlockEdit(); });
         e.Handled = true;
         return true;
     }
@@ -1369,11 +1425,13 @@ public partial class PreviewView : UserControl
         if (e.Key == Key.Escape)
         {
             CancelBlockEdit();
+            FocusPage(); // the editor is gone: the keyboard stays on the page
             e.Handled = true;
         }
         else if (e.Key == Key.Enter && e.KeyModifiers.HasFlag(KeyModifiers.Control))
         {
             CommitBlockEdit();
+            FocusPage();
             e.Handled = true;
         }
     }

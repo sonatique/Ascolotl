@@ -405,7 +405,9 @@ public partial class MainWindow : Window
             case EditorMode.Wysiwyg:
                 // Preview-only: the source pane is hidden but stays in the
                 // tree — it remains the single source of truth that in-place
-                // block edits splice into.
+                // block edits splice into. It can't keep the keyboard: the page takes it.
+                if (EditorPane.IsKeyboardFocusWithin)
+                    FindDescendant<PreviewView>(PreviewPane)?.FocusPage();
                 EditorPane.IsVisible = false;
                 Splitter.IsVisible = false;
                 PreviewPane.IsVisible = true;

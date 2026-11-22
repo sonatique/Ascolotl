@@ -60,6 +60,45 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
+    public void Wysiwyg_WorksWithoutAMouse()
+    {
+        var (window, _) = Open(string.Concat(Enumerable.Range(1, 200).Select(i => $"Paragraph {i}.\n\n")), EditorMode.Split);
+        window.GetVisualDescendants().OfType<TextEditor>().First().TextArea.Focus(); // typing in the source
+        window.KeyPress(Key.D3, RawInputModifiers.Control, PhysicalKey.Digit3, "3");
+        Pump(window);
+        var page = Preview(window).FindControl<ScrollViewer>("PreviewScroll")!;
+        Assert.True(page.IsFocused); // the hidden source handed it the keyboard
+
+        window.KeyPress(Key.PageDown, RawInputModifiers.None, PhysicalKey.PageDown, null);
+        Pump(window);
+        var paged = page.Offset.Y;
+        Assert.True(paged > 0);
+        window.KeyPress(Key.Down, RawInputModifiers.None, PhysicalKey.ArrowDown, null);
+        Pump(window);
+        Assert.True(page.Offset.Y > paged);
+        window.KeyPress(Key.Home, RawInputModifiers.None, PhysicalKey.Home, null);
+        Pump(window);
+        Assert.Equal(0, page.Offset.Y);
+
+        window.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, "\r");
+        Pump(window);
+        Assert.Equal("Paragraph 1.", Preview(window).GetVisualDescendants().OfType<TextEditor>().Single().Text.TrimEnd());
+        window.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, null);
+        Pump(window);
+        Assert.Empty(Preview(window).GetVisualDescendants().OfType<TextEditor>());
+        Assert.True(page.IsFocused); // still on the page for the next key
+
+        ContextMenu? opened = null;
+        using (ContextMenu.OpenedEvent.AddClassHandler<ContextMenu>((menu, _) => opened = menu))
+        {
+            window.KeyPress(Key.F10, RawInputModifiers.Shift, PhysicalKey.F10, null);
+            Pump(window);
+        }
+        Assert.NotNull(opened); // the block menu, as on a right-click
+        opened.Close();
+    }
+
+    [AvaloniaFact]
     public void SyntaxHint_ShowsWithTheSource_NotInWysiwyg()
     {
         var (window, vm) = Open("= Doc\n\nSome words.\n", EditorMode.Split);

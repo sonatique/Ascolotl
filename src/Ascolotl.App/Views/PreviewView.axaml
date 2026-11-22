@@ -10,6 +10,7 @@
              margin on the host and a bottom spacer in the panel instead, which
              measure and scroll correctly. -->
         <ScrollViewer x:Name="PreviewScroll"
+                      Focusable="True"
                       HorizontalScrollBarVisibility="Disabled"
                       VerticalScrollBarVisibility="Auto">
             <ContentControl x:Name="PreviewHost"
