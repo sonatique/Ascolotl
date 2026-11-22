@@ -131,7 +131,7 @@ install -Dm644 ascolotl.png ~/.local/share/icons/hicolor/256x256/apps/ascolotl.p
 | Next / previous tab | `Ctrl+Tab` / `Ctrl+Shift+Tab` |
 | Export to PDF | `Ctrl+E` |
 | Command palette | `Ctrl+Shift+P` |
-| Apply / cancel an in-place edit | `Ctrl+Enter` / `Esc` |
+| Apply / cancel an in-place edit (a table cell: add a row) | `Ctrl+Enter` / `Esc` |
 | Completion | `Ctrl+Space` or `Tab` |
 | Source / Split / WYSIWYG | `Ctrl+1` / `Ctrl+2` / `Ctrl+3` |
 | Syntax reference (AsciiDoc or Markdown) | `F1` |
@@ -147,11 +147,19 @@ On the WYSIWYG page (and the page in Split), one block at a time has the keyboar
 | First / last block | `Home` / `End` |
 | Edit the block (a table: its first cell) | `Enter` or `F2` |
 | Block menu | `Shift+F10` or the Menu key |
+| Move the block up / down | `Ctrl+Shift+↑` / `Ctrl+Shift+↓` |
+| Duplicate / delete the block | `Ctrl+Alt+D` / `Delete` |
+| New paragraph after the block | `Ctrl+Shift+N` |
+| Undo / redo | `Ctrl+Z` / `Ctrl+Y` |
 | Leave the page | `Tab` / `Shift+Tab` |
 
 While a block is open, an arrow that can't move further inside it applies the edit and
-opens the block above or below. `Esc` cancels and `Ctrl+Enter` applies; both go back to
-moving between blocks.
+opens the block above or below; below the last block, a new paragraph. `Esc` cancels
+and `Ctrl+Enter` applies; both go back to moving between blocks.
+
+In a table cell, `Tab` and `Shift+Tab` go to the next and previous cell, and the arrows
+go on to the cell beside or below once they can't move further inside the cell. Past the
+first or last cell they leave the table. `Ctrl+Enter` applies the cell and adds a row below it.
 
 ## Screen readers
 

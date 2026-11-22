@@ -149,6 +149,172 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
+    public void TableCells_WorkWithoutAMouse()
+    {
+        var (window, vm) = Open("Before.\n\n|===\n| a1 | b1\n\n| a2 | b2\n|===\n", EditorMode.Wysiwyg);
+        Preview(window).FocusPage();
+        Pump(window);
+        string Cell() => BlockEditor(window)!.Text;
+
+        Press(window, Key.Enter);
+        Press(window, Key.Down); // past the paragraph: into the table's first cell
+        Assert.Equal("a1", Cell());
+        Press(window, Key.Tab);
+        Assert.Equal("b1", Cell());
+        Press(window, Key.Tab); // on to the next row
+        Assert.Equal("a2", Cell());
+        Press(window, Key.Tab, RawInputModifiers.Shift);
+        Assert.Equal("b1", Cell());
+        Assert.Equal(2, BlockEditor(window)!.CaretOffset); // coming back: at the end
+
+        window.KeyTextInput("!");
+        Press(window, Key.Down); // a change is applied on the way
+        Pump(window);
+        Assert.Contains("| a1 | b1!\n", vm.SelectedDocument!.SourceText);
+        Assert.Equal("b2", Cell());
+        Press(window, Key.Left);
+        Assert.Equal("a2", Cell());
+        Press(window, Key.Up);
+        Assert.Equal("a1", Cell());
+        Press(window, Key.Up); // out of the table, to the end of the paragraph above
+        Assert.Equal("Before.", Cell().TrimEnd());
+        Assert.Equal("Before.".Length, BlockEditor(window)!.CaretOffset);
+
+        Press(window, Key.Down);
+        Press(window, Key.Tab);
+        Press(window, Key.Tab);
+        Press(window, Key.Tab);
+        Assert.Equal("b2", Cell());
+
+        // Ctrl+Enter: a new row, its first cell open.
+        Press(window, Key.Enter, RawInputModifiers.Control);
+        Pump(window);
+        Assert.Equal(3, vm.SelectedDocument!.SourceText.Split('\n').Count(l => l.StartsWith("| ")));
+        Assert.NotNull(BlockEditor(window));
+        Assert.Equal("", Cell().Trim());
+        window.KeyTextInput("33"); // digits: no completion list to take the Tab
+        Press(window, Key.Tab);
+        Pump(window);
+        Assert.Equal("", Cell()); // an empty cell opens to type into
+        window.KeyTextInput("44");
+
+        // Past the last cell of the last block: a new paragraph, its placeholder selected.
+        Press(window, Key.Tab);
+        Pump(window);
+        Assert.Contains("\n|33 |44\n", vm.SelectedDocument.SourceText);
+        Assert.Equal("New paragraph.", Cell().TrimEnd());
+        Assert.Equal("New paragraph.", BlockEditor(window)!.SelectedText.TrimEnd());
+        Press(window, Key.Right);
+        Press(window, Key.Down); // not a second one
+        Pump(window);
+        Assert.Equal(1, vm.SelectedDocument.SourceText.Split("New paragraph.").Length - 1);
+    }
+
+    [AvaloniaFact]
+    public void BlockKeys_MoveDuplicateDeleteAndUndo()
+    {
+        var (window, vm) = Open("One.\n\n.Code\n[source]\n----\nx\n----\n\nThree.\n", EditorMode.Wysiwyg);
+        string Text() => vm.SelectedDocument!.SourceText;
+        Preview(window).FocusPage();
+        Pump(window);
+        Assert.Equal("One.", OnBlock(window));
+
+        Press(window, Key.Down, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Pump(window);
+        Assert.Equal(".Code\n[source]\n----\nx\n----\n\nOne.\n\nThree.\n", Text()); // its title and style go along
+        Assert.Equal("One.", OnBlock(window)); // and the keyboard with the block
+        Press(window, Key.Up, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Pump(window);
+        Assert.Equal("One.\n\n.Code\n[source]\n----\nx\n----\n\nThree.\n", Text());
+        Assert.Equal("One.", OnBlock(window));
+
+        Press(window, Key.D, RawInputModifiers.Control | RawInputModifiers.Alt);
+        Pump(window);
+        Assert.StartsWith("One.\n\nOne.\n\n.Code", Text());
+        Press(window, Key.Down);
+        Press(window, Key.Down);
+        Press(window, Key.Delete);
+        Pump(window);
+        Assert.Equal("One.\n\nOne.\n\nThree.\n", Text()); // the code block, its title and style
+        Assert.Equal("Three.", OnBlock(window));
+
+        Press(window, Key.Z, RawInputModifiers.Control);
+        Pump(window);
+        Assert.Equal("One.\n\nOne.\n\n.Code\n[source]\n----\nx\n----\n\nThree.\n", Text());
+        Press(window, Key.Y, RawInputModifiers.Control);
+        Pump(window);
+        Assert.Equal("One.\n\nOne.\n\nThree.\n", Text());
+
+        Press(window, Key.N, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Pump(window);
+        window.KeyTextInput("Four.");
+        Press(window, Key.Enter, RawInputModifiers.Control);
+        Pump(window);
+        Assert.Equal("One.\n\nOne.\n\nThree.\n\nFour.", Text().TrimEnd());
+        Assert.Equal("Four.", OnBlock(window));
+
+        // Up from below a table: its last cell.
+        vm.SelectedDocument!.SourceText = "|===\n| a | b\n|===\n\nAfter.\n";
+        Pump(window);
+        Press(window, Key.End);
+        Press(window, Key.Enter);
+        Press(window, Key.Up);
+        Assert.Equal("b", BlockEditor(window)!.Text);
+        Assert.Equal(1, BlockEditor(window)!.CaretOffset);
+    }
+
+    [AvaloniaFact]
+    public void MovingABlockAboveTheView_KeepsTheKeyboardOnIt()
+    {
+        var (window, vm) = Open(string.Concat(Enumerable.Range(1, 60).Select(i => $"Paragraph {i}.\n\n")), EditorMode.Wysiwyg);
+        Preview(window).FocusPage();
+        Pump(window);
+        Press(window, Key.PageDown);
+        Pump(window);
+        var moved = OnBlock(window); // the first block in view
+        Assert.NotEqual("Paragraph 1.", moved);
+
+        Press(window, Key.Up, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Pump(window);
+        Press(window, Key.Up, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Pump(window);
+        Assert.Equal(moved, OnBlock(window)); // above the view's top: brought back into view, not swapped for another
+        var n = int.Parse(moved!["Paragraph ".Length..^1]);
+        Assert.Contains($"Paragraph {n}.\n\nParagraph {n - 2}.\n\nParagraph {n - 1}.", vm.SelectedDocument!.SourceText);
+    }
+
+    [AvaloniaFact]
+    public void UndoOnThePage_UndoesTheShownTab_NotAnotherOne()
+    {
+        var (window, vm) = Open("First tab.\n\nKept.\n", EditorMode.Split);
+        var first = vm.SelectedDocument!;
+        Preview(window).FocusPage();
+        Pump(window);
+        Press(window, Key.Delete);
+        Pump(window);
+        vm.EditorMode = EditorMode.Wysiwyg; // the source, hidden, keeps the tab's history
+        Pump(window);
+        Press(window, Key.Z, RawInputModifiers.Control);
+        Pump(window);
+        Assert.Equal("First tab.\n\nKept.\n", first.SourceText);
+
+        vm.NewDocumentCommand.Execute(null);
+        vm.SelectedDocument!.SourceText = "One.\n\nTwo.\n";
+        vm.RequestRender(immediate: true);
+        Pump(window);
+        Preview(window).FocusPage();
+        Pump(window);
+
+        Press(window, Key.Delete);
+        Pump(window);
+        Assert.Equal("Two.\n", vm.SelectedDocument.SourceText);
+        Press(window, Key.Z, RawInputModifiers.Control);
+        Pump(window);
+        Assert.Equal("One.\n\nTwo.\n", vm.SelectedDocument.SourceText);
+        Assert.Equal("First tab.\n\nKept.\n", first.SourceText);
+    }
+
+    [AvaloniaFact]
     public void SwitchingTabs_KeepsTheKeyboardOnThePage()
     {
         var (window, vm) = Open("First tab.\n", EditorMode.Wysiwyg);

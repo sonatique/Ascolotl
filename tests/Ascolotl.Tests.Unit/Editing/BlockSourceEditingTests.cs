@@ -216,4 +216,61 @@ public class BlockSourceEditingTests
         Assert.Equal(14, BlockSourceEditing.ShiftOffsetForSplice(10, 10, 0, 4));
         Assert.Equal(9, BlockSourceEditing.ShiftOffsetForSplice(9, 10, 0, 4));
     }
+
+    // ── ResolveCellSlice ──────────────────────────────────────────────────
+
+    [Theory]
+    [InlineData("| x ||\n", 3, "x")]     // one character
+    [InlineData("| x ||\n", 6, "")]      // empty, before the next delimiter: not the delimiter
+    [InlineData("| |\n", 4, "")]         // empty, at the line's end
+    [InlineData("| |", 4, "")]           // at the text's end
+    [InlineData("| |\r\n", 4, "")]
+    public void ResolveCell_EmptyCellIsAnEmptySliceToTypeInto(string text, int column, string expected)
+    {
+        var slice = BlockSourceEditing.ResolveCellSlice(text, Range(1, column, 1, column), IdentityMap(2));
+        Assert.NotNull(slice);
+        Assert.Equal(expected, text.Substring(slice.Value.Start, slice.Value.Length));
+        Assert.Equal(column - 1, slice.Value.Start);
+    }
+
+    // ── WithHeader / SwapSlices ───────────────────────────────────────────
+
+    private static string Widened(string text, string block, int notBefore = 0)
+    {
+        var (s, len) = BlockSourceEditing.WithHeader(text, text.IndexOf(block, StringComparison.Ordinal), block.Length, notBefore);
+        return text.Substring(s, len);
+    }
+
+    [Fact]
+    public void WithHeader_TakesTheTitleAnchorAndAttributeLines()
+    {
+        var text = "Para.\n\n[[code]]\n.Example\n[source,python]\n----\nx\n----\n";
+        Assert.Equal("[[code]]\n.Example\n[source,python]\n----\nx\n----", Widened(text, "----\nx\n----"));
+        Assert.Equal("[cols=\"1,1\"]\r\n|===\r\n|===", Widened("A.\r\n\r\n[cols=\"1,1\"]\r\n|===\r\n|===", "|===\r\n|==="));
+    }
+
+    [Theory]
+    [InlineData("Para.\n\n----\nx\n----")]            // a blank line above
+    [InlineData(". item\n----\nx\n----")]             // a list item, not a title
+    [InlineData("....\n----\nx\n----")]               // a literal block's fence
+    [InlineData("----\nx\n----")]                     // the first line
+    public void WithHeader_LeavesOtherLinesAbove(string text)
+    {
+        Assert.Equal("----\nx\n----", Widened(text, "----\nx\n----"));
+    }
+
+    [Fact]
+    public void WithHeader_StopsAtTheBlockAbove()
+    {
+        var text = "[a]\n[b]\n----\nx\n----";
+        Assert.Equal("[b]\n----\nx\n----", Widened(text, "----\nx\n----", notBefore: 3));
+    }
+
+    [Fact]
+    public void SwapSlices_SwapsTwoBlocks_AndKeepsWhatIsBetween()
+    {
+        var text = "One.\n\n// note\n\nTwo.\n";
+        Assert.Equal("Two.\n\n// note\n\nOne.\n", BlockSourceEditing.SwapSlices(text, (0, 4), (text.IndexOf("Two.", StringComparison.Ordinal), 4)));
+        Assert.Equal("Para.\n\n== H\n", BlockSourceEditing.SwapSlices("== H\nPara.\n", (0, 4), (5, 5))); // two blocks still
+    }
 }

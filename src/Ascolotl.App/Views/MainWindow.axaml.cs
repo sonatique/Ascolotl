@@ -390,6 +390,9 @@ public partial class MainWindow : Window
     private void UpdateEditorLayout(EditorMode mode)
     {
         var cols = ContentGrid.ColumnDefinitions;
+        // Hidden under the page, the source kept no position of its own: the page's is the tab's.
+        if (mode != EditorMode.Wysiwyg && !EditorPane.IsVisible)
+            FindDescendant<SourceEditorView>(EditorPane)?.ShowTopLine();
 
         switch (mode)
         {
@@ -412,6 +415,8 @@ public partial class MainWindow : Window
                 if (EditorPane.IsKeyboardFocusWithin)
                     FindDescendant<PreviewView>(PreviewPane)?.FocusPage();
                 EditorPane.IsVisible = false;
+                // Built even if never shown: it holds the tab's history, which Ctrl+Z on the page undoes.
+                EditorPane.ApplyTemplate();
                 Splitter.IsVisible = false;
                 PreviewPane.IsVisible = true;
                 cols[0].Width = new GridLength(0);
@@ -566,6 +571,16 @@ public partial class MainWindow : Window
         else if (e.Key == Key.Escape && _viewModel.SyntaxReference.IsOpen)
         {
             _viewModel.SyntaxReference.Close();
+            e.Handled = true;
+        }
+        // The page's changes are in the source's history, also while the source is hidden.
+        // Not under an open block, whose own editor has its own history.
+        else if (e.KeyModifiers is KeyModifiers.Control or (KeyModifiers.Control | KeyModifiers.Shift) && e.Key is Key.Z or Key.Y
+                 && PreviewPane.IsKeyboardFocusWithin && !_viewModel.InPlaceEditOpen
+                 && FindDescendant<SourceEditorView>(EditorPane) is { } sourceView && sourceView.DataContext == _viewModel.SelectedDocument
+                 && sourceView.Editor is { } source)
+        {
+            if (e.Key == Key.Y || shift) source.Redo(); else source.Undo();
             e.Handled = true;
         }
         // F6 moves between the source and the page.

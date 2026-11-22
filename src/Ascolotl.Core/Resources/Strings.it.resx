@@ -425,7 +425,7 @@ Questo file esiste ma non è stato possibile leggerlo. Forse è bloccato da un a
   <data name="StatusEditDiscarded" xml:space="preserve"><value>Modifica scartata — il documento è cambiato mentre il blocco era aperto</value></data>
   <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ spostarsi tra i blocchi · Invio modifica · Maiusc+F10 menu · Tab esci dalla pagina</value></data>
   <data name="StatusEditingBlock" xml:space="preserve"><value>Modifica del blocco — Applica (Ctrl+Invio) o fai clic altrove per confermare, Esc per annullare</value></data>
-  <data name="StatusEditingCell" xml:space="preserve"><value>Modifica della cella — Applica (Ctrl+Invio) o fai clic altrove per confermare, Esc per annullare</value></data>
+  <data name="StatusEditingCell" xml:space="preserve"><value>Modifica della cella — Tab alla cella successiva, Ctrl+Invio per una nuova riga, Esc per annullare</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Modifica la sorgente della tabella per questa disposizione</value></data>
   <data name="StatusExportedTo" xml:space="preserve"><value>Esportato in {0}</value></data>
   <data name="StatusExportedWithWarnings" xml:space="preserve"><value>Esportato in {0} — {1} immagine/i senza testo alternativo; è stato usato il nome del file</value></data>

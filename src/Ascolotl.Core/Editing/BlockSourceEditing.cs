@@ -65,6 +65,24 @@ public static class BlockSourceEditing
         return (start, endInclusive - start + 1);
     }
 
+    /// <summary>
+    /// A table cell's slice, as <see cref="ResolveEditorSlice"/>; but AdocNet marks an empty
+    /// cell with the one position after its delimiter, which is the next <c>|</c> or the line's
+    /// end: that cell is the empty slice there, to type into.
+    /// </summary>
+    public static (int Start, int Length)? ResolveCellSlice(string editorText, SourceRange range, int[] astToEditor)
+    {
+        if (range.IsNone || range.Start != range.End) return ResolveEditorSlice(editorText, range, astToEditor);
+        var line = Services.IncludeExpansionMap.AstLineToEditor(astToEditor, range.Start.Line - 1, fallback: -1);
+        var lineStarts = ComputeLineStarts(editorText);
+        if (line < 0 || line >= lineStarts.Count) return null;
+        var lineEnd = line + 1 < lineStarts.Count ? lineStarts[line + 1] - 1 : editorText.Length;
+        var at = lineStarts[line] + range.Start.Column - 1;
+        if (at < lineStarts[line] || at > lineEnd) return null;
+        // ponytail: the default separator only; a table with its own (separator=;) still shows the separator.
+        return at == lineEnd || editorText[at] is '|' or '\r' ? (at, 0) : (at, 1);
+    }
+
     public enum CommitAction { Replace, NoChange, Abort }
 
     /// <summary>
@@ -120,6 +138,40 @@ public static class BlockSourceEditing
         if (start + length + extra < sourceText.Length && sourceText[start + length + extra] == '\n') extra++;
         if (start + length + extra < sourceText.Length && sourceText[start + length + extra] == '\n') extra++;
         return sourceText.Remove(start, length + extra);
+    }
+
+    /// <summary>
+    /// Widen a block's slice to the title, anchor and attribute lines right above it
+    /// (<c>.Title</c>, <c>[[id]]</c>, <c>[source,python]</c>, <c>[cols="1,1"]</c>), which AdocNet
+    /// leaves out of the block's range: moving or deleting the block takes them along.
+    /// Never reaches before <paramref name="notBefore"/>, the end of the block above.
+    /// </summary>
+    public static (int Start, int Length) WithHeader(string sourceText, int start, int length, int notBefore = 0)
+    {
+        var lineStart = start == 0 ? 0 : sourceText.LastIndexOf('\n', start - 1) + 1;
+        if (!sourceText.AsSpan(lineStart, start - lineStart).IsWhiteSpace()) return (start, length);
+        var s = lineStart;
+        while (s > notBefore)
+        {
+            var above = s >= 2 ? sourceText.LastIndexOf('\n', s - 2) + 1 : 0;
+            if (above < notBefore || !IsBlockHeader(sourceText.AsSpan(above, s - 1 - above).TrimEnd('\r'))) break;
+            s = above;
+        }
+        return s < lineStart ? (s, start + length - s) : (start, length);
+    }
+
+    private static bool IsBlockHeader(ReadOnlySpan<char> line) =>
+        line.Length > 1 && (line[0] == '[' && line[^1] == ']' || line[0] == '.' && line[1] is not ('.' or ' ' or '\t'));
+
+    /// <summary>Swap two slices, <paramref name="a"/> before <paramref name="b"/>, keeping what lies
+    /// between them; a blank line keeps them two blocks.</summary>
+    public static string SwapSlices(string sourceText, (int Start, int Length) a, (int Start, int Length) b)
+    {
+        var aEnd = a.Start + a.Length;
+        var gap = sourceText[aEnd..b.Start];
+        if (gap.AsSpan().Count('\n') < 2) gap = "\n\n";
+        return sourceText[..a.Start] + sourceText.Substring(b.Start, b.Length) + gap
+            + sourceText.Substring(a.Start, a.Length) + sourceText[(b.Start + b.Length)..];
     }
 
     private static List<int> ComputeLineStarts(string text)

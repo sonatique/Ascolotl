@@ -355,8 +355,8 @@ internal sealed class CompletionController
     private bool ShouldAutoTrigger(AssistQuery query) => query.Kind switch
     {
         // In Markdown, block starters wait for Tab or Ctrl+Space: prose lines
-        // start with words too.
-        AssistContextKind.BlockStart => !_markdown && query.Word.Length >= 1,
+        // start with words too. A table cell holds no blocks, and Tab goes to the next cell.
+        AssistContextKind.BlockStart => !_markdown && CellTableEdit is null && query.Word.Length >= 1,
         AssistContextKind.FenceLanguage or AssistContextKind.LinkTarget
             or AssistContextKind.Anchor or AssistContextKind.ReferenceLabel => true,
         AssistContextKind.AttributeList => true,

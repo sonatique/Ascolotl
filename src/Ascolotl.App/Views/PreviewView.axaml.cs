@@ -365,6 +365,20 @@ public partial class PreviewView : UserControl
             e.Handled = true;
             return;
         }
+        // The block itself: moved, duplicated, deleted, or a new paragraph after it. Ctrl+Z undoes it.
+        if (on >= 0 && (e.Key, mods) switch
+            {
+                (Key.Up or Key.Down, KeyModifiers.Control | KeyModifiers.Shift) => MoveBlock(on, e.Key == Key.Up ? -1 : 1),
+                (Key.D, KeyModifiers.Control | KeyModifiers.Alt) => DuplicateBlock(on),
+                (Key.Delete, KeyModifiers.None) => DeleteBlock(on),
+                (Key.N, KeyModifiers.Control | KeyModifiers.Shift) => NewParagraphAfter(on),
+                _ => (bool?)null,
+            } is { } done)
+        {
+            _refocusCurrent = done;
+            e.Handled = true;
+            return;
+        }
         if (mods != KeyModifiers.None) return;
         if (e.Key is Key.Up or Key.Down)
         {
@@ -911,10 +925,22 @@ public partial class PreviewView : UserControl
             // A click that committed an edit and landed on another block (or
             // table cell) queued it; now that the map + _astToEditor are
             // rebuilt, open it. Posted so it runs after this layout settles.
-            if (_pendingReentry is { } reentry)
+            // Not on a page of older text: a later change (a new row) is still to render.
+            if (_pendingReentry is { } reentry && _doc?.SourceText == _panelSource)
             {
                 _pendingReentry = null;
                 Dispatcher.UIThread.Post(() => ConsumeReentry(reentry));
+            }
+            // A block moved or deleted from the keyboard: the keyboard goes on with it,
+            // unless it went elsewhere meanwhile.
+            if (_refocusCurrent && _doc?.SourceText == _panelSource)
+            {
+                _refocusCurrent = false;
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (_activeEdit is null && (FocusedElement is null || PreviewScroll.IsKeyboardFocusWithin))
+                        FocusBlock(Math.Min(_current, _blockMap.Count - 1));
+                });
             }
 
             // Re-apply the last sync position so the preview doesn't jump
@@ -1384,7 +1410,7 @@ public partial class PreviewView : UserControl
     /// row/column into the child index (the inverse of
     /// <see cref="TryResolveCell"/>). Used to chain a commit into the
     /// just-clicked cell after the table re-renders.</summary>
-    private bool EnterCellEditByIndex(Control tableVis, TableLayout table, int rowIndex, int cellIndex)
+    private bool EnterCellEditByIndex(Control tableVis, TableLayout table, int rowIndex, int cellIndex, int? caretInContent = null)
     {
         MakeCurrent(tableVis);
         var grid = tableVis as Grid ?? FindDescendantGrid(tableVis);
@@ -1395,7 +1421,7 @@ public partial class PreviewView : UserControl
             return false;
         if (flat < 0 || flat >= grid.Children.Count) return false;
         if (grid.Children[flat] is not Control cellControl) return false;
-        return EnterCellEditCore(cellControl, table, rowIndex, cellIndex, caretInContent: null);
+        return EnterCellEditCore(cellControl, table, rowIndex, cellIndex, caretInContent);
     }
 
     private bool EnterCellEditCore(Control cellControl, TableLayout table, int r, int cellIdx,
@@ -1413,7 +1439,7 @@ public partial class PreviewView : UserControl
         // AdocNet 1.0.13 (#45) exposes a per-cell Source range covering exactly
         // the cell's content (no delimiters, no cell-spec prefix), so we splice
         // it directly — no row-slice scanning needed.
-        var cellSlice = BlockSourceEditing.ResolveEditorSlice(text, cell.Source, _astToEditor);
+        var cellSlice = BlockSourceEditing.ResolveCellSlice(text, cell.Source, _astToEditor);
         if (cellSlice is null)
         {
             if (_mainVm is not null)
@@ -1459,15 +1485,15 @@ public partial class PreviewView : UserControl
 
         BeginEdit(editor, host, start, length, original, restore,
             statusHint: Strings.StatusEditingCell,
-            caretInSlice: caretInContent);
-        if (_activeEdit?.Assist is { } assist) assist.CellTableEdit = TableEditAtCell;
+            caretInSlice: caretInContent, cell: (r, cellIdx));
+        if (_activeEdit?.Assist is { } assist) assist.CellTableEdit = op => TableEditAtCell(op);
         return true;
     }
 
     /// <summary>Common tail of both edit entry points: record state, place
     /// the caret, wire the commit/cancel handlers, focus the editor.</summary>
     private void BeginEdit(TextEditor editor, Control host, int start, int length,
-        string originalSlice, Action restore, string statusHint, int? caretInSlice = null)
+        string originalSlice, Action restore, string statusHint, int? caretInSlice = null, (int Row, int Cell)? cell = null)
     {
         _activeEdit = new BlockEditState
         {
@@ -1479,6 +1505,7 @@ public partial class PreviewView : UserControl
             OriginalSlice = originalSlice,
             WasDirty = _doc?.IsDirty ?? false,
             SourceAtOpen = _doc?.SourceText ?? string.Empty,
+            Cell = cell,
             // The inline editor holds one block's slice, so feed the whole
             // document for anchor/attribute (document-aware) completion.
             Assist = new CompletionController(editor,
@@ -1639,8 +1666,17 @@ public partial class PreviewView : UserControl
         }
         else if (e.Key == Key.Enter && e.KeyModifiers.HasFlag(KeyModifiers.Control))
         {
-            CommitBlockEdit();
-            FocusBlock(_current); // an applied change: once the block is rendered again
+            // In a table cell: applied, and a new row below to type in.
+            if (_activeEdit.Cell is not { } cell || !AddRowBelow(cell.Row))
+            {
+                CommitBlockEdit();
+                FocusBlock(_current); // an applied change: once the block is rendered again
+            }
+            e.Handled = true;
+        }
+        else if (e.Key == Key.Tab && e.KeyModifiers is KeyModifiers.None or KeyModifiers.Shift && _activeEdit.Cell is { } cell)
+        {
+            MoveFromCell(cell, vertical: false, e.KeyModifiers == KeyModifiers.Shift ? -1 : 1);
             e.Handled = true;
         }
         else if (e.Key is Key.Up or Key.Down or Key.Left or Key.Right && e.KeyModifiers == KeyModifiers.None
@@ -1651,27 +1687,100 @@ public partial class PreviewView : UserControl
     // Where the caret was before an arrow key: an arrow that can't move it leaves the block.
     private int? _caretBeforeArrow;
 
-    /// <summary>After the editor's own handling: an arrow at the block's edge goes on to the block beside it.</summary>
+    /// <summary>After the editor's own handling: an arrow at the edge of a block (or a table cell) goes on to the one beside it.</summary>
     private void OnBlockEditArrow(object? sender, KeyEventArgs e)
     {
         var before = _caretBeforeArrow;
         _caretBeforeArrow = null;
-        // A whole block, not a table cell: the cells' own navigation is for later.
-        if (before is null || _activeEdit is not { } edit || edit.Editor.CaretOffset != before
-            || edit.Host.GetVisualParent() != _renderedRoot)
-            return;
+        if (before is null || _activeEdit is not { } edit || edit.Editor.CaretOffset != before) return;
         var step = e.Key is Key.Up or Key.Left ? -1 : 1;
+        if (edit.Cell is { } cell)
+            MoveFromCell(cell, vertical: e.Key is Key.Up or Key.Down, step);
+        else if (!LeaveBlock(step))
+            return;
+        e.Handled = true;
+    }
+
+    /// <summary>Applies the open edit and opens the block beside it, a table at its first or last cell.
+    /// Past the last block, a new paragraph. False at the top of the document.</summary>
+    private bool LeaveBlock(int step)
+    {
+        if (_doc is null || _activeEdit is not { } edit) return false;
         var target = _current + step;
-        if (_doc is null || target < 0 || target >= _blockMap.Count) return;
+        if (target < 0) return false;
+        if (target >= _blockMap.Count)
+        {
+            // Not a second one after a new paragraph left as it was.
+            if (edit.Cell is null && edit.Editor.Text.Trim() == BlockSnippets.Paragraph) return false;
+            CommitBlockEdit();
+            OpenNewParagraph(_doc.SourceText.Length);
+            return true;
+        }
         var block = _blockMap[target].Block;
         // Opened like a click on another block: at once, or after the applied change's re-render.
-        _pendingReentry = BlockSourceEditing.ResolveEditorSlice(_doc.SourceText, block.Source, _astToEditor) is (int s, _)
-            ? (s, -1, -1, AtEnd: step < 0)
-            : null;
+        _pendingReentry = BlockSourceEditing.ResolveEditorSlice(_doc.SourceText, block.Source, _astToEditor) is not (int s, _) ? null
+            : block is TableLayout table && EdgeCell(table, step) is var (r, c) ? (s, r, c, AtEnd: step < 0)
+            : (s, -1, -1, AtEnd: step < 0);
         _current = target;
         CommitBlockEdit();
         if (_pendingReentry is null && _activeEdit is null) FocusBlock(target); // a block from an included file
-        e.Handled = true;
+        return true;
+    }
+
+    /// <summary>The cell an arrow enters a table by: the first one going down, the last one going up.</summary>
+    private static (int Row, int Cell)? EdgeCell(TableLayout table, int step)
+    {
+        var rows = Enumerable.Range(0, table.Rows.Count).Where(r => table.Rows[r].Cells.Count > 0);
+        if (!rows.Any()) return null;
+        var row = step > 0 ? rows.First() : rows.Last();
+        return (row, step > 0 ? 0 : table.Rows[row].Cells.Count - 1);
+    }
+
+    /// <summary>From the open cell to the one beside it: along the rows (Tab, Left, Right) or up and
+    /// down a column (Up, Down). Past the table's first or last cell, on to the block beside it.</summary>
+    private void MoveFromCell((int Row, int Cell) from, bool vertical, int step)
+    {
+        if (_doc is null || _current >= _blockMap.Count || _blockMap[_current].Block is not TableLayout table) return;
+        var rows = table.Rows;
+        var (r, c) = (from.Row, from.Cell + step);
+        if (vertical || c < 0 || c >= rows[r].Cells.Count)
+        {
+            do r += step; while (r >= 0 && r < rows.Count && rows[r].Cells.Count == 0); // rows all spanned from above
+            if (r < 0 || r >= rows.Count)
+            {
+                LeaveBlock(step);
+                return;
+            }
+            // ponytail: the same declared cell, not the same column, in a row a span shifts.
+            c = vertical ? Math.Min(from.Cell, rows[r].Cells.Count - 1) : step > 0 ? 0 : rows[r].Cells.Count - 1;
+        }
+        if (BlockSourceEditing.ResolveEditorSlice(_doc.SourceText, table.Source, _astToEditor) is not (int s, _)) return;
+        _pendingReentry = (s, r, c, AtEnd: step < 0);
+        CommitBlockEdit();
+    }
+
+    /// <summary>Applies the open cell and adds a row below it, then opens the new row's first cell.</summary>
+    private bool AddRowBelow(int row)
+    {
+        if (_doc is null || _current >= _blockMap.Count
+            || BlockSourceEditing.ResolveEditorSlice(_doc.SourceText, _blockMap[_current].Block.Source, _astToEditor) is not (int s, _)
+            || !TableEditAtCell(TableOp.RowBelow))
+            return false;
+        _pendingReentry = (s, row + 1, 0, false);
+        return true;
+    }
+
+    /// <summary>Puts a new paragraph after source offset <paramref name="end"/> and opens it, its placeholder selected.</summary>
+    private void OpenNewParagraph(int end)
+    {
+        if (_doc is null) return;
+        var text = _doc.SourceText;
+        end = Math.Clamp(end, 0, text.Length);
+        // Where BlockInsertion.Join puts it: one blank line after the text before.
+        var before = text.AsSpan(0, end).TrimEnd('\n').Length;
+        _selectAllOnNextEdit = true;
+        _pendingReentry = (before == 0 ? 0 : before + 2, -1, -1, false);
+        _doc.SourceText = BlockInsertion.InsertAfter(text, end, BlockSnippets.Paragraph);
     }
 
     private void OnBlockEditLostFocus(object? sender, RoutedEventArgs e)
@@ -1768,9 +1877,9 @@ public partial class PreviewView : UserControl
             SourceLineClicked?.Invoke(text.AsSpan(0, lineStart).Count('\n'), at - lineStart, y);
         }
         var opened = block is TableLayout tbl
-            ? req.CellIndex >= 0 && EnterCellEditByIndex(vis, tbl, req.RowIndex, req.CellIndex)
+            ? req.CellIndex >= 0 && EnterCellEditByIndex(vis, tbl, req.RowIndex, req.CellIndex, req.AtEnd ? int.MaxValue : null)
             : EnterBlockEdit(vis, block, req.AtEnd ? int.MaxValue : null);
-        // An arrow that reached a table (or a block it can't open) stops on the block itself.
+        // A block it can't open (from an included file) is stopped on instead.
         if (!opened) FocusBlock(_blockMap.FindIndex(b => b.Vis == vis));
     }
 
@@ -1803,28 +1912,29 @@ public partial class PreviewView : UserControl
 
     /// <summary>A table edit from the open cell editor: keep the cell's text,
     /// then edit the table around it.</summary>
-    private void TableEditAtCell(TableOp op)
+    private bool TableEditAtCell(TableOp op)
     {
-        if (_activeEdit is not { } edit || _doc is null) return;
+        if (_activeEdit is not { } edit || _doc is null) return false;
         var typed = edit.Editor.Text;
         CommitBlockEdit(); // the splice starts where the cell's text did
         // A commit refused because the text changed meanwhile leaves the offset stale.
         var at = _doc.SourceText.AsSpan(Math.Min(edit.Start, _doc.SourceText.Length));
-        if (at.StartsWith(typed) || at.StartsWith(edit.OriginalSlice))
-            TableEditAt(edit.Start, op);
+        return (at.StartsWith(typed) || at.StartsWith(edit.OriginalSlice)) && TableEditAt(edit.Start, op);
     }
 
-    /// <summary>Edit the table around a source offset.</summary>
-    private void TableEditAt(int offset, TableOp op)
+    /// <summary>Edit the table around a source offset. False when the table can't take it.</summary>
+    private bool TableEditAt(int offset, TableOp op)
     {
-        if (_doc is null) return;
+        if (_doc is null) return false;
         if (TableEditing.Apply(op, _doc.SourceText, offset, _doc.IsMarkdown) is { } e)
         {
             _doc.SourceText = _doc.SourceText.Remove(e.Start, e.Length).Insert(e.Start, e.Text);
             if (_mainVm is not null) _mainVm.StatusText = CompletionController.TableDone(op);
+            return true;
         }
-        else if (_mainVm is not null)
+        if (_mainVm is not null)
             _mainVm.StatusText = Strings.StatusEditTableSourceForLayout;
+        return false;
     }
 
     private void CancelBlockEdit()
@@ -1851,6 +1961,59 @@ public partial class PreviewView : UserControl
         if (_doc is not null && _doc.SourceText == _panelSource) return true;
         if (_mainVm is not null) _mainVm.StatusText = Strings.StatusPreviewUpdating;
         return false;
+    }
+
+    // A block moved or deleted from the keyboard: the keyboard goes to block _current once the page is rendered again.
+    private bool _refocusCurrent;
+
+    /// <summary>Block <paramref name="i"/>'s source with the title and attribute lines above it,
+    /// or null (said in the status bar) when the page can't change it.</summary>
+    private (int Start, int Length)? WholeBlock(int i)
+    {
+        if (_doc is null || i < 0 || i >= _blockMap.Count || !PanelIsCurrent()) return null;
+        var text = _doc.SourceText;
+        if (BlockSourceEditing.ResolveEditorSlice(text, _blockMap[i].Block.Source, _astToEditor) is not (int s, int len))
+        {
+            if (_mainVm is not null) _mainVm.StatusText = Strings.StatusBlockFromIncludeCannotModify;
+            return null;
+        }
+        if (_doc.IsMarkdown) return (s, len); // no such lines; one may be a paragraph of its own
+        var above = i > 0 && BlockSourceEditing.ResolveEditorSlice(text, _blockMap[i - 1].Block.Source, _astToEditor) is (int ps, int pl) ? ps + pl : 0;
+        return BlockSourceEditing.WithHeader(text, s, len, above);
+    }
+
+    private bool MoveBlock(int i, int step)
+    {
+        var j = i + step;
+        if (_doc is null || j < 0 || j >= _blockMap.Count
+            || WholeBlock(Math.Min(i, j)) is not { } a || WholeBlock(Math.Max(i, j)) is not { } b
+            || a.Start + a.Length > b.Start) // ranges that overlap can't be swapped
+            return false;
+        _current = j;
+        _doc.SourceText = BlockSourceEditing.SwapSlices(_doc.SourceText, a, b);
+        return true;
+    }
+
+    private bool DuplicateBlock(int i)
+    {
+        if (_doc is null || WholeBlock(i) is not { } a) return false;
+        _doc.SourceText = BlockSourceEditing.DuplicateSlice(_doc.SourceText, a.Start, a.Length);
+        return true;
+    }
+
+    private bool DeleteBlock(int i)
+    {
+        if (_doc is null || WholeBlock(i) is not { } a) return false;
+        _current = Math.Max(0, Math.Min(i, _blockMap.Count - 2)); // the block below, or above the last one
+        _doc.SourceText = BlockSourceEditing.DeleteSlice(_doc.SourceText, a.Start, a.Length);
+        return true;
+    }
+
+    private bool NewParagraphAfter(int i)
+    {
+        if (WholeBlock(i) is not { } a) return false;
+        OpenNewParagraph(a.Start + a.Length);
+        return true;
     }
 
     private void ShowBlockContextMenu(Control blockVis, BlockLayout block, Visual? clickTarget, Point pointInScroll)
@@ -1888,7 +2051,7 @@ public partial class PreviewView : UserControl
             {
                 if (_doc.IsMarkdown && TryResolveCell(blockVis, table, clickTarget, pointInScroll, out _, out var mr, out var mc)
                     && mr < table.Rows.Count && mc < table.Rows[mr].Cells.Count
-                    && BlockSourceEditing.ResolveEditorSlice(_doc.SourceText, table.Rows[mr].Cells[mc].Source, _astToEditor)
+                    && BlockSourceEditing.ResolveCellSlice(_doc.SourceText, table.Rows[mr].Cells[mc].Source, _astToEditor)
                         is (int cellStart, _))
                 {
                     items.Add(new Separator());
@@ -1958,26 +2121,16 @@ public partial class PreviewView : UserControl
 
         items.Add(new Separator());
 
-        var duplicateItem = new MenuItem { Header = Strings.MenuDuplicateBlock };
-        duplicateItem.Click += (_, _) =>
-        {
-            if (_doc is not null)
-                _doc.SourceText = BlockSourceEditing.DuplicateSlice(_doc.SourceText, start, length);
-        };
-        items.Add(duplicateItem);
-
-        var deleteItem = new MenuItem { Header = Strings.MenuDeleteBlock };
-        deleteItem.Click += (_, _) =>
-        {
-            if (_doc is not null)
-                _doc.SourceText = BlockSourceEditing.DeleteSlice(_doc.SourceText, start, length);
-        };
-        items.Add(deleteItem);
+        // Found again on click: a render meanwhile may have moved the block.
+        int Index() => _blockMap.FindIndex(b => b.Vis == blockVis);
+        items.Add(Cmd(Strings.MenuDuplicateBlock, () => DuplicateBlock(Index())));
+        items.Add(Cmd(Strings.MenuDeleteBlock, () => DeleteBlock(Index())));
 
         items.Add(new Separator());
         var markdown = _doc.IsMarkdown;
+        var top = WholeBlock(Index())?.Start ?? start; // above its title and attribute lines too
         items.Add(BuildInsertSubmenu(Strings.MenuInsertAbove, markdown,
-            snippet => { if (_doc is not null) _doc.SourceText = BlockInsertion.InsertBefore(_doc.SourceText, start, snippet); }));
+            snippet => { if (_doc is not null) _doc.SourceText = BlockInsertion.InsertBefore(_doc.SourceText, top, snippet); }));
         items.Add(BuildInsertSubmenu(Strings.MenuInsertBelow, markdown,
             snippet => { if (_doc is not null) _doc.SourceText = BlockInsertion.InsertAfter(_doc.SourceText, start + length, snippet); }));
 
@@ -2271,6 +2424,8 @@ public partial class PreviewView : UserControl
         public required string OriginalSlice { get; init; }
         public required bool WasDirty { get; init; }
         public required string SourceAtOpen { get; init; }
+        /// <summary>The open table cell, by row and declared cell; null for a whole block.</summary>
+        public (int Row, int Cell)? Cell { get; init; }
 
         /// <summary>Authoring-assist controller for the inline editor, so the
         /// WYSIWYG block editor gets the same completion/snippets/smart-typing

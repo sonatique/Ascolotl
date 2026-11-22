@@ -425,7 +425,7 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="StatusEditDiscarded" xml:space="preserve"><value>Edición descartada — el documento cambió mientras el bloque estaba abierto</value></data>
   <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ moverse entre bloques · Intro editar · Mayús+F10 menú · Tab salir de la página</value></data>
   <data name="StatusEditingBlock" xml:space="preserve"><value>Editando bloque — Aplicar (Ctrl+Intro) o hacer clic fuera para confirmar, Esc para cancelar</value></data>
-  <data name="StatusEditingCell" xml:space="preserve"><value>Editando celda — Aplicar (Ctrl+Intro) o hacer clic fuera para confirmar, Esc para cancelar</value></data>
+  <data name="StatusEditingCell" xml:space="preserve"><value>Editando celda — Tab a la celda siguiente, Ctrl+Intro para una fila nueva, Esc para cancelar</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Edite el código de la tabla para esta disposición</value></data>
   <data name="StatusExportedTo" xml:space="preserve"><value>Exportado a {0}</value></data>
   <data name="StatusExportedWithWarnings" xml:space="preserve"><value>Exportado a {0} — {1} imagen(es) sin texto alternativo; se usó su nombre de archivo</value></data>

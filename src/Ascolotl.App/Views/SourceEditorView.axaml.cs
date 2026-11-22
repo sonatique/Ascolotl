@@ -95,6 +95,12 @@ public partial class SourceEditorView : UserControl
         }
     }
 
+    /// <summary>Shown again after the page: to where the page was.</summary>
+    public void ShowTopLine()
+    {
+        if (_currentDocument is { } doc) RestoreTopLine(doc);
+    }
+
     /// <summary>Back to where this tab was (in this session or the last one), once the text is laid out.</summary>
     private void RestoreTopLine(DocumentViewModel doc) =>
         Dispatcher.UIThread.Post(() =>

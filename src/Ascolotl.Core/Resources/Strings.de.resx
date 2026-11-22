@@ -425,7 +425,7 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="StatusEditDiscarded" xml:space="preserve"><value>Bearbeitung verworfen — das Dokument hat sich geändert, während der Block offen war</value></data>
   <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ zwischen Blöcken wechseln · Enter bearbeiten · Umschalt+F10 Menü · Tab Seite verlassen</value></data>
   <data name="StatusEditingBlock" xml:space="preserve"><value>Block wird bearbeitet — Übernehmen (Strg+Enter) oder daneben klicken zum Übernehmen, Esc zum Abbrechen</value></data>
-  <data name="StatusEditingCell" xml:space="preserve"><value>Zelle wird bearbeitet — Übernehmen (Strg+Enter) oder daneben klicken zum Übernehmen, Esc zum Abbrechen</value></data>
+  <data name="StatusEditingCell" xml:space="preserve"><value>Zelle wird bearbeitet — Tab zur nächsten Zelle, Strg+Enter für eine neue Zeile, Esc zum Abbrechen</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Bearbeiten Sie für dieses Layout den Tabellenquelltext</value></data>
   <data name="StatusExportedTo" xml:space="preserve"><value>Exportiert nach {0}</value></data>
   <data name="StatusExportedWithWarnings" xml:space="preserve"><value>Exportiert nach {0} — {1} Bild(er) ohne Alternativtext; stattdessen wurde der Dateiname verwendet</value></data>
