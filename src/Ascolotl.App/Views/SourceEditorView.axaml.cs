@@ -60,7 +60,7 @@ public partial class SourceEditorView : UserControl
         var isDark = Application.Current?.ActualThemeVariant == ThemeVariant.Dark;
         static Avalonia.Media.SolidColorBrush Brush(string hex) => new(Avalonia.Media.Color.Parse(hex));
 
-        Editor.LineNumbersForeground = Brush(isDark ? "#6E6862" : "#B0ABA3");
+        Editor.LineNumbersForeground = Brush(isDark ? "#89847F" : "#77736E"); // 4.5:1, readable
         // The current line is a quiet band; the rose caret marks where you are.
         Editor.TextArea.TextView.CurrentLineBackground = Brush(isDark ? "#262321" : "#F4F2EE");
         Editor.TextArea.TextView.CurrentLineBorder = new Avalonia.Media.Pen(Avalonia.Media.Brushes.Transparent, 0);

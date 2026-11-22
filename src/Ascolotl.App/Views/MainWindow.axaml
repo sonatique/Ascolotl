@@ -58,9 +58,9 @@
                                     ToolTip.Tip="{Binding SelectedDocument.DiagnosticsSummary}"
                                     VerticalAlignment="Center">
                             <Path Classes="icon" Data="{StaticResource IconErrorGeometry}"
-                                  Width="13" Height="13" Stroke="#C0241F" />
+                                  Width="13" Height="13" Stroke="{DynamicResource ForgeErrorBrush}" />
                             <TextBlock Text="{Binding SelectedDocument.ErrorCount}"
-                                       FontSize="11" FontWeight="SemiBold" Foreground="#C0241F"
+                                       FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource ForgeErrorBrush}"
                                        VerticalAlignment="Center" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="4"
@@ -68,9 +68,9 @@
                                     ToolTip.Tip="{Binding SelectedDocument.DiagnosticsSummary}"
                                     VerticalAlignment="Center">
                             <Path Classes="icon" Data="{StaticResource IconWarningGeometry}"
-                                  Width="13" Height="13" Stroke="#E5322B" />
+                                  Width="13" Height="13" Stroke="{DynamicResource ForgeWarningBrush}" />
                             <TextBlock Text="{Binding SelectedDocument.WarningCount}"
-                                       FontSize="11" FontWeight="SemiBold" Foreground="#E5322B"
+                                       FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource ForgeWarningBrush}"
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </StackPanel>

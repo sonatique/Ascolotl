@@ -23,6 +23,9 @@
                     <SolidColorBrush x:Key="ForgeAccentLightBrush" Color="#4A2535" />
                     <SolidColorBrush x:Key="ForgeAccentSubtleBrush" Color="#26E8608A" />
                     <SolidColorBrush x:Key="ForgeAccentTextBrush" Color="#F0889E" />
+                    <SolidColorBrush x:Key="ForgeAccentDeepBrush" Color="#A03355" />
+                    <SolidColorBrush x:Key="ForgeErrorBrush" Color="#CF5955" />
+                    <SolidColorBrush x:Key="ForgeWarningBrush" Color="#E73F39" />
                     <SolidColorBrush x:Key="ForgeBgDeepBrush" Color="#161413" />
                     <SolidColorBrush x:Key="ForgeBgBrush" Color="#1F1D1B" />
                     <SolidColorBrush x:Key="ForgeBgSurfaceBrush" Color="#262321" />
@@ -49,8 +52,8 @@
                     <SolidColorBrush x:Key="MenuFlyoutItemForeground" Color="#F5F2EE" />
                     <SolidColorBrush x:Key="MenuFlyoutItemForegroundPointerOver" Color="#F5F2EE" />
                     <SolidColorBrush x:Key="MenuFlyoutItemForegroundPressed" Color="#F5F2EE" />
-                    <SolidColorBrush x:Key="MenuFlyoutItemKeyboardAcceleratorTextForeground" Color="#7F7973" />
-                    <SolidColorBrush x:Key="MenuFlyoutItemKeyboardAcceleratorTextForegroundPointerOver" Color="#968F88" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemKeyboardAcceleratorTextForeground" Color="#8E8984" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemKeyboardAcceleratorTextForegroundPointerOver" Color="#99928B" />
                     <SolidColorBrush x:Key="MenuFlyoutSubItemChevron" Color="#968F88" />
                     <SolidColorBrush x:Key="MenuFlyoutSeparatorBackground" Color="#34302C" />
                     <SolidColorBrush x:Key="MenuBarItemBackgroundPointerOver" Color="#262321" />
@@ -72,6 +75,9 @@
                     <SolidColorBrush x:Key="ForgeAccentLightBrush" Color="#F7DCE5" />
                     <SolidColorBrush x:Key="ForgeAccentSubtleBrush" Color="#1FD94F7A" />
                     <SolidColorBrush x:Key="ForgeAccentTextBrush" Color="#C2416C" />
+                    <SolidColorBrush x:Key="ForgeAccentDeepBrush" Color="#8C2D4A" />
+                    <SolidColorBrush x:Key="ForgeErrorBrush" Color="#C0241F" />
+                    <SolidColorBrush x:Key="ForgeWarningBrush" Color="#C82C26" />
                     <SolidColorBrush x:Key="ForgeBgDeepBrush" Color="#ECE9E3" />
                     <SolidColorBrush x:Key="ForgeBgBrush" Color="#FBFAF8" />
                     <SolidColorBrush x:Key="ForgeBgSurfaceBrush" Color="#F4F2EE" />
@@ -95,8 +101,8 @@
                     <SolidColorBrush x:Key="MenuFlyoutItemForeground" Color="#24221F" />
                     <SolidColorBrush x:Key="MenuFlyoutItemForegroundPointerOver" Color="#24221F" />
                     <SolidColorBrush x:Key="MenuFlyoutItemForegroundPressed" Color="#24221F" />
-                    <SolidColorBrush x:Key="MenuFlyoutItemKeyboardAcceleratorTextForeground" Color="#A29E97" />
-                    <SolidColorBrush x:Key="MenuFlyoutItemKeyboardAcceleratorTextForegroundPointerOver" Color="#8F8B84" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemKeyboardAcceleratorTextForeground" Color="#76736E" />
+                    <SolidColorBrush x:Key="MenuFlyoutItemKeyboardAcceleratorTextForegroundPointerOver" Color="#706C67" />
                     <SolidColorBrush x:Key="MenuFlyoutSubItemChevron" Color="#8F8B84" />
                     <SolidColorBrush x:Key="MenuFlyoutSeparatorBackground" Color="#ECE9E3" />
                     <SolidColorBrush x:Key="MenuBarItemBackgroundPointerOver" Color="#ECE9E3" />
@@ -424,14 +430,15 @@
             <Setter Property="BorderBrush" Value="{DynamicResource ForgeAccentDarkBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource ForgeTextBrush}" />
         </Style>
+        <!-- The darker accents keep white text above 4.5:1 in both themes. -->
         <Style Selector="Button.dialog.primary">
-            <Setter Property="Background" Value="{DynamicResource ForgeAccentBrush}" />
+            <Setter Property="Background" Value="{DynamicResource ForgeAccentDarkBrush}" />
             <Setter Property="Foreground" Value="#FFFFFF" />
             <Setter Property="BorderThickness" Value="0" />
         </Style>
         <Style Selector="Button.dialog.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource ForgeAccentDarkBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ForgeAccentDarkBrush}" />
+            <Setter Property="Background" Value="{DynamicResource ForgeAccentDeepBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ForgeAccentDeepBrush}" />
             <Setter Property="Foreground" Value="#FFFFFF" />
         </Style>
 
