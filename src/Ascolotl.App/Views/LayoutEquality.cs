@@ -37,6 +37,7 @@ public sealed class LayoutEquality
                 (i, j) => Inlines(i.Term, j.Term) && Inlines(i.Description, j.Description)),
             (TableLayout x, TableLayout y) => x.Title == y.Title && x.HasHeader == y.HasHeader
                 && x.HasFooter == y.HasFooter && All(x.Rows, y.Rows, Row),
+            (StemLayout x, StemLayout y) => x.Content == y.Content && x.StemType == y.StemType && x.Title == y.Title,
             (ThematicBreakLayout, ThematicBreakLayout) or (PageBreakLayout, PageBreakLayout) => true,
             _ => false,
         };
@@ -63,6 +64,7 @@ public sealed class LayoutEquality
             (StrikethroughRun x, StrikethroughRun y) => Inlines(x.Children, y.Children),
             (HighlightRun x, HighlightRun y) => Inlines(x.Children, y.Children),
             (ImageRun x, ImageRun y) => x.Target == y.Target && x.Alt == y.Alt,
+            (StemRun x, StemRun y) => x.Content == y.Content && x.StemType == y.StemType,
             (LineBreakRun, LineBreakRun) => true,
             _ => false,
         };

@@ -29,6 +29,16 @@ public sealed class LayoutEqualityTests
         Assert.False(LayoutEquality.Same(Blocks("== Title")[0], Blocks("=== Title")[0]));
     }
 
+    [Fact]
+    public void Formulas_MatchOnlyTheSameSource()
+    {
+        const string block = "[stem]\n++++\nx^2\n++++\n";
+        Assert.True(LayoutEquality.Same(Blocks(block)[0], Blocks("Intro.\n\n" + block)[1]));
+        Assert.False(LayoutEquality.Same(Blocks(block)[0], Blocks(block.Replace("x^2", "x^3"))[0]));
+        Assert.True(LayoutEquality.Same(Blocks("Area stem:[a^2].")[0], Blocks("Area stem:[a^2].")[0]));
+        Assert.False(LayoutEquality.Same(Blocks("Area stem:[a^2].")[0], Blocks("Area latexmath:[a^2].")[0]));
+    }
+
     /// <summary>
     /// LayoutEquality must compare every property of every layout node: one it
     /// misses (say, added by an AdocNet update) would let a changed block keep
@@ -58,6 +68,8 @@ public sealed class LayoutEqualityTests
             "PageBreakLayout.Source",
             "ParagraphLayout.Inlines", "ParagraphLayout.Source",
             "QuoteLayout.Attribution", "QuoteLayout.Blocks", "QuoteLayout.Citation", "QuoteLayout.Source",
+            "StemLayout.Content", "StemLayout.Source", "StemLayout.StemType", "StemLayout.Title",
+            "StemRun.Content", "StemRun.Source", "StemRun.StemType",
             "StrikethroughRun.Children", "StrikethroughRun.Source",
             "SubscriptRun.Children", "SubscriptRun.Source",
             "SuperscriptRun.Children", "SuperscriptRun.Source",

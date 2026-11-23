@@ -35,6 +35,22 @@ EXTRA = [
      "Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono). "
      "JetBrains Mono is a trademark of JetBrains s.r.o.",
      "https://github.com/JetBrains/JetBrainsMono"),
+    # Compiled into CSharpMath.Rendering (AdocNet.Stem, the math typesetter), with the fonts it embeds.
+    ("Typography, compiled into CSharpMath.Rendering", "MIT",
+     "Copyright (c) WinterDev and LayoutFarm contributors; some files under Apache 2.0, BSD or the FreeType "
+     "License, as their headers state",
+     "https://github.com/LayoutFarm/Typography"),
+    ("Latin Modern Math 1.959 font, in CSharpMath.Rendering", "LPPL-1.3c",
+     "Copyright 2012--2014 for Latin Modern Math OTF by B. Jackowski, P. Strzelczyk and P. Pianowski "
+     "(on behalf of TeX users groups). Released under the GUST Font License.",
+     "https://www.gust.org.pl/projects/e-foundry/lm-math"),
+    ("AMS Capital Blackboard Bold font (from the AMS fonts, MSBM), in CSharpMath.Rendering", "OFL-1.1",
+     "Copyright (c) 1997, 2009 American Mathematical Society (http://www.ams.org), with Reserved Font Name MSBM9.",
+     "https://www.ams.org/tex/amsfonts"),
+    ("Cyrillic Modern 4.002 font (nmr10), in CSharpMath.Rendering", "OFL-1.1",
+     "Copyright (c) 1997, 2009 American Mathematical Society (http://www.ams.org), with Reserved Font Name CMR10. "
+     "Copyright (c) 2012-2014 Andrey V. Panov.",
+     "https://github.com/verybadcat/CSharpMath"),
 ]
 
 # Hunspell dictionaries from LibreOffice, bundled in Ascolotl.Core; each README states its license.
@@ -54,6 +70,8 @@ TITLES = {
     "Apache-2.0": "Apache License 2.0",
     "MS-PL": "Microsoft Public License",
     "OFL-1.1": "SIL Open Font License 1.1",
+    # The GUST Font License is the LPPL 1.3c, with a request (not a requirement) that modified fonts be renamed.
+    "LPPL-1.3c": "LaTeX Project Public License 1.3c (the GUST Font License)",
 }
 
 

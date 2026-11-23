@@ -73,6 +73,7 @@ public sealed class ExportService : IExportService
                             // AdocNet's PDF renderer loads images from here and
                             // does not apply :imagesdir: itself.
                             BaseDirectory = ImageBase(basePath, attributes.GetValueOrDefault("imagesdir", "")),
+                            StemRenderer = Formulas.Renderer,
                         };
                         var renderer = new PdfRenderer();
                         renderer.Render(parsed.Document, ms, options);
@@ -86,13 +87,14 @@ public sealed class ExportService : IExportService
                             Theme = ExportThemes.Html(theme),
                             BaseDirectory = basePath,
                             CustomCss = styleCss,
+                            StemRenderer = Formulas.Renderer,
                         });
                         break;
                     case ExportFormat.DocBook:
                         new DocBookRenderer().Render(parsed.Document, ms, RenderOptions.Default);
                         break;
                     case ExportFormat.Epub:
-                        new EpubRenderer().Render(parsed.Document, ms, new EpubRenderOptions { CustomCss = styleCss });
+                        new EpubRenderer().Render(parsed.Document, ms, new EpubRenderOptions { CustomCss = styleCss, StemRenderer = Formulas.Renderer });
                         break;
                     default:
                         return ExportResult.Failure(string.Format(Strings.ExportUnsupportedFormat, format));
@@ -141,7 +143,7 @@ public sealed class ExportService : IExportService
         });
     }
 
-    // Every layout kind AdocNet 1.0.43 has (see LayoutEquality); the rest hold no images.
+    // Every layout kind AdocNet 1.0.44 has (see LayoutEquality); the rest, formulas included, hold no images.
     private static IEnumerable<string> ImageTargets(IEnumerable<BlockLayout> blocks) => blocks.SelectMany(b => b switch
     {
         ImageLayout i => [i.Target],

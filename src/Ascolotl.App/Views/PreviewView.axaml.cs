@@ -65,7 +65,7 @@ public partial class PreviewView : UserControl
     // directly. IncrementalAvaloniaRenderer nests its output one section deep,
     // which collapses the line map to one marker per top-level AST child, so
     // re-renders reuse unchanged block visuals here instead (TryReuseBlocks).
-    private static readonly AvaloniaRenderer _avaloniaRenderer = new() { WrapInScrollViewer = false };
+    private static readonly AvaloniaRenderer _avaloniaRenderer = new() { WrapInScrollViewer = false, StemRenderer = Ascolotl.Export.Formulas.Renderer };
     // The renderer's own look, restored when no style is active.
     private static readonly AvaloniaRenderTheme _builtInTheme = _avaloniaRenderer.Theme;
     private static readonly LayoutBuilder _layoutBuilder = new();
@@ -1327,7 +1327,9 @@ public partial class PreviewView : UserControl
         var document = doc.RenderedDocument!;
         try
         {
-            var pages = await Task.Run(() => new PdfRenderer().LayoutPages(document, pdf));
+            // Formulas take their typeset height, as in the exported PDF.
+            var pdfWithFormulas = new PdfRenderOptions(pdf) { StemRenderer = Ascolotl.Export.Formulas.Renderer };
+            var pages = await Task.Run(() => new PdfRenderer().LayoutPages(document, pdfWithFormulas));
             if (generation != _renderGeneration)
                 return;
             Shown = Zoomed(

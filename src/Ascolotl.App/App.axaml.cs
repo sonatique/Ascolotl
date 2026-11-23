@@ -55,6 +55,8 @@ public class App : Application
             Core.Spelling.Speller.Personal.Load(Path.Combine(data, "words.txt"));
             Core.Spelling.SpellCheck.Enabled = _settings.CheckSpelling;
 
+            Export.Formulas.WarmUp();
+
             // Before any window is built: views read their texts once, when created.
             UiLanguage.Apply(_settings.Language);
             ApplyTheme(_settings.Theme);

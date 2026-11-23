@@ -58,6 +58,7 @@ public sealed class WebsiteExportService : IWebsiteExportService
                 {
                     FullDocument = true,
                     Theme = HtmlTheme.Asciidoctor,
+                    StemRenderer = Formulas.Renderer,
                 });
                 html = WebsiteBuilder.RewriteDocLinks(html);
 
