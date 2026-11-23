@@ -192,7 +192,7 @@
   <data name="CommandSaveAs" xml:space="preserve"><value>Save As</value></data>
   <data name="CommandSourceMode" xml:space="preserve"><value>Source Mode</value></data>
   <data name="CommandSplitMode" xml:space="preserve"><value>Split Mode</value></data>
-  <data name="CommandSwitchPane" xml:space="preserve"><value>Move Between Source and Page</value></data>
+  <data name="CommandSwitchPane" xml:space="preserve"><value>Move Between Source, Page and Sidebar</value></data>
   <data name="CommandThemeDark" xml:space="preserve"><value>Theme: Dark</value></data>
   <data name="CommandThemeLight" xml:space="preserve"><value>Theme: Light</value></data>
   <data name="CommandThemeSystem" xml:space="preserve"><value>Theme: System</value></data>
@@ -409,7 +409,7 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="ShowTitleTOC" xml:space="preserve"><value>Show _Title &amp; TOC</value></data>
   <data name="SourceMode" xml:space="preserve"><value>_Source Mode</value></data>
   <data name="SplitMode" xml:space="preserve"><value>S_plit Mode</value></data>
-  <data name="SwitchPane" xml:space="preserve"><value>Move _Between Source and Page</value></data>
+  <data name="SwitchPane" xml:space="preserve"><value>Move _Between Source, Page and Sidebar</value></data>
   <data name="NextProblem" xml:space="preserve"><value>Next Problem</value></data>
   <data name="PreviousProblem" xml:space="preserve"><value>Previous Problem</value></data>
   <data name="NoProblems" xml:space="preserve"><value>No problems</value></data>

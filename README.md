@@ -157,7 +157,7 @@ install -Dm644 ascolotl.png ~/.local/share/icons/hicolor/256x256/apps/ascolotl.p
 | Syntax reference (AsciiDoc or Markdown) | `F1` |
 | Toggle outline | `Ctrl+B` |
 | Zoom in / out / reset | `Ctrl++` / `Ctrl+-` / `Ctrl+0` |
-| Move between the source and the page | `F6` |
+| Move between the source, the page and the sidebar (backwards: `Shift+F6`) | `F6` |
 | Next / previous error or warning, with its message in the status bar | `F8` / `Shift+F8` |
 
 On the WYSIWYG page (and the page in Split), one block at a time has the keyboard:

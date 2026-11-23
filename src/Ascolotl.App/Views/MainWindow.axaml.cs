@@ -288,7 +288,7 @@ public partial class MainWindow : Window
     {
         if (e.KeyModifiers != KeyModifiers.None) return;
         if (e.Key == Key.Enter || space && e.Key == Key.Space) enter();
-        else if (e.Key == Key.Escape) SwitchPane(fromPage: !_pageHadKeyboard); // back to the pane it came from
+        else if (e.Key == Key.Escape) FocusDocument();
         else return;
         e.Handled = true;
     }
@@ -296,17 +296,18 @@ public partial class MainWindow : Window
     /// <summary>The sidebar takes the keyboard as it opens, and hands it back to the document as it closes.</summary>
     private void FocusSidebarOrDocument()
     {
-        if (_viewModel?.ShowOutlinePane == true)
-        {
-            // The selected row, or the first one.
-            var files = _viewModel.SidebarFilesActive;
-            var row = files
-                ? ProjectTree.SelectedItem is { } file ? ProjectTree.TreeContainerFromItem(file) : ProjectTree.ContainerFromIndex(0)
-                : OutlineList.ContainerFromIndex(Math.Max(0, OutlineList.SelectedIndex));
-            (row ?? (files ? ProjectTree : OutlineList)).Focus(NavigationMethod.Tab);
-        }
-        else if (FocusManager?.GetFocusedElement() is null or Visual { IsEffectivelyVisible: false })
-            SwitchPane(fromPage: !_pageHadKeyboard);
+        if (_viewModel?.ShowOutlinePane == true) FocusSidebar();
+        else if (FocusManager?.GetFocusedElement() is null or Visual { IsEffectivelyVisible: false }) FocusDocument();
+    }
+
+    /// <summary>The sidebar's selected row, or its first one.</summary>
+    private void FocusSidebar()
+    {
+        var files = _viewModel?.SidebarFilesActive == true;
+        var row = files
+            ? ProjectTree.SelectedItem is { } file ? ProjectTree.TreeContainerFromItem(file) : ProjectTree.ContainerFromIndex(0)
+            : OutlineList.ContainerFromIndex(Math.Max(0, OutlineList.SelectedIndex));
+        (row ?? (files ? ProjectTree : OutlineList)).Focus(NavigationMethod.Tab);
     }
 
     private void SetSidebarFilesActive(bool filesActive)
@@ -359,21 +360,40 @@ public partial class MainWindow : Window
         if ((e.Source as Visual)?.FindAncestorOfType<TextEditor>(includeSelf: true) is { } editor
             && CompletionController.For(editor) is not null)
             _formatTarget = editor;
-        if (e.Source is Visual focused && (PreviewPane.IsVisualAncestorOf(focused) || EditorPane.IsVisualAncestorOf(focused)))
-            _pageHadKeyboard = PreviewPane.IsVisualAncestorOf(focused);
+        if (e.Source is Visual focused && Regions.FirstOrDefault(r => r.IsVisualAncestorOf(focused)) is { } region)
+        {
+            _lastRegion = region;
+            if (region != OutlinePane) _pageHadKeyboard = region == PreviewPane;
+        }
         UpdateTableTools();
     }
 
-    // Which of the two the keyboard was last in: the menu or the palette has it when their F6 runs.
-    private bool _pageHadKeyboard;
+    // F6's round: the source, the page and the sidebar, those shown.
+    private Control[] Regions => [EditorPane, PreviewPane, OutlinePane];
+
+    // Where the keyboard was last: the menu or the palette has it when their F6 runs.
+    private Control? _lastRegion;
+    private bool _pageHadKeyboard; // of the source and the page
 
     private void OnSwitchPaneRequested() =>
-        Dispatcher.UIThread.Post(() => SwitchPane(_pageHadKeyboard), DispatcherPriority.Input); // once the menu has closed
+        Dispatcher.UIThread.Post(() => SwitchPane(_lastRegion), DispatcherPriority.Input); // once the menu has closed
 
-    /// <summary>F6: the keyboard goes from the source to the page, and back.</summary>
-    private void SwitchPane(bool fromPage)
+    /// <summary>F6 (Shift+F6 backwards): the keyboard goes on to the next of the source, the page and the sidebar.</summary>
+    private void SwitchPane(Control? from, int step = 1)
     {
-        if (PreviewPane.IsVisible && !(EditorPane.IsVisible && fromPage))
+        var shown = Regions.Where(r => r.IsVisible).ToList();
+        if (shown.Count == 0) return;
+        var at = shown.IndexOf(from!);
+        if (at < 0) at = step > 0 ? -1 : 0; // from elsewhere: the first, or backwards the last
+        var next = shown[(at + step + shown.Count) % shown.Count];
+        if (next == OutlinePane) FocusSidebar();
+        else FocusDocument(page: next == PreviewPane);
+    }
+
+    /// <summary>The source or the page, the one the keyboard was last in unless told.</summary>
+    private void FocusDocument(bool? page = null)
+    {
+        if (PreviewPane.IsVisible && ((page ?? _pageHadKeyboard) || !EditorPane.IsVisible))
             FindDescendant<PreviewView>(PreviewPane)?.FocusPage();
         else
             FindDescendant<SourceEditorView>(EditorPane)?.Editor.TextArea.Focus();
@@ -640,7 +660,7 @@ public partial class MainWindow : Window
         // F6 moves between the source and the page.
         else if (e.Key == Key.F6 && e.KeyModifiers is KeyModifiers.None or KeyModifiers.Shift)
         {
-            SwitchPane(PreviewPane.IsKeyboardFocusWithin);
+            SwitchPane(Regions.FirstOrDefault(r => r.IsKeyboardFocusWithin), e.KeyModifiers == KeyModifiers.Shift ? -1 : 1);
             e.Handled = true;
         }
         // The rest of the menus' keys. A menu item's InputGesture only shows its key; both

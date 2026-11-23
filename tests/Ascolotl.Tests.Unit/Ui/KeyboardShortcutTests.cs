@@ -115,6 +115,34 @@ public sealed class KeyboardShortcutTests
     }
 
     [AvaloniaFact]
+    public void F6_GoesRoundTheSourcePageAndSidebar()
+    {
+        var (window, vm) = Open("= Doc\n\n== One\n\nText.\n", EditorMode.Source);
+        var source = window.GetVisualDescendants().OfType<TextEditor>().First().TextArea;
+        var sidebar = window.FindControl<Control>("OutlinePane")!;
+        vm.ShowOutlinePane = true;
+        Pump(window);
+        source.Focus();
+
+        Press(window, new KeyGesture(Key.F6)); // Tab stays in the source: F6 reaches the sidebar
+        Assert.True(sidebar.IsKeyboardFocusWithin);
+        Press(window, new KeyGesture(Key.F6));
+        Assert.True(source.IsKeyboardFocusWithin);
+        Press(window, new KeyGesture(Key.F6, KeyModifiers.Shift)); // and Shift+F6 goes back
+        Assert.True(sidebar.IsKeyboardFocusWithin);
+
+        vm.EditorMode = EditorMode.Split;
+        Pump(window);
+        source.Focus();
+        Press(window, new KeyGesture(Key.F6));
+        Assert.True(window.FindControl<Control>("PreviewPane")!.IsKeyboardFocusWithin);
+        Press(window, new KeyGesture(Key.F6));
+        Assert.True(sidebar.IsKeyboardFocusWithin);
+        Press(window, new KeyGesture(Key.F6));
+        Assert.True(source.IsKeyboardFocusWithin);
+    }
+
+    [AvaloniaFact]
     public void MenuKeys_NeedTheirExactModifiers()
     {
         var (window, vm) = Open("Text.\n", EditorMode.Split);

@@ -192,7 +192,7 @@
   <data name="CommandSaveAs" xml:space="preserve"><value>Speichern unter</value></data>
   <data name="CommandSourceMode" xml:space="preserve"><value>Quelltextmodus</value></data>
   <data name="CommandSplitMode" xml:space="preserve"><value>Geteilter Modus</value></data>
-  <data name="CommandSwitchPane" xml:space="preserve"><value>Zwischen Quelltext und Seite wechseln</value></data>
+  <data name="CommandSwitchPane" xml:space="preserve"><value>Zwischen Quelltext, Seite und Seitenleiste wechseln</value></data>
   <data name="CommandThemeDark" xml:space="preserve"><value>Design: dunkel</value></data>
   <data name="CommandThemeLight" xml:space="preserve"><value>Design: hell</value></data>
   <data name="CommandThemeSystem" xml:space="preserve"><value>Design: System</value></data>
@@ -409,7 +409,7 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="ShowTitleTOC" xml:space="preserve"><value>_Titel und Inhaltsverzeichnis anzeigen</value></data>
   <data name="SourceMode" xml:space="preserve"><value>_Quelltextmodus</value></data>
   <data name="SplitMode" xml:space="preserve"><value>_Geteilter Modus</value></data>
-  <data name="SwitchPane" xml:space="preserve"><value>Zw_ischen Quelltext und Seite wechseln</value></data>
+  <data name="SwitchPane" xml:space="preserve"><value>Zw_ischen Quelltext, Seite und Seitenleiste wechseln</value></data>
   <data name="NextProblem" xml:space="preserve"><value>Nächstes Problem</value></data>
   <data name="PreviousProblem" xml:space="preserve"><value>Vorheriges Problem</value></data>
   <data name="NoProblems" xml:space="preserve"><value>Keine Probleme</value></data>
