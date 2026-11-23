@@ -137,8 +137,13 @@ public sealed class ViewSwitchTests
 
         ContextMenu? opened = null;
         using (ContextMenu.OpenedEvent.AddClassHandler<ContextMenu>((menu, _) => opened = menu))
+        {
             Press(window, Key.F10, RawInputModifiers.Shift);
+            window.KeyRelease(Key.F10, RawInputModifiers.Shift, PhysicalKey.None, null);
+            Pump(window);
+        }
         Assert.NotNull(opened); // the block menu, as on a right-click
+        Assert.True(opened.IsOpen); // opened as F10 is let go: let go in the menu, it would close it
         opened.Close();
         Pump(window);
 

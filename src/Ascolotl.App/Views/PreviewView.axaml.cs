@@ -231,6 +231,14 @@ public partial class PreviewView : UserControl
         // between blocks, Enter edits one, Shift+F10 or the Menu key opens its menu.
         // Handled keys too: the scroll viewer takes Page Up/Down first.
         PreviewScroll.AddHandler(InputElement.KeyDownEvent, OnPageKeyDown, RoutingStrategies.Bubble, handledEventsToo: true);
+        // Shift+F10's menu opens as F10 is let go: let go in the menu, F10 would close it at once (it toggles menus).
+        PreviewScroll.AddHandler(InputElement.KeyUpEvent, (_, e) =>
+        {
+            if (e.Key != Key.F10 || !_menuOnF10Up) return;
+            _menuOnF10Up = false;
+            OpenBlockMenu();
+            e.Handled = true;
+        }, RoutingStrategies.Bubble, handledEventsToo: true);
         // Tab or F6 gives the page the keyboard: it goes on to a block. A block or
         // editor removed by a re-render drops it: it comes back once the new blocks are in.
         PreviewScroll.GotFocus += (_, e) =>
@@ -465,8 +473,7 @@ public partial class PreviewView : UserControl
         }
         while (_findLayer.Children.Count > marks.Count) _findLayer.Children.RemoveAt(_findLayer.Children.Count - 1);
         while (_findLayer.Children.Count < marks.Count) _findLayer.Children.Add(new Border { CornerRadius = new CornerRadius(2) });
-        this.TryFindResource("ForgeHighlightBrush", ActualThemeVariant, out var all);
-        this.TryFindResource("ForgeAccentBrush", ActualThemeVariant, out var current);
+        this.TryFindResource("ForgeAccentBrush", ActualThemeVariant, out var accent);
         for (var k = 0; k < marks.Count; k++)
         {
             var (r, isCurrent) = marks[k];
@@ -475,8 +482,8 @@ public partial class PreviewView : UserControl
             Canvas.SetTop(mark, r.Y);
             mark.Width = r.Width + 2;
             mark.Height = r.Height;
-            mark.Background = (isCurrent ? current : all) as IBrush;
-            mark.Opacity = isCurrent ? 0.45 : 0.35;
+            mark.Background = accent as IBrush;
+            mark.Opacity = isCurrent ? 0.45 : 0.18; // every match seen, the current one stronger
         }
     }
 
@@ -526,29 +533,38 @@ public partial class PreviewView : UserControl
         if (block is HeadingLayout heading) AutomationProperties.SetHeadingLevel(vis, heading.Level + 1);
     }
 
+    private bool _menuOnF10Up;
+
+    /// <summary>The menu of the block the keyboard is on (or the insert menu), at the block: no pointer opened it.</summary>
+    private void OpenBlockMenu()
+    {
+        if (_mainVm?.PagePreview == true) return;
+        if (CurrentInView() is var i and >= 0)
+            ShowBlockContextMenu(_blockMap[i].Vis, _blockMap[i].Block, null, _blockMap[i].Vis.TranslatePoint(new Point(1, 1), PreviewScroll) ?? default);
+        else
+            ShowInsertMenuAt(default);
+    }
+
     private void OnPageKeyDown(object? sender, KeyEventArgs e)
     {
         // The page or one of its blocks: keys typed in the in-place editor are its own.
         var on = _blockMap.FindIndex(b => b.Vis == e.Source);
         if (e.Source != PreviewScroll && on < 0) return;
         var mods = e.KeyModifiers;
+        // Avalonia opens a menu on these keys only for an attached ContextMenu; the page builds one per block.
+        if (e.Key == Key.Apps && mods == KeyModifiers.None || e.Key == Key.F10 && mods == KeyModifiers.Shift)
+        {
+            if (e.Key == Key.F10) _menuOnF10Up = true; // opened as F10 is let go
+            else OpenBlockMenu();
+            e.Handled = true;
+            return;
+        }
         if (e.Handled)
         {
             // The scroll viewer paged: the keyboard follows to a block still in view.
             if (e.Key is Key.PageUp or Key.PageDown && on >= 0)
                 Dispatcher.UIThread.Post(() => { if (_activeEdit is null) FocusBlock(CurrentInView(), bringIntoView: false); },
                     DispatcherPriority.Background);
-            return;
-        }
-        // Avalonia opens a menu on these keys only for an attached ContextMenu; the page builds one per block.
-        if (e.Key == Key.Apps && mods == KeyModifiers.None || e.Key == Key.F10 && mods == KeyModifiers.Shift)
-        {
-            if (_mainVm?.PagePreview == true) return;
-            if (CurrentInView() is var i and >= 0)
-                ShowBlockContextMenu(_blockMap[i].Vis, _blockMap[i].Block, null, _blockMap[i].Vis.TranslatePoint(new Point(1, 1), PreviewScroll) ?? default);
-            else
-                ShowInsertMenuAt(default);
-            e.Handled = true;
             return;
         }
         // Back out of the page: going back through the page itself would hand the keyboard to a block again.
@@ -2331,10 +2347,12 @@ public partial class PreviewView : UserControl
     // Ctrl+/ in an open edit: the edit applied, the Turn into menu once the block is rendered again.
     private bool _turnIntoAfterRender;
 
-    // Ctrl+/: the / key wherever the layout puts it (Shift+7 on a Swiss or German keyboard).
+    // Ctrl+/: the / key wherever the layout puts it. With Ctrl held, Windows reports no "/" for
+    // Shift+7, where German, Swiss, Italian, Spanish and Nordic keyboards have it: Ctrl+Shift+7 too.
     private static bool IsTurnIntoKey(KeyEventArgs e) =>
         e.KeyModifiers.HasFlag(KeyModifiers.Control) && !e.KeyModifiers.HasFlag(KeyModifiers.Alt)
-        && (e.Key is Key.Oem2 or Key.Divide || e.KeySymbol == "/");
+        && (e.Key is Key.Oem2 or Key.Divide || e.KeySymbol == "/"
+            || e.Key == Key.D7 && e.KeyModifiers == (KeyModifiers.Control | KeyModifiers.Shift));
 
     private static bool CanTurn(BlockLayout block) =>
         block is ParagraphLayout or HeadingLayout or ListLayout or QuoteLayout or CodeBlockLayout or AdmonitionLayout;
@@ -2355,7 +2373,7 @@ public partial class PreviewView : UserControl
             FocusBlock(i);
         }
         var vis = _blockMap[i].Vis;
-        new ContextMenu { ItemsSource = TurnIntoItems(() => _blockMap.FindIndex(b => b.Vis == vis)) }.Open(vis);
+        OpenAtBlock(new ContextMenu { ItemsSource = TurnIntoItems(() => _blockMap.FindIndex(b => b.Vis == vis)) }, vis);
         return true;
     }
 
@@ -2642,7 +2660,16 @@ public partial class PreviewView : UserControl
             snippet => { if (_doc is not null) _doc.SourceText = BlockInsertion.InsertAfter(_doc.SourceText, start + length, snippet); }));
 
         var menu = new ContextMenu { ItemsSource = items };
-        menu.Open(blockVis);
+        if (clickTarget is null) OpenAtBlock(menu, blockVis); // from the keyboard
+        else menu.Open(blockVis);
+    }
+
+    /// <summary>A menu opened from the keyboard: just below the block's first line, not at the pointer.</summary>
+    private static void OpenAtBlock(ContextMenu menu, Control vis)
+    {
+        menu.Placement = PlacementMode.BottomEdgeAlignedLeft;
+        menu.PlacementRect = new Rect(0, 0, 1, Math.Min(vis.Bounds.Height, 24));
+        menu.Open(vis);
     }
 
     /// <summary>
