@@ -104,6 +104,10 @@ public partial class MainWindow : Window
             _barMenus.Add(menu);
         }
         _menuSets = [HamburgerMenuItem, bar];
+        // The menus' keys are written with Ctrl: on a Mac, Cmd.
+        if (CommandKey.Modifier != KeyModifiers.Control)
+            foreach (var item in _barMenus.Prepend<MenuItem>(HamburgerMenuItem).SelectMany(m => m.GetLogicalDescendants().Prepend(m)).OfType<MenuItem>())
+                if (item.InputGesture is { } written) item.InputGesture = CommandKey.OnPlatform(written);
 
         // Export profiles management
         foreach (var set in _menuSets)
@@ -640,13 +644,13 @@ public partial class MainWindow : Window
             e.Handled = true;
         }
         // Ctrl alone: AltGr (Ctrl+Alt) with a digit types a character on many layouts.
-        else if (e.KeyModifiers == KeyModifiers.Control && ViewForKey(e.Key) is { } view)
+        else if (CommandKey.AsWritten(e.KeyModifiers) == KeyModifiers.Control && ViewForKey(e.Key) is { } view)
         {
             _viewModel.SetEditorModeCommand.Execute(view);
             e.Handled = true;
         }
         // Heading levels in the editor with the keyboard: Ctrl+Shift+1 to 6, and 0 for a plain line.
-        else if (e.KeyModifiers == (KeyModifiers.Control | KeyModifiers.Shift) && e.Key is >= Key.D0 and <= Key.D6
+        else if (CommandKey.AsWritten(e.KeyModifiers) == (KeyModifiers.Control | KeyModifiers.Shift) && e.Key is >= Key.D0 and <= Key.D6
                  && (FocusManager?.GetFocusedElement() as Visual)?.FindAncestorOfType<TextEditor>(includeSelf: true) is { } editor
                  && CompletionController.For(editor) is { } assist)
         {
@@ -665,7 +669,7 @@ public partial class MainWindow : Window
         }
         // The page's changes are in the source's history, also while the source is hidden.
         // Not under an open block, whose own editor has its own history.
-        else if (e.KeyModifiers is KeyModifiers.Control or (KeyModifiers.Control | KeyModifiers.Shift) && e.Key is Key.Z or Key.Y
+        else if (CommandKey.AsWritten(e.KeyModifiers) is KeyModifiers.Control or (KeyModifiers.Control | KeyModifiers.Shift) && e.Key is Key.Z or Key.Y
                  && PreviewPane.IsKeyboardFocusWithin && !_viewModel.InPlaceEditOpen
                  && FindDescendant<SourceEditorView>(EditorPane) is { } sourceView && sourceView.DataContext == _viewModel.SelectedDocument
                  && sourceView.Editor is { } source)

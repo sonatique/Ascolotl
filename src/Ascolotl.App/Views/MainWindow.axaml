@@ -446,7 +446,7 @@
                                            Text="{Binding Name}"
                                            VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1"
-                                           Text="{Binding Shortcut}"
+                                           Text="{Binding Shortcut, Converter={x:Static views:CommandKey.TextConverter}}"
                                            Foreground="{DynamicResource ForgeTextMutedBrush}"
                                            FontSize="11"
                                            VerticalAlignment="Center"

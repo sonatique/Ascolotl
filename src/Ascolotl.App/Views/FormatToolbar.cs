@@ -185,7 +185,9 @@ public sealed class FormatToolbar : Border
     };
 
     /// <summary>The formatting keys, in the source and in an open block; the window handles them.</summary>
-    public static KeyGesture? KeyFor(FormatCommand command) => command switch
+    public static KeyGesture? KeyFor(FormatCommand command) => Written(command) is { } key ? CommandKey.OnPlatform(key) : null;
+
+    private static KeyGesture? Written(FormatCommand command) => command switch
     {
         Bold => new KeyGesture(Key.B, KeyModifiers.Control),
         Italic => new KeyGesture(Key.I, KeyModifiers.Control),

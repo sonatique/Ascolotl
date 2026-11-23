@@ -388,7 +388,7 @@ public partial class PreviewView : UserControl
         // Ctrl+F anywhere on the page, an open block's editor included; F3 on to the next match.
         AddHandler(KeyDownEvent, (_, e) =>
         {
-            if (e.Key == Key.F && e.KeyModifiers == KeyModifiers.Control) OpenFind();
+            if (e.Key == Key.F && CommandKey.AsWritten(e.KeyModifiers) == KeyModifiers.Control) OpenFind();
             else if (e.Key == Key.F3 && FindBar.IsVisible) FindStep(e.KeyModifiers.HasFlag(KeyModifiers.Shift) ? -1 : 1);
             else return;
             e.Handled = true;
@@ -577,7 +577,7 @@ public partial class PreviewView : UserControl
         // The page or one of its blocks: keys typed in the in-place editor are its own.
         var on = _blockMap.FindIndex(b => b.Vis == e.Source);
         if (e.Source != PreviewScroll && on < 0) return;
-        var mods = e.KeyModifiers;
+        var mods = CommandKey.AsWritten(e.KeyModifiers); // Cmd on a Mac reads as the Ctrl the keys are written with
         // Avalonia opens a menu on these keys only for an attached ContextMenu; the page builds one per block.
         if (e.Key == Key.Apps && mods == KeyModifiers.None || e.Key == Key.F10 && mods == KeyModifiers.Shift)
         {
@@ -1964,7 +1964,7 @@ public partial class PreviewView : UserControl
         // under it. (This host handler tunnels first, so it must defer.)
         if (_activeEdit.Assist is { IsActive: true } assist)
         {
-            if (e.Key != Key.Enter || !e.KeyModifiers.HasFlag(KeyModifiers.Control)) return;
+            if (e.Key != Key.Enter || !CommandKey.AsWritten(e.KeyModifiers).HasFlag(KeyModifiers.Control)) return;
             assist.CloseList(); // Ctrl+Enter applies the block, never a suggestion
         }
 
@@ -1974,7 +1974,7 @@ public partial class PreviewView : UserControl
             FocusBlock(_current); // the editor is gone: the keyboard stays on its block
             e.Handled = true;
         }
-        else if (e.Key == Key.Enter && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        else if (e.Key == Key.Enter && CommandKey.AsWritten(e.KeyModifiers).HasFlag(KeyModifiers.Control))
         {
             // In a table cell: applied, and a new row below to type in.
             if (_activeEdit.Cell is not { } cell || !AddRowBelow(cell.Row))
@@ -2385,10 +2385,10 @@ public partial class PreviewView : UserControl
 
     // Ctrl+/: the / key wherever the layout puts it. With Ctrl held, Windows reports no "/" for
     // Shift+7, where German, Swiss, Italian, Spanish and Nordic keyboards have it: Ctrl+Shift+7 too.
-    private static bool IsTurnIntoKey(KeyEventArgs e) =>
-        e.KeyModifiers.HasFlag(KeyModifiers.Control) && !e.KeyModifiers.HasFlag(KeyModifiers.Alt)
+    private static bool IsTurnIntoKey(KeyEventArgs e) => CommandKey.AsWritten(e.KeyModifiers) is var mods
+        && mods.HasFlag(KeyModifiers.Control) && !mods.HasFlag(KeyModifiers.Alt)
         && (e.Key is Key.Oem2 or Key.Divide || e.KeySymbol == "/"
-            || e.Key == Key.D7 && e.KeyModifiers == (KeyModifiers.Control | KeyModifiers.Shift));
+            || e.Key == Key.D7 && mods == (KeyModifiers.Control | KeyModifiers.Shift));
 
     private static bool CanTurn(BlockLayout block) =>
         block is ParagraphLayout or HeadingLayout or ListLayout or QuoteLayout or CodeBlockLayout or AdmonitionLayout;
@@ -2677,7 +2677,7 @@ public partial class PreviewView : UserControl
             editItem.Click += (_, _) => EnterBlockEdit(blockVis, block);
             items.Add(editItem);
             if (CanTurn(block))
-                items.Add(new MenuItem { Header = Strings.MenuTurnInto, InputGesture = new KeyGesture(Key.Oem2, KeyModifiers.Control), ItemsSource = TurnIntoItems(Index) });
+                items.Add(new MenuItem { Header = Strings.MenuTurnInto, InputGesture = CommandKey.OnPlatform(new KeyGesture(Key.Oem2, KeyModifiers.Control)), ItemsSource = TurnIntoItems(Index) });
         }
 
         items.Add(new Separator());
@@ -2689,11 +2689,11 @@ public partial class PreviewView : UserControl
         items.Add(Cmd(Strings.MenuCopy, () => CopyBlocks(Index(), cut: false), ApplicationCommands.Copy.Gesture));
         items.Add(Cmd(Strings.MenuPaste, () => PasteBlocks(Index()), ApplicationCommands.Paste.Gesture));
         items.Add(new Separator());
-        items.Add(Cmd(Strings.MenuMoveUp, () => MoveBlock(Index(), -1), new KeyGesture(Key.Up, KeyModifiers.Control | KeyModifiers.Shift)));
-        items.Add(Cmd(Strings.MenuMoveDown, () => MoveBlock(Index(), 1), new KeyGesture(Key.Down, KeyModifiers.Control | KeyModifiers.Shift)));
-        items.Add(Cmd(Strings.MenuDuplicateBlock, () => DuplicateBlock(Index()), new KeyGesture(Key.D, KeyModifiers.Control | KeyModifiers.Alt)));
+        items.Add(Cmd(Strings.MenuMoveUp, () => MoveBlock(Index(), -1), CommandKey.OnPlatform(new KeyGesture(Key.Up, KeyModifiers.Control | KeyModifiers.Shift))));
+        items.Add(Cmd(Strings.MenuMoveDown, () => MoveBlock(Index(), 1), CommandKey.OnPlatform(new KeyGesture(Key.Down, KeyModifiers.Control | KeyModifiers.Shift))));
+        items.Add(Cmd(Strings.MenuDuplicateBlock, () => DuplicateBlock(Index()), CommandKey.OnPlatform(new KeyGesture(Key.D, KeyModifiers.Control | KeyModifiers.Alt))));
         items.Add(Cmd(Strings.MenuDeleteBlock, () => DeleteBlock(Index()), new KeyGesture(Key.Delete)));
-        items.Add(Cmd(Strings.MenuNewParagraph, () => NewParagraphAfter(Index()), new KeyGesture(Key.N, KeyModifiers.Control | KeyModifiers.Shift)));
+        items.Add(Cmd(Strings.MenuNewParagraph, () => NewParagraphAfter(Index()), CommandKey.OnPlatform(new KeyGesture(Key.N, KeyModifiers.Control | KeyModifiers.Shift))));
 
         items.Add(new Separator());
         var markdown = _doc.IsMarkdown;

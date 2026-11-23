@@ -143,6 +143,8 @@ install -Dm644 ascolotl.png ~/.local/share/icons/hicolor/256x256/apps/ascolotl.p
 
 ## Keyboard shortcuts
 
+On a Mac, `Cmd` stands for `Ctrl` in these keys, except in `Ctrl+Tab` and `Ctrl+Space`.
+
 | Action | Shortcut |
 |---|---|
 | New / Open / Open folder | `Ctrl+N` / `Ctrl+O` / `Ctrl+Shift+O` |
