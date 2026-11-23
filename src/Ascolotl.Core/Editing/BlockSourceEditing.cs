@@ -83,6 +83,33 @@ public static class BlockSourceEditing
         return at == lineEnd || editorText[at] is '|' or '\r' ? (at, 0) : (at, 1);
     }
 
+    /// <summary>
+    /// An empty Markdown cell, which AdocNet gives no range, nor a row all empty: the empty slice
+    /// inside its pipes, after one space, on row <paramref name="row"/> of the table starting at
+    /// <paramref name="table"/> (one line a row, the header's underline after the first).
+    /// Null when the row doesn't write that cell out.
+    /// </summary>
+    public static (int Start, int Length)? EmptyMarkdownCell(string editorText, SourceRange table, int row, int cell, int[] astToEditor)
+    {
+        if (table.IsNone || row < 0 || cell < 0) return null;
+        var astLine = table.Start.Line + (row == 0 ? 0 : row + 1);
+        var line = Services.IncludeExpansionMap.AstLineToEditor(astToEditor, astLine - 1, fallback: -1);
+        var lineStarts = ComputeLineStarts(editorText);
+        if (line < 0 || line >= lineStarts.Count) return null;
+        var start = lineStarts[line];
+        var end = line + 1 < lineStarts.Count ? lineStarts[line + 1] - 1 : editorText.Length;
+        var pipes = new List<int>();
+        for (var i = start; i < end; i++)
+            if (editorText[i] == '|' && (i == start || editorText[i - 1] != '\\')) pipes.Add(i);
+        // With a leading pipe (after a quote's >), cell k lies between pipes k and k + 1; without one, k - 1 and k.
+        var open = editorText.AsSpan(start, end - start).TrimStart(" \t>").StartsWith("|") ? cell : cell - 1;
+        if (open < 0 || open + 1 >= pipes.Count) return null;
+        var at = pipes[open] + 1;
+        // Not blank there: not the cell asked for. Better not opened than typed into another.
+        if (!editorText.AsSpan(at, pipes[open + 1] - at).IsWhiteSpace()) return null;
+        return (at < pipes[open + 1] && editorText[at] == ' ' ? at + 1 : at, 0);
+    }
+
     public enum CommitAction { Replace, NoChange, Abort }
 
     /// <summary>
@@ -121,11 +148,60 @@ public static class BlockSourceEditing
         => offset >= spliceStart + removedLen ? offset + (insertedLen - removedLen) : offset;
 
     /// <summary>Duplicate the slice: insert a copy after it, separated by a
-    /// blank line. Returns the new source text.</summary>
-    public static string DuplicateSlice(string sourceText, int start, int length)
+    /// blank line; <paramref name="withoutId"/>: the copy without the block's ID. Returns the new source text.</summary>
+    public static string DuplicateSlice(string sourceText, int start, int length, bool withoutId = false)
     {
         var slice = sourceText.Substring(start, length);
-        return sourceText.Insert(start + length, "\n\n" + slice);
+        return sourceText.Insert(start + length, "\n\n" + (withoutId ? WithoutBlockId(slice) : slice));
+    }
+
+    /// <summary>An AsciiDoc block without its ID in the lines above it: no <c>[[id]]</c> line, no
+    /// <c>#id</c> in <c>[source#id]</c>, no <c>id=</c> attribute. A copy must not repeat the ID.</summary>
+    // ponytail: an inline anchor in the text itself ("[[id]]Text", "== Title [[id]]") stays.
+    public static string WithoutBlockId(string block)
+    {
+        var lines = block.Split('\n').ToList();
+        for (var i = 0; i < lines.Count && IsBlockHeader(lines[i].AsSpan().TrimEnd('\r'));)
+        {
+            var cr = lines[i].EndsWith('\r') ? "\r" : "";
+            if (WithoutId(lines[i].TrimEnd('\r')) is { } kept) lines[i++] = kept + cr;
+            else lines.RemoveAt(i);
+        }
+        return string.Join('\n', lines);
+    }
+
+    /// <summary>A header line without the ID it gives; null when nothing else is left of it.</summary>
+    private static string? WithoutId(string line)
+    {
+        if (line.StartsWith("[[", StringComparison.Ordinal)) return line.EndsWith("]]", StringComparison.Ordinal) ? null : line;
+        if (line[0] != '[') return line; // .Title
+        var entries = SplitAttributes(line[1..^1]);
+        var removed = entries.RemoveAll(e => e.TrimStart().StartsWith("id=", StringComparison.Ordinal));
+        // The first entry's shorthand, style#id.role%option: the #id goes.
+        if (entries.Count > 0 && !entries[0].Contains('=') && entries[0].IndexOf('#') is var hash and >= 0)
+        {
+            var end = entries[0].IndexOfAny(['.', '%'], hash);
+            entries[0] = entries[0].Remove(hash, (end < 0 ? entries[0].Length : end) - hash);
+            removed++;
+        }
+        if (removed == 0) return line;
+        return entries.All(string.IsNullOrWhiteSpace) ? null : "[" + string.Join(',', entries) + "]";
+    }
+
+    /// <summary>An attribute list split at its commas, outside values in quotes; each entry as written.</summary>
+    private static List<string> SplitAttributes(string list)
+    {
+        var entries = new List<string>();
+        var (start, quote) = (0, '\0');
+        for (var i = 0; i < list.Length; i++)
+        {
+            var c = list[i];
+            if (quote != '\0') { if (c == quote) quote = '\0'; }
+            else if (c is '"' or '\'' && list.AsSpan(start, i - start).IsWhiteSpace()) quote = c;
+            else if (c == ',') { entries.Add(list[start..i]); start = i + 1; }
+        }
+        entries.Add(list[start..]);
+        return entries;
     }
 
     /// <summary>

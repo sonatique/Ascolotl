@@ -80,4 +80,40 @@ public class TableStructureTests
     {
         Assert.Null(TableStructure.FlatCellIndex(new[] { 3, 2 }, row, cell));
     }
+
+    // ── CellAcross ────────────────────────────────────────────────────────
+
+    // | A A | B |      A spans two columns
+    // | C | D | E |
+    // | F | G | H |    F spans two rows
+    // | F | I | J |
+    // | K K K |        K spans three columns
+    private static readonly IReadOnlyList<IReadOnlyList<(int, int)>> Spans =
+    [
+        [(2, 1), (1, 1)],
+        [(1, 1), (1, 1), (1, 1)],
+        [(1, 2), (1, 1), (1, 1)],
+        [(1, 1), (1, 1)],
+        [(3, 1)],
+    ];
+
+    [Theory]
+    [InlineData(1, 1, -1, 0, 0)] // D up: A, which spans over it
+    [InlineData(0, 1, 1, 1, 2)]  // B down: E, its column
+    [InlineData(1, 2, -1, 0, 1)] // E up: B
+    [InlineData(3, 0, -1, 2, 1)] // I up: G, not F beside it
+    [InlineData(3, 1, -1, 2, 2)] // J up: H
+    [InlineData(2, 0, 1, 4, 0)]  // F down: past its own second row, K
+    [InlineData(4, 0, -1, 2, 0)] // K up: F, from the row it starts in
+    [InlineData(2, 1, 1, 3, 0)]  // G down: I
+    public void CellAcross_KeepsTheColumnAcrossSpans(int row, int cell, int step, int toRow, int toCell) =>
+        Assert.Equal((toRow, toCell), TableStructure.CellAcross(Spans, (row, cell), step));
+
+    [Theory]
+    [InlineData(0, 0, -1)]
+    [InlineData(4, 0, 1)]
+    [InlineData(5, 0, -1)] // no such row
+    [InlineData(3, 2, -1)] // no such cell
+    public void CellAcross_PastTheEdgeOrFromNoCell_IsNull(int row, int cell, int step) =>
+        Assert.Null(TableStructure.CellAcross(Spans, (row, cell), step));
 }

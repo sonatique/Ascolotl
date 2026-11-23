@@ -168,6 +168,25 @@ public class DocumentImportServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task Word_file_that_unpacks_too_large_is_refused_with_its_limit()
+    {
+        var bomb = Path.Combine(_dir, "bomb.docx");
+        using (var zip = ZipFile.Open(bomb, ZipArchiveMode.Create))
+        using (var part = zip.CreateEntry("word/document.xml", CompressionLevel.Fastest).Open())
+        {
+            var zeros = new byte[1024 * 1024];
+            for (var mb = 0; mb <= 512; mb++) part.Write(zeros); // 513 MB unpacked, about 1 MB packed
+        }
+        var output = Path.Combine(_dir, "out.adoc");
+
+        var outcome = await new DocumentImportService().ImportAsync(ImportFormat.Word, bomb, output, CancellationToken.None);
+
+        Assert.False(outcome.IsSuccess);
+        Assert.Contains("512", outcome.ErrorMessage);
+        Assert.False(File.Exists(output));
+    }
+
+    [Fact]
     public async Task Missing_file_fails_without_throwing()
     {
         var outcome = await new DocumentImportService().ImportAsync(ImportFormat.Word,

@@ -396,7 +396,11 @@ public partial class PreviewView : UserControl
             else if (on + step >= 0 && on + step < _blockMap.Count)
                 FocusBlock(on + step);
             else if (step < 0) PreviewScroll.ScrollToHome(); // up to the title
-            else PreviewScroll.ScrollToEnd();
+            // Below the last block: the rest of it first, then a new paragraph.
+            else if (_doc is null || _blockMap[on].Vis.TranslatePoint(new Point(0, _blockMap[on].Vis.Bounds.Height), PreviewScroll)
+                     is { } bottom && bottom.Y > PreviewScroll.Viewport.Height + 1)
+                PreviewScroll.ScrollToEnd();
+            else OpenNewParagraph(_doc.SourceText.Length);
             e.Handled = true;
             return;
         }
@@ -1428,6 +1432,16 @@ public partial class PreviewView : UserControl
         return EnterCellEditCore(cellControl, table, rowIndex, cellIndex, caretInContent);
     }
 
+    /// <summary>A cell's slice of the source. An empty Markdown cell has no range of its own: it is found between its pipes.</summary>
+    private (int Start, int Length)? CellSlice(TableLayout table, int r, int c)
+    {
+        if (_doc is null) return null;
+        var cell = table.Rows[r].Cells[c];
+        return BlockSourceEditing.ResolveCellSlice(_doc.SourceText, cell.Source, _astToEditor)
+            ?? (_doc.IsMarkdown && cell.Source.IsNone
+                ? BlockSourceEditing.EmptyMarkdownCell(_doc.SourceText, table.Source, r, c, _astToEditor) : null);
+    }
+
     private bool EnterCellEditCore(Control cellControl, TableLayout table, int r, int cellIdx,
         int? caretInContent)
     {
@@ -1437,13 +1451,11 @@ public partial class PreviewView : UserControl
         _pendingReentry = null;
         if (!PanelIsCurrent()) return false;
 
-        var cell = table.Rows[r].Cells[cellIdx];
-
         var text = _doc.SourceText;
         // AdocNet 1.0.13 (#45) exposes a per-cell Source range covering exactly
         // the cell's content (no delimiters, no cell-spec prefix), so we splice
-        // it directly — no row-slice scanning needed.
-        var cellSlice = BlockSourceEditing.ResolveCellSlice(text, cell.Source, _astToEditor);
+        // it directly — only an empty Markdown cell is looked for in its row.
+        var cellSlice = CellSlice(table, r, cellIdx);
         if (cellSlice is null)
         {
             if (_mainVm is not null)
@@ -1750,7 +1762,17 @@ public partial class PreviewView : UserControl
         if (_doc is null || _current >= _blockMap.Count || _blockMap[_current].Block is not TableLayout table) return;
         var rows = table.Rows;
         var (r, c) = (from.Row, from.Cell + step);
-        if (vertical || c < 0 || c >= rows[r].Cells.Count)
+        if (vertical)
+        {
+            if (TableStructure.CellAcross([.. rows.Select(row => (IReadOnlyList<(int, int)>)[.. row.Cells.Select(cell => (cell.ColSpan, cell.RowSpan))])],
+                    from, step) is not { } across)
+            {
+                LeaveBlock(step);
+                return;
+            }
+            (r, c) = across;
+        }
+        else if (c < 0 || c >= rows[r].Cells.Count)
         {
             do r += step; while (r >= 0 && r < rows.Count && rows[r].Cells.Count == 0); // rows all spanned from above
             if (r < 0 || r >= rows.Count)
@@ -1758,8 +1780,7 @@ public partial class PreviewView : UserControl
                 LeaveBlock(step);
                 return;
             }
-            // ponytail: the same declared cell, not the same column, in a row a span shifts.
-            c = vertical ? Math.Min(from.Cell, rows[r].Cells.Count - 1) : step > 0 ? 0 : rows[r].Cells.Count - 1;
+            c = step > 0 ? 0 : rows[r].Cells.Count - 1;
         }
         if (BlockSourceEditing.ResolveEditorSlice(_doc.SourceText, table.Source, _astToEditor) is not (int s, _)) return;
         _pendingReentry = (s, r, c, AtEnd: step < 0);
@@ -2014,7 +2035,7 @@ public partial class PreviewView : UserControl
     private bool DuplicateBlock(int i)
     {
         if (_doc is null || WholeBlock(i) is not { } a) return false;
-        _doc.SourceText = BlockSourceEditing.DuplicateSlice(_doc.SourceText, a.Start, a.Length);
+        _doc.SourceText = BlockSourceEditing.DuplicateSlice(_doc.SourceText, a.Start, a.Length, withoutId: !_doc.IsMarkdown);
         return true;
     }
 
@@ -2068,8 +2089,7 @@ public partial class PreviewView : UserControl
             {
                 if (_doc.IsMarkdown && TryResolveCell(blockVis, table, clickTarget, pointInScroll, out _, out var mr, out var mc)
                     && mr < table.Rows.Count && mc < table.Rows[mr].Cells.Count
-                    && BlockSourceEditing.ResolveCellSlice(_doc.SourceText, table.Rows[mr].Cells[mc].Source, _astToEditor)
-                        is (int cellStart, _))
+                    && CellSlice(table, mr, mc) is (int cellStart, _))
                 {
                     items.Add(new Separator());
                     items.Add(new MenuItem { Header = Strings.MenuRow, ItemsSource = new[]

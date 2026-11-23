@@ -211,6 +211,77 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
+    public void DownOnATallLastBlock_ShowsTheRestOfItFirst()
+    {
+        var text = "Short.\n\n" + string.Join(" ", Enumerable.Repeat("A sentence long enough to wrap around.", 300)) + "\n";
+        var (window, vm) = Open(text, EditorMode.Wysiwyg);
+        Preview(window).FocusPage();
+        Pump(window);
+        Press(window, Key.Down);
+        Pump(window);
+        Assert.StartsWith("A sentence", OnBlock(window));
+
+        Press(window, Key.Down);
+        Pump(window);
+        Assert.Null(BlockEditor(window)); // scrolled to its end
+        Assert.Equal(text, vm.SelectedDocument!.SourceText);
+        Press(window, Key.Down);
+        Pump(window);
+        Assert.Equal("New paragraph.", BlockEditor(window)!.SelectedText.TrimEnd());
+    }
+
+    [AvaloniaFact]
+    public void TableCells_UpAndDownKeepTheColumn_AcrossMergedCells()
+    {
+        var (window, _) = Open("[cols=\"1,1,1\"]\n|===\n2+| A | B\n| C | D | E\n|===\n", EditorMode.Wysiwyg);
+        Preview(window).FocusPage();
+        Pump(window);
+        string Cell() => BlockEditor(window)!.Text.Trim();
+
+        Press(window, Key.Enter);
+        Assert.Equal("A", Cell());
+        Press(window, Key.Right); // to the end of A, then on to B
+        Press(window, Key.Right);
+        Assert.Equal("B", Cell());
+        Press(window, Key.Down);
+        Assert.Equal("E", Cell()); // B's column, not the second cell
+        Press(window, Key.Left);
+        Assert.Equal("D", Cell());
+        Press(window, Key.Up);
+        Assert.Equal("A", Cell()); // A spans over D
+    }
+
+    [AvaloniaFact]
+    public void MarkdownTable_EmptyCellsOpenToTypeInto()
+    {
+        var (window, vm) = Open("Before.\n\n| A | B |\n|---|---|\n| a1 | b1 |\n", EditorMode.Wysiwyg);
+        vm.SelectedDocument!.FilePath = Path.Combine(Path.GetTempPath(), "table.md");
+        Pump(window);
+        Preview(window).FocusPage();
+        Pump(window);
+        string Cell() => BlockEditor(window)!.Text;
+
+        Press(window, Key.Enter);
+        Press(window, Key.Down);
+        Assert.Equal("A", Cell());
+        Press(window, Key.Tab);
+        Press(window, Key.Tab);
+        Press(window, Key.Tab);
+        Assert.Equal("b1", Cell());
+        Press(window, Key.Enter, RawInputModifiers.Control); // a new row, its first cell open
+        Pump(window);
+        Assert.Equal("", Cell());
+        window.KeyTextInput("a2");
+        Press(window, Key.Tab);
+        Pump(window);
+        Assert.Equal("", Cell()); // the next empty one too
+        window.KeyTextInput("b2");
+        Press(window, Key.Escape);
+        Pump(window);
+        Assert.Contains(vm.SelectedDocument.SourceText.Split('\n'), line => line.StartsWith('|') && line.Contains(" a2") && !line.Contains("b2"));
+    }
+
+    [AvaloniaFact]
     public void BlockKeys_MoveDuplicateDeleteAndUndo()
     {
         var (window, vm) = Open("One.\n\n.Code\n[source]\n----\nx\n----\n\nThree.\n", EditorMode.Wysiwyg);
@@ -275,6 +346,14 @@ public sealed class ViewSwitchTests
             Assert.Equal(withFour, Text());
             Assert.Equal("Four.", OnBlock(window));
         }
+
+        // Down on the last block, moving between blocks: a new paragraph there too.
+        Press(window, Key.Down);
+        Pump(window);
+        Assert.Equal("New paragraph.", BlockEditor(window)!.SelectedText.TrimEnd());
+        Press(window, Key.Escape);
+        Pump(window);
+        Assert.Equal(withFour, Text());
 
         // Up from below a table: its last cell.
         vm.SelectedDocument!.SourceText = "|===\n| a | b\n|===\n\nAfter.\n";

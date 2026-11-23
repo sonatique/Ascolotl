@@ -306,8 +306,9 @@
   <data name="ImportPercentMapped" xml:space="preserve"><value>{0}% convertito</value></data>
   <data name="ImportSummaryLine" xml:space="preserve"><value>{0} importato — {1}</value></data>
   <data name="ImportTables" xml:space="preserve"><value>{0} tabelle</value></data>
+  <data name="ImportTooLarge" xml:space="preserve"><value>Questo file {0} è troppo grande da importare: decompresso supera {1} MB.</value></data>
   <data name="InlineApply" xml:space="preserve"><value>✓ Applica</value></data>
-  <data name="InlineApplyTip" xml:space="preserve"><value>Applica (Ctrl+Invio)</value></data>
+  <data name="InlineApplyTip" xml:space="preserve"><value>Applica (Ctrl+Invio, che in una cella di tabella aggiunge anche una riga)</value></data>
   <data name="InlineCancel" xml:space="preserve"><value>✕ Annulla</value></data>
   <data name="InlineCancelTip" xml:space="preserve"><value>Annulla (Esc)</value></data>
   <data name="InsertBulletedList" xml:space="preserve"><value>Elenco puntato</value></data>

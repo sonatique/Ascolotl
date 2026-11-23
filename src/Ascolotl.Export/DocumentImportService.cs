@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using AdocNet.Importers;
 using AdocNet.Importers.Docx;
 using Ascolotl.Core.Models;
@@ -43,12 +44,38 @@ public sealed class DocumentImportService : IDocumentImportService
         }, cancellationToken);
     }
 
+    /// <summary>The most a Word file may unpack to: a small file can hold gigabytes, and the
+    /// import would stall on them.</summary>
+    private const long MaxWordUnpackedBytes = 512L * 1024 * 1024;
+
     private static ImportOutcome ImportWord(string sourcePath, string adocPath, string media)
     {
+        if (UnpacksTooLarge(sourcePath))
+            return ImportOutcome.Failure(string.Format(Strings.ImportTooLarge,
+                ImportFormat.Word.DisplayName(), MaxWordUnpackedBytes / (1024 * 1024)));
         var report = new DocxImporter(new DocxImportOptions { MediaDirectoryName = media })
             .ConvertFile(sourcePath, adocPath).Report;
         return Success(adocPath, report.Fidelity, report.Images, report.Tables,
             report.Issues.Where(i => i.Severity != DocxIssueSeverity.Info));
+    }
+
+    /// <summary>Whether a Word file's parts take more than the limit unpacked, as its zip says; false
+    /// for a file that is no zip or can't be read, which the import then reports.</summary>
+    // ponytail: the sizes the zip declares; one that understates them still reaches the importer.
+    private static bool UnpacksTooLarge(string path)
+    {
+        try
+        {
+            using var zip = ZipFile.OpenRead(path);
+            var left = MaxWordUnpackedBytes;
+            foreach (var entry in zip.Entries)
+                if (entry.Length < 0 || (left -= entry.Length) < 0) return true; // counted down: no overflow
+            return false;
+        }
+        catch (Exception ex) when (ex is InvalidDataException or IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
     }
 
     private static ImportOutcome Import(ImportFormat format, string sourcePath, string adocPath, string media)

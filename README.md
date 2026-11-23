@@ -143,7 +143,7 @@ On the WYSIWYG page (and the page in Split), one block at a time has the keyboar
 
 | Action | Keys |
 |---|---|
-| Previous / next block | `↑` / `↓` |
+| Previous / next block (below the last one: a new paragraph) | `↑` / `↓` |
 | First / last block | `Home` / `End` |
 | Edit the block (a table: its first cell) | `Enter` or `F2` |
 | Block menu | `Shift+F10` or the Menu key |
@@ -159,7 +159,8 @@ opens the block above or below; below the last block, a new paragraph. `Esc` can
 between blocks.
 
 In a table cell, `Tab` and `Shift+Tab` go to the next and previous cell, and the arrows
-go on to the cell beside or below once they can't move further inside the cell. Past the
+go on to the cell beside, above or below once they can't move further inside the cell,
+`↑` and `↓` keeping to the column across merged cells. Past the
 first or last cell they leave the table. `Ctrl+Enter` applies the cell and adds a row below it.
 
 ## Screen readers

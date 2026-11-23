@@ -67,4 +67,41 @@ public static class TableStructure
         for (var i = 0; i < rowIndex; i++) flat += cellsPerRow[i];
         return flat + cellIndex;
     }
+
+    /// <summary>
+    /// The cell straight above (<paramref name="step"/> -1) or below (+1) cell <paramref name="from"/>,
+    /// by the columns the cells take with their spans: past a cell spanning rows, onto one spanning
+    /// columns. <paramref name="spans"/> gives each row's cells as (ColSpan, RowSpan). Null past the
+    /// first or last row.
+    /// </summary>
+    public static (int Row, int Cell)? CellAcross(IReadOnlyList<IReadOnlyList<(int Cols, int Rows)>> spans,
+        (int Row, int Cell) from, int step)
+    {
+        // Which cell covers each column of each row, laid out as a table is.
+        var owners = spans.Select(_ => new List<(int Row, int Cell)?>()).ToList();
+        for (var r = 0; r < spans.Count; r++)
+        {
+            var col = 0;
+            for (var c = 0; c < spans[r].Count; c++)
+            {
+                while (col < owners[r].Count && owners[r][col] is not null) col++;
+                // ponytail: spans capped at 1000 columns, so a document's 99999+| can't fill memory.
+                var (cols, rows) = (Math.Clamp(spans[r][c].Cols, 1, 1000), Math.Max(1, spans[r][c].Rows));
+                for (var dr = 0; dr < rows && r + dr < spans.Count; dr++)
+                    for (var dc = 0; dc < cols; dc++)
+                    {
+                        var line = owners[r + dr];
+                        while (line.Count <= col + dc) line.Add(null);
+                        line[col + dc] = (r, c);
+                    }
+                col += cols;
+            }
+        }
+        var column = from.Row >= 0 && from.Row < owners.Count ? owners[from.Row].IndexOf(from) : -1;
+        if (column < 0) return null; // no such cell
+        for (var r = from.Row + step; r >= 0 && r < spans.Count; r += step)
+            if (owners[r].Count > 0 && owners[r][Math.Min(column, owners[r].Count - 1)] is { } to && to != from)
+                return to; // a shorter row: its last cell
+        return null;
+    }
 }

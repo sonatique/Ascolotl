@@ -163,6 +163,33 @@ public class BlockSourceEditingTests
     }
 
     [Fact]
+    public void Duplicate_WithoutId_LeavesTheIdToTheOriginal()
+    {
+        var text = "[[a]]\none\n";
+        Assert.Equal("[[a]]\none\n\none\n", BlockSourceEditing.DuplicateSlice(text, 0, 9, withoutId: true));
+    }
+
+    [Theory]
+    [InlineData("[[intro]]\n== Intro", "== Intro")]
+    [InlineData("[[code,The code]]\r\n.Title\r\n----\nx\n----", ".Title\r\n----\nx\n----")]
+    [InlineData("[#intro]\n== Intro", "== Intro")]
+    [InlineData("[source#code,python]\n----", "[source,python]\n----")]
+    [InlineData("[#code.role%linenums]\n----", "[.role%linenums]\n----")]
+    [InlineData("[source, python, id=code]\n----", "[source, python]\n----")]
+    [InlineData("[id=\"x\"]\n.Title\n[[y]]\nText", ".Title\nText")]
+    public void WithoutBlockId_DropsTheIdLinesAndAttributes(string block, string expected) =>
+        Assert.Equal(expected, BlockSourceEditing.WithoutBlockId(block));
+
+    [Theory]
+    [InlineData("[quote, \"Doe, id=x\"]\n____\nq\n____")] // inside quotes: not an attribute
+    [InlineData("[cols=\"1,1\"]\n|===\n| a | b\n|===")]
+    [InlineData("[link=https://x.org/#top]\nimage::a.png[]")]
+    [InlineData("Text with [[anchor]] inside")]
+    [InlineData("== Title\n\n[[later]]\nnot above the block")]
+    public void WithoutBlockId_LeavesEverythingElse(string block) =>
+        Assert.Equal(block, BlockSourceEditing.WithoutBlockId(block));
+
+    [Fact]
     public void Delete_AbsorbsTrailingBlankLine()
     {
         var text = "one\n\ntwo\n\nthree\n";
@@ -232,6 +259,23 @@ public class BlockSourceEditingTests
         Assert.Equal(expected, text.Substring(slice.Value.Start, slice.Value.Length));
         Assert.Equal(column - 1, slice.Value.Start);
     }
+
+    [Theory]
+    [InlineData("| a |    | c |\n", 0, 1, 6)]   // after one space
+    [InlineData("| a || c |\n", 0, 1, 5)]       // no space: right after the pipe
+    [InlineData("||x|\r\n", 0, 0, 1)]
+    [InlineData("a |  | c\n", 0, 1, 4)]         // no leading pipe
+    [InlineData("> | a |  |\n", 0, 1, 8)]       // in a quote: the pipe after > leads
+    [InlineData("| H | H |\n|---|---|\n| a | b |\n|  |  |\n", 2, 1, 35)] // the row's line: past the header's underline
+    public void EmptyMarkdownCell_IsAnEmptySliceInsideItsPipes(string text, int row, int cell, int at) =>
+        Assert.Equal((at, 0), BlockSourceEditing.EmptyMarkdownCell(text, Range(1, 1, 4, 9), row, cell, IdentityMap(5)));
+
+    [Theory]
+    [InlineData("||x|\n", 2)]   // a row shorter than the table: that cell isn't written out
+    [InlineData("a | b\n", 0)]  // no leading pipe: the first cell is never empty
+    [InlineData("| a | b |\n", 1)] // not blank there: never typed over
+    public void EmptyMarkdownCell_NotWrittenOut_IsNull(string text, int cell) =>
+        Assert.Null(BlockSourceEditing.EmptyMarkdownCell(text, Range(1, 1, 1, 2), 0, cell, IdentityMap(2)));
 
     // ── WithHeader / SwapSlices ───────────────────────────────────────────
 
