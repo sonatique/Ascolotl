@@ -521,6 +521,13 @@ Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un
   <data name="MenuReportIssue" xml:space="preserve"><value>_Signaler un problème ou une suggestion</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Logiciel libre sous GNU GPL v3, sans garantie.</value></data>
   <data name="CheckSpelling" xml:space="preserve"><value>Vérifier l’orthographe</value></data>
+  <data name="DiagramsMenu" xml:space="preserve"><value>Diagra_mmes</value></data>
+  <data name="DiagramsOff" xml:space="preserve"><value>_Désactivés</value></data>
+  <data name="DiagramsOffTip" xml:space="preserve"><value>Les blocs de diagramme restent du code : rien ne s’exécute et rien ne quitte cet ordinateur</value></data>
+  <data name="DiagramsLocal" xml:space="preserve"><value>Outils _locaux (Graphviz, PlantUML, Mermaid)</value></data>
+  <data name="DiagramsLocalTip" xml:space="preserve"><value>Dessine les diagrammes avec les programmes installés sur cet ordinateur (dot, plantuml, mmdc) ; un diagramme dont le programme manque reste du code</value></data>
+  <data name="DiagramsKroki" xml:space="preserve"><value>Service web _Kroki</value></data>
+  <data name="DiagramsKrokiTip" xml:space="preserve"><value>Envoie le source de chaque diagramme au serveur Kroki (kroki.io, sauf si le fichier de réglages en nomme un autre) pour le dessiner</value></data>
   <data name="FindClose" xml:space="preserve"><value>Fermer (Échap)</value></data>
   <data name="FindCount" xml:space="preserve"><value>{0} sur {1}</value></data>
   <data name="FindNext" xml:space="preserve"><value>Occurrence suivante (Entrée)</value></data>

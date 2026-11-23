@@ -19,6 +19,9 @@ public sealed class RenderResult
 
     public string? ErrorSummary { get; }
 
+    /// <summary>Diagram blocks still drawn as code because their image is not made yet.</summary>
+    public int PendingDiagrams { get; private init; }
+
     private RenderResult(bool isSuccess, DocumentNode? document,
         IReadOnlyList<LineOrigin>? lineOrigins, IReadOnlyList<Diagnostic>? diagnostics, string? errorSummary)
     {
@@ -30,8 +33,8 @@ public sealed class RenderResult
     }
 
     public static RenderResult Success(DocumentNode? document = null,
-        IReadOnlyList<LineOrigin>? lineOrigins = null, IReadOnlyList<Diagnostic>? diagnostics = null)
-        => new(true, document, lineOrigins, diagnostics, null);
+        IReadOnlyList<LineOrigin>? lineOrigins = null, IReadOnlyList<Diagnostic>? diagnostics = null, int pendingDiagrams = 0)
+        => new(true, document, lineOrigins, diagnostics, null) { PendingDiagrams = pendingDiagrams };
 
     public static RenderResult Failure(string errorSummary)
         => new(false, null, null, null, errorSummary);

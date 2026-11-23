@@ -47,7 +47,10 @@ public sealed class AdocRenderService : IRenderService
                     }
                 }
 
-                return RenderResult.Success(parsed.Document, parsed.LineOrigins, parsed.Diagnostics);
+                // Diagrams already drawn become images; the caller has the others drawn.
+                var pending = Diagrams.Pass?.Apply(parsed.Document) ?? 0;
+
+                return RenderResult.Success(parsed.Document, parsed.LineOrigins, parsed.Diagnostics, pending);
             }
             catch (OperationCanceledException)
             {

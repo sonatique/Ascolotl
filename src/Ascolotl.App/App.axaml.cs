@@ -116,6 +116,8 @@ public class App : Application
                 PdfTitleRule = _settings.PdfTitleRule,
                 AskPdfTitle = _settings.AskPdfTitle,
                 AccessiblePdf = _settings.AccessiblePdf,
+                KrokiServer = _settings.KrokiServer,
+                DiagramMode = _settings.Diagrams,
             };
 
             _viewModel.LoadRecentFiles(_settings.RecentFiles);
@@ -166,6 +168,11 @@ public class App : Application
                 else if (e.PropertyName == nameof(MainWindowViewModel.PagePreview))
                 {
                     _settings.PagePreview = _viewModel.PagePreview;
+                    SaveSettings();
+                }
+                else if (e.PropertyName == nameof(MainWindowViewModel.DiagramMode))
+                {
+                    _settings.Diagrams = _viewModel.DiagramMode;
                     SaveSettings();
                 }
                 else if (e.PropertyName == nameof(MainWindowViewModel.StylePath))

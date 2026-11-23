@@ -521,6 +521,13 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="MenuReportIssue" xml:space="preserve"><value>Problem oder Vorschlag _melden</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Freie Software unter der GNU GPL v3, ohne Gewährleistung.</value></data>
   <data name="CheckSpelling" xml:space="preserve"><value>Rechtschreibung prüfen</value></data>
+  <data name="DiagramsMenu" xml:space="preserve"><value>Diagra_mme</value></data>
+  <data name="DiagramsOff" xml:space="preserve"><value>_Aus</value></data>
+  <data name="DiagramsOffTip" xml:space="preserve"><value>Diagrammblöcke bleiben Code: Nichts wird ausgeführt und nichts verlässt diesen Computer</value></data>
+  <data name="DiagramsLocal" xml:space="preserve"><value>_Lokale Programme (Graphviz, PlantUML, Mermaid)</value></data>
+  <data name="DiagramsLocalTip" xml:space="preserve"><value>Zeichnet Diagramme mit den auf diesem Computer installierten Programmen (dot, plantuml, mmdc); ein Diagramm, dessen Programm fehlt, bleibt Code</value></data>
+  <data name="DiagramsKroki" xml:space="preserve"><value>_Kroki-Webdienst</value></data>
+  <data name="DiagramsKrokiTip" xml:space="preserve"><value>Sendet den Quelltext jedes Diagramms zum Zeichnen an den Kroki-Server (kroki.io, sofern die Einstellungsdatei keinen anderen nennt)</value></data>
   <data name="FindClose" xml:space="preserve"><value>Schließen (Esc)</value></data>
   <data name="FindCount" xml:space="preserve"><value>{0} von {1}</value></data>
   <data name="FindNext" xml:space="preserve"><value>Nächster Treffer (Enter)</value></data>

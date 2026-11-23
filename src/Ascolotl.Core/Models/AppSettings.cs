@@ -25,6 +25,11 @@ public sealed class AppSettings
 
     /// <summary>Export PDFs as tagged PDF/UA-1.</summary>
     public bool AccessiblePdf { get; set; }
+
+    /// <summary>How diagram blocks are drawn; off unless the user chooses local tools or Kroki.</summary>
+    public DiagramMode Diagrams { get; set; } = DiagramMode.Off;
+    /// <summary>The Kroki server used when <see cref="Diagrams"/> is Kroki (only set in the settings file).</summary>
+    public string KrokiServer { get; set; } = Services.Diagrams.DefaultKrokiServer;
     public List<string> RecentFiles { get; set; } = [];
 
     /// <summary>Project workspace folder to reopen on launch, or null.</summary>

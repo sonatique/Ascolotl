@@ -36,6 +36,9 @@ public sealed class ExportService : IExportService
                 var parsed = DocumentParser.Parse(source, markdown, basePath, projectFolder: projectFolder);
                 if (FirstNetworkImage(parsed.Document, basePath) is { } image)
                     return ExportResult.Failure(string.Format(Strings.ExportNetworkImage, image));
+                // HTML and EPUB carry their diagrams inside; PDF and DocBook read the cached images.
+                DrawDiagramsAsync(parsed.Document, embed: format is ExportFormat.Html or ExportFormat.Epub, cancellationToken)
+                    .GetAwaiter().GetResult(); // already on a worker thread
 
                 // The style (the document's :pdf-theme:, else the user's choice)
                 // drives PDF natively and HTML/EPUB through generated CSS.
@@ -171,6 +174,17 @@ public sealed class ExportService : IExportService
         HighlightRun x => ImageTargets(x.Children),
         _ => [],
     });
+
+    /// <summary>
+    /// Turns the document's diagram blocks into images when the user chose a diagram renderer:
+    /// draws the missing ones on a worker thread, then swaps them in.
+    /// </summary>
+    internal static async Task DrawDiagramsAsync(DocumentNode document, bool embed, CancellationToken cancellationToken)
+    {
+        if (Diagrams.Pass is not { } diagrams) return;
+        await diagrams.GenerateAsync(document, cancellationToken).ConfigureAwait(false);
+        diagrams.Apply(document, embed);
+    }
 
     /// <summary>Windows sharing or lock violation: another program holds the file open.</summary>
     private static bool IsInUse(IOException ex) => (ex.HResult & 0xFFFF) is 32 or 33;

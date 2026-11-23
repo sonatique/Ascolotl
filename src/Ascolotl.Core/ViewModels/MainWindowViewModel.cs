@@ -75,6 +75,30 @@ public partial class MainWindowViewModel : ObservableObject
 
     [RelayCommand]
     private void TogglePagePreview() => PagePreview = !PagePreview;
+
+    /// <summary>The Kroki server, read from the settings file; set it before <see cref="DiagramMode"/>.</summary>
+    public string KrokiServer { get; set; } = Diagrams.DefaultKrokiServer;
+
+    /// <summary>How diagram blocks are drawn in the preview and the exports: off unless chosen.</summary>
+    [ObservableProperty]
+    private DiagramMode _diagramMode;
+
+    [RelayCommand]
+    private void SetDiagramMode(DiagramMode mode) => DiagramMode = mode;
+
+    partial void OnDiagramModeChanged(DiagramMode value)
+    {
+        Diagrams.Configure(value, KrokiServer);
+        OnPropertyChanged(nameof(IsDiagramsOff));
+        OnPropertyChanged(nameof(IsDiagramsLocal));
+        OnPropertyChanged(nameof(IsDiagramsKroki));
+        if (SelectedDocument is not null)
+            RequestRender(immediate: true);
+    }
+
+    public bool IsDiagramsOff => DiagramMode == DiagramMode.Off;
+    public bool IsDiagramsLocal => DiagramMode == DiagramMode.LocalTools;
+    public bool IsDiagramsKroki => DiagramMode == DiagramMode.Kroki;
     /// <summary>Scale the preview page to the pane's width; explicit zoom turns it off.</summary>
     [ObservableProperty]
     private bool _previewFitWidth;
@@ -1584,11 +1608,32 @@ public partial class MainWindowViewModel : ObservableObject
             StatusText = result.IsSuccess
                 ? Strings.StatusRenderComplete
                 : string.Format(Strings.StatusRenderFailed, result.ErrorSummary);
+
+            if (result.PendingDiagrams > 0 && Diagrams.Pass is { } diagrams && result.Document is { } rendered)
+                _ = DrawDiagramsAsync(diagrams, rendered, ct);
         }
         catch (OperationCanceledException)
         {
             // Debounce or cancellation — expected, not an error
         }
+    }
+
+    /// <summary>
+    /// Has the diagrams the render left as code drawn on a worker thread, then renders again to show
+    /// them. An edit meanwhile cancels this: its own render asks for the diagrams it still lacks.
+    /// </summary>
+    private async Task DrawDiagramsAsync(AdocNet.Extensions.DiagramPass diagrams, AdocNet.Ast.DocumentNode document, CancellationToken ct)
+    {
+        try
+        {
+            await diagrams.GenerateAsync(document, ct);
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+        if (!ct.IsCancellationRequested && diagrams == Diagrams.Pass)
+            RequestRender(immediate: true);
     }
 
     // --- Recent files ---

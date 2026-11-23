@@ -521,6 +521,13 @@ Questo file esiste ma non è stato possibile leggerlo. Forse è bloccato da un a
   <data name="MenuReportIssue" xml:space="preserve"><value>_Segnala un problema o un suggerimento</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Software libero con licenza GNU GPL v3, senza garanzia.</value></data>
   <data name="CheckSpelling" xml:space="preserve"><value>Controlla l’ortografia</value></data>
+  <data name="DiagramsMenu" xml:space="preserve"><value>_Visualizza diagrammi</value></data>
+  <data name="DiagramsOff" xml:space="preserve"><value>_Disattivati</value></data>
+  <data name="DiagramsOffTip" xml:space="preserve"><value>I blocchi di diagramma restano codice: non viene eseguito nulla e nulla lascia questo computer</value></data>
+  <data name="DiagramsLocal" xml:space="preserve"><value>Strumenti _locali (Graphviz, PlantUML, Mermaid)</value></data>
+  <data name="DiagramsLocalTip" xml:space="preserve"><value>Disegna i diagrammi con i programmi installati su questo computer (dot, plantuml, mmdc); un diagramma il cui programma manca resta codice</value></data>
+  <data name="DiagramsKroki" xml:space="preserve"><value>Servizio web _Kroki</value></data>
+  <data name="DiagramsKrokiTip" xml:space="preserve"><value>Invia il sorgente di ogni diagramma al server Kroki (kroki.io, salvo che il file delle impostazioni ne indichi un altro) per disegnarlo</value></data>
   <data name="FindClose" xml:space="preserve"><value>Chiudi (Esc)</value></data>
   <data name="FindCount" xml:space="preserve"><value>{0} di {1}</value></data>
   <data name="FindNext" xml:space="preserve"><value>Corrispondenza successiva (Invio)</value></data>

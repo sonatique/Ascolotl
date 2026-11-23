@@ -521,6 +521,13 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="MenuReportIssue" xml:space="preserve"><value>_Report an Issue or Suggestion</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Free software under the GNU GPL v3, with no warranty.</value></data>
   <data name="CheckSpelling" xml:space="preserve"><value>Check spelling</value></data>
+  <data name="DiagramsMenu" xml:space="preserve"><value>Diagra_ms</value></data>
+  <data name="DiagramsOff" xml:space="preserve"><value>_Off</value></data>
+  <data name="DiagramsOffTip" xml:space="preserve"><value>Diagram blocks stay as code: nothing runs and nothing leaves this computer</value></data>
+  <data name="DiagramsLocal" xml:space="preserve"><value>_Local tools (Graphviz, PlantUML, Mermaid)</value></data>
+  <data name="DiagramsLocalTip" xml:space="preserve"><value>Draws diagrams with the programs installed on this computer (dot, plantuml, mmdc); a diagram whose program is missing stays as code</value></data>
+  <data name="DiagramsKroki" xml:space="preserve"><value>_Kroki web service</value></data>
+  <data name="DiagramsKrokiTip" xml:space="preserve"><value>Sends the source of each diagram to the Kroki server (kroki.io unless the settings file names another) to draw it</value></data>
   <data name="FindClose" xml:space="preserve"><value>Close (Esc)</value></data>
   <data name="FindCount" xml:space="preserve"><value>{0} of {1}</value></data>
   <data name="FindNext" xml:space="preserve"><value>Next match (Enter)</value></data>

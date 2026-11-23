@@ -164,6 +164,26 @@
                   Command="{Binding ToggleCheckSpellingCommand}"
                   ToggleType="CheckBox"
                   IsChecked="{Binding CheckSpelling, Mode=OneWay}" />
+        <MenuItem Header="{x:Static res:Strings.DiagramsMenu}">
+            <MenuItem Header="{x:Static res:Strings.DiagramsOff}"
+                      Command="{Binding SetDiagramModeCommand}"
+                      CommandParameter="{x:Static models:DiagramMode.Off}"
+                      ToggleType="Radio"
+                      IsChecked="{Binding IsDiagramsOff, Mode=OneWay}"
+                      ToolTip.Tip="{x:Static res:Strings.DiagramsOffTip}" />
+            <MenuItem Header="{x:Static res:Strings.DiagramsLocal}"
+                      Command="{Binding SetDiagramModeCommand}"
+                      CommandParameter="{x:Static models:DiagramMode.LocalTools}"
+                      ToggleType="Radio"
+                      IsChecked="{Binding IsDiagramsLocal, Mode=OneWay}"
+                      ToolTip.Tip="{x:Static res:Strings.DiagramsLocalTip}" />
+            <MenuItem Header="{x:Static res:Strings.DiagramsKroki}"
+                      Command="{Binding SetDiagramModeCommand}"
+                      CommandParameter="{x:Static models:DiagramMode.Kroki}"
+                      ToggleType="Radio"
+                      IsChecked="{Binding IsDiagramsKroki, Mode=OneWay}"
+                      ToolTip.Tip="{x:Static res:Strings.DiagramsKrokiTip}" />
+        </MenuItem>
         <MenuItem Header="{x:Static res:Strings.EditorWordWrap}"
                   Command="{Binding ToggleEditorWordWrapCommand}"
                   ToggleType="CheckBox"

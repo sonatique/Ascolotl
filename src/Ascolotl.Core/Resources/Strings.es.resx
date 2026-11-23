@@ -521,6 +521,13 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="MenuReportIssue" xml:space="preserve"><value>_Informar de un problema o sugerencia</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Software libre bajo la GNU GPL v3, sin garantía.</value></data>
   <data name="CheckSpelling" xml:space="preserve"><value>Revisar la ortografía</value></data>
+  <data name="DiagramsMenu" xml:space="preserve"><value>Dia_gramas</value></data>
+  <data name="DiagramsOff" xml:space="preserve"><value>_Desactivados</value></data>
+  <data name="DiagramsOffTip" xml:space="preserve"><value>Los bloques de diagrama quedan como código: no se ejecuta nada y nada sale de este equipo</value></data>
+  <data name="DiagramsLocal" xml:space="preserve"><value>Herramientas _locales (Graphviz, PlantUML, Mermaid)</value></data>
+  <data name="DiagramsLocalTip" xml:space="preserve"><value>Dibuja los diagramas con los programas instalados en este equipo (dot, plantuml, mmdc); un diagrama cuyo programa falta queda como código</value></data>
+  <data name="DiagramsKroki" xml:space="preserve"><value>Servicio web _Kroki</value></data>
+  <data name="DiagramsKrokiTip" xml:space="preserve"><value>Envía el código de cada diagrama al servidor Kroki (kroki.io, salvo que el archivo de ajustes indique otro) para dibujarlo</value></data>
   <data name="FindClose" xml:space="preserve"><value>Cerrar (Esc)</value></data>
   <data name="FindCount" xml:space="preserve"><value>{0} de {1}</value></data>
   <data name="FindNext" xml:space="preserve"><value>Coincidencia siguiente (Intro)</value></data>

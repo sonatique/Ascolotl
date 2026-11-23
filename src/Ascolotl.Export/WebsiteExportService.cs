@@ -53,6 +53,7 @@ public sealed class WebsiteExportService : IWebsiteExportService
                 var parsed = DocumentParser.Parse(source, MarkdownFile.Is(rel), Path.GetDirectoryName(sourcePath), projectFolder: projectRoot);
                 if (ExportService.FirstNetworkImage(parsed.Document, Path.GetDirectoryName(sourcePath)) is { } image)
                     return ExportResult.Failure(string.Format(Strings.ExportNetworkImage, image));
+                await ExportService.DrawDiagramsAsync(parsed.Document, embed: true, cancellationToken);
 
                 var html = new HtmlRenderer().RenderToString(parsed.Document, new HtmlRenderOptions
                 {
