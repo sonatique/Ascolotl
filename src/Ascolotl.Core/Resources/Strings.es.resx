@@ -525,6 +525,9 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="AboutSponsorNote" xml:space="preserve"><value>Si Ascolotl te ahorra tiempo, una pequeña propina lo ayuda a crecer.</value></data>
   <data name="AboutSponsorLink" xml:space="preserve"><value>Invita al ajolote a un café</value></data>
   <data name="MenuReportIssue" xml:space="preserve"><value>_Informar de un problema o sugerencia</value></data>
+  <data name="MenuCommandPalette" xml:space="preserve"><value>Paleta de _comandos</value></data>
+  <data name="MenuSyntaxReference" xml:space="preserve"><value>Referencia de _sintaxis</value></data>
+  <data name="MenuKeyboardShortcuts" xml:space="preserve"><value>Atajos de _teclado</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Software libre bajo la GNU GPL v3, sin garantía.</value></data>
   <data name="CheckSpelling" xml:space="preserve"><value>Revisar la ortografía</value></data>
   <data name="DiagramsMenu" xml:space="preserve"><value>Dia_gramas</value></data>

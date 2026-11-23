@@ -143,6 +143,8 @@ public partial class MainWindow : Window
             _viewModel.NavigateToLineRequested -= OnNavigateToLine;
             _viewModel.NewDocumentCreated -= OnNewDocumentCreated;
             _viewModel.SwitchPaneRequested -= OnSwitchPaneRequested;
+            _viewModel.CommandPalette.PropertyChanged -= OnOverlayChanged;
+            _viewModel.SyntaxReference.PropertyChanged -= OnOverlayChanged;
             _viewModel.ExportProfilesChanged -= RebuildExportMenu;
         }
 
@@ -155,6 +157,8 @@ public partial class MainWindow : Window
             _viewModel.NavigateToLineRequested += OnNavigateToLine;
             _viewModel.NewDocumentCreated += OnNewDocumentCreated;
             _viewModel.SwitchPaneRequested += OnSwitchPaneRequested;
+            _viewModel.CommandPalette.PropertyChanged += OnOverlayChanged;
+            _viewModel.SyntaxReference.PropertyChanged += OnOverlayChanged;
             RebuildRecentFilesMenu(_viewModel);
             UpdateEditorLayout(_viewModel.EditorMode);
             UpdateSidebarColumn();
@@ -591,6 +595,17 @@ public partial class MainWindow : Window
         BeginMoveDrag(e);
     }
 
+    /// <summary>The command palette or the syntax reference takes the keyboard in its search box as it opens,
+    /// from its key, the menu or the palette.</summary>
+    private void OnOverlayChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(CommandPaletteViewModel.IsOpen) || _viewModel is null) return;
+        if (sender == _viewModel.CommandPalette && _viewModel.CommandPalette.IsOpen)
+            Dispatcher.UIThread.Post(() => CommandPaletteFilter.Focus(), DispatcherPriority.Input);
+        else if (sender == _viewModel.SyntaxReference && _viewModel.SyntaxReference.IsOpen)
+            Dispatcher.UIThread.Post(() => SyntaxReferenceFilter.Focus(), DispatcherPriority.Input);
+    }
+
     // --- Keyboard shortcuts ---
 
     /// <summary>Bold, italic, inline code and link, as the toolbar's tooltips say, in the source or an open block.</summary>
@@ -614,14 +629,7 @@ public partial class MainWindow : Window
         var ctrl = e.KeyModifiers.HasFlag(KeyModifiers.Control);
         var shift = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
 
-        if (ctrl && shift && e.Key == Key.P)
-        {
-            _viewModel.ToggleCommandPaletteCommand.Execute(null);
-            if (_viewModel.CommandPalette.IsOpen)
-                Dispatcher.UIThread.Post(() => CommandPaletteFilter.Focus(), DispatcherPriority.Input);
-            e.Handled = true;
-        }
-        else if (ctrl && shift && e.Key == Key.Tab)
+        if (ctrl && shift && e.Key == Key.Tab)
         {
             _viewModel.PreviousTabCommand.Execute(null);
             e.Handled = true;
@@ -648,13 +656,6 @@ public partial class MainWindow : Window
         else if (e.Key == Key.Escape && _viewModel.CommandPalette.IsOpen)
         {
             _viewModel.CommandPalette.Close();
-            e.Handled = true;
-        }
-        else if (e.Key == Key.F1 && e.KeyModifiers == KeyModifiers.None)
-        {
-            _viewModel.ToggleSyntaxReferenceCommand.Execute(null);
-            if (_viewModel.SyntaxReference.IsOpen)
-                Dispatcher.UIThread.Post(() => SyntaxReferenceFilter.Focus(), DispatcherPriority.Input);
             e.Handled = true;
         }
         else if (e.Key == Key.Escape && _viewModel.SyntaxReference.IsOpen)

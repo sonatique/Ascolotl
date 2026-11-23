@@ -525,6 +525,9 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="AboutSponsorNote" xml:space="preserve"><value>If Ascolotl saves you time, a small tip keeps it growing.</value></data>
   <data name="AboutSponsorLink" xml:space="preserve"><value>Buy the axolotl a coffee</value></data>
   <data name="MenuReportIssue" xml:space="preserve"><value>_Report an Issue or Suggestion</value></data>
+  <data name="MenuCommandPalette" xml:space="preserve"><value>_Command Palette</value></data>
+  <data name="MenuSyntaxReference" xml:space="preserve"><value>_Syntax Reference</value></data>
+  <data name="MenuKeyboardShortcuts" xml:space="preserve"><value>_Keyboard Shortcuts</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Free software under the GNU GPL v3, with no warranty.</value></data>
   <data name="CheckSpelling" xml:space="preserve"><value>Check spelling</value></data>
   <data name="DiagramsMenu" xml:space="preserve"><value>Diagra_ms</value></data>

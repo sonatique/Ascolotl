@@ -161,6 +161,25 @@ public sealed class KeyboardShortcutTests
     }
 
     [AvaloniaFact]
+    public void HelpMenu_ShowsThePaletteTheReferenceAndTheShortcuts()
+    {
+        var (window, vm) = Open("Text.\n", EditorMode.Split);
+        var items = window.FindControl<MenuItem>("HamburgerMenuItem")!.GetLogicalDescendants().OfType<MenuItem>().ToList();
+        MenuItem Item(string header) => items.First(i => (string?)i.Header == header);
+        Assert.Equal(new KeyGesture(Key.P, KeyModifiers.Control | KeyModifiers.Shift), Item(Ascolotl.Core.Resources.Strings.MenuCommandPalette).InputGesture);
+        Assert.Equal(new KeyGesture(Key.F1), Item(Ascolotl.Core.Resources.Strings.MenuSyntaxReference).InputGesture);
+        Assert.Equal(Ascolotl.App.Views.AppLinks.KeyboardShortcuts, Item(Ascolotl.Core.Resources.Strings.MenuKeyboardShortcuts).Tag);
+
+        TypeInTheSource(window);
+        vm.ToggleCommandPaletteCommand.Execute(null); // as the menu does: the search box still takes the keyboard
+        Pump(window);
+        Assert.True(window.FindControl<TextBox>("CommandPaletteFilter")!.IsFocused);
+        Press(window, new KeyGesture(Key.Escape));
+        Press(window, new KeyGesture(Key.F1));
+        Assert.True(window.FindControl<TextBox>("SyntaxReferenceFilter")!.IsFocused);
+    }
+
+    [AvaloniaFact]
     public void MenuKeys_NeedTheirExactModifiers()
     {
         var (window, vm) = Open("Text.\n", EditorMode.Split);

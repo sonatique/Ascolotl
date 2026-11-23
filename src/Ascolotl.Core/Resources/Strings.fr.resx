@@ -525,6 +525,9 @@ Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un
   <data name="AboutSponsorNote" xml:space="preserve"><value>Si Ascolotl vous fait gagner du temps, un petit pourboire l'aide à grandir.</value></data>
   <data name="AboutSponsorLink" xml:space="preserve"><value>Offrir un café à l'axolotl</value></data>
   <data name="MenuReportIssue" xml:space="preserve"><value>_Signaler un problème ou une suggestion</value></data>
+  <data name="MenuCommandPalette" xml:space="preserve"><value>Palette de _commandes</value></data>
+  <data name="MenuSyntaxReference" xml:space="preserve"><value>_Aide-mémoire de la syntaxe</value></data>
+  <data name="MenuKeyboardShortcuts" xml:space="preserve"><value>_Raccourcis clavier</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Logiciel libre sous GNU GPL v3, sans garantie.</value></data>
   <data name="CheckSpelling" xml:space="preserve"><value>Vérifier l’orthographe</value></data>
   <data name="DiagramsMenu" xml:space="preserve"><value>Diagra_mmes</value></data>

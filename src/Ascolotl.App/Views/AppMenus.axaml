@@ -286,6 +286,16 @@
                   IsEnabled="{Binding HasStyle}" />
     </MenuItem>
     <MenuItem Header="{x:Static res:Strings.Help}">
+        <MenuItem Header="{x:Static res:Strings.MenuCommandPalette}"
+                  Command="{Binding ToggleCommandPaletteCommand}"
+                  InputGesture="Ctrl+Shift+P" />
+        <MenuItem Header="{x:Static res:Strings.MenuSyntaxReference}"
+                  Command="{Binding ToggleSyntaxReferenceCommand}"
+                  InputGesture="F1" />
+        <MenuItem Header="{x:Static res:Strings.MenuKeyboardShortcuts}"
+                  Tag="{x:Static views:AppLinks.KeyboardShortcuts}"
+                  Click="OnLinkClick" />
+        <Separator />
         <MenuItem Header="{x:Static res:Strings.MenuReportIssue}"
                   Tag="{x:Static views:AppLinks.Issues}"
                   Click="OnLinkClick" />
