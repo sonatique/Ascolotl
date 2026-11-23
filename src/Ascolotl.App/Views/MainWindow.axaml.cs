@@ -599,15 +599,32 @@ public partial class MainWindow : Window
         BeginMoveDrag(e);
     }
 
+    // Where the keyboard was when the palette or the reference opened.
+    private IInputElement? _beforeOverlay;
+
     /// <summary>The command palette or the syntax reference takes the keyboard in its search box as it opens,
-    /// from its key, the menu or the palette.</summary>
+    /// from its key, the menu or the palette, and gives it back as it closes, unless a command took it.</summary>
     private void OnOverlayChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName != nameof(CommandPaletteViewModel.IsOpen) || _viewModel is null) return;
-        if (sender == _viewModel.CommandPalette && _viewModel.CommandPalette.IsOpen)
-            Dispatcher.UIThread.Post(() => CommandPaletteFilter.Focus(), DispatcherPriority.Input);
-        else if (sender == _viewModel.SyntaxReference && _viewModel.SyntaxReference.IsOpen)
-            Dispatcher.UIThread.Post(() => SyntaxReferenceFilter.Focus(), DispatcherPriority.Input);
+        var focused = FocusManager?.GetFocusedElement();
+        var inOverlay = focused == CommandPaletteFilter || focused == SyntaxReferenceFilter;
+        if (sender == _viewModel.CommandPalette ? _viewModel.CommandPalette.IsOpen : _viewModel.SyntaxReference.IsOpen)
+        {
+            if (!inOverlay) _beforeOverlay = focused;
+            var filter = sender == _viewModel.CommandPalette ? CommandPaletteFilter : SyntaxReferenceFilter;
+            Dispatcher.UIThread.Post(() => filter.Focus(), DispatcherPriority.Input);
+        }
+        else if (!_viewModel.CommandPalette.IsOpen && !_viewModel.SyntaxReference.IsOpen)
+        {
+            var back = _beforeOverlay;
+            _beforeOverlay = null;
+            if (inOverlay || focused is null or Visual { IsEffectivelyVisible: false })
+            {
+                if (back is InputElement { IsEffectivelyVisible: true } was && was.GetVisualRoot() == this) was.Focus();
+                else FocusDocument();
+            }
+        }
     }
 
     // --- Keyboard shortcuts ---

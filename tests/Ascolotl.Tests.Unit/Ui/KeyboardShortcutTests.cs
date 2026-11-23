@@ -198,6 +198,23 @@ public sealed class KeyboardShortcutTests
     }
 
     [AvaloniaFact]
+    public void ThePaletteAndTheReference_GiveTheKeyboardBack()
+    {
+        var (window, _) = Open("Text.\n", EditorMode.Split);
+        var source = window.GetVisualDescendants().OfType<TextEditor>().First().TextArea;
+        source.Focus();
+        Press(window, new KeyGesture(Key.P, KeyModifiers.Control | KeyModifiers.Shift));
+        Assert.False(source.IsKeyboardFocusWithin);
+        Press(window, new KeyGesture(Key.Escape));
+        Assert.True(source.IsKeyboardFocusWithin); // back where it was
+
+        Press(window, new KeyGesture(Key.F1));
+        Assert.False(source.IsKeyboardFocusWithin);
+        Press(window, new KeyGesture(Key.Escape));
+        Assert.True(source.IsKeyboardFocusWithin);
+    }
+
+    [AvaloniaFact]
     public void MenuKeys_NeedTheirExactModifiers()
     {
         var (window, vm) = Open("Text.\n", EditorMode.Split);
