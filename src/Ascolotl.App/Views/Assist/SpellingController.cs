@@ -64,12 +64,15 @@ internal sealed class SpellingController : IBackgroundRenderer
 
     private void Listen(bool on)
     {
-        SpellCheck.Changed -= Restart;
-        Speller.Personal.Changed -= Restart;
+        SpellCheck.Changed -= AppWide;
+        Speller.Personal.Changed -= AppWide;
         if (!on) return;
-        SpellCheck.Changed += Restart;
-        Speller.Personal.Changed += Restart;
+        SpellCheck.Changed += AppWide;
+        Speller.Personal.Changed += AppWide;
     }
+
+    // Raised on whatever thread changed it: the editor is only touched on its own.
+    private void AppWide() => Dispatcher.UIThread.Post(Restart);
 
     public KnownLayer Layer => KnownLayer.Selection;
 

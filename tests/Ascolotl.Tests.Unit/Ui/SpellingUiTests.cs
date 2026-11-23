@@ -50,7 +50,8 @@ public class SpellingUiTests
             source.CaretOffset = source.Text.IndexOf("wrods", StringComparison.Ordinal);
             Assert.Empty(new SpellingController(source, () => false, () => "", _ => { }).MenuItems()); // not yet checked: nothing marked
 
-            SpellCheck.Enabled = false; // turned off: the marks go
+            SpellCheck.Enabled = false; // turned off: the marks go, on the UI thread's turn
+            Pump(window);
             Assert.Empty(spelling.Marked);
         }
         finally

@@ -535,7 +535,7 @@ public partial class PreviewView : UserControl
 
     /// <summary>The platform's own keys for a command: Ctrl+C on Windows and Linux, Cmd+C on a Mac.</summary>
     private bool Hotkey(KeyEventArgs e, Func<PlatformHotkeyConfiguration, List<KeyGesture>> command) =>
-        TopLevel.GetTopLevel(this)?.PlatformSettings?.HotkeyConfiguration is { } keys && command(keys).Any(g => g.Matches(e));
+        Application.Current?.PlatformSettings?.HotkeyConfiguration is { } keys && command(keys).Any(g => g.Matches(e)); // as the editors read them
 
     private bool _menuOnF10Up;
 

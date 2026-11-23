@@ -250,7 +250,7 @@ internal sealed class CompletionController
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
         // The editor pastes text as ever; an image alone on the clipboard is saved and referred to.
-        if (TopLevel.GetTopLevel(_editor)?.PlatformSettings?.HotkeyConfiguration.Paste.Any(g => g.Matches(e)) == true)
+        if (Avalonia.Application.Current?.PlatformSettings?.HotkeyConfiguration.Paste.Any(g => g.Matches(e)) == true)
             PasteImage();
 
         // While the popup is open, let it own navigation — but make Tab COMMIT
