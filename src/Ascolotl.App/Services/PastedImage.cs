@@ -54,7 +54,9 @@ internal static partial class PastedImage
         var imagesDir = markdown ? null : ImagesDir().Match(documentText) is { Success: true } m ? m.Groups[1].Value.Trim() : null;
         var root = Path.GetFullPath(documentFolder).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
         var folder = Path.GetFullPath(Path.Combine(root, imagesDir ?? "images"));
-        if (!(folder + Path.DirectorySeparatorChar).StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+        // Names differ by case only on Linux: there, DOC is another folder than doc.
+        var names = OperatingSystem.IsLinux() ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+        if (!(folder + Path.DirectorySeparatorChar).StartsWith(root + Path.DirectorySeparatorChar, names))
             return null;
         return (folder, imagesDir is null ? "images/" : "");
     }

@@ -62,8 +62,8 @@ public static partial class BlockConversion
         return [.. lines.Select(l => verbatim ? l.TrimEnd() : Marker().Replace(l, "").Trim()).Where(l => l.Trim().Length > 0)];
     }
 
-    // [source,python], [quote], [NOTE]: a block's style; not [[id]] nor [cols=…].
-    [GeneratedRegex(@"^\[(?!\[)[^\]=]*\]$")]
+    // [source,python,start=3], [quote], [NOTE]: a block's style; not an [[id]].
+    [GeneratedRegex(@"^\[(?!\[).*\]$")]
     private static partial Regex StyleLine();
 
     [GeneratedRegex(@"^(?:-{4,}|\.{4,}|={4,}|\*{4,}|_{4,}|\+{4,}|```[\w+#.-]*)$")]

@@ -347,6 +347,7 @@ public partial class PreviewView : UserControl
     private readonly Canvas _findLayer = new();
     private List<(TextBlock Text, int Start, int Length)> _findMatches = [];
     private int _findIndex = -1;
+    private (Rect, Rect, List<(TextBlock, int, int)>, int) _findPlaced;
 
     private void InitFind()
     {
@@ -450,6 +451,10 @@ public partial class PreviewView : UserControl
     /// moved: adding or dropping one each layout pass would lay the page out again without end.</summary>
     private void PlaceFindMarks()
     {
+        // Each layout pass calls this, each scroll step too: the marks move only with the page's size or the matches.
+        var placed = (_pages.Bounds, _renderedRoot?.Bounds ?? default, _findMatches, _findIndex); // a zoom: the pages' size
+        if (placed == _findPlaced) return;
+        _findPlaced = placed;
         var marks = new List<(Rect Rect, bool Current)>();
         for (var m = 0; m < _findMatches.Count; m++)
         {
@@ -2392,7 +2397,7 @@ public partial class PreviewView : UserControl
         {
             var above = text.LastIndexOf('\n', start - 2) + 1;
             var line = text.AsSpan(above, start - 1 - above).Trim();
-            if (line.StartsWith("[") && !line.StartsWith("[[") && line.EndsWith("]") && !line.Contains('='))
+            if (line.StartsWith("[") && !line.StartsWith("[[") && line.EndsWith("]"))
                 (start, length) = (above, length + start - above);
         }
         _current = i;

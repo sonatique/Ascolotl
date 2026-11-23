@@ -20,6 +20,7 @@ public class BlockConversionTests
     [InlineData("Words.", BlockKind.CodeBlock, false, "[source]\n----\nWords.\n----")]
     [InlineData("Words.", BlockKind.CodeBlock, true, "```\nWords.\n```")]
     [InlineData("[source,python]\n----\n- x = 1\n----", BlockKind.Paragraph, false, "- x = 1")] // code keeps its -
+    [InlineData("[source,python,start=3]\n----\nx\n----", BlockKind.Paragraph, false, "x")]
     [InlineData("```js\n* a\n```", BlockKind.Quote, true, "> * a")]
     [InlineData("Words.", BlockKind.Note, false, "NOTE: Words.")]
     [InlineData("NOTE: Words.", BlockKind.Heading1, false, "= Words.")]
