@@ -110,7 +110,10 @@ public partial class DocumentViewModel : ObservableObject
     /// <summary>Human-readable list of all diagnostics, for tooltips. Each
     /// carries its actionable <see cref="DocumentDiagnostic.Hint"/> when one is
     /// available, indented on the next line.</summary>
-    public string DiagnosticsSummary => string.Join("\n", Diagnostics.Select(d =>
+    public string DiagnosticsSummary => string.Join("\n", Diagnostics.Select(d => Describe(d)));
+
+    /// <summary>Where a diagnostic is and what it says, with its hint after <paramref name="hintSeparator"/>.</summary>
+    public static string Describe(DocumentDiagnostic d, string hintSeparator = "\n    ")
     {
         string head;
         if (!d.IsUnanchored)
@@ -119,8 +122,8 @@ public partial class DocumentViewModel : ObservableObject
             head = $"{file}:{d.SourceFileLine}: {d.Message}"; // inside an include
         else
             head = d.Message;
-        return d.Hint is { } hint ? $"{head}\n    → {hint}" : head;
-    }));
+        return d.Hint is { } hint ? $"{head}{hintSeparator}→ {hint}" : head;
+    }
 
     partial void OnDiagnosticsChanged(IReadOnlyList<DocumentDiagnostic> value)
     {

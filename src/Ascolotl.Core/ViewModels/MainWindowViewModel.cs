@@ -1460,6 +1460,33 @@ public partial class MainWindowViewModel : ObservableObject
             NavigateToLineRequested?.Invoke(item.LineNumber);
     }
 
+    // The diagnostic F8 went to last, in which document.
+    private (DocumentViewModel? Doc, int Index) _problem;
+
+    [RelayCommand]
+    private void NextProblem() => StepProblem(1);
+
+    [RelayCommand]
+    private void PreviousProblem() => StepProblem(-1);
+
+    /// <summary>F8 and Shift+F8: the next or previous error or warning, its line, and its message in the status bar.</summary>
+    private void StepProblem(int step)
+    {
+        if (SelectedDocument is not { } doc) return;
+        var all = doc.Diagnostics;
+        if (all.Count == 0)
+        {
+            StatusText = Strings.NoProblems;
+            return;
+        }
+        var from = _problem.Doc == doc ? _problem.Index : step > 0 ? -1 : 0;
+        var index = ((from + step) % all.Count + all.Count) % all.Count;
+        _problem = (doc, index);
+        StatusText = DocumentViewModel.Describe(all[index], " ");
+        if (!all[index].IsUnanchored)
+            NavigateToLineRequested?.Invoke(all[index].Line);
+    }
+
     // --- Command palette ---
 
     [RelayCommand]
@@ -1714,6 +1741,8 @@ public partial class MainWindowViewModel : ObservableObject
             new(Strings.CommandNextTab, "Ctrl+Tab", Strings.CommandCategoryNavigation, () => NextTabCommand.Execute(null)),
             new(Strings.CommandPreviousTab, "Ctrl+Shift+Tab", Strings.CommandCategoryNavigation, () => PreviousTabCommand.Execute(null)),
             new(Strings.CommandSwitchPane, "F6", Strings.CommandCategoryNavigation, () => SwitchPaneCommand.Execute(null)),
+            new(Strings.NextProblem, "F8", Strings.CommandCategoryNavigation, () => NextProblemCommand.Execute(null)),
+            new(Strings.PreviousProblem, "Shift+F8", Strings.CommandCategoryNavigation, () => PreviousProblemCommand.Execute(null)),
             new(Strings.CommandAsciiDocSyntaxReference, "F1", Strings.CommandCategoryHelp, () => ToggleSyntaxReferenceCommand.Execute(null)),
             new(Strings.CommandAbout, null, Strings.CommandCategoryHelp, () => ShowAboutCommand.Execute(null)),
         ];

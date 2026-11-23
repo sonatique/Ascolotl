@@ -410,6 +410,9 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="SourceMode" xml:space="preserve"><value>_Quelltextmodus</value></data>
   <data name="SplitMode" xml:space="preserve"><value>_Geteilter Modus</value></data>
   <data name="SwitchPane" xml:space="preserve"><value>Zw_ischen Quelltext und Seite wechseln</value></data>
+  <data name="NextProblem" xml:space="preserve"><value>Nächstes Problem</value></data>
+  <data name="PreviousProblem" xml:space="preserve"><value>Vorheriges Problem</value></data>
+  <data name="NoProblems" xml:space="preserve"><value>Keine Probleme</value></data>
   <data name="StatsOneWord" xml:space="preserve"><value>1 Wort</value></data>
   <data name="StatsTooltip" xml:space="preserve"><value>≈ {0} Min. Lesezeit · {1:N0} Zeichen</value></data>
   <data name="StatsWords" xml:space="preserve"><value>{0:N0} Wörter</value></data>

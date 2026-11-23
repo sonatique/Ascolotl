@@ -149,6 +149,12 @@
         <MenuItem Header="{x:Static res:Strings.SwitchPane}"
                   Command="{Binding SwitchPaneCommand}"
                   InputGesture="F6" />
+        <MenuItem Header="{x:Static res:Strings.NextProblem}"
+                  Command="{Binding NextProblemCommand}"
+                  InputGesture="F8" />
+        <MenuItem Header="{x:Static res:Strings.PreviousProblem}"
+                  Command="{Binding PreviousProblemCommand}"
+                  InputGesture="Shift+F8" />
         <Separator />
         <MenuItem Header="{x:Static res:Strings.ShowTitleTOC}"
                   Command="{Binding ToggleShowTitleAndTocCommand}"

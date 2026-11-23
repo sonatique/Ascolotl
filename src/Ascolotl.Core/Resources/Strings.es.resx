@@ -410,6 +410,9 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="SourceMode" xml:space="preserve"><value>Modo _código</value></data>
   <data name="SplitMode" xml:space="preserve"><value>Modo d_ividido</value></data>
   <data name="SwitchPane" xml:space="preserve"><value>Cam_biar entre código y página</value></data>
+  <data name="NextProblem" xml:space="preserve"><value>Problema siguiente</value></data>
+  <data name="PreviousProblem" xml:space="preserve"><value>Problema anterior</value></data>
+  <data name="NoProblems" xml:space="preserve"><value>Sin problemas</value></data>
   <data name="StatsOneWord" xml:space="preserve"><value>1 palabra</value></data>
   <data name="StatsTooltip" xml:space="preserve"><value>≈ {0} min de lectura · {1:N0} caracteres</value></data>
   <data name="StatsWords" xml:space="preserve"><value>{0:N0} palabras</value></data>

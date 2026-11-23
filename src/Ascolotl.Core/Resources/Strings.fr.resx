@@ -410,6 +410,9 @@ Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un
   <data name="SourceMode" xml:space="preserve"><value>Mode _source</value></data>
   <data name="SplitMode" xml:space="preserve"><value>Mode _partagé</value></data>
   <data name="SwitchPane" xml:space="preserve"><value>_Basculer entre la source et la page</value></data>
+  <data name="NextProblem" xml:space="preserve"><value>Problème suivant</value></data>
+  <data name="PreviousProblem" xml:space="preserve"><value>Problème précédent</value></data>
+  <data name="NoProblems" xml:space="preserve"><value>Aucun problème</value></data>
   <data name="StatsOneWord" xml:space="preserve"><value>1 mot</value></data>
   <data name="StatsTooltip" xml:space="preserve"><value>≈ {0} min de lecture · {1:N0} caractères</value></data>
   <data name="StatsWords" xml:space="preserve"><value>{0:N0} mots</value></data>

@@ -410,6 +410,9 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="SourceMode" xml:space="preserve"><value>_Source Mode</value></data>
   <data name="SplitMode" xml:space="preserve"><value>S_plit Mode</value></data>
   <data name="SwitchPane" xml:space="preserve"><value>Move _Between Source and Page</value></data>
+  <data name="NextProblem" xml:space="preserve"><value>Next Problem</value></data>
+  <data name="PreviousProblem" xml:space="preserve"><value>Previous Problem</value></data>
+  <data name="NoProblems" xml:space="preserve"><value>No problems</value></data>
   <data name="StatsOneWord" xml:space="preserve"><value>1 word</value></data>
   <data name="StatsTooltip" xml:space="preserve"><value>≈ {0} min read · {1:N0} characters</value></data>
   <data name="StatsWords" xml:space="preserve"><value>{0:N0} words</value></data>

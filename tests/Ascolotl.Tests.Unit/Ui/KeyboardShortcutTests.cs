@@ -89,6 +89,32 @@ public sealed class KeyboardShortcutTests
     }
 
     [AvaloniaFact]
+    public void F8_GoesFromProblemToProblem_AndSaysWhatEachIs()
+    {
+        var (window, vm) = Open("One.\n\nTwo.\n\nThree.\n", EditorMode.Split);
+        var source = window.GetVisualDescendants().OfType<TextEditor>().First();
+        source.TextArea.Focus();
+        Press(window, new KeyGesture(Key.F8));
+        Assert.Equal(Ascolotl.Core.Resources.Strings.NoProblems, vm.StatusText);
+
+        vm.SelectedDocument!.Diagnostics =
+        [
+            new(2, 0, 4, DiagnosticSeverity.Warning, "Second problem"),
+            new(4, 0, 6, DiagnosticSeverity.Error, "Third problem"),
+        ];
+        Press(window, new KeyGesture(Key.F8));
+        Assert.Equal(3, source.TextArea.Caret.Line);
+        Assert.Contains("Second problem", vm.StatusText); // read without hovering
+        Press(window, new KeyGesture(Key.F8));
+        Assert.Equal(5, source.TextArea.Caret.Line);
+        Press(window, new KeyGesture(Key.F8)); // round again
+        Assert.Equal(3, source.TextArea.Caret.Line);
+        Press(window, new KeyGesture(Key.F8, KeyModifiers.Shift));
+        Assert.Equal(5, source.TextArea.Caret.Line);
+        Assert.Contains("Third problem", vm.StatusText);
+    }
+
+    [AvaloniaFact]
     public void MenuKeys_NeedTheirExactModifiers()
     {
         var (window, vm) = Open("Text.\n", EditorMode.Split);
