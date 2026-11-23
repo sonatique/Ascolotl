@@ -73,10 +73,15 @@ internal sealed class CompletionController
     /// <summary>Apply <paramref name="command"/> to the selection, leaving the
     /// keyboard in the editor with the result selected (or its first field, when
     /// Tab moves through several).</summary>
-    public void Format(FormatCommand command)
+    public void Format(FormatCommand command) => Apply(TextFormatting.Apply(command, _markdown, _editor.Document.Text,
+        _editor.SelectionStart, _editor.SelectionLength));
+
+    /// <summary>The caret's lines as headings of <paramref name="level"/>, or plain lines for 0.</summary>
+    public void Heading(int level) => Apply(TextFormatting.Heading(_markdown, _editor.Document.Text,
+        _editor.SelectionStart, _editor.SelectionLength, level));
+
+    private void Apply(FormatEdit edit)
     {
-        var edit = TextFormatting.Apply(command, _markdown, _editor.Document.Text,
-            _editor.SelectionStart, _editor.SelectionLength);
         _window?.Close();
         _session?.Finish();
         _session = null;

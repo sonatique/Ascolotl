@@ -126,4 +126,16 @@ public sealed class TextFormattingTests
         var stops = TextFormatting.Apply(FormatCommand.Link, true, "", 0, 0).Replacement.Stops;
         Assert.Equal([1, 2, 0], stops.Select(s => s.Index));
     }
+
+    [Theory]
+    [InlineData("Words", 5, false, "===== Words")]
+    [InlineData("Words", 6, true, "###### Words")]
+    [InlineData("== Words", 0, false, "Words")]  // 0: a plain line
+    [InlineData("== Words", 2, false, "Words")]  // its own level again: plain too
+    [InlineData("## Words", 4, true, "#### Words")]
+    public void HeadingLevel(string line, int level, bool markdown, string expected)
+    {
+        var edit = TextFormatting.Heading(markdown, line, 0, 0, level);
+        Assert.Equal(expected, line.Remove(edit.Start, edit.Length).Insert(edit.Start, edit.Replacement.Text));
+    }
 }

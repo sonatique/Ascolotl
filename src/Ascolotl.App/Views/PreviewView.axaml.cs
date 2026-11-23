@@ -380,6 +380,9 @@ public partial class PreviewView : UserControl
                 (Key.D, KeyModifiers.Control | KeyModifiers.Alt) => DuplicateBlock(on),
                 (Key.Delete, KeyModifiers.None) => DeleteBlock(on),
                 (Key.N, KeyModifiers.Control | KeyModifiers.Shift) => NewParagraphAfter(on),
+                (>= Key.D0 and <= Key.D6, KeyModifiers.Control | KeyModifiers.Shift) =>
+                    TurnBlockInto(on, e.Key == Key.D0 ? BlockKind.Paragraph : BlockKind.Heading1 + (e.Key - Key.D1)),
+                _ when IsTurnIntoKey(e) => ShowTurnIntoMenu(on),
                 _ => (bool?)null,
             } is { } done)
         {
@@ -948,10 +951,15 @@ public partial class PreviewView : UserControl
             if (_refocusCurrent && _doc?.SourceText == _panelSource)
             {
                 _refocusCurrent = false;
+                var turnInto = _turnIntoAfterRender;
+                _turnIntoAfterRender = false;
                 Dispatcher.UIThread.Post(() =>
                 {
                     if (_activeEdit is null && (FocusedElement is null || PreviewScroll.IsKeyboardFocusWithin))
+                    {
                         FocusBlock(Math.Min(_current, _blockMap.Count - 1));
+                        if (turnInto) ShowTurnIntoMenu(_current);
+                    }
                 });
             }
 
@@ -1703,6 +1711,8 @@ public partial class PreviewView : UserControl
         }
         else if (e.Key == Key.Enter && e.KeyModifiers == KeyModifiers.None && SplitBlock())
             e.Handled = true;
+        else if (_activeEdit.Cell is null && IsTurnIntoKey(e))
+            e.Handled = ShowTurnIntoMenu(_current);
         else if (e.Key == Key.Back && e.KeyModifiers == KeyModifiers.None && JoinWithBlockAbove())
             e.Handled = true;
         else if (e.Key == Key.Tab && e.KeyModifiers is KeyModifiers.None or KeyModifiers.Shift && _activeEdit.Cell is { } cell)
@@ -2078,6 +2088,84 @@ public partial class PreviewView : UserControl
     // A block moved or deleted from the keyboard: the keyboard goes to block _current once the page is rendered again.
     private bool _refocusCurrent;
 
+    // Ctrl+/ in an open edit: the edit applied, the Turn into menu once the block is rendered again.
+    private bool _turnIntoAfterRender;
+
+    // Ctrl+/: the / key wherever the layout puts it (Shift+7 on a Swiss or German keyboard).
+    private static bool IsTurnIntoKey(KeyEventArgs e) =>
+        e.KeyModifiers.HasFlag(KeyModifiers.Control) && !e.KeyModifiers.HasFlag(KeyModifiers.Alt)
+        && (e.Key is Key.Oem2 or Key.Divide || e.KeySymbol == "/");
+
+    private static bool CanTurn(BlockLayout block) =>
+        block is ParagraphLayout or HeadingLayout or ListLayout or QuoteLayout or CodeBlockLayout or AdmonitionLayout;
+
+    /// <summary>Ctrl+/: what block <paramref name="i"/> can be turned into, in a menu on it. An open
+    /// edit is applied first, and the menu shown once the block is rendered again.</summary>
+    private bool ShowTurnIntoMenu(int i)
+    {
+        if (_doc is null || i < 0 || i >= _blockMap.Count || !CanTurn(_blockMap[i].Block)) return false;
+        if (_activeEdit is not null)
+        {
+            CommitBlockEdit();
+            if (_doc.SourceText != _panelSource)
+            {
+                _refocusCurrent = _turnIntoAfterRender = true;
+                return true;
+            }
+            FocusBlock(i);
+        }
+        var vis = _blockMap[i].Vis;
+        new ContextMenu { ItemsSource = TurnIntoItems(() => _blockMap.FindIndex(b => b.Vis == vis)) }.Open(vis);
+        return true;
+    }
+
+    private List<Control> TurnIntoItems(Func<int> index)
+    {
+        var items = new List<Control> { Cmd(Strings.InsertParagraph, () => TurnBlockInto(index(), BlockKind.Paragraph)) };
+        for (var level = 1; level <= 6; level++)
+        {
+            var kind = BlockKind.Heading1 + (level - 1);
+            items.Add(Cmd(string.Format(Strings.FormatHeading, level), () => TurnBlockInto(index(), kind)));
+        }
+        items.Add(Cmd(Strings.InsertBulletedList, () => TurnBlockInto(index(), BlockKind.BulletedList)));
+        items.Add(Cmd(Strings.InsertNumberedList, () => TurnBlockInto(index(), BlockKind.NumberedList)));
+        items.Add(Cmd(Strings.FormatQuote, () => TurnBlockInto(index(), BlockKind.Quote)));
+        items.Add(Cmd(Strings.InsertCodeBlock, () => TurnBlockInto(index(), BlockKind.CodeBlock)));
+        if (_doc?.IsMarkdown == false) items.Add(Cmd(Strings.InsertNote, () => TurnBlockInto(index(), BlockKind.Note)));
+        return items;
+    }
+
+    /// <summary>Block <paramref name="i"/> as another kind, its words kept; a heading turned into its own
+    /// level, a paragraph again. The keyboard stays on it. False for a block that can't be.</summary>
+    private bool TurnBlockInto(int i, BlockKind kind)
+    {
+        if (_doc is null || i < 0 || i >= _blockMap.Count || !CanTurn(_blockMap[i].Block) || !PanelIsCurrent()
+            || !BlockConversion.Supports(kind, _doc.IsMarkdown))
+            return false;
+        var block = _blockMap[i].Block;
+        if (BlockSourceEditing.ResolveEditorSlice(_doc.SourceText, block.Source, _astToEditor) is not (int start, int length))
+        {
+            if (_mainVm is not null) _mainVm.StatusText = Strings.StatusBlockFromIncludeCannotModify;
+            return false;
+        }
+        var text = _doc.SourceText;
+        if (kind is >= BlockKind.Heading1 and <= BlockKind.Heading6 && block is HeadingLayout
+            && HeadingMarker().Match(text.Substring(start, length)).Groups[1].Length == kind - BlockKind.Heading1 + 1)
+            kind = BlockKind.Paragraph;
+        // A code block's, a quote's or a note's style line ([source,python]) goes with its old kind.
+        if (block is CodeBlockLayout or QuoteLayout or AdmonitionLayout && start >= 2)
+        {
+            var above = text.LastIndexOf('\n', start - 2) + 1;
+            var line = text.AsSpan(above, start - 1 - above).Trim();
+            if (line.StartsWith("[") && !line.StartsWith("[[") && line.EndsWith("]") && !line.Contains('='))
+                (start, length) = (above, length + start - above);
+        }
+        _current = i;
+        _refocusCurrent = true;
+        _doc.SourceText = text.Remove(start, length).Insert(start, BlockConversion.TurnInto(text.Substring(start, length), kind, _doc.IsMarkdown));
+        return true;
+    }
+
     /// <summary>Block <paramref name="i"/>'s source with the title and attribute lines above it,
     /// or null (said in the status bar) when the page can't change it.</summary>
     private (int Start, int Length)? WholeBlock(int i)
@@ -2228,6 +2316,8 @@ public partial class PreviewView : UserControl
             var editItem = new MenuItem { Header = string.Format(Strings.MenuEditBlock, gesture) };
             editItem.Click += (_, _) => EnterBlockEdit(blockVis, block);
             items.Add(editItem);
+            if (CanTurn(block))
+                items.Add(new MenuItem { Header = Strings.MenuTurnInto, InputGesture = new KeyGesture(Key.Oem2, KeyModifiers.Control), ItemsSource = TurnIntoItems(Index) });
         }
 
         items.Add(new Separator());

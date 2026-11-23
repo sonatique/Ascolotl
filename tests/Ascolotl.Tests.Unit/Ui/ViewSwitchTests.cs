@@ -281,6 +281,57 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
+    public void HeadingKeysAndTurnInto_ChangeTheBlocksKind()
+    {
+        var (window, vm) = Open("Words.\n\n[source,python]\n----\nx = 1\n----\n", EditorMode.Wysiwyg);
+        string Text() => vm.SelectedDocument!.SourceText;
+        Preview(window).FocusPage();
+        Pump(window);
+        Assert.Equal("Words.", OnBlock(window));
+
+        Press(window, Key.D2, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Pump(window);
+        Assert.StartsWith("== Words.\n", Text());
+        Press(window, Key.D2, RawInputModifiers.Control | RawInputModifiers.Shift); // its own level again: a paragraph
+        Pump(window);
+        Assert.StartsWith("Words.\n", Text());
+
+        Press(window, Key.Oem2, RawInputModifiers.Control); // the Turn into menu: the 8th kind, a bulleted list
+        Press(window, Key.Down, repeat: 8);
+        Press(window, Key.Enter);
+        Pump(window);
+        Assert.StartsWith("* Words.\n", Text());
+        Assert.Equal("• Words.", OnBlock(window)); // the keyboard still on it
+
+        Press(window, Key.Down);
+        Press(window, Key.D0, RawInputModifiers.Control | RawInputModifiers.Shift); // code to a paragraph: its style line goes too
+        Pump(window);
+        Assert.Equal("* Words.\n\nx = 1\n", Text());
+
+        Press(window, Key.Enter); // in an open edit: applied, then the menu
+        window.KeyTextInput("y");
+        Press(window, Key.Oem2, RawInputModifiers.Control);
+        Pump(window);
+        Press(window, Key.Down, repeat: 11); // a code block
+        Press(window, Key.Enter);
+        Pump(window);
+        Assert.Equal("* Words.\n\n[source]\n----\nyx = 1\n----\n", Text());
+    }
+
+    [AvaloniaFact]
+    public void HeadingKeys_WorkInTheSourceToo()
+    {
+        var (window, vm) = Open("Words.\n", EditorMode.Source);
+        var source = window.GetVisualDescendants().OfType<TextEditor>().First(t => t.IsEffectivelyVisible);
+        source.TextArea.Focus();
+        Pump(window);
+        Press(window, Key.D3, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Assert.Equal("=== Words.\n", vm.SelectedDocument!.SourceText);
+        Press(window, Key.D0, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Assert.Equal("Words.\n", vm.SelectedDocument.SourceText);
+    }
+
+    [AvaloniaFact]
     public void CtrlEnter_AppliesTheBlock_OverAnOpenSuggestionList()
     {
         var (window, vm) = Open("Text.\n", EditorMode.Wysiwyg);

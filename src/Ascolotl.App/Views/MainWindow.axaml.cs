@@ -556,6 +556,14 @@ public partial class MainWindow : Window
             _viewModel.SetEditorModeCommand.Execute(view);
             e.Handled = true;
         }
+        // Heading levels in the editor with the keyboard: Ctrl+Shift+1 to 6, and 0 for a plain line.
+        else if (e.KeyModifiers == (KeyModifiers.Control | KeyModifiers.Shift) && e.Key is >= Key.D0 and <= Key.D6
+                 && (FocusManager?.GetFocusedElement() as Visual)?.FindAncestorOfType<TextEditor>(includeSelf: true) is { } editor
+                 && CompletionController.For(editor) is { } assist)
+        {
+            assist.Heading(e.Key - Key.D0);
+            e.Handled = true;
+        }
         else if (e.Key == Key.Escape && _viewModel.CommandPalette.IsOpen)
         {
             _viewModel.CommandPalette.Close();

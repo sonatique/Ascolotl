@@ -40,12 +40,25 @@ public static partial class TextFormatting
     public static bool Supports(FormatCommand command, bool markdown)
         => !(markdown && command == FormatCommand.Note);
 
-    public static FormatEdit Apply(FormatCommand command, bool markdown, string text, int selectionStart, int selectionLength)
+    /// <summary>The lines the selection touches as headings of <paramref name="level"/> (1 to 6), or as
+    /// plain lines for 0; lines at that level already become plain lines too.</summary>
+    public static FormatEdit Heading(bool markdown, string text, int selectionStart, int selectionLength, int level)
+    {
+        var ctx = ContextFor(markdown, text, selectionStart, selectionLength);
+        var heading = markdown ? MarkdownHeading() : AsciiDocHeading();
+        return level <= 0 ? EachLine(ctx, lines => [.. lines.Select(l => heading.Replace(l, ""))]) : Heading(ctx, Math.Min(level, 6));
+    }
+
+    private static Context ContextFor(bool markdown, string text, int selectionStart, int selectionLength)
     {
         var s = Math.Clamp(selectionStart, 0, text.Length);
         var e = Math.Clamp(s + selectionLength, s, text.Length);
-        var nl = text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
-        var ctx = new Context(text, s, e, markdown, nl);
+        return new Context(text, s, e, markdown, text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n");
+    }
+
+    public static FormatEdit Apply(FormatCommand command, bool markdown, string text, int selectionStart, int selectionLength)
+    {
+        var ctx = ContextFor(markdown, text, selectionStart, selectionLength);
         return command switch
         {
             FormatCommand.Bold => markdown ? Inline(ctx, "**", "**", ["**", "__"]) : Inline(ctx, "*", "**", ["**", "*"]),
@@ -61,7 +74,7 @@ public static partial class TextFormatting
             FormatCommand.Quote when markdown => QuoteLines(ctx),
             FormatCommand.Quote => Block(ctx, "____", "____"),
             FormatCommand.CodeBlock when markdown => Block(ctx, "```", "```"),
-            FormatCommand.CodeBlock => Block(ctx, "[source]" + nl + "----", "----"),
+            FormatCommand.CodeBlock => Block(ctx, "[source]" + ctx.Nl + "----", "----"),
             FormatCommand.Note => Note(ctx),
             FormatCommand.Table => Insert(ctx, Table(ctx)),
             FormatCommand.HorizontalRule => Insert(ctx, new Out().Text(markdown ? "---" : "'''").Stop(0)),

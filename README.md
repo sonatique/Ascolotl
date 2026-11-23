@@ -150,6 +150,8 @@ On the WYSIWYG page (and the page in Split), one block at a time has the keyboar
 | Move the block up / down | `Ctrl+Shift+↑` / `Ctrl+Shift+↓` |
 | Duplicate / delete the block | `Ctrl+Alt+D` / `Delete` |
 | New paragraph after the block | `Ctrl+Shift+N` |
+| Turn the block into a heading, list, quote, code block… | `Ctrl+/` |
+| Heading level 1 to 6 / back to a paragraph (also in the source) | `Ctrl+Shift+1`…`6` / `Ctrl+Shift+0` |
 | Undo / redo | `Ctrl+Z` / `Ctrl+Y` |
 | Leave the page | `Tab` / `Shift+Tab` |
 
