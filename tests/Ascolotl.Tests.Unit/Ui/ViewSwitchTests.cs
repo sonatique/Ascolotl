@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using Avalonia.LogicalTree;
 using Avalonia.VisualTree;
 using AvaloniaEdit;
@@ -362,7 +363,7 @@ public sealed class ViewSwitchTests
         Press(window, Key.X, RawInputModifiers.Control); // cut: copied, then gone
         Pump(window);
         Assert.Equal("[[a]]\nA.\n\nB.\n\nC.\n\nD.\n", Text());
-        Assert.Equal("B.\n\nC.", TopLevel.GetTopLevel(window)!.Clipboard!.GetTextAsync().GetAwaiter().GetResult());
+        Assert.Equal("B.\n\nC.", TopLevel.GetTopLevel(window)!.Clipboard!.TryGetTextAsync().GetAwaiter().GetResult());
 
         Press(window, Key.A, RawInputModifiers.Control); // all of them
         Press(window, Key.Delete);
@@ -388,7 +389,7 @@ public sealed class ViewSwitchTests
         Assert.Equal(string.Format(Strings.StatusBlocksSelected, 3), vm.StatusText);
         Press(window, Key.Escape);
         Press(window, Key.C, RawInputModifiers.Control); // the selection ended: the one block
-        Assert.Equal("After.", TopLevel.GetTopLevel(window)!.Clipboard!.GetTextAsync().GetAwaiter().GetResult());
+        Assert.Equal("After.", TopLevel.GetTopLevel(window)!.Clipboard!.TryGetTextAsync().GetAwaiter().GetResult());
     }
 
     [AvaloniaFact]

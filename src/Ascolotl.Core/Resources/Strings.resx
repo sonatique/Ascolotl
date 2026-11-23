@@ -520,8 +520,18 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="AboutSponsorLink" xml:space="preserve"><value>Buy the axolotl a coffee</value></data>
   <data name="MenuReportIssue" xml:space="preserve"><value>_Report an Issue or Suggestion</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Free software under the GNU GPL v3, with no warranty.</value></data>
+  <data name="MenuMoveDown" xml:space="preserve"><value>Move down</value></data>
+  <data name="MenuMoveLeft" xml:space="preserve"><value>Move left</value></data>
+  <data name="MenuMoveRight" xml:space="preserve"><value>Move right</value></data>
+  <data name="MenuMoveUp" xml:space="preserve"><value>Move up</value></data>
+  <data name="MenuSortAscending" xml:space="preserve"><value>Sort rows by this column, A to Z</value></data>
+  <data name="MenuSortDescending" xml:space="preserve"><value>Sort rows by this column, Z to A</value></data>
   <data name="MenuTurnInto" xml:space="preserve"><value>Turn into</value></data>
   <data name="StatusBlocksSelected" xml:space="preserve"><value>{0} blocks selected</value></data>
+  <data name="StatusColumnMoved" xml:space="preserve"><value>Column moved</value></data>
+  <data name="StatusRowMoved" xml:space="preserve"><value>Row moved</value></data>
+  <data name="StatusRowsSorted" xml:space="preserve"><value>Rows sorted</value></data>
+  <data name="StatusTableCannotMoveOrSort" xml:space="preserve"><value>This table has merged cells or a header in the way: edit its source to rearrange it</value></data>
   <data name="TableRowAbove" xml:space="preserve"><value>Insert row above</value></data>
   <data name="TableRowBelow" xml:space="preserve"><value>Insert row below</value></data>
   <data name="TableColumnLeft" xml:space="preserve"><value>Insert column left</value></data>

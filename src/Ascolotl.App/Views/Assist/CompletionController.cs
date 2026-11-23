@@ -130,7 +130,7 @@ internal sealed class CompletionController
         }
         if (TableEditing.Apply(op, _editor.Document.Text, _editor.CaretOffset, _markdown) is not { } edit)
         {
-            Status(Strings.StatusEditTableSourceForLayout);
+            Status(op >= TableOp.MoveRowUp ? Strings.StatusTableCannotMoveOrSort : Strings.StatusEditTableSourceForLayout);
             return;
         }
         _editor.Document.Replace(edit.Start, edit.Length, edit.Text);
@@ -147,6 +147,9 @@ internal sealed class CompletionController
         TableOp.ColumnLeft or TableOp.ColumnRight => Strings.StatusColumnInserted,
         TableOp.DeleteColumn => Strings.StatusColumnDeleted,
         TableOp.MergeRight or TableOp.MergeDown => Strings.StatusCellsMerged,
+        TableOp.MoveRowUp or TableOp.MoveRowDown => Strings.StatusRowMoved,
+        TableOp.MoveColumnLeft or TableOp.MoveColumnRight => Strings.StatusColumnMoved,
+        TableOp.SortAscending or TableOp.SortDescending => Strings.StatusRowsSorted,
         _ => Strings.StatusCellSplit,
     };
 

@@ -47,14 +47,17 @@ internal static class FormattingMenu
             items.Add(new MenuItem
             {
                 Header = Strings.MenuRow,
-                ItemsSource = new[] { Table(TableOp.RowAbove, Strings.MenuInsertAbove),
-                    Table(TableOp.RowBelow, Strings.MenuInsertBelow), Table(TableOp.DeleteRow, Strings.MenuDeleteRow) },
+                ItemsSource = new Control[] { Table(TableOp.RowAbove, Strings.MenuInsertAbove),
+                    Table(TableOp.RowBelow, Strings.MenuInsertBelow), Table(TableOp.DeleteRow, Strings.MenuDeleteRow),
+                    new Separator(), Table(TableOp.MoveRowUp, Strings.MenuMoveUp), Table(TableOp.MoveRowDown, Strings.MenuMoveDown) },
             });
             items.Add(new MenuItem
             {
                 Header = Strings.MenuColumn,
-                ItemsSource = new[] { Table(TableOp.ColumnLeft, Strings.MenuInsertLeft),
-                    Table(TableOp.ColumnRight, Strings.MenuInsertRight), Table(TableOp.DeleteColumn, Strings.MenuDeleteColumn) },
+                ItemsSource = new Control[] { Table(TableOp.ColumnLeft, Strings.MenuInsertLeft),
+                    Table(TableOp.ColumnRight, Strings.MenuInsertRight), Table(TableOp.DeleteColumn, Strings.MenuDeleteColumn),
+                    new Separator(), Table(TableOp.MoveColumnLeft, Strings.MenuMoveLeft), Table(TableOp.MoveColumnRight, Strings.MenuMoveRight),
+                    new Separator(), Table(TableOp.SortAscending, Strings.MenuSortAscending), Table(TableOp.SortDescending, Strings.MenuSortDescending) },
             });
             if (TableEditing.Supports(TableOp.MergeRight, assist.Markdown))
                 items.Add(new MenuItem

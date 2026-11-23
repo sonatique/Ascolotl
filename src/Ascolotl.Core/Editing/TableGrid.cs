@@ -377,6 +377,43 @@ public sealed class TableGrid
 
     private bool HasRowSpans() => Rows.Any(r => r.Any(c => c.RowSpan > 1));
 
+    // ---- Moving and sorting -----------------------------------------------
+    // ponytail: tables without merged cells only; with spans, the caller says to edit the source.
+
+    private bool NoSpans() => Rows.All(r => r.Count == ColumnCount && r.All(c => c.ColSpan == 1 && c.RowSpan == 1));
+
+    /// <summary>Swap a row with the one above (<paramref name="step"/> -1) or below (+1); never
+    /// across the header row (a <paramref name="header"/> option, or a blank line after row 0).</summary>
+    public bool MoveRow(int row, int step, bool header)
+    {
+        var other = row + step;
+        var first = header || _headerSeparated ? 1 : 0;
+        if (row < first || other < first || other >= Rows.Count || !NoSpans()) return false;
+        (Rows[row], Rows[other]) = (Rows[other], Rows[row]);
+        return true;
+    }
+
+    /// <summary>Swap the addressed cell's column with the one left (-1) or right (+1).</summary>
+    public bool MoveColumn(int row, int cell, int step)
+    {
+        var other = cell + step;
+        if (!Valid(row, cell) || other < 0 || other >= ColumnCount || !NoSpans()) return false;
+        foreach (var r in Rows) (r[cell], r[other]) = (r[other], r[cell]);
+        return true;
+    }
+
+    /// <summary>The rows below the header in the order of the addressed cell's column.</summary>
+    public bool SortRows(int row, int cell, bool descending, bool header)
+    {
+        if (!Valid(row, cell) || !NoSpans()) return false;
+        var first = header || _headerSeparated ? 1 : 0;
+        var body = Rows.Skip(first).ToList();
+        var sorted = descending ? body.OrderByDescending(r => r[cell].Content, TableEditing.SortOrder) : body.OrderBy(r => r[cell].Content, TableEditing.SortOrder);
+        Rows.RemoveRange(first, body.Count);
+        Rows.AddRange(sorted.ToList());
+        return true;
+    }
+
     private int LogicalColNoRowSpan(int row, int cell)
     {
         var c = 0;

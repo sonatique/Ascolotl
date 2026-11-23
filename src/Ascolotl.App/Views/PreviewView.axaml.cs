@@ -2144,7 +2144,7 @@ public partial class PreviewView : UserControl
             return true;
         }
         if (_mainVm is not null)
-            _mainVm.StatusText = Strings.StatusEditTableSourceForLayout;
+            _mainVm.StatusText = op >= TableOp.MoveRowUp ? Strings.StatusTableCannotMoveOrSort : Strings.StatusEditTableSourceForLayout;
         return false;
     }
 
@@ -2374,40 +2374,42 @@ public partial class PreviewView : UserControl
                     && CellSlice(table, mr, mc) is (int cellStart, _))
                 {
                     items.Add(new Separator());
-                    items.Add(new MenuItem { Header = Strings.MenuRow, ItemsSource = new[]
+                    items.Add(new MenuItem { Header = Strings.MenuRow, ItemsSource = new List<Control>
                     {
                         Cmd(Strings.MenuInsertAbove, () => TableEditAt(cellStart, TableOp.RowAbove)),
                         Cmd(Strings.MenuInsertBelow, () => TableEditAt(cellStart, TableOp.RowBelow)),
                         Cmd(Strings.MenuDeleteRow, () => TableEditAt(cellStart, TableOp.DeleteRow)),
-                    } });
-                    items.Add(new MenuItem { Header = Strings.MenuColumn, ItemsSource = new[]
+                    }.Concat(RowMoves(cellStart)).ToList() });
+                    items.Add(new MenuItem { Header = Strings.MenuColumn, ItemsSource = new List<Control>
                     {
                         Cmd(Strings.MenuInsertLeft, () => TableEditAt(cellStart, TableOp.ColumnLeft)),
                         Cmd(Strings.MenuInsertRight, () => TableEditAt(cellStart, TableOp.ColumnRight)),
                         Cmd(Strings.MenuDeleteColumn, () => TableEditAt(cellStart, TableOp.DeleteColumn)),
-                    } });
+                    }.Concat(ColumnMoves(cellStart)).ToList() });
                 }
                 else if (!_doc.IsMarkdown && TryResolveCell(blockVis, table, clickTarget, pointInScroll, out _, out var r, out var c)
                     && r < table.Rows.Count && c < table.Rows[r].Cells.Count)
                 {
                     items.Add(new Separator());
 
+                    // Moving and sorting go by the cell's place in the source, as in Markdown.
+                    var at = CellSlice(table, r, c)?.Start;
                     var rowMenu = new MenuItem { Header = Strings.MenuRow };
-                    rowMenu.ItemsSource = new[]
+                    rowMenu.ItemsSource = new List<Control>
                     {
                         Cmd(Strings.MenuInsertAbove, () => GridTableOp(table, g => g.InsertRow(r, below: false), 0, Strings.StatusRowInserted)),
                         Cmd(Strings.MenuInsertBelow, () => GridTableOp(table, g => g.InsertRow(r, below: true), 0, Strings.StatusRowInserted)),
                         Cmd(Strings.MenuDeleteRow, () => GridTableOp(table, g => g.DeleteRow(r), 0, Strings.StatusRowDeleted)),
-                    };
+                    }.Concat(at is int a1 ? RowMoves(a1) : []).ToList();
                     items.Add(rowMenu);
 
                     var colMenu = new MenuItem { Header = Strings.MenuColumn };
-                    colMenu.ItemsSource = new[]
+                    colMenu.ItemsSource = new List<Control>
                     {
                         Cmd(Strings.MenuInsertLeft, () => GridTableOp(table, g => g.InsertColumn(r, c, right: false), +1, Strings.StatusColumnInserted)),
                         Cmd(Strings.MenuInsertRight, () => GridTableOp(table, g => g.InsertColumn(r, c, right: true), +1, Strings.StatusColumnInserted)),
                         Cmd(Strings.MenuDeleteColumn, () => GridTableOp(table, g => g.DeleteColumn(r, c), -1, Strings.StatusColumnDeleted)),
-                    };
+                    }.Concat(at is int a2 ? ColumnMoves(a2) : []).ToList();
                     items.Add(colMenu);
 
                     var mergeItems = new List<Control>();
@@ -2519,6 +2521,24 @@ public partial class PreviewView : UserControl
     }
 
     /// <summary>A menu item that runs <paramref name="action"/> on click.</summary>
+    // A table's rows and columns rearranged from the cell at source offset `at`.
+    private List<Control> RowMoves(int at) =>
+    [
+        new Separator(),
+        Cmd(Strings.MenuMoveUp, () => TableEditAt(at, TableOp.MoveRowUp)),
+        Cmd(Strings.MenuMoveDown, () => TableEditAt(at, TableOp.MoveRowDown)),
+    ];
+
+    private List<Control> ColumnMoves(int at) =>
+    [
+        new Separator(),
+        Cmd(Strings.MenuMoveLeft, () => TableEditAt(at, TableOp.MoveColumnLeft)),
+        Cmd(Strings.MenuMoveRight, () => TableEditAt(at, TableOp.MoveColumnRight)),
+        new Separator(),
+        Cmd(Strings.MenuSortAscending, () => TableEditAt(at, TableOp.SortAscending)),
+        Cmd(Strings.MenuSortDescending, () => TableEditAt(at, TableOp.SortDescending)),
+    ];
+
     private static MenuItem Cmd(string header, Action action)
     {
         var item = new MenuItem { Header = header };

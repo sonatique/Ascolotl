@@ -12,6 +12,12 @@ public enum TableOp
     MergeRight,
     MergeDown,
     SplitCell,
+    MoveRowUp,
+    MoveRowDown,
+    MoveColumnLeft,
+    MoveColumnRight,
+    SortAscending,
+    SortDescending,
 }
 
 /// <summary>Replace <see cref="Length"/> characters at <see cref="Start"/> with
@@ -29,6 +35,18 @@ public static class TableEditing
     /// <summary>Markdown tables can't merge cells.</summary>
     public static bool Supports(TableOp op, bool markdown)
         => !markdown || op is not (TableOp.MergeRight or TableOp.MergeDown or TableOp.SplitCell);
+
+    /// <summary>How sorted cells follow each other: numbers by value and before text, text as the
+    /// reader's language sorts it, case aside.</summary>
+    public static readonly IComparer<string> SortOrder = Comparer<string>.Create((a, b) =>
+    {
+        static bool Number(string s, out double value) =>
+            double.TryParse(s.Trim(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.CurrentCulture, out value)
+            || double.TryParse(s.Trim(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out value);
+        var (isA, isB) = (Number(a, out var x), Number(b, out var y));
+        return isA && isB ? x.CompareTo(y) : isA ? -1 : isB ? 1
+            : string.Compare(a.Trim(), b.Trim(), System.Globalization.CultureInfo.CurrentCulture, System.Globalization.CompareOptions.IgnoreCase);
+    });
 
     /// <summary>The caret is on a row of a table.</summary>
     public static bool IsInTable(string text, int caret, bool markdown)
@@ -81,9 +99,18 @@ public static class TableEditing
         var row = body.Take(line - open - 1).Count(l => l.Trim().Length > 0);
         var pipes = Pipes(lines[line]);
         var cell = Math.Clamp(pipes.Count(p => p < column) - 1, 0, grid.Rows[row].Count - 1);
+        // options="header" or %header in the attribute lines above: row 0 stays first.
+        var header = Enumerable.Range(Math.Max(0, open - 3), open - Math.Max(0, open - 3))
+            .Any(i => lines[i].TrimStart().StartsWith('[') && lines[i].Contains("header", StringComparison.Ordinal));
 
         var (done, colDelta, toRow, toCell) = op switch
         {
+            TableOp.MoveRowUp => (grid.MoveRow(row, -1, header), 0, row - 1, cell),
+            TableOp.MoveRowDown => (grid.MoveRow(row, +1, header), 0, row + 1, cell),
+            TableOp.MoveColumnLeft => (grid.MoveColumn(row, cell, -1), 0, row, cell - 1),
+            TableOp.MoveColumnRight => (grid.MoveColumn(row, cell, +1), 0, row, cell + 1),
+            TableOp.SortAscending => (grid.SortRows(row, cell, descending: false, header), 0, row, cell),
+            TableOp.SortDescending => (grid.SortRows(row, cell, descending: true, header), 0, row, cell),
             TableOp.RowAbove => (grid.InsertRow(row, below: false), 0, row, 0),
             TableOp.RowBelow => (grid.InsertRow(row, below: true), 0, row + 1, 0),
             TableOp.DeleteRow => (grid.DeleteRow(row), 0, Math.Max(0, row - 1), 0),
@@ -99,8 +126,9 @@ public static class TableEditing
         var first = colsLine ?? open;
         var newLines = new List<string>();
         for (var i = first; i <= open; i++)
-            newLines.Add(i == colsLine && colDelta != 0
-                ? TableStructure.AdjustColsAttribute(lines[i], colDelta) ?? lines[i]
+            newLines.Add(i != colsLine ? lines[i]
+                : colDelta != 0 ? TableStructure.AdjustColsAttribute(lines[i], colDelta) ?? lines[i]
+                : op is TableOp.MoveColumnLeft or TableOp.MoveColumnRight ? TableStructure.SwapColsSpecs(lines[i], cell, toCell)
                 : lines[i]);
         var bodyAt = newLines.Count;
         newLines.AddRange(grid.ToLines());
@@ -190,6 +218,21 @@ public static class TableEditing
                 foreach (var r in rows) r.RemoveAt(cell);
                 align.RemoveAt(cell);
                 toCell = Math.Max(0, cell - 1);
+                break;
+            // The header row (0) stays first: only body rows move or sort.
+            case TableOp.MoveRowUp or TableOp.MoveRowDown when row > 0 && row + (op == TableOp.MoveRowUp ? -1 : 1) is var other && other > 0 && other < rows.Count:
+                (rows[row], rows[other]) = (rows[other], rows[row]);
+                toRow = other;
+                break;
+            case TableOp.MoveColumnLeft or TableOp.MoveColumnRight when cell + (op == TableOp.MoveColumnLeft ? -1 : 1) is var to && to >= 0 && to < width:
+                foreach (var r in rows.Append(align)) (r[cell], r[to]) = (r[to], r[cell]);
+                toCell = to;
+                break;
+            case TableOp.SortAscending or TableOp.SortDescending when rows.Count > 2:
+                var sorted = rows.Skip(1).OrderBy(r => r[cell], TableEditing.SortOrder).ToList();
+                if (op == TableOp.SortDescending) sorted = rows.Skip(1).OrderByDescending(r => r[cell], TableEditing.SortOrder).ToList();
+                rows.RemoveRange(1, sorted.Count);
+                rows.AddRange(sorted);
                 break;
             default:
                 return null;

@@ -51,6 +51,19 @@ public static class TableStructure
         return $"[cols=\"{string.Join(",", specs)}\"]";
     }
 
+    /// <summary>A <c>[cols="1,3"]</c> line with the specs of columns <paramref name="a"/> and
+    /// <paramref name="b"/> swapped, as their columns are; the line as it was when it has no such specs.</summary>
+    public static string SwapColsSpecs(string attrLine, int a, int b)
+    {
+        var at = attrLine.IndexOf("cols=\"", StringComparison.OrdinalIgnoreCase);
+        var end = at < 0 ? -1 : attrLine.IndexOf('"', at + 6);
+        if (end < 0) return attrLine;
+        var specs = attrLine[(at + 6)..end].Split(',');
+        if (a < 0 || b < 0 || a >= specs.Length || b >= specs.Length || specs.Any(s => s.Contains('*'))) return attrLine;
+        (specs[a], specs[b]) = (specs[b], specs[a]);
+        return attrLine[..(at + 6)] + string.Join(",", specs) + attrLine[end..];
+    }
+
     /// <summary>
     /// Flatten a (row, column) cell address into its index in a row-major cell
     /// list (the cells of all rows concatenated). <paramref name="cellsPerRow"/>

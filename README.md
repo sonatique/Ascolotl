@@ -34,7 +34,8 @@ no Ruby and no Java.
   italic, code, links, headings, lists, quotes, code blocks, images, tables and,
   in AsciiDoc, notes. Each applies to the selection or inserts at the caret.
 - **Table editing:** insert and delete rows and columns from the toolbar or a
-  right-click, in the source, in the preview or while editing a cell. AsciiDoc
+  right-click, in the source, in the preview or while editing a cell; move rows
+  and columns, and sort the rows by a column, from the right-click. AsciiDoc
   cells can also be merged and split. Markdown tables stay aligned.
 - **Live preview** with images, checklists, quotes and highlighted text. Click
   the preview to jump to the source, and scrolling stays in sync.

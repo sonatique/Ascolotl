@@ -520,8 +520,18 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="AboutSponsorLink" xml:space="preserve"><value>Invita al ajolote a un café</value></data>
   <data name="MenuReportIssue" xml:space="preserve"><value>_Informar de un problema o sugerencia</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Software libre bajo la GNU GPL v3, sin garantía.</value></data>
+  <data name="MenuMoveDown" xml:space="preserve"><value>Bajar</value></data>
+  <data name="MenuMoveLeft" xml:space="preserve"><value>Mover a la izquierda</value></data>
+  <data name="MenuMoveRight" xml:space="preserve"><value>Mover a la derecha</value></data>
+  <data name="MenuMoveUp" xml:space="preserve"><value>Subir</value></data>
+  <data name="MenuSortAscending" xml:space="preserve"><value>Ordenar filas por esta columna, de la A a la Z</value></data>
+  <data name="MenuSortDescending" xml:space="preserve"><value>Ordenar filas por esta columna, de la Z a la A</value></data>
   <data name="MenuTurnInto" xml:space="preserve"><value>Convertir en</value></data>
   <data name="StatusBlocksSelected" xml:space="preserve"><value>{0} bloques seleccionados</value></data>
+  <data name="StatusColumnMoved" xml:space="preserve"><value>Columna movida</value></data>
+  <data name="StatusRowMoved" xml:space="preserve"><value>Fila movida</value></data>
+  <data name="StatusRowsSorted" xml:space="preserve"><value>Filas ordenadas</value></data>
+  <data name="StatusTableCannotMoveOrSort" xml:space="preserve"><value>Hay celdas combinadas o un encabezado en medio: edite el código de la tabla para reordenarla</value></data>
   <data name="TableRowAbove" xml:space="preserve"><value>Insertar fila arriba</value></data>
   <data name="TableRowBelow" xml:space="preserve"><value>Insertar fila abajo</value></data>
   <data name="TableColumnLeft" xml:space="preserve"><value>Insertar columna a la izquierda</value></data>

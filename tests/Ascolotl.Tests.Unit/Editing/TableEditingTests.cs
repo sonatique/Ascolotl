@@ -100,4 +100,55 @@ public sealed class TableEditingTests
     [Fact]
     public void Markdown_PipeProseIsNotATable()
         => Assert.False(TableEditing.IsInTable("a | b\n\nc | d", 1, markdown: true));
+
+    // ── Moving and sorting ────────────────────────────────────────────────
+
+    private static string? Text(TableOp op, bool markdown, string marked) => Run(op, markdown, marked)?.Replace("‸", "");
+
+    private const string Sortable = "[cols=\"1,3\"]\n|===\n| Name | Size\n\n| b | 10\n| a | 9\n| C | 100\n|===\n";
+
+    [Fact]
+    public void AsciiDoc_MoveRow_NotAcrossTheHeader()
+    {
+        Assert.Equal("[cols=\"1,1\"]\n|===\n| A | B\n\n| a2 | b2\n| a1 | b1\n|===\n", Text(TableOp.MoveRowUp, false, AdocAt("a2")));
+        Assert.Null(Text(TableOp.MoveRowUp, false, AdocAt("a1"))); // the header (a blank line below it) stays first
+    }
+
+    [Fact]
+    public void AsciiDoc_MoveColumn_TakesItsWidthAlong()
+        => Assert.Equal("[cols=\"3,1\"]\n|===\n| Size | Name\n\n| 10 | b\n| 9 | a\n| 100 | C\n|===\n",
+            Text(TableOp.MoveColumnRight, false, Sortable.Replace("| a |", "| ‸a |")));
+
+    [Fact]
+    public void AsciiDoc_Sort_NumbersByValue_TextCaseAside_HeaderFirst()
+    {
+        Assert.Equal("[cols=\"1,3\"]\n|===\n| Name | Size\n\n| a | 9\n| b | 10\n| C | 100\n|===\n",
+            Text(TableOp.SortAscending, false, Sortable.Replace("| 9", "| ‸9")));
+        Assert.Equal("[cols=\"1,3\"]\n|===\n| Name | Size\n\n| C | 100\n| b | 10\n| a | 9\n|===\n",
+            Text(TableOp.SortDescending, false, Sortable.Replace("| a |", "| ‸a |")));
+    }
+
+    [Fact]
+    public void AsciiDoc_MovingOrSortingMergedCells_IsRefused()
+        => Assert.Null(Text(TableOp.SortAscending, false, "|===\n2+| ‸x\n| a | b\n|===\n"));
+
+    [Fact]
+    public void Markdown_MoveAndSort_KeepTheHeaderAndAlignment()
+    {
+        const string table = "| Name | Size |\n| :--- | ---: |\n| b | 10 |\n| a | 9 |\n";
+        Assert.Equal("| Name | Size |\n| :--- | ---: |\n| a    | 9    |\n| b    | 10   |\n",
+            Text(TableOp.MoveRowUp, true, table.Replace("| a", "| ‸a")));
+        Assert.Null(Text(TableOp.MoveRowUp, true, table.Replace("| b", "| ‸b"))); // not above the header
+        Assert.Equal("| Size | Name |\n| ---: | :--- |\n| 10   | b    |\n| 9    | a    |\n",
+            Text(TableOp.MoveColumnLeft, true, table.Replace("| 9", "| ‸9")));
+        Assert.Equal("| Name | Size |\n| :--- | ---: |\n| a    | 9    |\n| b    | 10   |\n",
+            Text(TableOp.SortAscending, true, table.Replace("| 10", "| ‸10")));
+    }
+
+    [Theory]
+    [InlineData("[cols=\"1,2,3\"]", 0, 2, "[cols=\"3,2,1\"]")]
+    [InlineData("[cols=3]", 0, 1, "[cols=3]")]          // all alike: nothing to swap
+    [InlineData("[cols=\"3*\"]", 0, 1, "[cols=\"3*\"]")]
+    public void SwapColsSpecs(string line, int a, int b, string expected)
+        => Assert.Equal(expected, TableStructure.SwapColsSpecs(line, a, b));
 }

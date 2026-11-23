@@ -520,8 +520,18 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="AboutSponsorLink" xml:space="preserve"><value>Dem Axolotl einen Kaffee spendieren</value></data>
   <data name="MenuReportIssue" xml:space="preserve"><value>Problem oder Vorschlag _melden</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Freie Software unter der GNU GPL v3, ohne Gewährleistung.</value></data>
+  <data name="MenuMoveDown" xml:space="preserve"><value>Nach unten verschieben</value></data>
+  <data name="MenuMoveLeft" xml:space="preserve"><value>Nach links verschieben</value></data>
+  <data name="MenuMoveRight" xml:space="preserve"><value>Nach rechts verschieben</value></data>
+  <data name="MenuMoveUp" xml:space="preserve"><value>Nach oben verschieben</value></data>
+  <data name="MenuSortAscending" xml:space="preserve"><value>Zeilen nach dieser Spalte sortieren, A bis Z</value></data>
+  <data name="MenuSortDescending" xml:space="preserve"><value>Zeilen nach dieser Spalte sortieren, Z bis A</value></data>
   <data name="MenuTurnInto" xml:space="preserve"><value>Umwandeln in</value></data>
   <data name="StatusBlocksSelected" xml:space="preserve"><value>{0} Blöcke ausgewählt</value></data>
+  <data name="StatusColumnMoved" xml:space="preserve"><value>Spalte verschoben</value></data>
+  <data name="StatusRowMoved" xml:space="preserve"><value>Zeile verschoben</value></data>
+  <data name="StatusRowsSorted" xml:space="preserve"><value>Zeilen sortiert</value></data>
+  <data name="StatusTableCannotMoveOrSort" xml:space="preserve"><value>Verbundene Zellen oder die Kopfzeile stehen im Weg: Quelle der Tabelle bearbeiten, um sie umzustellen</value></data>
   <data name="TableRowAbove" xml:space="preserve"><value>Zeile oberhalb einfügen</value></data>
   <data name="TableRowBelow" xml:space="preserve"><value>Zeile unterhalb einfügen</value></data>
   <data name="TableColumnLeft" xml:space="preserve"><value>Spalte links einfügen</value></data>

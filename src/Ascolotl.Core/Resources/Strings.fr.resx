@@ -520,8 +520,18 @@ Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un
   <data name="AboutSponsorLink" xml:space="preserve"><value>Offrir un café à l'axolotl</value></data>
   <data name="MenuReportIssue" xml:space="preserve"><value>_Signaler un problème ou une suggestion</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Logiciel libre sous GNU GPL v3, sans garantie.</value></data>
+  <data name="MenuMoveDown" xml:space="preserve"><value>Descendre</value></data>
+  <data name="MenuMoveLeft" xml:space="preserve"><value>Déplacer à gauche</value></data>
+  <data name="MenuMoveRight" xml:space="preserve"><value>Déplacer à droite</value></data>
+  <data name="MenuMoveUp" xml:space="preserve"><value>Monter</value></data>
+  <data name="MenuSortAscending" xml:space="preserve"><value>Trier les lignes selon cette colonne, de A à Z</value></data>
+  <data name="MenuSortDescending" xml:space="preserve"><value>Trier les lignes selon cette colonne, de Z à A</value></data>
   <data name="MenuTurnInto" xml:space="preserve"><value>Transformer en</value></data>
   <data name="StatusBlocksSelected" xml:space="preserve"><value>{0} blocs sélectionnés</value></data>
+  <data name="StatusColumnMoved" xml:space="preserve"><value>Colonne déplacée</value></data>
+  <data name="StatusRowMoved" xml:space="preserve"><value>Ligne déplacée</value></data>
+  <data name="StatusRowsSorted" xml:space="preserve"><value>Lignes triées</value></data>
+  <data name="StatusTableCannotMoveOrSort" xml:space="preserve"><value>Des cellules fusionnées ou l’en-tête gênent : modifiez la source du tableau pour le réorganiser</value></data>
   <data name="TableRowAbove" xml:space="preserve"><value>Insérer une ligne au-dessus</value></data>
   <data name="TableRowBelow" xml:space="preserve"><value>Insérer une ligne en dessous</value></data>
   <data name="TableColumnLeft" xml:space="preserve"><value>Insérer une colonne à gauche</value></data>
