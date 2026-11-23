@@ -190,6 +190,27 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
+    public void F6_IsInTheViewMenuAndThePalette_AndWorksFromThem()
+    {
+        var (window, vm) = Open("Paragraph 1.\n", EditorMode.Split);
+        var item = window.GetLogicalDescendants().OfType<MenuItem>().First(m => m.Command == vm.SwitchPaneCommand);
+        Assert.Equal(new KeyGesture(Key.F6), item.InputGesture);
+        Assert.Equal("F6", vm.CommandPalette.AllCommands.Single(c => c.Name == Strings.CommandSwitchPane).Shortcut);
+
+        var source = window.GetVisualDescendants().OfType<TextEditor>().First().TextArea;
+        source.Focus();
+        window.FindControl<StackPanel>("ModeSwitch")!.GetLogicalChildren().OfType<Button>().First().Focus(); // as a menu takes it
+        vm.SwitchPaneCommand.Execute(null);
+        Pump(window);
+        Assert.Equal("Paragraph 1.", OnBlock(window)); // from the source to the page
+
+        window.FindControl<StackPanel>("ModeSwitch")!.GetLogicalChildren().OfType<Button>().First().Focus();
+        vm.SwitchPaneCommand.Execute(null);
+        Pump(window);
+        Assert.True(source.IsKeyboardFocusWithin); // and back
+    }
+
+    [AvaloniaFact]
     public void TableCells_WorkWithoutAMouse()
     {
         var (window, vm) = Open("Before.\n\n|===\n| a1 | b1\n\n| a2 | b2\n|===\n", EditorMode.Wysiwyg);

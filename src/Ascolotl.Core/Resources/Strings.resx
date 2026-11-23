@@ -192,6 +192,7 @@
   <data name="CommandSaveAs" xml:space="preserve"><value>Save As</value></data>
   <data name="CommandSourceMode" xml:space="preserve"><value>Source Mode</value></data>
   <data name="CommandSplitMode" xml:space="preserve"><value>Split Mode</value></data>
+  <data name="CommandSwitchPane" xml:space="preserve"><value>Move Between Source and Page</value></data>
   <data name="CommandThemeDark" xml:space="preserve"><value>Theme: Dark</value></data>
   <data name="CommandThemeLight" xml:space="preserve"><value>Theme: Light</value></data>
   <data name="CommandThemeSystem" xml:space="preserve"><value>Theme: System</value></data>
@@ -408,6 +409,7 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="ShowTitleTOC" xml:space="preserve"><value>Show _Title &amp; TOC</value></data>
   <data name="SourceMode" xml:space="preserve"><value>_Source Mode</value></data>
   <data name="SplitMode" xml:space="preserve"><value>S_plit Mode</value></data>
+  <data name="SwitchPane" xml:space="preserve"><value>Move _Between Source and Page</value></data>
   <data name="StatsOneWord" xml:space="preserve"><value>1 word</value></data>
   <data name="StatsTooltip" xml:space="preserve"><value>≈ {0} min read · {1:N0} characters</value></data>
   <data name="StatsWords" xml:space="preserve"><value>{0:N0} words</value></data>

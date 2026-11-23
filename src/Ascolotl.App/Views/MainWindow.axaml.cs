@@ -134,6 +134,7 @@ public partial class MainWindow : Window
             _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
             _viewModel.NavigateToLineRequested -= OnNavigateToLine;
             _viewModel.NewDocumentCreated -= OnNewDocumentCreated;
+            _viewModel.SwitchPaneRequested -= OnSwitchPaneRequested;
             _viewModel.ExportProfilesChanged -= RebuildExportMenu;
         }
 
@@ -145,6 +146,7 @@ public partial class MainWindow : Window
             _viewModel.PropertyChanged += OnViewModelPropertyChanged;
             _viewModel.NavigateToLineRequested += OnNavigateToLine;
             _viewModel.NewDocumentCreated += OnNewDocumentCreated;
+            _viewModel.SwitchPaneRequested += OnSwitchPaneRequested;
             RebuildRecentFilesMenu(_viewModel);
             UpdateEditorLayout(_viewModel.EditorMode);
             UpdateSidebarColumn();
@@ -323,7 +325,24 @@ public partial class MainWindow : Window
         if ((e.Source as Visual)?.FindAncestorOfType<TextEditor>(includeSelf: true) is { } editor
             && CompletionController.For(editor) is not null)
             _formatTarget = editor;
+        if (e.Source is Visual focused && (PreviewPane.IsVisualAncestorOf(focused) || EditorPane.IsVisualAncestorOf(focused)))
+            _pageHadKeyboard = PreviewPane.IsVisualAncestorOf(focused);
         UpdateTableTools();
+    }
+
+    // Which of the two the keyboard was last in: the menu or the palette has it when their F6 runs.
+    private bool _pageHadKeyboard;
+
+    private void OnSwitchPaneRequested() =>
+        Dispatcher.UIThread.Post(() => SwitchPane(_pageHadKeyboard), DispatcherPriority.Input); // once the menu has closed
+
+    /// <summary>F6: the keyboard goes from the source to the page, and back.</summary>
+    private void SwitchPane(bool fromPage)
+    {
+        if (PreviewPane.IsVisible && !(EditorPane.IsVisible && fromPage))
+            FindDescendant<PreviewView>(PreviewPane)?.FocusPage();
+        else
+            FindDescendant<SourceEditorView>(EditorPane)?.Editor.TextArea.Focus();
     }
 
     /// <summary>The editor the toolbar acts on. A closed in-place editor has left
@@ -597,10 +616,7 @@ public partial class MainWindow : Window
         // F6 moves between the source and the page.
         else if (e.Key == Key.F6 && e.KeyModifiers is KeyModifiers.None or KeyModifiers.Shift)
         {
-            if (PreviewPane.IsVisible && !(EditorPane.IsVisible && PreviewPane.IsKeyboardFocusWithin))
-                FindDescendant<PreviewView>(PreviewPane)?.FocusPage();
-            else
-                FindDescendant<SourceEditorView>(EditorPane)?.Editor.TextArea.Focus();
+            SwitchPane(PreviewPane.IsKeyboardFocusWithin);
             e.Handled = true;
         }
     }

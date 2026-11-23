@@ -1442,6 +1442,12 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void ToggleOutlinePane() => ShowOutlinePane = !ShowOutlinePane;
 
+    /// <summary>F6 from the menu or the palette: the view moves the keyboard between the source and the page.</summary>
+    public event Action? SwitchPaneRequested;
+
+    [RelayCommand]
+    private void SwitchPane() => SwitchPaneRequested?.Invoke();
+
     // --- Menu presentation: hamburger (☰) vs. inline File/View bar ---
 
     [RelayCommand]
@@ -1707,6 +1713,7 @@ public partial class MainWindowViewModel : ObservableObject
             new(Strings.CommandThemeSystem, null, Strings.CommandCategoryTheme, () => SetThemeCommand.Execute(AppTheme.System)),
             new(Strings.CommandNextTab, "Ctrl+Tab", Strings.CommandCategoryNavigation, () => NextTabCommand.Execute(null)),
             new(Strings.CommandPreviousTab, "Ctrl+Shift+Tab", Strings.CommandCategoryNavigation, () => PreviousTabCommand.Execute(null)),
+            new(Strings.CommandSwitchPane, "F6", Strings.CommandCategoryNavigation, () => SwitchPaneCommand.Execute(null)),
             new(Strings.CommandAsciiDocSyntaxReference, "F1", Strings.CommandCategoryHelp, () => ToggleSyntaxReferenceCommand.Execute(null)),
             new(Strings.CommandAbout, null, Strings.CommandCategoryHelp, () => ShowAboutCommand.Execute(null)),
         ];

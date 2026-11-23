@@ -146,6 +146,9 @@
                   InputGesture="Ctrl+D3"
                   ToggleType="Radio"
                   IsChecked="{Binding IsWysiwygMode, Mode=OneWay}" />
+        <MenuItem Header="{x:Static res:Strings.SwitchPane}"
+                  Command="{Binding SwitchPaneCommand}"
+                  InputGesture="F6" />
         <Separator />
         <MenuItem Header="{x:Static res:Strings.ShowTitleTOC}"
                   Command="{Binding ToggleShowTitleAndTocCommand}"

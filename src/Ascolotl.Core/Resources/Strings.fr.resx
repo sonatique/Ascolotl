@@ -192,6 +192,7 @@
   <data name="CommandSaveAs" xml:space="preserve"><value>Enregistrer sous</value></data>
   <data name="CommandSourceMode" xml:space="preserve"><value>Mode source</value></data>
   <data name="CommandSplitMode" xml:space="preserve"><value>Mode partagé</value></data>
+  <data name="CommandSwitchPane" xml:space="preserve"><value>Basculer entre la source et la page</value></data>
   <data name="CommandThemeDark" xml:space="preserve"><value>Thème : sombre</value></data>
   <data name="CommandThemeLight" xml:space="preserve"><value>Thème : clair</value></data>
   <data name="CommandThemeSystem" xml:space="preserve"><value>Thème : système</value></data>
@@ -408,6 +409,7 @@ Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un
   <data name="ShowTitleTOC" xml:space="preserve"><value>Afficher le _titre et la table des matières</value></data>
   <data name="SourceMode" xml:space="preserve"><value>Mode _source</value></data>
   <data name="SplitMode" xml:space="preserve"><value>Mode _partagé</value></data>
+  <data name="SwitchPane" xml:space="preserve"><value>_Basculer entre la source et la page</value></data>
   <data name="StatsOneWord" xml:space="preserve"><value>1 mot</value></data>
   <data name="StatsTooltip" xml:space="preserve"><value>≈ {0} min de lecture · {1:N0} caractères</value></data>
   <data name="StatsWords" xml:space="preserve"><value>{0:N0} mots</value></data>
