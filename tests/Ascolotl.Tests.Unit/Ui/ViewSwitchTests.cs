@@ -211,6 +211,34 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
+    public void TableMenu_FromTheKeyboard_ActsOnTheCellLastEdited()
+    {
+        var (window, vm) = Open("Before.\n\n|===\n| a1 | b1\n\n| a2 | b2\n|===\n", EditorMode.Wysiwyg);
+        Preview(window).FocusPage();
+        Pump(window);
+        Press(window, Key.Enter);
+        Press(window, Key.Down); // a1
+        Press(window, Key.Tab);
+        Press(window, Key.Tab); // a2, on the second row
+        Assert.Equal("a2", BlockEditor(window)!.Text);
+        Press(window, Key.Escape); // the table has the keyboard
+
+        ContextMenu? opened = null;
+        using (ContextMenu.OpenedEvent.AddClassHandler<ContextMenu>((menu, _) => opened = menu))
+        {
+            Press(window, Key.F10, RawInputModifiers.Shift);
+            window.KeyRelease(Key.F10, RawInputModifiers.Shift, PhysicalKey.None, null);
+            Pump(window);
+        }
+        var row = opened!.Items.OfType<MenuItem>().Single(m => (string?)m.Header == Strings.MenuRow);
+        row.Items.OfType<MenuItem>().Single(m => (string?)m.Header == Strings.MenuDeleteRow)
+            .RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent));
+        Pump(window);
+        Assert.Contains("a1", vm.SelectedDocument!.SourceText);
+        Assert.DoesNotContain("a2", vm.SelectedDocument.SourceText); // its row, not the first
+    }
+
+    [AvaloniaFact]
     public void TableCells_WorkWithoutAMouse()
     {
         var (window, vm) = Open("Before.\n\n|===\n| a1 | b1\n\n| a2 | b2\n|===\n", EditorMode.Wysiwyg);

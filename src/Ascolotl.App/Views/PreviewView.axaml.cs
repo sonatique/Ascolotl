@@ -544,14 +544,30 @@ public partial class PreviewView : UserControl
 
     private bool _menuOnF10Up;
 
-    /// <summary>The menu of the block the keyboard is on (or the insert menu), at the block: no pointer opened it.</summary>
+    // The table cell the keyboard was last in, by block: a table's menu from the keyboard acts on it.
+    private (int Block, int Row, int Cell)? _lastCell;
+
+    /// <summary>The menu of the block the keyboard is on (or the insert menu), at the block: no pointer opened it.
+    /// On a table, at the cell last edited there, or the first.</summary>
     private void OpenBlockMenu()
     {
         if (_mainVm?.PagePreview == true) return;
         if (CurrentInView() is var i and >= 0)
-            ShowBlockContextMenu(_blockMap[i].Vis, _blockMap[i].Block, null, _blockMap[i].Vis.TranslatePoint(new Point(1, 1), PreviewScroll) ?? default);
+        {
+            var (vis, block) = _blockMap[i];
+            var cell = block is TableLayout table && _lastCell is { } c && c.Block == i ? CellControl(vis, table, c.Row, c.Cell) : null;
+            ShowBlockContextMenu(vis, block, cell, (cell ?? vis).TranslatePoint(new Point(1, 1), PreviewScroll) ?? default);
+        }
         else
             ShowInsertMenuAt(default);
+    }
+
+    /// <summary>The rendered cell at <paramref name="row"/>, <paramref name="cell"/>: the table grid holds the cells row after row.</summary>
+    private static Control? CellControl(Control tableVis, TableLayout table, int row, int cell)
+    {
+        if (row >= table.Rows.Count || cell >= table.Rows[row].Cells.Count) return null;
+        var flat = table.Rows.Take(row).Sum(r => r.Cells.Count) + cell;
+        return (tableVis as Grid ?? FindDescendantGrid(tableVis))?.Children.ElementAtOrDefault(flat) as Control;
     }
 
     private void OnPageKeyDown(object? sender, KeyEventArgs e)
@@ -1777,6 +1793,8 @@ public partial class PreviewView : UserControl
         string originalSlice, Action restore, string statusHint, int? caretInSlice = null, (int Row, int Cell)? cell = null)
     {
         ClearSelection();
+        if (cell is { } at && _blockMap.FindIndex(b => b.Vis == host || b.Vis.IsVisualAncestorOf(host)) is var table and >= 0)
+            _lastCell = (table, at.Row, at.Cell);
         _activeEdit = new BlockEditState
         {
             Editor = editor,
