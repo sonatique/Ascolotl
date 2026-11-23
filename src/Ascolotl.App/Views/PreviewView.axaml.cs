@@ -533,6 +533,10 @@ public partial class PreviewView : UserControl
         if (block is HeadingLayout heading) AutomationProperties.SetHeadingLevel(vis, heading.Level + 1);
     }
 
+    /// <summary>The platform's own keys for a command: Ctrl+C on Windows and Linux, Cmd+C on a Mac.</summary>
+    private bool Hotkey(KeyEventArgs e, Func<PlatformHotkeyConfiguration, List<KeyGesture>> command) =>
+        TopLevel.GetTopLevel(this)?.PlatformSettings?.HotkeyConfiguration is { } keys && command(keys).Any(g => g.Matches(e));
+
     private bool _menuOnF10Up;
 
     /// <summary>The menu of the block the keyboard is on (or the insert menu), at the block: no pointer opened it.</summary>
@@ -582,7 +586,7 @@ public partial class PreviewView : UserControl
             e.Handled = true;
             return;
         }
-        if (on >= 0 && mods == KeyModifiers.Control && e.Key == Key.A)
+        if (on >= 0 && Hotkey(e, h => h.SelectAll))
         {
             FocusBlock(_blockMap.Count - 1, bringIntoView: false);
             Select(0);
@@ -598,7 +602,7 @@ public partial class PreviewView : UserControl
         // Any other key ends the selection, but a modifier alone and those acting on it.
         if (e.Key is not (Key.LeftShift or Key.RightShift or Key.LeftCtrl or Key.RightCtrl or Key.LeftAlt or Key.RightAlt)
             && (e.Key, mods) is not ((Key.Up or Key.Down, KeyModifiers.Control | KeyModifiers.Shift) or (Key.D, KeyModifiers.Control | KeyModifiers.Alt)
-                or (Key.Delete, KeyModifiers.None) or (Key.C or Key.X, KeyModifiers.Control)))
+                or (Key.Delete, KeyModifiers.None)) && !Hotkey(e, h => h.Copy) && !Hotkey(e, h => h.Cut))
             ClearSelection();
         if (e.Key is Key.Home or Key.End && mods is KeyModifiers.None or KeyModifiers.Control)
         {
@@ -613,8 +617,9 @@ public partial class PreviewView : UserControl
                 (Key.Up or Key.Down, KeyModifiers.Control | KeyModifiers.Shift) => MoveBlock(on, e.Key == Key.Up ? -1 : 1),
                 (Key.D, KeyModifiers.Control | KeyModifiers.Alt) => DuplicateBlock(on),
                 (Key.Delete, KeyModifiers.None) => DeleteBlock(on),
-                (Key.C or Key.X, KeyModifiers.Control) => CopyBlocks(on, cut: e.Key == Key.X),
-                (Key.V, KeyModifiers.Control) => PasteBlocks(on),
+                _ when Hotkey(e, h => h.Copy) => CopyBlocks(on, cut: false),
+                _ when Hotkey(e, h => h.Cut) => CopyBlocks(on, cut: true),
+                _ when Hotkey(e, h => h.Paste) => PasteBlocks(on),
                 (Key.N, KeyModifiers.Control | KeyModifiers.Shift) => NewParagraphAfter(on),
                 (>= Key.D0 and <= Key.D6, KeyModifiers.Control | KeyModifiers.Shift) =>
                     TurnBlockInto(on, e.Key == Key.D0 ? BlockKind.Paragraph : BlockKind.Heading1 + (e.Key - Key.D1)),
@@ -1952,7 +1957,7 @@ public partial class PreviewView : UserControl
             e.Handled = true;
         else if (_activeEdit.Cell is null && IsTurnIntoKey(e))
             e.Handled = ShowTurnIntoMenu(_current);
-        else if (e.Key == Key.A && e.KeyModifiers == KeyModifiers.Control
+        else if (Hotkey(e, h => h.SelectAll)
                  && _activeEdit.Editor.SelectionLength == _activeEdit.Editor.Text.Length)
         {
             // All its text selected already: next its table (in a cell), then every block.

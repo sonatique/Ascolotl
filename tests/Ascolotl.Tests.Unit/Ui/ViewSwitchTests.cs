@@ -61,6 +61,10 @@ public sealed class ViewSwitchTests
         Assert.Equal(EditorMode.Split, vm.EditorMode);
     }
 
+    // The platform's command key for copy, paste and select all: Ctrl, or Cmd on a Mac.
+    private static RawInputModifiers Command =>
+        Application.Current!.PlatformSettings!.HotkeyConfiguration.CommandModifiers == KeyModifiers.Meta ? RawInputModifiers.Meta : RawInputModifiers.Control;
+
     private static void Press(Window window, Key key, RawInputModifiers mods = RawInputModifiers.None, int repeat = 1)
     {
         for (var i = 0; i < repeat; i++) window.KeyPress(key, mods, PhysicalKey.None, null);
@@ -365,12 +369,12 @@ public sealed class ViewSwitchTests
         Assert.Equal("[[a]]\nA.\n\nB.\n\nC.\n\nB.\n\nC.\n\nD.\n", Text());
 
         Press(window, Key.Down, RawInputModifiers.Shift);
-        Press(window, Key.X, RawInputModifiers.Control); // cut: copied, then gone
+        Press(window, Key.X, Command); // cut: copied, then gone
         Pump(window);
         Assert.Equal("[[a]]\nA.\n\nB.\n\nC.\n\nD.\n", Text());
         Assert.Equal("B.\n\nC.", TopLevel.GetTopLevel(window)!.Clipboard!.TryGetTextAsync().GetAwaiter().GetResult());
 
-        Press(window, Key.A, RawInputModifiers.Control); // all of them
+        Press(window, Key.A, Command); // all of them
         Press(window, Key.Delete);
         Pump(window);
         Assert.Equal("", Text().Trim());
@@ -385,15 +389,15 @@ public sealed class ViewSwitchTests
         Press(window, Key.Down);
         Press(window, Key.Enter); // the first cell
         Assert.Equal("a", BlockEditor(window)!.Text.Trim());
-        Press(window, Key.A, RawInputModifiers.Control); // the cell's text
+        Press(window, Key.A, Command); // the cell's text
         Assert.NotNull(BlockEditor(window));
-        Press(window, Key.A, RawInputModifiers.Control); // the table
+        Press(window, Key.A, Command); // the table
         Pump(window);
         Assert.Null(BlockEditor(window));
-        Press(window, Key.A, RawInputModifiers.Control); // every block
+        Press(window, Key.A, Command); // every block
         Assert.Equal(string.Format(Strings.StatusBlocksSelected, 3), vm.StatusText);
         Press(window, Key.Escape);
-        Press(window, Key.C, RawInputModifiers.Control); // the selection ended: the one block
+        Press(window, Key.C, Command); // the selection ended: the one block
         Assert.Equal("After.", TopLevel.GetTopLevel(window)!.Clipboard!.TryGetTextAsync().GetAwaiter().GetResult());
     }
 
@@ -447,7 +451,7 @@ public sealed class ViewSwitchTests
             Preview(window).FocusPage();
             Pump(window);
 
-            Press(window, Key.V, RawInputModifiers.Control); // an images folder outside the document's: refused
+            Press(window, Key.V, Command); // an images folder outside the document's: refused
             Pump(window);
             Assert.Equal(Strings.StatusImagesDirOutside, vm.StatusText);
             Assert.False(Directory.Exists(Path.Combine(folder, "..", "elsewhere")));
@@ -456,7 +460,7 @@ public sealed class ViewSwitchTests
             Pump(window);
             Preview(window).FocusPage();
             Pump(window);
-            Press(window, Key.V, RawInputModifiers.Control);
+            Press(window, Key.V, Command);
             Pump(window);
             // Beside the document, in images/. The headless platform's bitmaps can't be saved (the real
             // app's can): it fails here as a full disk would, said in the status, the text left as it was.

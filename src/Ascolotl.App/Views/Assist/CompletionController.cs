@@ -246,7 +246,7 @@ internal sealed class CompletionController
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
         // The editor pastes text as ever; an image alone on the clipboard is saved and referred to.
-        if (e.Key == Key.V && e.KeyModifiers == KeyModifiers.Control || e.Key == Key.Insert && e.KeyModifiers == KeyModifiers.Shift)
+        if (TopLevel.GetTopLevel(_editor)?.PlatformSettings?.HotkeyConfiguration.Paste.Any(g => g.Matches(e)) == true)
             PasteImage();
 
         // While the popup is open, let it own navigation — but make Tab COMMIT
