@@ -37,9 +37,11 @@ no Ruby and no Java.
   source and in the block being edited on the page, a moment after typing; a
   right-click offers suggestions, *Add to dictionary* and *Ignore*. Code, URLs,
   attributes and markup are left out. The language is the document's `:lang:`
-  (or `lang:` in Markdown front matter), else the interface's. Hunspell
-  dictionaries (`.aff` and `.dic`) are read from the `dictionaries` folder beside
-  the settings; added words go to `words.txt` there.
+  (or `lang:` in Markdown front matter), else the interface's. English (US and
+  UK), French, German, Italian and Spanish dictionaries come with the app; for
+  another language, put its Hunspell `.aff` and `.dic` in the `dictionaries`
+  folder beside the settings (one there is used before the app's own). Added
+  words go to `words.txt` there.
 - **Pasting an image** (a screenshot, an image copied from another app) saves it
   as a PNG beside the saved document, in its `:imagesdir:` or `images/`, and
   inserts the image there.

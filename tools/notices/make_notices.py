@@ -37,6 +37,17 @@ EXTRA = [
      "https://github.com/JetBrains/JetBrainsMono"),
 ]
 
+# Hunspell dictionaries from LibreOffice, bundled in Ascolotl.Core; each README states its license.
+DICTIONARY_URL = "https://github.com/LibreOffice/dictionaries"
+DICTIONARIES = [
+    ("Spelling dictionary en_US (SCOWL, BSD-style license)", "README_en_US.txt"),
+    ("Spelling dictionary en_GB (LGPL)", "README_en_GB.txt"),
+    ("Spelling dictionary fr (Dicollecte, MPL 2.0)", "README_dict_fr.txt"),
+    ("Spelling dictionary de_DE_frami (GPL 2 or 3)", "README_de_DE_frami.txt"),
+    ("Spelling dictionary it_IT (GPL 3)", "README_it_IT.txt"),
+    ("Spelling dictionary es_ES (GPL 3 or later, LGPL 3 or later, or MPL 1.1 or later)", "LICENSE_es.md"),
+]
+
 TITLES = {
     "MIT": "MIT License",
     "BSD-2-Clause": "BSD 2-Clause License",
@@ -98,6 +109,10 @@ def main():
     for name, license, copyright, url in EXTRA:
         rows.append((name, license, copyright, url))
         by_license.setdefault(license, []).append(name)
+
+    for name, readme in DICTIONARIES:
+        rows.append((name, "see its notice below", "Copyright: its authors, as its notice says", DICTIONARY_URL))
+        notice(name, os.path.join(ROOT, "src", "Ascolotl.Core", "Dictionaries", readme))
 
     runtime_version, runtime_path = runtime_notices()
     rows.append((f".NET runtime {runtime_version}", "MIT", "Copyright (c) .NET Foundation and Contributors",

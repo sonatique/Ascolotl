@@ -128,6 +128,26 @@ public class SpellingTests
         }
     }
 
+    [Fact]
+    public void SixDictionaries_AreBundled()
+        => Assert.Equal(["de_DE_frami", "en_GB", "en_US", "es_ES", "fr", "it_IT"], Speller.Bundled.Order(StringComparer.Ordinal));
+
+    [Theory]
+    [InlineData("en", "hello", "helo")]
+    [InlineData("en-US", "color", "colour")]
+    [InlineData("en-GB", "colour", "colr")]
+    [InlineData("fr-CH", "bonjour", "bonjur")]
+    [InlineData("de-CH", "Straße", "Strasze")] // a Latin-1 dictionary, read as such
+    [InlineData("it", "ciao", "ciaao")]
+    [InlineData("es", "hola", "hoola")]
+    public void BundledDictionaries_KnowTheirLanguage(string language, string known, string unknown)
+    {
+        var speller = Speller.For(language);
+        Assert.NotNull(speller);
+        Assert.True(speller.IsKnown(known), known);
+        Assert.False(speller.IsKnown(unknown), unknown);
+    }
+
     [Theory]
     [InlineData("= Doc\n:lang: fr\n", false, "fr")]
     [InlineData("= Doc\r\n:lang: de-CH\r\n", false, "de-CH")]

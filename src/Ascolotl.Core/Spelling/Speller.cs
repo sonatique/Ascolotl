@@ -33,10 +33,25 @@ public sealed partial class Speller
 
     static Speller() => Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // ISO-8859-15 and the like
 
-    /// <summary>The speller for a language (fr, fr-CH, en_GB), loaded once; null when no dictionary is found.</summary>
+    /// <summary>The speller for a language (fr, fr-CH, en_GB), loaded once: from the user's or the
+    /// app's folder, else one bundled with the app; null when there is none.</summary>
     public static Speller? For(string language) =>
-        Loaded.GetOrAdd(language, l => new Lazy<Speller?>(() => Find(l) is { } aff
-            ? new Speller(WordList.CreateFromFiles(Path.ChangeExtension(aff, ".dic"), aff)) : null)).Value;
+        Loaded.GetOrAdd(language, l => new Lazy<Speller?>(() =>
+        {
+            if (Find(l) is { } aff)
+                return new Speller(WordList.CreateFromFiles(Path.ChangeExtension(aff, ".dic"), aff));
+            if (Pick(Bundled, l) is not { } name) return null;
+            using var dic = Bundle.GetManifestResourceStream($"Dictionaries.{name}.dic")!;
+            using var affix = Bundle.GetManifestResourceStream($"Dictionaries.{name}.aff")!;
+            return new Speller(WordList.CreateFromStreams(dic, affix));
+        })).Value;
+
+    private static readonly System.Reflection.Assembly Bundle = typeof(Speller).Assembly;
+
+    /// <summary>The dictionaries bundled with the app: en_US, en_GB, fr, de_DE_frami, it_IT, es_ES.</summary>
+    public static IReadOnlyList<string> Bundled { get; } = [.. Bundle.GetManifestResourceNames()
+        .Where(n => n.StartsWith("Dictionaries.", StringComparison.Ordinal) && n.EndsWith(".aff", StringComparison.Ordinal))
+        .Select(n => n["Dictionaries.".Length..^".aff".Length])];
 
     /// <summary>For tests and for a dictionary from elsewhere: the speller a language uses.</summary>
     public static void Use(string language, Speller? speller) => Loaded[language] = new Lazy<Speller?>(() => speller);
@@ -45,17 +60,24 @@ public sealed partial class Speller
     /// its language's (fr.aff, fr_FR.aff, then any fr_*), in the first folder that has one.</summary>
     public static string? Find(string language)
     {
-        var tag = language.Replace('-', '_');
-        var lang = tag.Split('_')[0];
         foreach (var folder in Folders.Where(Directory.Exists))
         {
             var affs = Directory.GetFiles(folder, "*.aff").Where(f => File.Exists(Path.ChangeExtension(f, ".dic"))).ToList();
-            string? Named(string name) => affs.FirstOrDefault(f => Path.GetFileNameWithoutExtension(f).Equals(name, StringComparison.OrdinalIgnoreCase));
-            if ((Named(tag) ?? Named(lang) ?? Named($"{lang}_{lang.ToUpperInvariant()}") ?? (lang == "en" ? Named("en_US") : null)
-                ?? affs.FirstOrDefault(f => Path.GetFileNameWithoutExtension(f).StartsWith(lang + "_", StringComparison.OrdinalIgnoreCase))) is { } found)
-                return found;
+            if (Pick([.. affs.Select(Path.GetFileNameWithoutExtension).OfType<string>()], language) is { } name)
+                return affs.First(f => Path.GetFileNameWithoutExtension(f) == name);
         }
         return null;
+    }
+
+    /// <summary>Of dictionary names (fr_CH, de_DE_frami…), the one for a language: its region's, else its
+    /// language's (fr, fr_FR, en_US for en, then any fr_*).</summary>
+    public static string? Pick(IReadOnlyList<string> names, string language)
+    {
+        var tag = language.Replace('-', '_');
+        var lang = tag.Split('_')[0];
+        string? Named(string name) => names.FirstOrDefault(n => n.Equals(name, StringComparison.OrdinalIgnoreCase));
+        return Named(tag) ?? Named(lang) ?? Named($"{lang}_{lang.ToUpperInvariant()}") ?? (lang == "en" ? Named("en_US") : null)
+            ?? names.FirstOrDefault(n => n.StartsWith(lang + "_", StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>The document's language: AsciiDoc's <c>:lang:</c>, or a Markdown front matter's

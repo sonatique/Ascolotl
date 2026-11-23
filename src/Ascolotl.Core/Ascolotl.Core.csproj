@@ -17,6 +17,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Hunspell dictionaries from LibreOffice, inside the assembly: the single-file app
+         carries them compressed. Their licenses are in the README files beside them. -->
+    <EmbeddedResource Include="Dictionaries\*.aff;Dictionaries\*.dic" LogicalName="Dictionaries.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Interface texts. Strings.<culture>.resx hold the translations; the
          typed Strings class is generated at build time. -->
     <EmbeddedResource Update="Resources\Strings.resx">
