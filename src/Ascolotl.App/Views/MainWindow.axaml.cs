@@ -44,6 +44,8 @@ public partial class MainWindow : Window
         FormatBar.EditActionRequested += apply =>
             (apply ? _viewModel?.FlushPendingEdits : _viewModel?.CancelPendingEdits)?.Invoke();
         AddHandler(GotFocusEvent, OnAnyGotFocus, RoutingStrategies.Bubble, handledEventsToo: true);
+        // Before the editor, which binds some of them itself (Ctrl+I indents).
+        AddHandler(KeyDownEvent, OnFormatKey, RoutingStrategies.Tunnel);
 
         // Zoom gestures: Ctrl+wheel (also what Windows sends for a touchpad
         // pinch) and the macOS touchpad magnify gesture. Tunnel, so the
@@ -590,6 +592,19 @@ public partial class MainWindow : Window
     }
 
     // --- Keyboard shortcuts ---
+
+    /// <summary>Bold, italic, inline code and link, as the toolbar's tooltips say, in the source or an open block.</summary>
+    private void OnFormatKey(object? sender, KeyEventArgs e)
+    {
+        if (Enum.GetValues<FormatCommand>().Where(c => FormatToolbar.KeyFor(c)?.Matches(e) == true).Cast<FormatCommand?>().FirstOrDefault() is { } format
+            && format is not (FormatCommand.Heading1 or FormatCommand.Heading2 or FormatCommand.Heading3) // the headings' own handling
+            && (e.Source as Visual)?.FindAncestorOfType<TextEditor>(includeSelf: true) is { } editor
+            && CompletionController.For(editor) is { } assist)
+        {
+            assist.Format(format);
+            e.Handled = true;
+        }
+    }
 
     protected override void OnKeyDown(KeyEventArgs e)
     {

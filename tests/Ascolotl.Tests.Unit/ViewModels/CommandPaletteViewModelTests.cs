@@ -12,7 +12,7 @@ public sealed class CommandPaletteViewModelTests
             new("New Document", "Ctrl+N", "File", () => { }),
             new("Open Document", "Ctrl+O", "File", () => { }),
             new("Save", "Ctrl+S", "File", () => { }),
-            new("Toggle Outline", "Ctrl+B", "View", () => { }),
+            new("Toggle Outline", "Ctrl+Shift+L", "View", () => { }),
             new("Zoom In", "Ctrl++", "View", () => { }),
         ];
     }

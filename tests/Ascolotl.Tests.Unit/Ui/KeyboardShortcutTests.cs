@@ -73,7 +73,7 @@ public sealed class KeyboardShortcutTests
         Pump(window);
         source.TextArea.Focus();
 
-        Press(window, new KeyGesture(Key.B, KeyModifiers.Control));
+        Press(window, new KeyGesture(Key.L, KeyModifiers.Control | KeyModifiers.Shift));
         Assert.True(outline.IsKeyboardFocusWithin); // the outline takes the keyboard as it opens
         Press(window, new KeyGesture(Key.Down));
         Press(window, new KeyGesture(Key.Enter));
@@ -81,9 +81,9 @@ public sealed class KeyboardShortcutTests
         Assert.True(source.TextArea.IsKeyboardFocusWithin); // Enter went to the section
         Assert.Equal(section.LineNumber + 1, source.TextArea.Caret.Line);
 
-        Press(window, new KeyGesture(Key.B, KeyModifiers.Control)); // closed: the source keeps it
+        Press(window, new KeyGesture(Key.L, KeyModifiers.Control | KeyModifiers.Shift)); // closed: the source keeps it
         Assert.True(source.TextArea.IsKeyboardFocusWithin);
-        Press(window, new KeyGesture(Key.B, KeyModifiers.Control));
+        Press(window, new KeyGesture(Key.L, KeyModifiers.Control | KeyModifiers.Shift));
         Press(window, new KeyGesture(Key.Escape)); // and Esc goes back
         Assert.True(source.TextArea.IsKeyboardFocusWithin);
     }
@@ -143,14 +143,32 @@ public sealed class KeyboardShortcutTests
     }
 
     [AvaloniaFact]
+    public void FormattingKeys_Work_AndTheToolbarSaysThem()
+    {
+        var (window, vm) = Open("Some word here.\n", EditorMode.Split);
+        var source = window.GetVisualDescendants().OfType<TextEditor>().First();
+        source.TextArea.Focus();
+        source.Select(5, 4); // "word"
+        Press(window, new KeyGesture(Key.B, KeyModifiers.Control));
+        Assert.Contains("*word*", vm.SelectedDocument!.SourceText);
+        source.Select(source.Text.IndexOf("word"), 4);
+        Press(window, new KeyGesture(Key.I, KeyModifiers.Control));
+        Assert.Contains("_word_", vm.SelectedDocument.SourceText);
+
+        var tips = window.GetVisualDescendants().OfType<Button>().Select(b => ToolTip.GetTip(b) as string).ToList();
+        Assert.Contains(tips, t => t?.EndsWith("(Ctrl+B)") == true);
+        Assert.Contains(tips, t => t?.EndsWith("(Ctrl+Shift+1)") == true);
+    }
+
+    [AvaloniaFact]
     public void MenuKeys_NeedTheirExactModifiers()
     {
         var (window, vm) = Open("Text.\n", EditorMode.Split);
         TypeInTheSource(window);
         var shown = vm.ShowOutlinePane;
-        Press(window, new KeyGesture(Key.B, KeyModifiers.Control | KeyModifiers.Alt)); // AltGr+B types a character
+        Press(window, new KeyGesture(Key.L, KeyModifiers.Control | KeyModifiers.Shift | KeyModifiers.Alt)); // with AltGr too: not the outline's key
         Assert.Equal(shown, vm.ShowOutlinePane);
-        Press(window, new KeyGesture(Key.B, KeyModifiers.Control));
+        Press(window, new KeyGesture(Key.L, KeyModifiers.Control | KeyModifiers.Shift));
         Assert.NotEqual(shown, vm.ShowOutlinePane);
     }
 }

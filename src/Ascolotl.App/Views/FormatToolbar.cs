@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Path = Avalonia.Controls.Shapes.Path;
 using Avalonia.Layout;
 using Avalonia.Media;
@@ -112,6 +113,11 @@ public sealed class FormatToolbar : Border
             foreach (var (command, icon) in group)
             {
                 var button = IconButton(icon, Tooltip(command), () => FormatRequested?.Invoke(command));
+                if (KeyFor(command) is { } key)
+                {
+                    ToolTip.SetTip(button, $"{Tooltip(command)} ({key.ToString("p", null)})"); // "p": as the menus show keys
+                    AutomationProperties.SetAcceleratorKey(button, key.ToString("p", null));
+                }
                 _buttons[command] = button;
                 row.Children.Add(button);
             }
@@ -176,6 +182,19 @@ public sealed class FormatToolbar : Border
         TableOp.ColumnRight => Strings.TableColumnRight,
         TableOp.DeleteRow => Strings.MenuDeleteRow,
         _ => Strings.MenuDeleteColumn,
+    };
+
+    /// <summary>The formatting keys, in the source and in an open block; the window handles them.</summary>
+    public static KeyGesture? KeyFor(FormatCommand command) => command switch
+    {
+        Bold => new KeyGesture(Key.B, KeyModifiers.Control),
+        Italic => new KeyGesture(Key.I, KeyModifiers.Control),
+        Code => new KeyGesture(Key.C, KeyModifiers.Control | KeyModifiers.Shift),
+        Link => new KeyGesture(Key.K, KeyModifiers.Control),
+        Heading1 => new KeyGesture(Key.D1, KeyModifiers.Control | KeyModifiers.Shift),
+        Heading2 => new KeyGesture(Key.D2, KeyModifiers.Control | KeyModifiers.Shift),
+        Heading3 => new KeyGesture(Key.D3, KeyModifiers.Control | KeyModifiers.Shift),
+        _ => null,
     };
 
     private static string Tooltip(FormatCommand command) => command switch

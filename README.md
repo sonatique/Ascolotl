@@ -155,7 +155,8 @@ install -Dm644 ascolotl.png ~/.local/share/icons/hicolor/256x256/apps/ascolotl.p
 | Completion | `Ctrl+Space` or `Tab` |
 | Source / Split / WYSIWYG | `Ctrl+1` / `Ctrl+2` / `Ctrl+3` |
 | Syntax reference (AsciiDoc or Markdown) | `F1` |
-| Toggle outline | `Ctrl+B` |
+| Toggle outline | `Ctrl+Shift+L` |
+| Bold / italic / inline code / link (in the source or an open block) | `Ctrl+B` / `Ctrl+I` / `Ctrl+Shift+C` / `Ctrl+K` |
 | Zoom in / out / reset | `Ctrl++` / `Ctrl+-` / `Ctrl+0` |
 | Move between the source, the page and the sidebar (backwards: `Shift+F6`) | `F6` |
 | Next / previous error or warning, with its message in the status bar | `F8` / `Shift+F8` |

@@ -203,7 +203,7 @@
                   IsChecked="{Binding PreviewWordWrap, Mode=OneWay}" />
         <MenuItem Header="{x:Static res:Strings.ToggleOutline}"
                   Command="{Binding ToggleOutlinePaneCommand}"
-                  InputGesture="Ctrl+B"
+                  InputGesture="Ctrl+Shift+L"
                   ToggleType="CheckBox"
                   IsChecked="{Binding ShowOutlinePane, Mode=OneWay}" />
         <MenuItem Header="{x:Static res:Strings.HamburgerMenu}"

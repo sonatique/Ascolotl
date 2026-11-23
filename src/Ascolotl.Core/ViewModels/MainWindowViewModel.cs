@@ -1730,7 +1730,7 @@ public partial class MainWindowViewModel : ObservableObject
             new(Strings.CommandToggleEditorWordWrap, null, Strings.CommandCategoryView, () => ToggleEditorWordWrapCommand.Execute(null)),
             new(Strings.CommandTogglePreviewWordWrap, null, Strings.CommandCategoryView, () => TogglePreviewWordWrapCommand.Execute(null)),
             new(Strings.CommandTogglePagePreview, null, Strings.CommandCategoryView, () => TogglePagePreviewCommand.Execute(null)),
-            new(Strings.CommandToggleOutlinePane, "Ctrl+B", Strings.CommandCategoryView, () => ToggleOutlinePaneCommand.Execute(null)),
+            new(Strings.CommandToggleOutlinePane, "Ctrl+Shift+L", Strings.CommandCategoryView, () => ToggleOutlinePaneCommand.Execute(null)),
             new(Strings.CommandZoomIn, "Ctrl++", Strings.CommandCategoryView, () => ZoomInCommand.Execute(null)),
             new(Strings.CommandZoomOut, "Ctrl+-", Strings.CommandCategoryView, () => ZoomOutCommand.Execute(null)),
             new(Strings.CommandResetZoom, "Ctrl+0", Strings.CommandCategoryView, () => ZoomResetCommand.Execute(null)),
