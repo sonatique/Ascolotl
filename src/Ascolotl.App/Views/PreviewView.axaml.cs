@@ -265,10 +265,12 @@ public partial class PreviewView : UserControl
     // The block the keyboard is on, or returns to after an edit: an index into _blockMap.
     private int _current;
 
-    /// <summary>The status bar lists the page's keys while it has the keyboard and no block is open.</summary>
+    /// <summary>The status bar lists the page's keys while it has the keyboard and no block is open;
+    /// not in Page Preview, which only scrolls.</summary>
     private void ShowPageKeys()
     {
-        if (_mainVm is not null) _mainVm.PageHasKeyboard = PreviewScroll.IsKeyboardFocusWithin && _openEdit is null;
+        if (_mainVm is not null)
+            _mainVm.PageHasKeyboard = PreviewScroll.IsKeyboardFocusWithin && _openEdit is null && !_mainVm.PagePreview;
     }
 
     private IInputElement? FocusedElement => TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement();
@@ -755,6 +757,7 @@ public partial class PreviewView : UserControl
 
     private void OnMainVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        if (e.PropertyName == nameof(MainWindowViewModel.PagePreview)) ShowPageKeys();
         if (e.PropertyName is nameof(MainWindowViewModel.PreviewWordWrap)
                 or nameof(MainWindowViewModel.PagePreview)
                 or nameof(MainWindowViewModel.StylePath)

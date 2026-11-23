@@ -180,6 +180,24 @@ public sealed class KeyboardShortcutTests
     }
 
     [AvaloniaFact]
+    public void PagePreview_DoesNotListKeysItTurnsOff()
+    {
+        var (window, vm) = Open("Paragraph 1.\n", EditorMode.Wysiwyg);
+        Preview(window).FocusPage();
+        Pump(window);
+        var keys = window.FindControl<TextBlock>("PageKeysText")!;
+        Assert.True(keys.IsEffectivelyVisible);
+        vm.PagePreview = true; // pages only scroll: no Enter edit, no block menu
+        Pump(window);
+        Assert.False(keys.IsEffectivelyVisible);
+        vm.PagePreview = false;
+        Pump(window);
+        Preview(window).FocusPage();
+        Pump(window);
+        Assert.True(keys.IsEffectivelyVisible);
+    }
+
+    [AvaloniaFact]
     public void MenuKeys_NeedTheirExactModifiers()
     {
         var (window, vm) = Open("Text.\n", EditorMode.Split);
