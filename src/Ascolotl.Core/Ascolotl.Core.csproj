@@ -13,6 +13,7 @@
     <PackageReference Include="AdocNet.Core" Version="1.0.43" />
     <!-- MarkdownParser: Markdown documents parse to the same AST as AsciiDoc. -->
     <PackageReference Include="AdocNet.Importers" Version="1.0.43" />
+    <PackageReference Include="WeCantSpell.Hunspell" Version="7.0.1" />
   </ItemGroup>
 
   <ItemGroup>

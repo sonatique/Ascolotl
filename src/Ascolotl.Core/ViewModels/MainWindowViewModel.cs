@@ -51,6 +51,11 @@ public partial class MainWindowViewModel : ObservableObject
     private bool _syncScrolling = true;
 
     [ObservableProperty]
+    private bool _checkSpelling = true;
+
+    partial void OnCheckSpellingChanged(bool value) => Ascolotl.Core.Spelling.SpellCheck.Enabled = value;
+
+    [ObservableProperty]
     private bool _showOutlinePane;
 
     [ObservableProperty]
@@ -1393,6 +1398,9 @@ public partial class MainWindowViewModel : ObservableObject
 
     [RelayCommand]
     private void ToggleSyncScrolling() => SyncScrolling = !SyncScrolling;
+
+    [RelayCommand]
+    private void ToggleCheckSpelling() => CheckSpelling = !CheckSpelling;
 
     // --- Word wrap ---
 

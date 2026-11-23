@@ -47,7 +47,11 @@ internal sealed class CompletionController
         editor.TextArea.AddHandler(InputElement.KeyDownEvent, OnKeyDown, RoutingStrategies.Tunnel);
         if (_onHint is not null)
             editor.TextArea.Caret.PositionChanged += (_, _) => UpdateHint();
+        Spelling = new SpellingController(editor, () => _markdown, DocumentSource, Status);
     }
+
+    /// <summary>The editor's misspellings, and their right-click entries.</summary>
+    public SpellingController Spelling { get; }
 
     /// <summary>The assist attached to <paramref name="editor"/>, if any.</summary>
     public static CompletionController? For(TextEditor editor)

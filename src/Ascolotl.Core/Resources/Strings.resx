@@ -520,12 +520,15 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="AboutSponsorLink" xml:space="preserve"><value>Buy the axolotl a coffee</value></data>
   <data name="MenuReportIssue" xml:space="preserve"><value>_Report an Issue or Suggestion</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Free software under the GNU GPL v3, with no warranty.</value></data>
+  <data name="CheckSpelling" xml:space="preserve"><value>Check spelling</value></data>
   <data name="FindClose" xml:space="preserve"><value>Close (Esc)</value></data>
   <data name="FindCount" xml:space="preserve"><value>{0} of {1}</value></data>
   <data name="FindNext" xml:space="preserve"><value>Next match (Enter)</value></data>
   <data name="FindNoMatch" xml:space="preserve"><value>No match</value></data>
   <data name="FindOnPage" xml:space="preserve"><value>Find on the page</value></data>
   <data name="FindPrevious" xml:space="preserve"><value>Previous match (Shift+Enter)</value></data>
+  <data name="MenuAddToDictionary" xml:space="preserve"><value>Add to dictionary</value></data>
+  <data name="MenuIgnoreWord" xml:space="preserve"><value>Ignore</value></data>
   <data name="MenuMoveDown" xml:space="preserve"><value>Move down</value></data>
   <data name="MenuMoveLeft" xml:space="preserve"><value>Move left</value></data>
   <data name="MenuMoveRight" xml:space="preserve"><value>Move right</value></data>
@@ -533,11 +536,13 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="MenuSortAscending" xml:space="preserve"><value>Sort rows by this column, A to Z</value></data>
   <data name="MenuSortDescending" xml:space="preserve"><value>Sort rows by this column, Z to A</value></data>
   <data name="MenuTurnInto" xml:space="preserve"><value>Turn into</value></data>
+  <data name="SpellingNoSuggestions" xml:space="preserve"><value>No suggestions</value></data>
   <data name="StatusBlocksSelected" xml:space="preserve"><value>{0} blocks selected</value></data>
   <data name="StatusColumnMoved" xml:space="preserve"><value>Column moved</value></data>
   <data name="StatusImagePasted" xml:space="preserve"><value>Image saved as {0}</value></data>
   <data name="StatusImagePasteFailed" xml:space="preserve"><value>The image couldn’t be saved: {0}</value></data>
   <data name="StatusImagesDirOutside" xml:space="preserve"><value>The document’s images folder (:imagesdir:) is outside its folder: the image wasn’t saved</value></data>
+  <data name="StatusNoDictionary" xml:space="preserve"><value>No spelling dictionary for {0}: put its .aff and .dic files in {1}</value></data>
   <data name="StatusRowMoved" xml:space="preserve"><value>Row moved</value></data>
   <data name="StatusRowsSorted" xml:space="preserve"><value>Rows sorted</value></data>
   <data name="StatusSaveBeforePastingImage" xml:space="preserve"><value>Save the document first: a pasted image is saved beside it</value></data>

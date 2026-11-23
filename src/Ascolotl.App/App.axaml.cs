@@ -49,6 +49,12 @@ public class App : Application
             _settingsService = new JsonSettingsService(_log);
             _settings = _settingsService.Load();
 
+            // Spelling: the user's dictionaries and words beside the settings, then the app's own dictionaries.
+            var data = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "Ascolotl");
+            Core.Spelling.Speller.Folders = [Path.Combine(data, "dictionaries"), Path.Combine(AppContext.BaseDirectory, "dictionaries")];
+            Core.Spelling.Speller.Personal.Load(Path.Combine(data, "words.txt"));
+            Core.Spelling.SpellCheck.Enabled = _settings.CheckSpelling;
+
             // Before any window is built: views read their texts once, when created.
             UiLanguage.Apply(_settings.Language);
             ApplyTheme(_settings.Theme);
@@ -99,6 +105,7 @@ public class App : Application
                 UiLanguageCode = _settings.Language,
                 ShowTitleAndToc = _settings.ShowTitleAndToc,
                 SyncScrolling = _settings.SyncScrolling,
+                CheckSpelling = _settings.CheckSpelling,
                 ShowOutlinePane = _settings.ShowOutlinePane,
                 HamburgerMenu = _settings.HamburgerMenu,
                 PagePreview = _settings.PagePreview,
@@ -132,6 +139,11 @@ public class App : Application
                 else if (e.PropertyName == nameof(MainWindowViewModel.SyncScrolling))
                 {
                     _settings.SyncScrolling = _viewModel.SyncScrolling;
+                    SaveSettings();
+                }
+                else if (e.PropertyName == nameof(MainWindowViewModel.CheckSpelling))
+                {
+                    _settings.CheckSpelling = _viewModel.CheckSpelling;
                     SaveSettings();
                 }
                 else if (e.PropertyName == nameof(MainWindowViewModel.ShowOutlinePane))

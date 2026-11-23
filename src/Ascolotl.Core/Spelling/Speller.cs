@@ -1,0 +1,109 @@
+using System.Collections.Concurrent;
+using System.Text;
+using System.Text.RegularExpressions;
+using WeCantSpell.Hunspell;
+
+namespace Ascolotl.Core.Spelling;
+
+/// <summary>A Hunspell dictionary, with the user's own words and the words ignored this session.
+/// Checked from a background thread while the user adds words from the UI one.</summary>
+public sealed partial class Speller
+{
+    private readonly WordList _words;
+
+    public Speller(WordList words) => _words = words;
+
+    /// <summary>The user's words, every language's, kept in one file; and those ignored until the app closes.</summary>
+    public static readonly PersonalWords Personal = new();
+
+    public bool IsKnown(string word) =>
+        Personal.Contains(word) || _words.Check(word)
+        // A sentence's first word is capitalised: Bonjour is right when bonjour is.
+        || char.IsUpper(word[0]) && _words.Check(char.ToLowerInvariant(word[0]) + word[1..]);
+
+    public IReadOnlyList<string> Suggest(string word, int max = 5) => [.. _words.Suggest(word).Take(max)];
+
+    // ── Dictionaries ──────────────────────────────────────────────────────
+
+    private static readonly ConcurrentDictionary<string, Lazy<Speller?>> Loaded = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Where dictionaries are looked for: the user's folder first, then the app's own.
+    /// Replaced whole, never changed in place: a check in the background reads it.</summary>
+    public static IReadOnlyList<string> Folders { get; set; } = [];
+
+    static Speller() => Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // ISO-8859-15 and the like
+
+    /// <summary>The speller for a language (fr, fr-CH, en_GB), loaded once; null when no dictionary is found.</summary>
+    public static Speller? For(string language) =>
+        Loaded.GetOrAdd(language, l => new Lazy<Speller?>(() => Find(l) is { } aff
+            ? new Speller(WordList.CreateFromFiles(Path.ChangeExtension(aff, ".dic"), aff)) : null)).Value;
+
+    /// <summary>For tests and for a dictionary from elsewhere: the speller a language uses.</summary>
+    public static void Use(string language, Speller? speller) => Loaded[language] = new Lazy<Speller?>(() => speller);
+
+    /// <summary>The .aff of the dictionary for <paramref name="language"/>: its region's (fr_CH), else
+    /// its language's (fr.aff, fr_FR.aff, then any fr_*), in the first folder that has one.</summary>
+    public static string? Find(string language)
+    {
+        var tag = language.Replace('-', '_');
+        var lang = tag.Split('_')[0];
+        foreach (var folder in Folders.Where(Directory.Exists))
+        {
+            var affs = Directory.GetFiles(folder, "*.aff").Where(f => File.Exists(Path.ChangeExtension(f, ".dic"))).ToList();
+            string? Named(string name) => affs.FirstOrDefault(f => Path.GetFileNameWithoutExtension(f).Equals(name, StringComparison.OrdinalIgnoreCase));
+            if ((Named(tag) ?? Named(lang) ?? Named($"{lang}_{lang.ToUpperInvariant()}") ?? (lang == "en" ? Named("en_US") : null)
+                ?? affs.FirstOrDefault(f => Path.GetFileNameWithoutExtension(f).StartsWith(lang + "_", StringComparison.OrdinalIgnoreCase))) is { } found)
+                return found;
+        }
+        return null;
+    }
+
+    /// <summary>The document's language: AsciiDoc's <c>:lang:</c>, or a Markdown front matter's
+    /// <c>lang:</c>; null when it says none.</summary>
+    public static string? DocumentLanguage(string text, bool markdown) =>
+        (markdown ? FrontMatterLang() : LangAttribute()).Match(text) is { Success: true } m ? m.Groups[1].Value : null;
+
+    [GeneratedRegex(@"^:lang:[ \t]*([A-Za-z]{2,3}(?:[-_][A-Za-z]{2})?)[ \t\r]*$", RegexOptions.Multiline)]
+    private static partial Regex LangAttribute();
+
+    [GeneratedRegex(@"\A---\r?\n(?:.*\r?\n)*?lang:[ \t]*[""']?([A-Za-z]{2,3}(?:[-_][A-Za-z]{2})?)")]
+    private static partial Regex FrontMatterLang();
+}
+
+/// <summary>Words the user added (kept in a file, one a line) or ignored for this session.</summary>
+public sealed class PersonalWords
+{
+    private readonly ConcurrentDictionary<string, bool> _words = new();
+    private string? _file;
+
+    /// <summary>Changed: misspellings are to be found again.</summary>
+    public event Action? Changed;
+
+    public void Load(string file)
+    {
+        _file = file;
+        if (File.Exists(file))
+            foreach (var word in File.ReadAllLines(file).Select(l => l.Trim()).Where(l => l.Length > 0))
+                _words[word] = true;
+    }
+
+    public bool Contains(string word) => _words.ContainsKey(word);
+
+    /// <summary>Known from now on, and in the file for the sessions to come.</summary>
+    public void Add(string word)
+    {
+        if (!_words.TryAdd(word, true)) return;
+        if (_file is not null)
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(_file)!);
+            File.AppendAllText(_file, word + Environment.NewLine);
+        }
+        Changed?.Invoke();
+    }
+
+    /// <summary>Known until the app closes.</summary>
+    public void Ignore(string word)
+    {
+        if (_words.TryAdd(word, false)) Changed?.Invoke();
+    }
+}

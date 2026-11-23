@@ -520,12 +520,15 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="AboutSponsorLink" xml:space="preserve"><value>Dem Axolotl einen Kaffee spendieren</value></data>
   <data name="MenuReportIssue" xml:space="preserve"><value>Problem oder Vorschlag _melden</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Freie Software unter der GNU GPL v3, ohne Gewährleistung.</value></data>
+  <data name="CheckSpelling" xml:space="preserve"><value>Rechtschreibung prüfen</value></data>
   <data name="FindClose" xml:space="preserve"><value>Schließen (Esc)</value></data>
   <data name="FindCount" xml:space="preserve"><value>{0} von {1}</value></data>
   <data name="FindNext" xml:space="preserve"><value>Nächster Treffer (Enter)</value></data>
   <data name="FindNoMatch" xml:space="preserve"><value>Kein Treffer</value></data>
   <data name="FindOnPage" xml:space="preserve"><value>Auf der Seite suchen</value></data>
   <data name="FindPrevious" xml:space="preserve"><value>Vorheriger Treffer (Umschalt+Enter)</value></data>
+  <data name="MenuAddToDictionary" xml:space="preserve"><value>Zum Wörterbuch hinzufügen</value></data>
+  <data name="MenuIgnoreWord" xml:space="preserve"><value>Ignorieren</value></data>
   <data name="MenuMoveDown" xml:space="preserve"><value>Nach unten verschieben</value></data>
   <data name="MenuMoveLeft" xml:space="preserve"><value>Nach links verschieben</value></data>
   <data name="MenuMoveRight" xml:space="preserve"><value>Nach rechts verschieben</value></data>
@@ -533,11 +536,13 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="MenuSortAscending" xml:space="preserve"><value>Zeilen nach dieser Spalte sortieren, A bis Z</value></data>
   <data name="MenuSortDescending" xml:space="preserve"><value>Zeilen nach dieser Spalte sortieren, Z bis A</value></data>
   <data name="MenuTurnInto" xml:space="preserve"><value>Umwandeln in</value></data>
+  <data name="SpellingNoSuggestions" xml:space="preserve"><value>Keine Vorschläge</value></data>
   <data name="StatusBlocksSelected" xml:space="preserve"><value>{0} Blöcke ausgewählt</value></data>
   <data name="StatusColumnMoved" xml:space="preserve"><value>Spalte verschoben</value></data>
   <data name="StatusImagePasted" xml:space="preserve"><value>Bild gespeichert als {0}</value></data>
   <data name="StatusImagePasteFailed" xml:space="preserve"><value>Das Bild konnte nicht gespeichert werden: {0}</value></data>
   <data name="StatusImagesDirOutside" xml:space="preserve"><value>Der Bildordner des Dokuments (:imagesdir:) liegt außerhalb seines Ordners: Bild nicht gespeichert</value></data>
+  <data name="StatusNoDictionary" xml:space="preserve"><value>Kein Rechtschreibwörterbuch für {0}: seine .aff- und .dic-Dateien nach {1} legen</value></data>
   <data name="StatusRowMoved" xml:space="preserve"><value>Zeile verschoben</value></data>
   <data name="StatusRowsSorted" xml:space="preserve"><value>Zeilen sortiert</value></data>
   <data name="StatusSaveBeforePastingImage" xml:space="preserve"><value>Zuerst das Dokument speichern: ein eingefügtes Bild wird daneben gespeichert</value></data>

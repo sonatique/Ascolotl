@@ -520,12 +520,15 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="AboutSponsorLink" xml:space="preserve"><value>Invita al ajolote a un café</value></data>
   <data name="MenuReportIssue" xml:space="preserve"><value>_Informar de un problema o sugerencia</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Software libre bajo la GNU GPL v3, sin garantía.</value></data>
+  <data name="CheckSpelling" xml:space="preserve"><value>Revisar la ortografía</value></data>
   <data name="FindClose" xml:space="preserve"><value>Cerrar (Esc)</value></data>
   <data name="FindCount" xml:space="preserve"><value>{0} de {1}</value></data>
   <data name="FindNext" xml:space="preserve"><value>Coincidencia siguiente (Intro)</value></data>
   <data name="FindNoMatch" xml:space="preserve"><value>Sin coincidencias</value></data>
   <data name="FindOnPage" xml:space="preserve"><value>Buscar en la página</value></data>
   <data name="FindPrevious" xml:space="preserve"><value>Coincidencia anterior (Mayús+Intro)</value></data>
+  <data name="MenuAddToDictionary" xml:space="preserve"><value>Añadir al diccionario</value></data>
+  <data name="MenuIgnoreWord" xml:space="preserve"><value>Ignorar</value></data>
   <data name="MenuMoveDown" xml:space="preserve"><value>Bajar</value></data>
   <data name="MenuMoveLeft" xml:space="preserve"><value>Mover a la izquierda</value></data>
   <data name="MenuMoveRight" xml:space="preserve"><value>Mover a la derecha</value></data>
@@ -533,11 +536,13 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="MenuSortAscending" xml:space="preserve"><value>Ordenar filas por esta columna, de la A a la Z</value></data>
   <data name="MenuSortDescending" xml:space="preserve"><value>Ordenar filas por esta columna, de la Z a la A</value></data>
   <data name="MenuTurnInto" xml:space="preserve"><value>Convertir en</value></data>
+  <data name="SpellingNoSuggestions" xml:space="preserve"><value>Sin sugerencias</value></data>
   <data name="StatusBlocksSelected" xml:space="preserve"><value>{0} bloques seleccionados</value></data>
   <data name="StatusColumnMoved" xml:space="preserve"><value>Columna movida</value></data>
   <data name="StatusImagePasted" xml:space="preserve"><value>Imagen guardada como {0}</value></data>
   <data name="StatusImagePasteFailed" xml:space="preserve"><value>No se pudo guardar la imagen: {0}</value></data>
   <data name="StatusImagesDirOutside" xml:space="preserve"><value>La carpeta de imágenes del documento (:imagesdir:) está fuera de su carpeta: la imagen no se guardó</value></data>
+  <data name="StatusNoDictionary" xml:space="preserve"><value>No hay diccionario ortográfico para {0}: coloque sus archivos .aff y .dic en {1}</value></data>
   <data name="StatusRowMoved" xml:space="preserve"><value>Fila movida</value></data>
   <data name="StatusRowsSorted" xml:space="preserve"><value>Filas ordenadas</value></data>
   <data name="StatusSaveBeforePastingImage" xml:space="preserve"><value>Guarde primero el documento: la imagen pegada se guarda a su lado</value></data>

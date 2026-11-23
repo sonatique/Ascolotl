@@ -16,7 +16,7 @@ internal static class FormattingMenu
     public static ContextMenu Open(CompletionController assist, TextEditor editor)
     {
         var selection = editor.SelectionLength > 0;
-        var items = new List<Control>();
+        var items = assist.Spelling.MenuItems(); // a misspelled word's suggestions first
 
         MenuItem Do(string header, Action action)
         {

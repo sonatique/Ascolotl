@@ -53,7 +53,7 @@ internal sealed class DiagnosticRenderer : IBackgroundRenderer
         }
     }
 
-    private static void DrawSquiggle(DrawingContext dc, Pen pen, Rect rect)
+    internal static void DrawSquiggle(DrawingContext dc, Pen pen, Rect rect)
     {
         const double step = 3.0;
         var y = rect.Bottom - 1;

@@ -160,6 +160,10 @@
                   Command="{Binding ToggleSyncScrollingCommand}"
                   ToggleType="CheckBox"
                   IsChecked="{Binding SyncScrolling, Mode=OneWay}" />
+        <MenuItem Header="{x:Static res:Strings.CheckSpelling}"
+                  Command="{Binding ToggleCheckSpellingCommand}"
+                  ToggleType="CheckBox"
+                  IsChecked="{Binding CheckSpelling, Mode=OneWay}" />
         <MenuItem Header="{x:Static res:Strings.EditorWordWrap}"
                   Command="{Binding ToggleEditorWordWrapCommand}"
                   ToggleType="CheckBox"

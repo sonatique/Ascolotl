@@ -8,6 +8,8 @@ public sealed class AppSettings
     public string Language { get; set; } = "";
     public bool ShowTitleAndToc { get; set; }
     public bool SyncScrolling { get; set; } = true;
+    /// <summary>Misspellings marked in the editors.</summary>
+    public bool CheckSpelling { get; set; } = true;
     public bool ShowOutlinePane { get; set; }
     public double SidebarWidth { get; set; } = 220;
     public bool HamburgerMenu { get; set; } = true;
