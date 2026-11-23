@@ -211,7 +211,6 @@
   <data name="CommandZoomOut" xml:space="preserve"><value>Verkleinern</value></data>
   <data name="ConvertADocxToAsciiDocImages" xml:space="preserve"><value>Eine .docx-Datei in AsciiDoc umwandeln (Bilder werden daneben abgelegt)</value></data>
   <data name="CouldNotOpenTitle" xml:space="preserve"><value>Ascolotl — Datei kann nicht geöffnet werden</value></data>
-  <data name="CtrlO" xml:space="preserve"><value>Strg O</value></data>
   <data name="CursorPosition" xml:space="preserve"><value>Z {0}, Sp {1}</value></data>
   <data name="DiagnosticAtLine" xml:space="preserve"><value>Zeile {0}: {1}</value></data>
   <data name="DialogChooseOutputFolder" xml:space="preserve"><value>Zielordner wählen</value></data>
@@ -310,7 +309,7 @@
   <data name="ImportTables" xml:space="preserve"><value>{0} Tabellen</value></data>
   <data name="ImportTooLarge" xml:space="preserve"><value>Diese {0}-Datei ist zu groß für den Import: entpackt enthält sie mehr als {1} MB.</value></data>
   <data name="InlineApply" xml:space="preserve"><value>✓ Übernehmen</value></data>
-  <data name="InlineApplyTip" xml:space="preserve"><value>Übernehmen (Strg+Enter, das in einer Tabellenzelle auch eine Zeile hinzufügt)</value></data>
+  <data name="InlineApplyTip" xml:space="preserve"><value>Übernehmen (Ctrl+Enter, das in einer Tabellenzelle auch eine Zeile hinzufügt)</value></data>
   <data name="InlineCancel" xml:space="preserve"><value>✕ Abbrechen</value></data>
   <data name="InlineCancelTip" xml:space="preserve"><value>Abbrechen (Esc)</value></data>
   <data name="InsertBulletedList" xml:space="preserve"><value>Aufzählung</value></data>
@@ -430,9 +429,9 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="StatusCouldNotReadFolder" xml:space="preserve"><value>Ordner konnte nicht gelesen werden: {0}</value></data>
   <data name="StatusEditCancelled" xml:space="preserve"><value>Bearbeitung abgebrochen</value></data>
   <data name="StatusEditDiscarded" xml:space="preserve"><value>Bearbeitung verworfen — das Dokument hat sich geändert, während der Block offen war</value></data>
-  <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ zwischen Blöcken wechseln · Enter bearbeiten · Umschalt+F10 Menü · Tab Seite verlassen</value></data>
-  <data name="StatusEditingBlock" xml:space="preserve"><value>Block wird bearbeitet — Übernehmen (Strg+Enter) oder daneben klicken zum Übernehmen, Esc zum Abbrechen</value></data>
-  <data name="StatusEditingCell" xml:space="preserve"><value>Zelle wird bearbeitet — Tab zur nächsten Zelle, Strg+Enter für eine neue Zeile, Esc zum Abbrechen</value></data>
+  <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ zwischen Blöcken wechseln · Enter bearbeiten · Shift+F10 Menü · Tab Seite verlassen</value></data>
+  <data name="StatusEditingBlock" xml:space="preserve"><value>Block wird bearbeitet — Übernehmen (Ctrl+Enter) oder daneben klicken zum Übernehmen, Esc zum Abbrechen</value></data>
+  <data name="StatusEditingCell" xml:space="preserve"><value>Zelle wird bearbeitet — Tab zur nächsten Zelle, Ctrl+Enter für eine neue Zeile, Esc zum Abbrechen</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Bearbeiten Sie für dieses Layout den Tabellenquelltext</value></data>
   <data name="StatusExportedTo" xml:space="preserve"><value>Exportiert nach {0}</value></data>
   <data name="StatusExportedWithWarnings" xml:space="preserve"><value>Exportiert nach {0} — {1} Bild(er) ohne Alternativtext; stattdessen wurde der Dateiname verwendet</value></data>
@@ -542,7 +541,7 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="FindNext" xml:space="preserve"><value>Nächster Treffer (Enter)</value></data>
   <data name="FindNoMatch" xml:space="preserve"><value>Kein Treffer</value></data>
   <data name="FindOnPage" xml:space="preserve"><value>Auf der Seite suchen</value></data>
-  <data name="FindPrevious" xml:space="preserve"><value>Vorheriger Treffer (Umschalt+Enter)</value></data>
+  <data name="FindPrevious" xml:space="preserve"><value>Vorheriger Treffer (Shift+Enter)</value></data>
   <data name="MenuAddToDictionary" xml:space="preserve"><value>Zum Wörterbuch hinzufügen</value></data>
   <data name="MenuIgnoreWord" xml:space="preserve"><value>Ignorieren</value></data>
   <data name="MenuMoveDown" xml:space="preserve"><value>Nach unten verschieben</value></data>

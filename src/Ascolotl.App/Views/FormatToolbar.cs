@@ -131,7 +131,7 @@ public sealed class FormatToolbar : Border
             row.Children.Add(tool);
         }
 
-        var apply = EditAction(Strings.InlineApply, Strings.InlineApplyTip, apply: true);
+        var apply = EditAction(Strings.InlineApply, CommandKey.Text(Strings.InlineApplyTip)!, apply: true);
         apply.Classes.Add("apply");
         _editActions = new StackPanel
         {

@@ -215,6 +215,10 @@ public sealed class KeyboardShortcutTests
     }
 
     [AvaloniaFact]
+    public void TheStartScreen_WritesItsKeyAsTheMenusDo() =>
+        Assert.Equal("Ctrl+O", Ascolotl.App.Views.EmptyStateView.OpenKey); // not "Ctrl O", nor "Strg O" in German
+
+    [AvaloniaFact]
     public void MenuKeys_NeedTheirExactModifiers()
     {
         var (window, vm) = Open("Text.\n", EditorMode.Split);

@@ -90,6 +90,18 @@ public sealed partial class LocalizationTests
         Assert.Empty(found);
     }
 
+    [Theory]
+    [MemberData(nameof(Translations))]
+    public void KeyNames_NameTheModifiersAsTheMenusDo(string code)
+    {
+        // The menus write keys with Avalonia's names (Ctrl, Shift), in every language: so do the texts.
+        var localized = Read($"Strings.{code}.resx").Where(t => LocalizedModifier().IsMatch(t.Value)).Select(t => t.Key);
+        Assert.Empty(localized);
+    }
+
+    [GeneratedRegex(@"\b(Strg|Umschalt|Maj|Mayús|Maiusc)\+")]
+    private static partial Regex LocalizedModifier();
+
     public static IEnumerable<object[]> Languages() => UiLanguage.Codes.Select(c => new object[] { c });
 
     [Theory]

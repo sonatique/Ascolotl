@@ -211,7 +211,6 @@
   <data name="CommandZoomOut" xml:space="preserve"><value>Zoom arrière</value></data>
   <data name="ConvertADocxToAsciiDocImages" xml:space="preserve"><value>Convertir un .docx en AsciiDoc (images extraites à côté)</value></data>
   <data name="CouldNotOpenTitle" xml:space="preserve"><value>Ascolotl — Impossible d'ouvrir le fichier</value></data>
-  <data name="CtrlO" xml:space="preserve"><value>Ctrl O</value></data>
   <data name="CursorPosition" xml:space="preserve"><value>Li {0}, Col {1}</value></data>
   <data name="DiagnosticAtLine" xml:space="preserve"><value>Ligne {0} : {1}</value></data>
   <data name="DialogChooseOutputFolder" xml:space="preserve"><value>Choisir le dossier de destination</value></data>
@@ -430,7 +429,7 @@ Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un
   <data name="StatusCouldNotReadFolder" xml:space="preserve"><value>Impossible de lire le dossier : {0}</value></data>
   <data name="StatusEditCancelled" xml:space="preserve"><value>Modification annulée</value></data>
   <data name="StatusEditDiscarded" xml:space="preserve"><value>Modification abandonnée — le document a changé pendant que le bloc était ouvert</value></data>
-  <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ passer d’un bloc à l’autre · Entrée modifier · Maj+F10 menu · Tab quitter la page</value></data>
+  <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ passer d’un bloc à l’autre · Entrée modifier · Shift+F10 menu · Tab quitter la page</value></data>
   <data name="StatusEditingBlock" xml:space="preserve"><value>Modification du bloc — Appliquer (Ctrl+Entrée) ou cliquer ailleurs pour valider, Échap pour annuler</value></data>
   <data name="StatusEditingCell" xml:space="preserve"><value>Modification de la cellule — Tab vers la cellule suivante, Ctrl+Entrée pour une nouvelle ligne, Échap pour annuler</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Modifiez la source du tableau pour cette mise en page</value></data>
@@ -542,7 +541,7 @@ Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un
   <data name="FindNext" xml:space="preserve"><value>Occurrence suivante (Entrée)</value></data>
   <data name="FindNoMatch" xml:space="preserve"><value>Aucune occurrence</value></data>
   <data name="FindOnPage" xml:space="preserve"><value>Rechercher dans la page</value></data>
-  <data name="FindPrevious" xml:space="preserve"><value>Occurrence précédente (Maj+Entrée)</value></data>
+  <data name="FindPrevious" xml:space="preserve"><value>Occurrence précédente (Shift+Entrée)</value></data>
   <data name="MenuAddToDictionary" xml:space="preserve"><value>Ajouter au dictionnaire</value></data>
   <data name="MenuIgnoreWord" xml:space="preserve"><value>Ignorer</value></data>
   <data name="MenuMoveDown" xml:space="preserve"><value>Descendre</value></data>

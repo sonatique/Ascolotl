@@ -211,7 +211,6 @@
   <data name="CommandZoomOut" xml:space="preserve"><value>Alejar</value></data>
   <data name="ConvertADocxToAsciiDocImages" xml:space="preserve"><value>Convertir un .docx a AsciiDoc (imágenes extraídas al lado)</value></data>
   <data name="CouldNotOpenTitle" xml:space="preserve"><value>Ascolotl — No se puede abrir el archivo</value></data>
-  <data name="CtrlO" xml:space="preserve"><value>Ctrl O</value></data>
   <data name="CursorPosition" xml:space="preserve"><value>Lín {0}, Col {1}</value></data>
   <data name="DiagnosticAtLine" xml:space="preserve"><value>Línea {0}: {1}</value></data>
   <data name="DialogChooseOutputFolder" xml:space="preserve"><value>Elegir carpeta de destino</value></data>
@@ -430,7 +429,7 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="StatusCouldNotReadFolder" xml:space="preserve"><value>No se pudo leer la carpeta: {0}</value></data>
   <data name="StatusEditCancelled" xml:space="preserve"><value>Edición cancelada</value></data>
   <data name="StatusEditDiscarded" xml:space="preserve"><value>Edición descartada — el documento cambió mientras el bloque estaba abierto</value></data>
-  <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ moverse entre bloques · Intro editar · Mayús+F10 menú · Tab salir de la página</value></data>
+  <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ moverse entre bloques · Intro editar · Shift+F10 menú · Tab salir de la página</value></data>
   <data name="StatusEditingBlock" xml:space="preserve"><value>Editando bloque — Aplicar (Ctrl+Intro) o hacer clic fuera para confirmar, Esc para cancelar</value></data>
   <data name="StatusEditingCell" xml:space="preserve"><value>Editando celda — Tab a la celda siguiente, Ctrl+Intro para una fila nueva, Esc para cancelar</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Edite el código de la tabla para esta disposición</value></data>
@@ -542,7 +541,7 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="FindNext" xml:space="preserve"><value>Coincidencia siguiente (Intro)</value></data>
   <data name="FindNoMatch" xml:space="preserve"><value>Sin coincidencias</value></data>
   <data name="FindOnPage" xml:space="preserve"><value>Buscar en la página</value></data>
-  <data name="FindPrevious" xml:space="preserve"><value>Coincidencia anterior (Mayús+Intro)</value></data>
+  <data name="FindPrevious" xml:space="preserve"><value>Coincidencia anterior (Shift+Intro)</value></data>
   <data name="MenuAddToDictionary" xml:space="preserve"><value>Añadir al diccionario</value></data>
   <data name="MenuIgnoreWord" xml:space="preserve"><value>Ignorar</value></data>
   <data name="MenuMoveDown" xml:space="preserve"><value>Bajar</value></data>

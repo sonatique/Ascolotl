@@ -211,7 +211,6 @@
   <data name="CommandZoomOut" xml:space="preserve"><value>Zoom Out</value></data>
   <data name="ConvertADocxToAsciiDocImages" xml:space="preserve"><value>Convert a .docx to AsciiDoc (images extracted beside it)</value></data>
   <data name="CouldNotOpenTitle" xml:space="preserve"><value>Ascolotl — Could Not Open File</value></data>
-  <data name="CtrlO" xml:space="preserve"><value>Ctrl O</value></data>
   <data name="CursorPosition" xml:space="preserve"><value>Ln {0}, Col {1}</value></data>
   <data name="DiagnosticAtLine" xml:space="preserve"><value>Line {0}: {1}</value></data>
   <data name="DialogChooseOutputFolder" xml:space="preserve"><value>Choose output folder</value></data>

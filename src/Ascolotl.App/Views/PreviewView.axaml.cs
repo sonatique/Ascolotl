@@ -1674,7 +1674,7 @@ public partial class PreviewView : UserControl
                 var idx = panel.Children.IndexOf(host);
                 if (idx >= 0) panel.Children[idx] = blockVis;
             },
-            statusHint: Strings.StatusEditingBlock,
+            statusHint: CommandKey.Text(Strings.StatusEditingBlock)!,
             caretInSlice: caretAbsOffset is int abs ? abs - start : null);
         return true;
     }
@@ -1784,7 +1784,7 @@ public partial class PreviewView : UserControl
         }
 
         BeginEdit(editor, host, start, length, original, restore,
-            statusHint: Strings.StatusEditingCell,
+            statusHint: CommandKey.Text(Strings.StatusEditingCell)!,
             caretInSlice: caretInContent, cell: (r, cellIdx));
         if (_activeEdit?.Assist is { } assist) assist.CellTableEdit = op => TableEditAtCell(op);
         return true;
