@@ -261,6 +261,7 @@
   <data name="FormatWordDocument" xml:space="preserve"><value>Documento de Word</value></data>
   <data name="FullTitle" xml:space="preserve"><value>Título _completo</value></data>
   <data name="GestureClick" xml:space="preserve"><value>clic</value></data>
+  <data name="GestureEnter" xml:space="preserve"><value>Intro</value></data>
   <data name="HamburgerMenu" xml:space="preserve"><value>Menú _hamburguesa</value></data>
   <data name="HintAdmonition" xml:space="preserve"><value>Advertencia ({0})</value></data>
   <data name="HintAttributeEntry" xml:space="preserve"><value>Definición de atributo del documento — :nombre: valor</value></data>
@@ -545,6 +546,7 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="MenuMoveLeft" xml:space="preserve"><value>Mover a la izquierda</value></data>
   <data name="MenuMoveRight" xml:space="preserve"><value>Mover a la derecha</value></data>
   <data name="MenuMoveUp" xml:space="preserve"><value>Subir</value></data>
+  <data name="MenuNewParagraph" xml:space="preserve"><value>Párrafo nuevo debajo</value></data>
   <data name="MenuSortAscending" xml:space="preserve"><value>Ordenar filas por esta columna, de la A a la Z</value></data>
   <data name="MenuSortDescending" xml:space="preserve"><value>Ordenar filas por esta columna, de la Z a la A</value></data>
   <data name="MenuTurnInto" xml:space="preserve"><value>Convertir en</value></data>

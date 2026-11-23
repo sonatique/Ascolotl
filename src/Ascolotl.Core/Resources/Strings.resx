@@ -261,6 +261,7 @@
   <data name="FormatWordDocument" xml:space="preserve"><value>Word Document</value></data>
   <data name="FullTitle" xml:space="preserve"><value>_Full Title</value></data>
   <data name="GestureClick" xml:space="preserve"><value>click</value></data>
+  <data name="GestureEnter" xml:space="preserve"><value>Enter</value></data>
   <data name="HamburgerMenu" xml:space="preserve"><value>_Hamburger Menu</value></data>
   <data name="HintAdmonition" xml:space="preserve"><value>Admonition ({0})</value></data>
   <data name="HintAttributeEntry" xml:space="preserve"><value>Document attribute entry — :name: value</value></data>
@@ -545,6 +546,7 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="MenuMoveLeft" xml:space="preserve"><value>Move left</value></data>
   <data name="MenuMoveRight" xml:space="preserve"><value>Move right</value></data>
   <data name="MenuMoveUp" xml:space="preserve"><value>Move up</value></data>
+  <data name="MenuNewParagraph" xml:space="preserve"><value>New paragraph below</value></data>
   <data name="MenuSortAscending" xml:space="preserve"><value>Sort rows by this column, A to Z</value></data>
   <data name="MenuSortDescending" xml:space="preserve"><value>Sort rows by this column, Z to A</value></data>
   <data name="MenuTurnInto" xml:space="preserve"><value>Turn into</value></data>

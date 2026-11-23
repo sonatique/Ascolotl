@@ -261,6 +261,7 @@
   <data name="FormatWordDocument" xml:space="preserve"><value>Documento Word</value></data>
   <data name="FullTitle" xml:space="preserve"><value>Titolo _completo</value></data>
   <data name="GestureClick" xml:space="preserve"><value>clic</value></data>
+  <data name="GestureEnter" xml:space="preserve"><value>Invio</value></data>
   <data name="HamburgerMenu" xml:space="preserve"><value>Menu _hamburger</value></data>
   <data name="HintAdmonition" xml:space="preserve"><value>Avviso ({0})</value></data>
   <data name="HintAttributeEntry" xml:space="preserve"><value>Definizione di attributo del documento — :nome: valore</value></data>
@@ -545,6 +546,7 @@ Questo file esiste ma non è stato possibile leggerlo. Forse è bloccato da un a
   <data name="MenuMoveLeft" xml:space="preserve"><value>Sposta a sinistra</value></data>
   <data name="MenuMoveRight" xml:space="preserve"><value>Sposta a destra</value></data>
   <data name="MenuMoveUp" xml:space="preserve"><value>Sposta su</value></data>
+  <data name="MenuNewParagraph" xml:space="preserve"><value>Nuovo paragrafo sotto</value></data>
   <data name="MenuSortAscending" xml:space="preserve"><value>Ordina le righe per questa colonna, dalla A alla Z</value></data>
   <data name="MenuSortDescending" xml:space="preserve"><value>Ordina le righe per questa colonna, dalla Z alla A</value></data>
   <data name="MenuTurnInto" xml:space="preserve"><value>Trasforma in</value></data>

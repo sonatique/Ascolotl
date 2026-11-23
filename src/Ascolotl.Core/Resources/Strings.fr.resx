@@ -261,6 +261,7 @@
   <data name="FormatWordDocument" xml:space="preserve"><value>Document Word</value></data>
   <data name="FullTitle" xml:space="preserve"><value>Titre _complet</value></data>
   <data name="GestureClick" xml:space="preserve"><value>clic</value></data>
+  <data name="GestureEnter" xml:space="preserve"><value>Entrée</value></data>
   <data name="HamburgerMenu" xml:space="preserve"><value>Menu _hamburger</value></data>
   <data name="HintAdmonition" xml:space="preserve"><value>Avertissement ({0})</value></data>
   <data name="HintAttributeEntry" xml:space="preserve"><value>Définition d'attribut du document — :nom: valeur</value></data>
@@ -545,6 +546,7 @@ Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un
   <data name="MenuMoveLeft" xml:space="preserve"><value>Déplacer à gauche</value></data>
   <data name="MenuMoveRight" xml:space="preserve"><value>Déplacer à droite</value></data>
   <data name="MenuMoveUp" xml:space="preserve"><value>Monter</value></data>
+  <data name="MenuNewParagraph" xml:space="preserve"><value>Nouveau paragraphe en dessous</value></data>
   <data name="MenuSortAscending" xml:space="preserve"><value>Trier les lignes selon cette colonne, de A à Z</value></data>
   <data name="MenuSortDescending" xml:space="preserve"><value>Trier les lignes selon cette colonne, de Z à A</value></data>
   <data name="MenuTurnInto" xml:space="preserve"><value>Transformer en</value></data>

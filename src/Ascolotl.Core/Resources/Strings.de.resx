@@ -261,6 +261,7 @@
   <data name="FormatWordDocument" xml:space="preserve"><value>Word-Dokument</value></data>
   <data name="FullTitle" xml:space="preserve"><value>_Vollständiger Titel</value></data>
   <data name="GestureClick" xml:space="preserve"><value>Klick</value></data>
+  <data name="GestureEnter" xml:space="preserve"><value>Enter</value></data>
   <data name="HamburgerMenu" xml:space="preserve"><value>Hamb_urger-Menü</value></data>
   <data name="HintAdmonition" xml:space="preserve"><value>Hinweisblock ({0})</value></data>
   <data name="HintAttributeEntry" xml:space="preserve"><value>Dokumentattribut-Eintrag — :name: wert</value></data>
@@ -545,6 +546,7 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="MenuMoveLeft" xml:space="preserve"><value>Nach links verschieben</value></data>
   <data name="MenuMoveRight" xml:space="preserve"><value>Nach rechts verschieben</value></data>
   <data name="MenuMoveUp" xml:space="preserve"><value>Nach oben verschieben</value></data>
+  <data name="MenuNewParagraph" xml:space="preserve"><value>Neuer Absatz darunter</value></data>
   <data name="MenuSortAscending" xml:space="preserve"><value>Zeilen nach dieser Spalte sortieren, A bis Z</value></data>
   <data name="MenuSortDescending" xml:space="preserve"><value>Zeilen nach dieser Spalte sortieren, Z bis A</value></data>
   <data name="MenuTurnInto" xml:space="preserve"><value>Umwandeln in</value></data>

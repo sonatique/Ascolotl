@@ -556,7 +556,7 @@ public partial class PreviewView : UserControl
         {
             var (vis, block) = _blockMap[i];
             var cell = block is TableLayout table && _lastCell is { } c && c.Block == i ? CellControl(vis, table, c.Row, c.Cell) : null;
-            ShowBlockContextMenu(vis, block, cell, (cell ?? vis).TranslatePoint(new Point(1, 1), PreviewScroll) ?? default);
+            ShowBlockContextMenu(vis, block, cell, (cell ?? vis).TranslatePoint(new Point(1, 1), PreviewScroll) ?? default, fromKeyboard: true);
         }
         else
             ShowInsertMenuAt(default);
@@ -2571,7 +2571,7 @@ public partial class PreviewView : UserControl
         return true;
     }
 
-    private void ShowBlockContextMenu(Control blockVis, BlockLayout block, Visual? clickTarget, Point pointInScroll)
+    private void ShowBlockContextMenu(Control blockVis, BlockLayout block, Visual? clickTarget, Point pointInScroll, bool fromKeyboard = false)
     {
         if (_doc is null || !PanelIsCurrent()) return;
 
@@ -2584,7 +2584,7 @@ public partial class PreviewView : UserControl
         }
         var (start, length) = slice.Value;
 
-        var gesture = Strings.GestureClick;
+        var gesture = fromKeyboard ? Strings.GestureEnter : Strings.GestureClick;
 
         var items = new List<Control>();
 
@@ -2681,8 +2681,16 @@ public partial class PreviewView : UserControl
 
         // Found again on click: a render meanwhile may have moved the block.
         int Index() => _blockMap.FindIndex(b => b.Vis == blockVis);
-        items.Add(Cmd(Strings.MenuDuplicateBlock, () => DuplicateBlock(Index())));
-        items.Add(Cmd(Strings.MenuDeleteBlock, () => DeleteBlock(Index())));
+        // With the keys the page takes for them, as the menu bar shows its own.
+        items.Add(Cmd(Strings.MenuCut, () => CopyBlocks(Index(), cut: true), ApplicationCommands.Cut.Gesture));
+        items.Add(Cmd(Strings.MenuCopy, () => CopyBlocks(Index(), cut: false), ApplicationCommands.Copy.Gesture));
+        items.Add(Cmd(Strings.MenuPaste, () => PasteBlocks(Index()), ApplicationCommands.Paste.Gesture));
+        items.Add(new Separator());
+        items.Add(Cmd(Strings.MenuMoveUp, () => MoveBlock(Index(), -1), new KeyGesture(Key.Up, KeyModifiers.Control | KeyModifiers.Shift)));
+        items.Add(Cmd(Strings.MenuMoveDown, () => MoveBlock(Index(), 1), new KeyGesture(Key.Down, KeyModifiers.Control | KeyModifiers.Shift)));
+        items.Add(Cmd(Strings.MenuDuplicateBlock, () => DuplicateBlock(Index()), new KeyGesture(Key.D, KeyModifiers.Control | KeyModifiers.Alt)));
+        items.Add(Cmd(Strings.MenuDeleteBlock, () => DeleteBlock(Index()), new KeyGesture(Key.Delete)));
+        items.Add(Cmd(Strings.MenuNewParagraph, () => NewParagraphAfter(Index()), new KeyGesture(Key.N, KeyModifiers.Control | KeyModifiers.Shift)));
 
         items.Add(new Separator());
         var markdown = _doc.IsMarkdown;
@@ -2693,7 +2701,7 @@ public partial class PreviewView : UserControl
             snippet => { if (_doc is not null) _doc.SourceText = BlockInsertion.InsertAfter(_doc.SourceText, start + length, snippet); }));
 
         var menu = new ContextMenu { ItemsSource = items };
-        if (clickTarget is null) OpenAtBlock(menu, blockVis); // from the keyboard
+        if (fromKeyboard) OpenAtBlock(menu, clickTarget as Control ?? blockVis);
         else menu.Open(blockVis);
     }
 
@@ -2783,9 +2791,9 @@ public partial class PreviewView : UserControl
         Cmd(Strings.MenuSortDescending, () => TableEditAt(at, TableOp.SortDescending)),
     ];
 
-    private static MenuItem Cmd(string header, Action action)
+    private static MenuItem Cmd(string header, Action action, KeyGesture? key = null)
     {
-        var item = new MenuItem { Header = header };
+        var item = new MenuItem { Header = header, InputGesture = key };
         item.Click += (_, _) => action();
         return item;
     }

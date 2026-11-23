@@ -211,6 +211,30 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
+    public void BlockMenu_FromTheKeyboard_SaysTheKeys()
+    {
+        var (window, _) = Open("Paragraph 1.\n\nParagraph 2.\n", EditorMode.Wysiwyg);
+        Preview(window).FocusPage();
+        Pump(window);
+        ContextMenu? opened = null;
+        using (ContextMenu.OpenedEvent.AddClassHandler<ContextMenu>((menu, _) => opened = menu))
+        {
+            Press(window, Key.F10, RawInputModifiers.Shift);
+            window.KeyRelease(Key.F10, RawInputModifiers.Shift, PhysicalKey.None, null);
+            Pump(window);
+        }
+        var items = opened!.Items.OfType<MenuItem>().ToList();
+        Assert.Equal(string.Format(Strings.MenuEditBlock, Strings.GestureEnter), items[0].Header); // not "click"
+        KeyGesture? GestureOf(string header) => items.Single(i => (string?)i.Header == header).InputGesture;
+        Assert.Equal(new KeyGesture(Key.D, KeyModifiers.Control | KeyModifiers.Alt), GestureOf(Strings.MenuDuplicateBlock));
+        Assert.Equal(new KeyGesture(Key.Delete), GestureOf(Strings.MenuDeleteBlock));
+        Assert.Equal(ApplicationCommands.Copy.Gesture, GestureOf(Strings.MenuCopy));
+        Assert.NotNull(GestureOf(Strings.MenuMoveUp));
+        Assert.NotNull(GestureOf(Strings.MenuNewParagraph));
+        opened.Close();
+    }
+
+    [AvaloniaFact]
     public void TableMenu_FromTheKeyboard_ActsOnTheCellLastEdited()
     {
         var (window, vm) = Open("Before.\n\n|===\n| a1 | b1\n\n| a2 | b2\n|===\n", EditorMode.Wysiwyg);
