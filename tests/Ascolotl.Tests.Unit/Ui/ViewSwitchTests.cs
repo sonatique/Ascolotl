@@ -393,6 +393,40 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
+    public void FindOnThePage_StepsThroughTheMatches_AndLeavesTheKeyboardOnTheLast()
+    {
+        var (window, vm) = Open("Alpha beta.\n\nGamma *Beta* delta.\n\n|===\n| x | beta\n|===\n", EditorMode.Wysiwyg);
+        Preview(window).FocusPage();
+        Pump(window);
+        Press(window, Key.Enter); // an open block is applied first
+        Press(window, Key.F, RawInputModifiers.Control);
+        Assert.Null(BlockEditor(window));
+        var box = window.GetVisualDescendants().OfType<TextBox>().Single(t => t.Name == "FindBox");
+        string Count() => window.GetVisualDescendants().OfType<TextBlock>().Single(t => t.Name == "FindCount").Text ?? "";
+        Assert.True(box.IsFocused);
+
+        window.KeyTextInput("beta"); // the rendered text, case aside: not the *markup*
+        Pump(window);
+        Assert.Equal(string.Format(Strings.FindCount, 1, 3), Count());
+        Press(window, Key.Enter);
+        Assert.Equal(string.Format(Strings.FindCount, 2, 3), Count());
+        Press(window, Key.Enter, RawInputModifiers.Shift);
+        Press(window, Key.Enter, RawInputModifiers.Shift); // round to the last
+        Assert.Equal(string.Format(Strings.FindCount, 3, 3), Count());
+
+        window.KeyTextInput("x");
+        Pump(window);
+        Assert.Equal(Strings.FindNoMatch, Count());
+        Press(window, Key.Back);
+        Pump(window);
+        Press(window, Key.Enter, RawInputModifiers.Shift); // the last again
+        Press(window, Key.Escape);
+        Assert.False(window.GetVisualDescendants().OfType<Border>().Single(b => b.Name == "FindBar").IsVisible);
+        Assert.Contains("beta", OnBlock(window)); // on the table, where the match was
+        Assert.Contains("x", OnBlock(window));
+    }
+
+    [AvaloniaFact]
     public void CtrlEnter_AppliesTheBlock_OverAnOpenSuggestionList()
     {
         var (window, vm) = Open("Text.\n", EditorMode.Wysiwyg);

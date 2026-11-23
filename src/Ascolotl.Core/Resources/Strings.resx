@@ -520,6 +520,12 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="AboutSponsorLink" xml:space="preserve"><value>Buy the axolotl a coffee</value></data>
   <data name="MenuReportIssue" xml:space="preserve"><value>_Report an Issue or Suggestion</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Free software under the GNU GPL v3, with no warranty.</value></data>
+  <data name="FindClose" xml:space="preserve"><value>Close (Esc)</value></data>
+  <data name="FindCount" xml:space="preserve"><value>{0} of {1}</value></data>
+  <data name="FindNext" xml:space="preserve"><value>Next match (Enter)</value></data>
+  <data name="FindNoMatch" xml:space="preserve"><value>No match</value></data>
+  <data name="FindOnPage" xml:space="preserve"><value>Find on the page</value></data>
+  <data name="FindPrevious" xml:space="preserve"><value>Previous match (Shift+Enter)</value></data>
   <data name="MenuMoveDown" xml:space="preserve"><value>Move down</value></data>
   <data name="MenuMoveLeft" xml:space="preserve"><value>Move left</value></data>
   <data name="MenuMoveRight" xml:space="preserve"><value>Move right</value></data>

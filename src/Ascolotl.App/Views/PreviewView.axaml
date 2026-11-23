@@ -21,6 +21,27 @@
                             Margin="20,16,20,0" />
         </ScrollViewer>
 
+        <!-- Find on the page (Ctrl+F): the matches are marked in the rendered text. -->
+        <Border x:Name="FindBar"
+                IsVisible="False"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Margin="0,8,24,0"
+                Padding="6"
+                CornerRadius="6"
+                BorderThickness="1"
+                BorderBrush="{DynamicResource ForgeBorderBrush}"
+                Background="{DynamicResource ForgeBgSurfaceBrush}">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+                <TextBox x:Name="FindBox" Width="200" />
+                <TextBlock x:Name="FindCount" VerticalAlignment="Center" MinWidth="64"
+                           Foreground="{DynamicResource ForgeTextMutedBrush}" />
+                <Button x:Name="FindPreviousButton" Content="↑" />
+                <Button x:Name="FindNextButton" Content="↓" />
+                <Button x:Name="FindCloseButton" Content="✕" />
+            </StackPanel>
+        </Border>
+
         <!-- Error overlay — shown instead of preview on render error -->
         <Border x:Name="StatusOverlay"
                 IsVisible="False"

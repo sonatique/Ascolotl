@@ -520,6 +520,12 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="AboutSponsorLink" xml:space="preserve"><value>Invita al ajolote a un café</value></data>
   <data name="MenuReportIssue" xml:space="preserve"><value>_Informar de un problema o sugerencia</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Software libre bajo la GNU GPL v3, sin garantía.</value></data>
+  <data name="FindClose" xml:space="preserve"><value>Cerrar (Esc)</value></data>
+  <data name="FindCount" xml:space="preserve"><value>{0} de {1}</value></data>
+  <data name="FindNext" xml:space="preserve"><value>Coincidencia siguiente (Intro)</value></data>
+  <data name="FindNoMatch" xml:space="preserve"><value>Sin coincidencias</value></data>
+  <data name="FindOnPage" xml:space="preserve"><value>Buscar en la página</value></data>
+  <data name="FindPrevious" xml:space="preserve"><value>Coincidencia anterior (Mayús+Intro)</value></data>
   <data name="MenuMoveDown" xml:space="preserve"><value>Bajar</value></data>
   <data name="MenuMoveLeft" xml:space="preserve"><value>Mover a la izquierda</value></data>
   <data name="MenuMoveRight" xml:space="preserve"><value>Mover a la derecha</value></data>

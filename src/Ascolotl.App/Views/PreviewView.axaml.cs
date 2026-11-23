@@ -159,7 +159,8 @@ public partial class PreviewView : UserControl
     {
         InitializeComponent();
         PreviewHost.Content = _pages;
-        _pages.Children.Add(new Canvas { IsHitTestVisible = false, ZIndex = 1, Children = { _selectionBox, _outline } });
+        _pages.Children.Add(new Canvas { IsHitTestVisible = false, ZIndex = 1, Children = { _findLayer, _selectionBox, _outline } });
+        InitFind();
         _outline.Bind(Border.BorderBrushProperty, this.GetResourceObservable("ForgeAccentBrush"));
         _selectionBox.Bind(Border.BackgroundProperty, this.GetResourceObservable("ForgeAccentBrush"));
         PreviewScroll.LayoutUpdated += (_, _) => PlaceOutline();
@@ -336,6 +337,141 @@ public partial class PreviewView : UserControl
             }
         }
         _selectionBox.IsVisible = selected;
+        if (FindBar.IsVisible) PlaceFindMarks();
+    }
+
+    // ── Find on the page ──────────────────────────────────────────────────
+    // ponytail: the rendered text block by block: a match across two styles or blocks isn't found.
+
+    private readonly Canvas _findLayer = new();
+    private List<(TextBlock Text, int Start, int Length)> _findMatches = [];
+    private int _findIndex = -1;
+
+    private void InitFind()
+    {
+        FindBox.Watermark = Strings.FindOnPage;
+        AutomationProperties.SetName(FindBox, Strings.FindOnPage);
+        foreach (var (button, name) in new[] { (FindPreviousButton, Strings.FindPrevious), (FindNextButton, Strings.FindNext), (FindCloseButton, Strings.FindClose) })
+        {
+            ToolTip.SetTip(button, name);
+            AutomationProperties.SetName(button, name);
+        }
+        FindBox.TextChanged += (_, _) => FindMatches(keepPlace: false);
+        FindPreviousButton.Click += (_, _) => FindStep(-1);
+        FindNextButton.Click += (_, _) => FindStep(1);
+        FindCloseButton.Click += (_, _) => CloseFind();
+        FindBox.AddHandler(KeyDownEvent, (_, e) =>
+        {
+            if (e.Key == Key.Escape) CloseFind();
+            else if (e.Key is Key.Enter or Key.F3) FindStep(e.KeyModifiers.HasFlag(KeyModifiers.Shift) ? -1 : 1);
+            else return;
+            e.Handled = true;
+        }, RoutingStrategies.Tunnel);
+        // Ctrl+F anywhere on the page, an open block's editor included; F3 on to the next match.
+        AddHandler(KeyDownEvent, (_, e) =>
+        {
+            if (e.Key == Key.F && e.KeyModifiers == KeyModifiers.Control) OpenFind();
+            else if (e.Key == Key.F3 && FindBar.IsVisible) FindStep(e.KeyModifiers.HasFlag(KeyModifiers.Shift) ? -1 : 1);
+            else return;
+            e.Handled = true;
+        }, RoutingStrategies.Tunnel);
+    }
+
+    private void OpenFind()
+    {
+        if (_activeEdit is not null) CommitBlockEdit(); // an open block shows its source, not its text
+        FindBar.IsVisible = true;
+        FindBox.Focus();
+        FindBox.SelectAll();
+        FindMatches(keepPlace: false);
+    }
+
+    /// <summary>Closes the bar; the keyboard goes to the block of the match last shown.</summary>
+    private void CloseFind()
+    {
+        var shown = _findIndex >= 0 && _findIndex < _findMatches.Count ? _findMatches[_findIndex].Text : null;
+        FindBar.IsVisible = false;
+        _findMatches = [];
+        _findIndex = -1;
+        PlaceFindMarks();
+        var block = shown is null ? -1 : _blockMap.FindIndex(b => shown.GetSelfAndVisualAncestors().Contains(b.Vis));
+        if (!FocusBlock(block >= 0 ? block : CurrentInView())) PreviewScroll.Focus();
+    }
+
+    /// <summary>Every place the find text occurs in the rendered text, case aside. The current one:
+    /// the first in view, or after a re-render the same number as before.</summary>
+    private void FindMatches(bool keepPlace)
+    {
+        var query = FindBar.IsVisible ? FindBox.Text ?? "" : "";
+        var matches = new List<(TextBlock, int, int)>();
+        if (query.Length > 0 && _renderedRoot is not null)
+            foreach (var text in _renderedRoot.GetVisualDescendants().OfType<TextBlock>())
+            {
+                var shown = text.Inlines is { Count: > 0 } inlines ? inlines.Text : text.Text;
+                for (var i = shown?.IndexOf(query, StringComparison.OrdinalIgnoreCase) ?? -1; i >= 0;
+                     i = shown!.IndexOf(query, i + query.Length, StringComparison.OrdinalIgnoreCase))
+                    matches.Add((text, i, query.Length));
+            }
+        _findMatches = matches;
+        _findIndex = matches.Count == 0 ? -1
+            : keepPlace ? Math.Clamp(_findIndex, 0, matches.Count - 1)
+            : Math.Max(0, matches.FindIndex(m => m.Item1.TranslatePoint(default, PreviewScroll) is { Y: >= 0 }));
+        ShowFindCount(query);
+        PlaceFindMarks();
+        if (!keepPlace) BringMatchIntoView();
+    }
+
+    private void FindStep(int step)
+    {
+        if (_findMatches.Count == 0) return;
+        _findIndex = (_findIndex + step + _findMatches.Count) % _findMatches.Count;
+        ShowFindCount(FindBox.Text ?? "");
+        PlaceFindMarks();
+        BringMatchIntoView();
+    }
+
+    private void ShowFindCount(string query)
+    {
+        FindCount.Text = _findMatches.Count > 0 ? string.Format(Strings.FindCount, _findIndex + 1, _findMatches.Count)
+            : query.Length > 0 ? Strings.FindNoMatch : "";
+        if (_mainVm is not null && FindCount.Text.Length > 0) _mainVm.StatusText = FindCount.Text; // read out too
+    }
+
+    private void BringMatchIntoView()
+    {
+        if (_findIndex < 0 || _findIndex >= _findMatches.Count) return;
+        var (text, start, length) = _findMatches[_findIndex];
+        if (text.TextLayout.HitTestTextRange(start, length).FirstOrDefault() is { Width: > 0 } r)
+            text.BringIntoView(r.Translate(new Vector(text.Padding.Left, text.Padding.Top)).Inflate(24));
+    }
+
+    /// <summary>The matches marked over the text, the current one stronger. Marks are reused and only
+    /// moved: adding or dropping one each layout pass would lay the page out again without end.</summary>
+    private void PlaceFindMarks()
+    {
+        var marks = new List<(Rect Rect, bool Current)>();
+        for (var m = 0; m < _findMatches.Count; m++)
+        {
+            var (text, start, length) = _findMatches[m];
+            if (!text.IsEffectivelyVisible || text.TranslatePoint(new Point(text.Padding.Left, text.Padding.Top), _pages) is not { } origin) continue;
+            foreach (var r in text.TextLayout.HitTestTextRange(start, length))
+                marks.Add((r.Translate(new Vector(origin.X, origin.Y)), m == _findIndex));
+        }
+        while (_findLayer.Children.Count > marks.Count) _findLayer.Children.RemoveAt(_findLayer.Children.Count - 1);
+        while (_findLayer.Children.Count < marks.Count) _findLayer.Children.Add(new Border { CornerRadius = new CornerRadius(2) });
+        this.TryFindResource("ForgeHighlightBrush", ActualThemeVariant, out var all);
+        this.TryFindResource("ForgeAccentBrush", ActualThemeVariant, out var current);
+        for (var k = 0; k < marks.Count; k++)
+        {
+            var (r, isCurrent) = marks[k];
+            var mark = (Border)_findLayer.Children[k];
+            Canvas.SetLeft(mark, r.X - 1);
+            Canvas.SetTop(mark, r.Y);
+            mark.Width = r.Width + 2;
+            mark.Height = r.Height;
+            mark.Background = (isCurrent ? current : all) as IBrush;
+            mark.Opacity = isCurrent ? 0.45 : 0.35;
+        }
     }
 
     // Blocks selected with Shift+↑/↓ or Ctrl+A run from _selectAnchor to _current; -1: none.
@@ -1039,6 +1175,7 @@ public partial class PreviewView : UserControl
                     }
                 });
             }
+            if (FindBar.IsVisible) FindMatches(keepPlace: true); // the new text's matches, at the same one
 
             // Re-apply the last sync position so the preview doesn't jump
             // to the top after each re-render. This is the app driving the

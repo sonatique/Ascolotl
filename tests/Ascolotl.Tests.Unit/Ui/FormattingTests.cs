@@ -103,7 +103,7 @@ public sealed class FormattingTests
         Assert.False(ToolbarButton(window, Strings.InlineApplyTip).IsEffectivelyVisible);
 
         var editor = OpenInlineEditor(window);
-        Assert.Empty(Preview(window).GetVisualDescendants().OfType<Button>()); // nothing to clip in the block
+        Assert.Empty(Preview(window).FindControl<ScrollViewer>("PreviewScroll")!.GetVisualDescendants().OfType<Button>()); // nothing to clip in the block
         editor.Document.Insert(editor.Document.TextLength, " again");
         Click(window, ToolbarButton(window, Strings.InlineApplyTip));
 

@@ -156,6 +156,7 @@ On the WYSIWYG page (and the page in Split), one block at a time has the keyboar
 | Turn the block into a heading, list, quote, code block… | `Ctrl+/` |
 | Heading level 1 to 6 / back to a paragraph (also in the source) | `Ctrl+Shift+1`…`6` / `Ctrl+Shift+0` |
 | Undo / redo | `Ctrl+Z` / `Ctrl+Y` |
+| Find on the page (next / previous: `Enter` or `F3` / with `Shift`) | `Ctrl+F` |
 | Leave the page | `Tab` / `Shift+Tab` |
 
 While a block is open, an arrow that can't move further inside it applies the edit and
