@@ -60,9 +60,9 @@ public sealed class ViewSwitchTests
         Assert.Equal(EditorMode.Split, vm.EditorMode);
     }
 
-    private static void Press(Window window, Key key, RawInputModifiers mods = RawInputModifiers.None)
+    private static void Press(Window window, Key key, RawInputModifiers mods = RawInputModifiers.None, int repeat = 1)
     {
-        window.KeyPress(key, mods, PhysicalKey.None, null);
+        for (var i = 0; i < repeat; i++) window.KeyPress(key, mods, PhysicalKey.None, null);
         Pump(window);
     }
 
@@ -228,6 +228,56 @@ public sealed class ViewSwitchTests
         Press(window, Key.Enter, RawInputModifiers.Control);
         Pump(window);
         Assert.Equal("Text.\n\n```\nx\n```", vm.SelectedDocument.SourceText.TrimEnd());
+    }
+
+    [AvaloniaFact]
+    public void Enter_SplitsABlock_AndBackspaceJoinsItAgain()
+    {
+        var (window, vm) = Open("== Title\n\nOne two.\n\nThree.\n", EditorMode.Wysiwyg);
+        string Text() => vm.SelectedDocument!.SourceText;
+        Preview(window).FocusPage();
+        Pump(window);
+        Press(window, Key.Down);
+        Assert.Equal("One two.", OnBlock(window));
+
+        Press(window, Key.Enter);
+        Press(window, Key.Right, repeat: 3);
+        Press(window, Key.Enter); // after "One"
+        Pump(window);
+        Assert.Equal("== Title\n\nOne\n\ntwo.\n\nThree.\n", Text());
+        Assert.Equal("two.", BlockEditor(window)!.Text.Trim());
+        Assert.Equal(0, BlockEditor(window)!.CaretOffset);
+
+        Press(window, Key.Back); // joined again, the caret where they meet
+        Pump(window);
+        Assert.Equal("== Title\n\nOnetwo.\n\nThree.\n", Text());
+        Assert.Equal(3, BlockEditor(window)!.CaretOffset);
+        window.KeyTextInput(" ");
+        Press(window, Key.Enter, RawInputModifiers.Shift); // a line in the same paragraph
+        Press(window, Key.Escape);
+        Pump(window);
+
+        Press(window, Key.Up); // the heading: Enter at its end, a paragraph below
+        Press(window, Key.Enter);
+        Press(window, Key.End);
+        Press(window, Key.Enter);
+        Pump(window);
+        Assert.Equal("New paragraph.", BlockEditor(window)!.SelectedText.TrimEnd());
+        Press(window, Key.Escape);
+        Pump(window);
+        Assert.Equal("== Title\n\nOnetwo.\n\nThree.\n", Text());
+
+        Press(window, Key.Down); // at the start of a paragraph: one above
+        Press(window, Key.Enter);
+        Press(window, Key.Home);
+        Press(window, Key.Enter);
+        Pump(window);
+        window.KeyTextInput("Zero.");
+        Press(window, Key.Enter, RawInputModifiers.Shift); // a line in the same paragraph
+        window.KeyTextInput("Still zero.");
+        Press(window, Key.Enter, RawInputModifiers.Control);
+        Pump(window);
+        Assert.Equal("== Title\n\nZero.\nStill zero.\n\nOnetwo.\n\nThree.\n", Text()); // the document's line ends
     }
 
     [AvaloniaFact]

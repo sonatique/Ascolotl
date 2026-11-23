@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 using AdocNet;
 using AdocNet.Ast;
 using AdocNet.Avalonia;
@@ -138,6 +139,9 @@ public partial class PreviewView : UserControl
     /// <summary>When set, the next block edit selects all its text so the first
     /// keystroke replaces it (used for the fresh "New paragraph." placeholder).</summary>
     private bool _selectAllOnNextEdit;
+
+    /// <summary>Where the caret goes, in the source, when the queued block opens: two blocks joined, between them.</summary>
+    private int? _caretOnNextEdit;
 
     /// <summary>A new paragraph about to open: the text before it, the text with it, where it
     /// starts, and whether the document had changes. Cancelling it goes back.</summary>
@@ -1697,6 +1701,10 @@ public partial class PreviewView : UserControl
             }
             e.Handled = true;
         }
+        else if (e.Key == Key.Enter && e.KeyModifiers == KeyModifiers.None && SplitBlock())
+            e.Handled = true;
+        else if (e.Key == Key.Back && e.KeyModifiers == KeyModifiers.None && JoinWithBlockAbove())
+            e.Handled = true;
         else if (e.Key == Key.Tab && e.KeyModifiers is KeyModifiers.None or KeyModifiers.Shift && _activeEdit.Cell is { } cell)
         {
             MoveFromCell(cell, vertical: false, e.KeyModifiers == KeyModifiers.Shift ? -1 : 1);
@@ -1722,6 +1730,65 @@ public partial class PreviewView : UserControl
         else if (!LeaveBlock(step))
             return;
         e.Handled = true;
+    }
+
+    /// <summary>Enter in a paragraph or heading: two blocks, the text after the caret opening in the
+    /// second. At the start, a new paragraph above; at the end, one below. Shift+Enter: a line.</summary>
+    private bool SplitBlock()
+    {
+        if (_doc is null || _activeEdit is not { Cell: null } edit || _current >= _blockMap.Count
+            || _blockMap[_current].Block is not (ParagraphLayout or HeadingLayout) || !edit.Editor.TextArea.Selection.IsEmpty)
+            return false;
+        if (edit.Assist?.SmartEnter() == true) return true; // a fence or a list item typed in: Enter's own job
+        var text = edit.Editor.Text;
+        var caret = edit.Editor.CaretOffset;
+        var marker = _blockMap[_current].Block is HeadingLayout ? HeadingMarker().Match(text).Length : 0;
+        var before = caret <= marker ? "" : text[..caret].TrimEnd();
+        var after = text[caret..].TrimStart();
+        if (before.Length == 0)
+        {
+            if (WholeBlock(_current) is not { } whole) return false;
+            CommitBlockEdit();
+            OpenNewParagraph(whole.Start);
+        }
+        else if (after.Length == 0)
+        {
+            CommitBlockEdit();
+            OpenNewParagraph(edit.Start + text.Length);
+        }
+        else
+        {
+            edit.Editor.Text = before + "\n\n" + after;
+            CommitBlockEdit();
+            _pendingReentry = (edit.Start + before.Length + 2, -1, -1, false); // in the split text: not shifted by the commit
+        }
+        return true;
+    }
+
+    [GeneratedRegex(@"^(=+|#{1,6})[ \t]+")]
+    private static partial Regex HeadingMarker();
+
+    /// <summary>Backspace at the start of a paragraph: its text joins the paragraph or heading above,
+    /// the caret where they meet. Not for a paragraph with a title or anchor of its own.</summary>
+    private bool JoinWithBlockAbove()
+    {
+        if (_doc is null || _activeEdit is not { Cell: null } edit || edit.Editor.CaretOffset != 0
+            || !edit.Editor.TextArea.Selection.IsEmpty || _current < 1 || _current >= _blockMap.Count
+            || _blockMap[_current].Block is not ParagraphLayout || _blockMap[_current - 1].Block is not (ParagraphLayout or HeadingLayout)
+            || WholeBlock(_current)?.Start != edit.Start
+            || BlockSourceEditing.ResolveEditorSlice(_doc.SourceText, _blockMap[_current - 1].Block.Source, _astToEditor) is not (int above, int aboveLength)
+            || above + aboveLength > edit.Start
+            || !_doc.SourceText.AsSpan(above + aboveLength, edit.Start - above - aboveLength).IsWhiteSpace())
+            return false;
+        var typed = edit.Editor.Text;
+        CommitBlockEdit();
+        var text = _doc.SourceText;
+        if (!text.AsSpan(edit.Start).StartsWith(typed)) return true; // not applied: nothing to join
+        _current--;
+        _caretOnNextEdit = above + aboveLength;
+        _pendingReentry = (above, -1, -1, false);
+        _doc.SourceText = text[..(above + aboveLength)] + text[edit.Start..];
+        return true;
     }
 
     /// <summary>Applies the open edit and opens the block beside it, a table at its first or last cell.
@@ -1847,7 +1914,8 @@ public partial class PreviewView : UserControl
         edit.Host.LostFocus -= OnBlockEditLostFocus;
         _activeEdit = null;
 
-        var newSlice = edit.Editor.Text;
+        // An editor of one line breaks lines the system's way: here, the document's.
+        var newSlice = edit.Editor.Text.ReplaceLineEndings(_doc.SourceText.Contains("\r\n") ? "\r\n" : "\n");
         var (action, s, len) = BlockSourceEditing.DecideCommit(
             _doc.SourceText, edit.Start, edit.Length, edit.OriginalSlice, newSlice);
 
@@ -1911,9 +1979,11 @@ public partial class PreviewView : UserControl
             var y = vis.TranslatePoint(default, PreviewScroll)?.Y ?? 0;
             SourceLineClicked?.Invoke(text.AsSpan(0, lineStart).Count('\n'), at - lineStart, y);
         }
+        var caret = _caretOnNextEdit;
+        _caretOnNextEdit = null;
         var opened = block is TableLayout tbl
             ? req.CellIndex >= 0 && EnterCellEditByIndex(vis, tbl, req.RowIndex, req.CellIndex, req.AtEnd ? int.MaxValue : null)
-            : EnterBlockEdit(vis, block, req.AtEnd ? int.MaxValue : null);
+            : EnterBlockEdit(vis, block, caret ?? (req.AtEnd ? int.MaxValue : null));
         // A block it can't open (from an included file) is stopped on instead.
         if (!opened) FocusBlock(_blockMap.FindIndex(b => b.Vis == vis));
     }

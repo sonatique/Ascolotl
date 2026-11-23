@@ -175,6 +175,9 @@ internal sealed class CompletionController
     /// host's own key handling (e.g. block-edit Esc/Tab) should defer to us.</summary>
     public bool IsActive => _window is not null || _session is { Active: true };
 
+    /// <summary>What Enter does when typing: closes a fence, continues a list or a table row. False when none applies.</summary>
+    public bool SmartEnter() => HandleSmartEnter();
+
     /// <summary>Closes the suggestion list, if open, for a key the host acts on itself.</summary>
     public void CloseList()
     {
