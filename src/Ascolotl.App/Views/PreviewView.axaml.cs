@@ -776,6 +776,7 @@ public partial class PreviewView : UserControl
         }
 
         _doc = DataContext as DocumentViewModel;
+        _current = 0; // the outgoing document's block: this one starts at its first block in view
 
         if (_doc is not null)
         {

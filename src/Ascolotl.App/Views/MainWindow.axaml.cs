@@ -251,7 +251,10 @@ public partial class MainWindow : Window
 
         if (e.PropertyName is nameof(MainWindowViewModel.EditorMode)
             or nameof(MainWindowViewModel.SelectedDocument))
+        {
             UpdateStatusBarExtras();
+            Dispatcher.UIThread.Post(GiveThePageAnIdleKeyboard, DispatcherPriority.Background);
+        }
 
         // Keep the selected tab in view when the tabs overflow.
         if (e.PropertyName == nameof(MainWindowViewModel.SelectedDocument) && _viewModel.SelectedDocument is { } shown)
@@ -602,6 +605,15 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>A document on the page takes the keyboard when nothing that reads keys has it
+    /// (nothing, the window, a clicked button or a hidden control), so its keys show and work at once.</summary>
+    private void GiveThePageAnIdleKeyboard()
+    {
+        if (_viewModel is { EditorMode: EditorMode.Wysiwyg, SelectedDocument: not null }
+            && FocusManager?.GetFocusedElement() is null or TopLevel or Button or Visual { IsEffectivelyVisible: false })
+            FindDescendant<PreviewView>(PreviewPane)?.FocusPage();
+    }
+
     private static EditorMode? ViewForKey(Key key) => key switch
     {
         Key.D1 or Key.NumPad1 => EditorMode.Source,
@@ -842,6 +854,7 @@ public partial class MainWindow : Window
             _editorPaneHooked = true;
         }
         Dispatcher.UIThread.Post(HookEditorScroll, DispatcherPriority.Loaded);
+        Dispatcher.UIThread.Post(GiveThePageAnIdleKeyboard, DispatcherPriority.Background); // a restored session
     }
 
     private void OnEditorPanePropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs args)

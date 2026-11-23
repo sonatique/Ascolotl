@@ -1,5 +1,6 @@
 using Ascolotl.Core.Models;
 using Ascolotl.Core.Resources;
+using Ascolotl.Tests.Unit.Mocks;
 using Avalonia;
 using Avalonia.Automation.Peers;
 using Avalonia.Controls;
@@ -156,6 +157,36 @@ public sealed class ViewSwitchTests
         Assert.NotNull(Focused(window));
         Press(window, Key.Tab);
         Assert.Equal("?Paragraph 2.", OnBlock(window)); // and Tab comes back to the same block
+    }
+
+    [AvaloniaFact]
+    public async Task Wysiwyg_TakesAnIdleKeyboard_WithoutF6()
+    {
+        var files = new MockFileService();
+        var (window, vm) = Open("Paragraph 1.\n\nParagraph 2.\n", EditorMode.Split, files: files);
+        var button = window.FindControl<StackPanel>("ModeSwitch")!.GetLogicalChildren().OfType<Button>().First();
+        var keys = window.FindControl<TextBlock>("PageKeysText")!;
+
+        button.Focus(); // the view switched with a click: the button has the keyboard
+        vm.EditorMode = EditorMode.Wysiwyg;
+        Pump(window);
+        Assert.Equal("Paragraph 1.", OnBlock(window)); // the page took it
+        Assert.True(keys.IsEffectivelyVisible); // and the status bar lists its keys
+        Press(window, Key.Down);
+        Assert.Equal("Paragraph 2.", OnBlock(window));
+
+        // A file opened while nothing has the keyboard (in Source, so the page never had it).
+        vm.EditorMode = EditorMode.Source;
+        Pump(window);
+        window.FocusManager!.ClearFocus();
+        vm.EditorMode = EditorMode.Wysiwyg;
+        files.OpenFileResult = ("/tmp/other.adoc", "Other 1.\n\nOther 2.\n");
+        await vm.OpenDocumentCommand.ExecuteAsync(null);
+        vm.RequestRender(immediate: true);
+        Pump(window);
+        Assert.Equal("Other 1.", OnBlock(window));
+        Press(window, Key.Enter); // Enter edits at once
+        Assert.Equal("Other 1.", BlockEditor(window)!.Text.TrimEnd());
     }
 
     [AvaloniaFact]
