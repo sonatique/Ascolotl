@@ -63,7 +63,7 @@ public sealed class ViewSwitchTests
 
     // The platform's command key for copy, paste and select all: Ctrl, or Cmd on a Mac.
     private static RawInputModifiers Command =>
-        Application.Current!.PlatformSettings!.HotkeyConfiguration.CommandModifiers == KeyModifiers.Meta ? RawInputModifiers.Meta : RawInputModifiers.Control;
+        ApplicationCommands.SelectAll.Gesture.KeyModifiers == KeyModifiers.Meta ? RawInputModifiers.Meta : RawInputModifiers.Control;
 
     private static void Press(Window window, Key key, RawInputModifiers mods = RawInputModifiers.None, int repeat = 1)
     {
