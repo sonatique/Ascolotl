@@ -175,6 +175,13 @@ internal sealed class CompletionController
     /// host's own key handling (e.g. block-edit Esc/Tab) should defer to us.</summary>
     public bool IsActive => _window is not null || _session is { Active: true };
 
+    /// <summary>Closes the suggestion list, if open, for a key the host acts on itself.</summary>
+    public void CloseList()
+    {
+        _window?.Hide();
+        _window = null;
+    }
+
     private void OnTextEntered(object? sender, TextInputEventArgs e)
     {
         if (_session is { Active: true }) return;
@@ -186,6 +193,10 @@ internal sealed class CompletionController
         }
         ShowCompletion(force: false);
     }
+
+    // What the open list completes, and whether the arrows moved in it.
+    private AssistContextKind _windowKind;
+    private bool _listMoved;
 
     /// <summary>A list filtered down to nothing shows nothing, yet would still own Esc and Enter.</summary>
     private void HideIfEmpty()
@@ -203,6 +214,16 @@ internal sealed class CompletionController
         // surprise. Enter / arrows / Esc are handled by the window itself.
         if (_window is not null)
         {
+            if (e.Key is Key.Up or Key.Down or Key.PageUp or Key.PageDown) _listMoved = true;
+            // A fence's languages, none typed or picked: Enter opens the block without one.
+            if (e.Key == Key.Enter && e.KeyModifiers == KeyModifiers.None && _windowKind == AssistContextKind.FenceLanguage
+                && !_listMoved && _editor.CaretOffset == _window.StartOffset)
+            {
+                _window.Hide();
+                _window = null;
+                e.Handled = HandleSmartEnter();
+                return;
+            }
             if (e.Key == Key.Tab)
             {
                 _window.CompletionList.RequestInsertion(e);
@@ -363,6 +384,7 @@ internal sealed class CompletionController
 
             window.Closed += (_, _) => _window = null;
             _window = window;
+            (_windowKind, _listMoved) = (query.Kind, false);
             window.Show();
         }
         catch (InvalidOperationException)

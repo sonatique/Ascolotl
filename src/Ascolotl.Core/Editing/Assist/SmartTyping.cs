@@ -96,13 +96,17 @@ public static partial class SmartTyping
             || QuoteDelimiter().IsMatch(t)
             || PassthroughDelimiter().IsMatch(t))
             closer = t;
+        // ```lang, as in Markdown: closed by ``` alone.
+        else if (CodeFence().IsMatch(t)) closer = "```";
 
-        // Counted only for fence lines: this runs on every Enter.
+        // Counted only for fence lines: this runs on every Enter. A ``` fence pairs with any other.
         if (closer is not null && documentText is not null
-            && documentText.Split('\n').Count(l => l.Trim() == t) % 2 == 0)
+            && documentText.Split('\n').Count(l => closer == "```" ? l.Trim().StartsWith("```", StringComparison.Ordinal) : l.Trim() == t) % 2 == 0)
             return null;
         return closer;
     }
+
+    [GeneratedRegex(@"^```[\w+#.-]*$")] private static partial Regex CodeFence();
 
     [GeneratedRegex(@"^\|=+$")] private static partial Regex TableDelimiter();
     [GeneratedRegex(@"^-{4,}$")] private static partial Regex ListingDelimiter();

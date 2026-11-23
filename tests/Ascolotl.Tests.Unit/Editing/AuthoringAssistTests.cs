@@ -177,6 +177,8 @@ public class AuthoringAssistTests
     [InlineData("____", "____")]
     [InlineData("++++", "++++")]
     [InlineData("|===", "|===")]
+    [InlineData("```", "```")]
+    [InlineData("```python", "```")]
     public void ClosingDelimiter_MatchesOpener(string opener, string expected)
     {
         Assert.Equal(expected, SmartTyping.ClosingDelimiterFor(opener));
@@ -201,6 +203,7 @@ public class AuthoringAssistTests
         // A lone opener (odd count) still gets its closer.
         Assert.Equal("----", SmartTyping.ClosingDelimiterFor("----", "a\n----\n----\nb\n----"));
         Assert.Equal("====", SmartTyping.ClosingDelimiterFor("====", "text\n  ====  "));
+        Assert.Null(SmartTyping.ClosingDelimiterFor("```", "```python\ncode\n```")); // closing ```python
     }
 
     // --- Syntax hint ---
@@ -247,12 +250,20 @@ public class AuthoringAssistTests
         Assert.Equal(AssistContextKind.None, q.Kind);
     }
 
-    [Fact]
-    public void Analyze_AfterClosedListingBlock_ResumesCompletion()
+    [Theory]
+    [InlineData("----\ncode\n----\n\nta")]
+    [InlineData("```python\ncode\n```\n\nta")] // a ``` fence is closed by ``` alone
+    public void Analyze_AfterClosedListingBlock_ResumesCompletion(string text)
     {
-        var text = "----\ncode\n----\n\nta";
         var q = AsciiDocContextAnalyzer.Analyze(text, text.Length);
         Assert.Equal(AssistContextKind.BlockStart, q.Kind);
+    }
+
+    [Fact]
+    public void Analyze_InsideACodeFence_IsNone()
+    {
+        var text = "```python\npri";
+        Assert.Equal(AssistContextKind.None, AsciiDocContextAnalyzer.Analyze(text, text.Length).Kind);
     }
 
     [Fact]

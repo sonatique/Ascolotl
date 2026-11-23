@@ -210,6 +210,41 @@ public sealed class ViewSwitchTests
         Assert.Equal(1, vm.SelectedDocument.SourceText.Split("New paragraph.").Length - 1);
     }
 
+    [AvaloniaTheory]
+    [InlineData("doc.adoc")]
+    [InlineData("doc.md")]
+    public void TypingAFenceThenEnter_MakesACodeBlock(string file)
+    {
+        var (window, vm) = Open("Text.\n", EditorMode.Wysiwyg);
+        vm.SelectedDocument!.FilePath = Path.Combine(Path.GetTempPath(), file);
+        Pump(window);
+        Preview(window).FocusPage();
+        Pump(window);
+        Press(window, Key.N, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Pump(window);
+        foreach (var key in "```") window.KeyTextInput(key.ToString());
+        Press(window, Key.Enter);
+        window.KeyTextInput("x");
+        Press(window, Key.Enter, RawInputModifiers.Control);
+        Pump(window);
+        Assert.Equal("Text.\n\n```\nx\n```", vm.SelectedDocument.SourceText.TrimEnd());
+    }
+
+    [AvaloniaFact]
+    public void CtrlEnter_AppliesTheBlock_OverAnOpenSuggestionList()
+    {
+        var (window, vm) = Open("Text.\n", EditorMode.Wysiwyg);
+        Preview(window).FocusPage();
+        Pump(window);
+        Press(window, Key.N, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Pump(window);
+        window.KeyTextInput("N"); // NOTE, among the blocks a line can start
+        Assert.NotEmpty(BlockEditor(window)!.TextArea.StackedInputHandlers);
+        Press(window, Key.Enter, RawInputModifiers.Control);
+        Pump(window);
+        Assert.Equal("Text.\n\nN", vm.SelectedDocument!.SourceText.TrimEnd());
+    }
+
     [AvaloniaFact]
     public void DownOnATallLastBlock_ShowsTheRestOfItFirst()
     {

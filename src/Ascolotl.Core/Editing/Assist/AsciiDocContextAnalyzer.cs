@@ -78,8 +78,9 @@ public static class AsciiDocContextAnalyzer
             if (open is null)
             {
                 if (IsVerbatimFence(line)) open = line.ToString();
+                else if (line.StartsWith("```")) open = "```"; // ```lang, closed by any ``` line
             }
-            else if (line.SequenceEqual(open))
+            else if (open == "```" ? line.StartsWith("```") : line.SequenceEqual(open))
             {
                 open = null;
             }

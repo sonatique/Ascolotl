@@ -1675,7 +1675,11 @@ public partial class PreviewView : UserControl
         // While a completion popup or snippet session is up, let the assist
         // controller own Esc/Tab/Enter — don't cancel the block edit out from
         // under it. (This host handler tunnels first, so it must defer.)
-        if (_activeEdit.Assist is { IsActive: true }) return;
+        if (_activeEdit.Assist is { IsActive: true } assist)
+        {
+            if (e.Key != Key.Enter || !e.KeyModifiers.HasFlag(KeyModifiers.Control)) return;
+            assist.CloseList(); // Ctrl+Enter applies the block, never a suggestion
+        }
 
         if (e.Key == Key.Escape)
         {
