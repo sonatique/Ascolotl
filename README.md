@@ -147,7 +147,9 @@ On the WYSIWYG page (and the page in Split), one block at a time has the keyboar
 | First / last block | `Home` / `End` |
 | Edit the block (a table: its first cell) | `Enter` or `F2` |
 | Block menu | `Shift+F10` or the Menu key |
-| Move the block up / down | `Ctrl+Shift+↑` / `Ctrl+Shift+↓` |
+| Select several blocks / all of them (`Esc`: none) | `Shift+↑` / `Shift+↓` / `Ctrl+A` |
+| Copy / cut the block or the selected blocks | `Ctrl+C` / `Ctrl+X` |
+| Move the block (or the selected blocks) up / down | `Ctrl+Shift+↑` / `Ctrl+Shift+↓` |
 | Duplicate / delete the block | `Ctrl+Alt+D` / `Delete` |
 | New paragraph after the block | `Ctrl+Shift+N` |
 | Turn the block into a heading, list, quote, code block… | `Ctrl+/` |
@@ -161,6 +163,7 @@ opens the block above or below; below the last block, a new paragraph. `Esc` can
 between blocks. In a paragraph or heading, `Enter` splits it in two at the caret (at its
 start or end: a new paragraph above or below) and `Shift+Enter` starts a new line;
 `Backspace` at the start of a paragraph joins it to the paragraph or heading above.
+`Ctrl+A` selects the open block's text, then (in a table cell) its table, then every block.
 
 In a table cell, `Tab` and `Shift+Tab` go to the next and previous cell, and the arrows
 go on to the cell beside, above or below once they can't move further inside the cell,

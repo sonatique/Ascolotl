@@ -521,6 +521,7 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="MenuReportIssue" xml:space="preserve"><value>_Report an Issue or Suggestion</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Free software under the GNU GPL v3, with no warranty.</value></data>
   <data name="MenuTurnInto" xml:space="preserve"><value>Turn into</value></data>
+  <data name="StatusBlocksSelected" xml:space="preserve"><value>{0} blocks selected</value></data>
   <data name="TableRowAbove" xml:space="preserve"><value>Insert row above</value></data>
   <data name="TableRowBelow" xml:space="preserve"><value>Insert row below</value></data>
   <data name="TableColumnLeft" xml:space="preserve"><value>Insert column left</value></data>

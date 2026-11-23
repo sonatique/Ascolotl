@@ -521,6 +521,7 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="MenuReportIssue" xml:space="preserve"><value>_Informar de un problema o sugerencia</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Software libre bajo la GNU GPL v3, sin garantía.</value></data>
   <data name="MenuTurnInto" xml:space="preserve"><value>Convertir en</value></data>
+  <data name="StatusBlocksSelected" xml:space="preserve"><value>{0} bloques seleccionados</value></data>
   <data name="TableRowAbove" xml:space="preserve"><value>Insertar fila arriba</value></data>
   <data name="TableRowBelow" xml:space="preserve"><value>Insertar fila abajo</value></data>
   <data name="TableColumnLeft" xml:space="preserve"><value>Insertar columna a la izquierda</value></data>

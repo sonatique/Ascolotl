@@ -521,6 +521,7 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="MenuReportIssue" xml:space="preserve"><value>Problem oder Vorschlag _melden</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Freie Software unter der GNU GPL v3, ohne Gewährleistung.</value></data>
   <data name="MenuTurnInto" xml:space="preserve"><value>Umwandeln in</value></data>
+  <data name="StatusBlocksSelected" xml:space="preserve"><value>{0} Blöcke ausgewählt</value></data>
   <data name="TableRowAbove" xml:space="preserve"><value>Zeile oberhalb einfügen</value></data>
   <data name="TableRowBelow" xml:space="preserve"><value>Zeile unterhalb einfügen</value></data>
   <data name="TableColumnLeft" xml:space="preserve"><value>Spalte links einfügen</value></data>

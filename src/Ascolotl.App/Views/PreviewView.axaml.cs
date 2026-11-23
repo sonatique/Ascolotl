@@ -159,8 +159,9 @@ public partial class PreviewView : UserControl
     {
         InitializeComponent();
         PreviewHost.Content = _pages;
-        _pages.Children.Add(new Canvas { IsHitTestVisible = false, ZIndex = 1, Children = { _outline } });
+        _pages.Children.Add(new Canvas { IsHitTestVisible = false, ZIndex = 1, Children = { _selectionBox, _outline } });
         _outline.Bind(Border.BorderBrushProperty, this.GetResourceObservable("ForgeAccentBrush"));
+        _selectionBox.Bind(Border.BackgroundProperty, this.GetResourceObservable("ForgeAccentBrush"));
         PreviewScroll.LayoutUpdated += (_, _) => PlaceOutline();
         DataContextChanged += OnDataContextChanged;
 
@@ -315,7 +316,55 @@ public partial class PreviewView : UserControl
         }
         else
             _outline.IsVisible = false;
+
+        // Visibility set once: hiding then showing it again would lay the page out again, and again.
+        var selected = false;
+        if (Selection is var (first, last) && PreviewScroll.IsKeyboardFocusWithin)
+        {
+            var (left, top, right, bottom) = (double.MaxValue, double.MaxValue, double.MinValue, double.MinValue);
+            for (var i = first; i <= last; i++)
+                if (_blockMap[i].Vis is var v && v.TranslatePoint(default, _pages) is { } a
+                    && v.TranslatePoint(new Point(v.Bounds.Width, v.Bounds.Height), _pages) is { } b)
+                    (left, top, right, bottom) = (Math.Min(left, a.X), Math.Min(top, a.Y), Math.Max(right, b.X), Math.Max(bottom, b.Y));
+            if (right > left)
+            {
+                Canvas.SetLeft(_selectionBox, left - 7);
+                Canvas.SetTop(_selectionBox, top - 4);
+                _selectionBox.Width = right - left + 14;
+                _selectionBox.Height = bottom - top + 8;
+                selected = true;
+            }
+        }
+        _selectionBox.IsVisible = selected;
     }
+
+    // Blocks selected with Shift+↑/↓ or Ctrl+A run from _selectAnchor to _current; -1: none.
+    private int _selectAnchor = -1;
+    private readonly Border _selectionBox = new() { CornerRadius = new CornerRadius(4), Opacity = 0.15, IsVisible = false };
+
+    private (int First, int Last)? Selection => _selectAnchor >= 0 && _selectAnchor < _blockMap.Count && _current < _blockMap.Count
+        ? (Math.Min(_selectAnchor, _current), Math.Max(_selectAnchor, _current)) : null;
+
+    private void Select(int anchor)
+    {
+        _selectAnchor = anchor;
+        PlaceOutline();
+        if (Selection is var (first, last) && last > first && _mainVm is not null) // one: the block itself is announced
+            _mainVm.StatusText = string.Format(Strings.StatusBlocksSelected, last - first + 1);
+    }
+
+    private void ClearSelection()
+    {
+        if (_selectAnchor < 0) return;
+        _selectAnchor = -1;
+        PlaceOutline();
+    }
+
+    /// <summary>The source of blocks <paramref name="first"/> to <paramref name="last"/>, with their title
+    /// and attribute lines; null when one of the two comes from an included file.</summary>
+    private (int Start, int Length)? Blocks(int first, int last) =>
+        WholeBlock(first) is { } f && WholeBlock(last) is { } l && l.Start + l.Length >= f.Start
+            ? (f.Start, l.Start + l.Length - f.Start) : null;
 
     private void MakeCurrent(Control vis)
     {
@@ -366,6 +415,33 @@ public partial class PreviewView : UserControl
             e.Handled = KeyboardNavigationHandler.GetNext(PreviewScroll, NavigationDirection.Previous)?.Focus(NavigationMethod.Tab) == true;
             return;
         }
+        // Several blocks: Shift+↑/↓ widens the selection from the block the keyboard was on, Ctrl+A takes them all.
+        if (on >= 0 && mods == KeyModifiers.Shift && e.Key is Key.Up or Key.Down)
+        {
+            if (_selectAnchor < 0) _selectAnchor = on;
+            FocusBlock(Math.Clamp(on + (e.Key == Key.Up ? -1 : 1), 0, _blockMap.Count - 1));
+            Select(_selectAnchor);
+            e.Handled = true;
+            return;
+        }
+        if (on >= 0 && mods == KeyModifiers.Control && e.Key == Key.A)
+        {
+            FocusBlock(_blockMap.Count - 1, bringIntoView: false);
+            Select(0);
+            e.Handled = true;
+            return;
+        }
+        if (_selectAnchor >= 0 && e.Key == Key.Escape)
+        {
+            ClearSelection();
+            e.Handled = true;
+            return;
+        }
+        // Any other key ends the selection, but a modifier alone and those acting on it.
+        if (e.Key is not (Key.LeftShift or Key.RightShift or Key.LeftCtrl or Key.RightCtrl or Key.LeftAlt or Key.RightAlt)
+            && (e.Key, mods) is not ((Key.Up or Key.Down, KeyModifiers.Control | KeyModifiers.Shift) or (Key.D, KeyModifiers.Control | KeyModifiers.Alt)
+                or (Key.Delete, KeyModifiers.None) or (Key.C or Key.X, KeyModifiers.Control)))
+            ClearSelection();
         if (e.Key is Key.Home or Key.End && mods is KeyModifiers.None or KeyModifiers.Control)
         {
             if (e.Key == Key.Home) PreviewScroll.ScrollToHome(); else PreviewScroll.ScrollToEnd();
@@ -379,6 +455,7 @@ public partial class PreviewView : UserControl
                 (Key.Up or Key.Down, KeyModifiers.Control | KeyModifiers.Shift) => MoveBlock(on, e.Key == Key.Up ? -1 : 1),
                 (Key.D, KeyModifiers.Control | KeyModifiers.Alt) => DuplicateBlock(on),
                 (Key.Delete, KeyModifiers.None) => DeleteBlock(on),
+                (Key.C or Key.X, KeyModifiers.Control) => CopyBlocks(on, cut: e.Key == Key.X),
                 (Key.N, KeyModifiers.Control | KeyModifiers.Shift) => NewParagraphAfter(on),
                 (>= Key.D0 and <= Key.D6, KeyModifiers.Control | KeyModifiers.Shift) =>
                     TurnBlockInto(on, e.Key == Key.D0 ? BlockKind.Paragraph : BlockKind.Heading1 + (e.Key - Key.D1)),
@@ -1148,6 +1225,7 @@ public partial class PreviewView : UserControl
     /// </summary>
     private void OnPreviewPointerPressed(object? sender, PointerPressedEventArgs e)
     {
+        ClearSelection();
         var src = e.Source as Visual;
         var inScrollBar = IsInScrollBar(src);
         if (HandlePressDuringEdit(src, inScrollBar, e) || inScrollBar) return;
@@ -1523,6 +1601,7 @@ public partial class PreviewView : UserControl
     private void BeginEdit(TextEditor editor, Control host, int start, int length,
         string originalSlice, Action restore, string statusHint, int? caretInSlice = null, (int Row, int Cell)? cell = null)
     {
+        ClearSelection();
         _activeEdit = new BlockEditState
         {
             Editor = editor,
@@ -1713,6 +1792,23 @@ public partial class PreviewView : UserControl
             e.Handled = true;
         else if (_activeEdit.Cell is null && IsTurnIntoKey(e))
             e.Handled = ShowTurnIntoMenu(_current);
+        else if (e.Key == Key.A && e.KeyModifiers == KeyModifiers.Control
+                 && _activeEdit.Editor.SelectionLength == _activeEdit.Editor.Text.Length)
+        {
+            // All its text selected already: next its table (in a cell), then every block.
+            var cell = _activeEdit.Cell is not null;
+            var i = _current;
+            CommitBlockEdit();
+            _selectAnchor = cell ? i : 0;
+            _current = cell ? i : _blockMap.Count - 1;
+            if (_doc?.SourceText == _panelSource)
+            {
+                FocusBlock(_current, bringIntoView: cell);
+                Select(_selectAnchor);
+            }
+            else _refocusCurrent = true;
+            e.Handled = true;
+        }
         else if (e.Key == Key.Back && e.KeyModifiers == KeyModifiers.None && JoinWithBlockAbove())
             e.Handled = true;
         else if (e.Key == Key.Tab && e.KeyModifiers is KeyModifiers.None or KeyModifiers.Shift && _activeEdit.Cell is { } cell)
@@ -2182,31 +2278,55 @@ public partial class PreviewView : UserControl
         return BlockSourceEditing.WithHeader(text, s, len, above);
     }
 
+    // Block i, or the selected blocks when i is the one the keyboard is on.
+    private (int First, int Last) BlocksAt(int i) => i == _current && Selection is { } s ? s : (i, i);
+
     private bool MoveBlock(int i, int step)
     {
-        var j = i + step;
-        if (_doc is null || j < 0 || j >= _blockMap.Count
-            || WholeBlock(Math.Min(i, j)) is not { } a || WholeBlock(Math.Max(i, j)) is not { } b
-            || a.Start + a.Length > b.Start) // ranges that overlap can't be swapped
+        var (first, last) = BlocksAt(i);
+        var other = step < 0 ? first - 1 : last + 1;
+        if (_doc is null || other < 0 || other >= _blockMap.Count
+            || Blocks(first, last) is not { } moved || WholeBlock(other) is not { } passed)
             return false;
-        _current = j;
+        var (a, b) = step < 0 ? (passed, moved) : (moved, passed);
+        if (a.Start + a.Length > b.Start) return false; // ranges that overlap can't be swapped
+        _current += step;
+        if (_selectAnchor >= 0) _selectAnchor += step;
         _doc.SourceText = BlockSourceEditing.SwapSlices(_doc.SourceText, a, b);
         return true;
     }
 
     private bool DuplicateBlock(int i)
     {
-        if (_doc is null || WholeBlock(i) is not { } a) return false;
-        _doc.SourceText = BlockSourceEditing.DuplicateSlice(_doc.SourceText, a.Start, a.Length, withoutId: !_doc.IsMarkdown);
+        var (first, last) = BlocksAt(i);
+        if (_doc is null || Blocks(first, last) is not { } range) return false;
+        var text = _doc.SourceText;
+        // Each block of the copy without its ID: the document mustn't hold one twice.
+        var copy = _doc.IsMarkdown ? text.Substring(range.Start, range.Length)
+            : string.Join("\n\n", Enumerable.Range(first, last - first + 1).Select(k => WholeBlock(k)).OfType<(int Start, int Length)>()
+                .Select(b => BlockSourceEditing.WithoutBlockId(text.Substring(b.Start, b.Length))));
+        ClearSelection();
+        _doc.SourceText = text.Insert(range.Start + range.Length, "\n\n" + copy);
         return true;
     }
 
     private bool DeleteBlock(int i)
     {
-        if (_doc is null || WholeBlock(i) is not { } a) return false;
-        _current = Math.Max(0, Math.Min(i, _blockMap.Count - 2)); // the block below, or above the last one
-        _doc.SourceText = BlockSourceEditing.DeleteSlice(_doc.SourceText, a.Start, a.Length);
+        var (first, last) = BlocksAt(i);
+        if (_doc is null || Blocks(first, last) is not { } range) return false;
+        _current = Math.Max(0, Math.Min(first, _blockMap.Count - 1 - (last - first + 1))); // the block below, or above the last one
+        ClearSelection();
+        _doc.SourceText = BlockSourceEditing.DeleteSlice(_doc.SourceText, range.Start, range.Length);
         return true;
+    }
+
+    /// <summary>Ctrl+C, Ctrl+X: the source of the selected blocks, or the one the keyboard is on, to the clipboard.</summary>
+    private bool CopyBlocks(int i, bool cut)
+    {
+        var (first, last) = BlocksAt(i);
+        if (_doc is null || Blocks(first, last) is not { } range || TopLevel.GetTopLevel(this)?.Clipboard is not { } clipboard) return false;
+        _ = clipboard.SetTextAsync(_doc.SourceText.Substring(range.Start, range.Length));
+        return !cut || DeleteBlock(i);
     }
 
     private bool NewParagraphAfter(int i)

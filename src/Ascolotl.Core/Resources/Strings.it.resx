@@ -521,6 +521,7 @@ Questo file esiste ma non è stato possibile leggerlo. Forse è bloccato da un a
   <data name="MenuReportIssue" xml:space="preserve"><value>_Segnala un problema o un suggerimento</value></data>
   <data name="AboutLicenseNotice" xml:space="preserve"><value>Software libero con licenza GNU GPL v3, senza garanzia.</value></data>
   <data name="MenuTurnInto" xml:space="preserve"><value>Trasforma in</value></data>
+  <data name="StatusBlocksSelected" xml:space="preserve"><value>{0} blocchi selezionati</value></data>
   <data name="TableRowAbove" xml:space="preserve"><value>Inserisci riga sopra</value></data>
   <data name="TableRowBelow" xml:space="preserve"><value>Inserisci riga sotto</value></data>
   <data name="TableColumnLeft" xml:space="preserve"><value>Inserisci colonna a sinistra</value></data>

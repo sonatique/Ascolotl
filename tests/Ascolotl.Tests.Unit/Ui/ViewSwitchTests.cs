@@ -332,6 +332,66 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
+    public void SeveralBlocks_SelectedWithShift_MoveCopyAndDeleteTogether()
+    {
+        var (window, vm) = Open("[[a]]\nA.\n\nB.\n\nC.\n\nD.\n", EditorMode.Wysiwyg);
+        string Text() => vm.SelectedDocument!.SourceText;
+        Preview(window).FocusPage();
+        Pump(window);
+        Press(window, Key.Down, RawInputModifiers.Shift);
+        Press(window, Key.Down, RawInputModifiers.Shift);
+        Assert.Equal(string.Format(Strings.StatusBlocksSelected, 3), vm.StatusText);
+
+        Press(window, Key.Down, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Pump(window);
+        Assert.Equal("D.\n\n[[a]]\nA.\n\nB.\n\nC.\n", Text()); // the three past D, the anchor with its block
+        Press(window, Key.Up, RawInputModifiers.Control | RawInputModifiers.Shift); // still selected: back together
+        Pump(window);
+        Assert.Equal("[[a]]\nA.\n\nB.\n\nC.\n\nD.\n", Text());
+
+        Press(window, Key.D, RawInputModifiers.Control | RawInputModifiers.Alt);
+        Pump(window);
+        Assert.Equal("[[a]]\nA.\n\nB.\n\nC.\n\nA.\n\nB.\n\nC.\n\nD.\n", Text()); // the copy without the ID
+
+        Press(window, Key.Down); // a plain arrow ends the selection
+        Press(window, Key.Delete);
+        Pump(window);
+        Assert.Equal("[[a]]\nA.\n\nB.\n\nC.\n\nB.\n\nC.\n\nD.\n", Text());
+
+        Press(window, Key.Down, RawInputModifiers.Shift);
+        Press(window, Key.X, RawInputModifiers.Control); // cut: copied, then gone
+        Pump(window);
+        Assert.Equal("[[a]]\nA.\n\nB.\n\nC.\n\nD.\n", Text());
+        Assert.Equal("B.\n\nC.", TopLevel.GetTopLevel(window)!.Clipboard!.GetTextAsync().GetAwaiter().GetResult());
+
+        Press(window, Key.A, RawInputModifiers.Control); // all of them
+        Press(window, Key.Delete);
+        Pump(window);
+        Assert.Equal("", Text().Trim());
+    }
+
+    [AvaloniaFact]
+    public void CtrlA_WidensFromTheCell_ToTheTable_ToEveryBlock()
+    {
+        var (window, vm) = Open("Before.\n\n|===\n| a | b\n|===\n\nAfter.\n", EditorMode.Wysiwyg);
+        Preview(window).FocusPage();
+        Pump(window);
+        Press(window, Key.Down);
+        Press(window, Key.Enter); // the first cell
+        Assert.Equal("a", BlockEditor(window)!.Text.Trim());
+        Press(window, Key.A, RawInputModifiers.Control); // the cell's text
+        Assert.NotNull(BlockEditor(window));
+        Press(window, Key.A, RawInputModifiers.Control); // the table
+        Pump(window);
+        Assert.Null(BlockEditor(window));
+        Press(window, Key.A, RawInputModifiers.Control); // every block
+        Assert.Equal(string.Format(Strings.StatusBlocksSelected, 3), vm.StatusText);
+        Press(window, Key.Escape);
+        Press(window, Key.C, RawInputModifiers.Control); // the selection ended: the one block
+        Assert.Equal("After.", TopLevel.GetTopLevel(window)!.Clipboard!.GetTextAsync().GetAwaiter().GetResult());
+    }
+
+    [AvaloniaFact]
     public void CtrlEnter_AppliesTheBlock_OverAnOpenSuggestionList()
     {
         var (window, vm) = Open("Text.\n", EditorMode.Wysiwyg);
