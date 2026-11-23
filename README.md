@@ -34,8 +34,9 @@ no Ruby and no Java.
   italic, code, links, headings, lists, quotes, code blocks, images, tables and,
   in AsciiDoc, notes. Each applies to the selection or inserts at the caret.
 - **Spell checking** (View → Check spelling) underlines misspelled words in the
-  source and in the block being edited on the page, a moment after typing; a
-  right-click offers suggestions, *Add to dictionary* and *Ignore*. Code, URLs,
+  source and on the rendered page, a moment after typing; in the source and in
+  a block being edited, a right-click offers suggestions, *Add to dictionary*
+  and *Ignore*. Code, URLs,
   attributes and markup are left out. The language is the document's `:lang:`
   (or `lang:` in Markdown front matter), else the interface's. English (US and
   UK), French, German, Italian and Spanish dictionaries come with the app; for

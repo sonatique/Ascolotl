@@ -35,10 +35,22 @@ public static partial class SpellingWords
             else if (Fence(trimmed, markdown) is { } opened)
                 fence = opened;
             else if (!SkippedLine(line, trimmed, markdown))
-                Tokenize(text, lineStart, Masked(line, markdown), words);
+                Tokenize(lineStart, Masked(line, markdown), words);
 
             lineStart = end + 1;
         }
+        return words;
+    }
+
+    /// <summary>The words worth a check in text as shown, without markup: URLs and emails left out.</summary>
+    public static List<(int Start, int Length)> InShownText(string text)
+    {
+        var chars = text.ToCharArray();
+        foreach (var pattern in new[] { Url(), Email() })
+            foreach (Match m in pattern.Matches(text))
+                Array.Fill(chars, ' ', m.Index, m.Length);
+        var words = new List<(int, int)>();
+        Tokenize(0, new string(chars), words);
         return words;
     }
 
@@ -93,7 +105,7 @@ public static partial class SpellingWords
         return new string(chars);
     }
 
-    private static void Tokenize(string text, int lineStart, string masked, List<(int, int)> words)
+    private static void Tokenize(int lineStart, string masked, List<(int, int)> words)
     {
         for (var i = 0; i < masked.Length;)
         {

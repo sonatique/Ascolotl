@@ -60,6 +60,13 @@ public class SpellingTests
     }
 
     [Fact]
+    public void ShownText_LeavesOutUrlsAndEmails()
+    {
+        const string text = "See https://exmple.org/pagee, mail jane@exmple.org, teh end.";
+        Assert.Equal(["See", "mail", "teh", "end"], SpellingWords.InShownText(text).Select(w => text.Substring(w.Start, w.Length)));
+    }
+
+    [Fact]
     public void Apostrophes_StayInTheWord()
         => Assert.Equal(["l'homme", "don’t", "know"], Words("l'homme don’t 'know'"));
 

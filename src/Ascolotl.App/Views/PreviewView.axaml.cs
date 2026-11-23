@@ -164,7 +164,12 @@ public partial class PreviewView : UserControl
         InitFind();
         _outline.Bind(Border.BorderBrushProperty, this.GetResourceObservable("ForgeAccentBrush"));
         _selectionBox.Bind(Border.BackgroundProperty, this.GetResourceObservable("ForgeAccentBrush"));
-        PreviewScroll.LayoutUpdated += (_, _) => PlaceOutline();
+        _pages.Children.Add(_spelling);
+        PreviewScroll.LayoutUpdated += (_, _) =>
+        {
+            PlaceOutline();
+            _spelling.Place(_renderedRoot, _activeEdit);
+        };
         DataContextChanged += OnDataContextChanged;
 
         // Hyperlink clicks (1.0.9): suppress the renderer's default
@@ -353,6 +358,7 @@ public partial class PreviewView : UserControl
     // ponytail: the rendered text block by block: a match across two styles or blocks isn't found.
 
     private readonly Canvas _findLayer = new();
+    private readonly PageSpelling _spelling = new();
     private List<(TextBlock Text, int Start, int Length)> _findMatches = [];
     private int _findIndex = -1;
     private (Rect, Rect, List<(TextBlock, int, int)>, int) _findPlaced;
@@ -417,9 +423,9 @@ public partial class PreviewView : UserControl
         if (query.Length > 0 && _renderedRoot is not null)
             foreach (var text in _renderedRoot.GetVisualDescendants().OfType<TextBlock>())
             {
-                var shown = text.Inlines is { Count: > 0 } inlines ? inlines.Text : text.Text;
-                for (var i = shown?.IndexOf(query, StringComparison.OrdinalIgnoreCase) ?? -1; i >= 0;
-                     i = shown!.IndexOf(query, i + query.Length, StringComparison.OrdinalIgnoreCase))
+                var shown = PageSpelling.ShownText(text);
+                for (var i = shown.IndexOf(query, StringComparison.OrdinalIgnoreCase); i >= 0;
+                     i = shown.IndexOf(query, i + query.Length, StringComparison.OrdinalIgnoreCase))
                     matches.Add((text, i, query.Length));
             }
         _findMatches = matches;
@@ -467,9 +473,9 @@ public partial class PreviewView : UserControl
         for (var m = 0; m < _findMatches.Count; m++)
         {
             var (text, start, length) = _findMatches[m];
-            if (!text.IsEffectivelyVisible || text.TranslatePoint(new Point(text.Padding.Left, text.Padding.Top), _pages) is not { } origin) continue;
-            foreach (var r in text.TextLayout.HitTestTextRange(start, length))
-                marks.Add((r.Translate(new Vector(origin.X, origin.Y)), m == _findIndex));
+            foreach (var range in text.TextLayout.HitTestTextRange(start, length))
+                if (PageSpelling.On(text, range, _pages) is { } r)
+                    marks.Add((r, m == _findIndex));
         }
         while (_findLayer.Children.Count > marks.Count) _findLayer.Children.RemoveAt(_findLayer.Children.Count - 1);
         while (_findLayer.Children.Count < marks.Count) _findLayer.Children.Add(new Border { CornerRadius = new CornerRadius(2) });
@@ -1177,6 +1183,8 @@ public partial class PreviewView : UserControl
             }
 
             _lineMap = BuildLineMap();
+            if (_doc is not null && _frame is not null) // the page's own theme: the renderer is shared
+                _spelling.Check(_renderedRoot, _frame.Theme.MonospaceFont, SpellingController.Language(_doc.SourceText, _doc.IsMarkdown));
 
             // A click that committed an edit and landed on another block (or
             // table cell) queued it; now that the map + _astToEditor are

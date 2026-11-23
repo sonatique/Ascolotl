@@ -29,7 +29,7 @@ internal sealed class SpellingController : IBackgroundRenderer
 
     // Told once a session: no dictionary for this language.
     private static readonly HashSet<string> Told = new(StringComparer.OrdinalIgnoreCase);
-    private static readonly Pen Pen = new(new SolidColorBrush(Color.Parse("#D94F7A")), 1.2);
+    internal static readonly Pen Pen = new(new SolidColorBrush(Color.Parse("#D94F7A")), 1.2);
 
     public SpellingController(TextEditor editor, Func<bool> markdown, Func<string> documentText, Action<string> status)
     {
@@ -89,7 +89,10 @@ internal sealed class SpellingController : IBackgroundRenderer
         if (check == _check) Check();
     }
 
-    private string Language() => Speller.DocumentLanguage(_documentText(), _markdown()) ?? CultureInfo.CurrentUICulture.Name;
+    private string Language() => Language(_documentText(), _markdown());
+
+    /// <summary>The document's language (its <c>:lang:</c>), else the interface's.</summary>
+    internal static string Language(string document, bool markdown) => Speller.DocumentLanguage(document, markdown) ?? CultureInfo.CurrentUICulture.Name;
 
     private async void Check()
     {

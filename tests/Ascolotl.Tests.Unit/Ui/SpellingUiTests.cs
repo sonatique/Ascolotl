@@ -61,6 +61,39 @@ public class SpellingUiTests
     }
 
     [AvaloniaFact]
+    public void ThePage_UnderlinesItsMisspellings_NotItsCode()
+    {
+        SpellCheck.Enabled = true;
+        try
+        {
+            Speller.Use("xy", new Speller(WordList.CreateFromWords(["Doc", "some", "here", "see", "and", "hello", "world", "one", "two", "done"])));
+            var (window, _) = Open("= Doc\n:lang: xy\n\nSome zorbs here, `codde`, see https://exampel.com and *helo* world.\n\n"
+                + "[source,pythn]\n----\nprnt\n----\n\nOne +\ntwo.\n\n* [x] done blorp\n", EditorMode.Wysiwyg);
+            var page = window.GetVisualDescendants().OfType<PageSpelling>().First();
+
+            WaitFor(window, () => page.Marked.Any());
+            Assert.Equal(["zorbs", "helo", "blorp"], page.Marked); // not the code, its language or the URL
+            Assert.Equal(3, page.Underlines);
+            // The text as laid out: a line break, a checkbox, then the words (and the end of the paragraph).
+            foreach (var text in window.GetVisualDescendants().OfType<TextBlock>().Where(t => t.IsEffectivelyVisible && t.Inlines is { Count: > 0 }))
+                Assert.Equal(text.TextLayout.TextLines.Sum(l => l.Length), PageSpelling.ShownText(text).Length + 1);
+
+            Speller.Personal.Ignore("zorbs"); // the page is checked again
+            WaitFor(window, () => !page.Marked.Contains("zorbs"));
+            Assert.Equal(["helo", "blorp"], page.Marked);
+
+            SpellCheck.Enabled = false;
+            Pump(window);
+            Assert.Empty(page.Marked);
+            Assert.Equal(0, page.Underlines);
+        }
+        finally
+        {
+            SpellCheck.Enabled = false;
+        }
+    }
+
+    [AvaloniaFact]
     public void ALanguageWithoutADictionary_IsSaidOnce()
     {
         SpellCheck.Enabled = true;
