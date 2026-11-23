@@ -353,11 +353,13 @@
                                 </Button>
                                 <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
                                     <TextBlock Name="SidebarOutlineTab"
+                                               Focusable="True"
                                                Text="{x:Static res:Strings.Outline}"
                                                FontSize="11"
                                                Cursor="Hand"
                                                Foreground="{DynamicResource ForgeTextMutedBrush}" />
                                     <TextBlock Name="SidebarFilesTab"
+                                               Focusable="True"
                                                Text="{x:Static res:Strings.Files}"
                                                FontSize="11"
                                                Cursor="Hand"

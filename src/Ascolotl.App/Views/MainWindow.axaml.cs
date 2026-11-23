@@ -86,6 +86,11 @@ public partial class MainWindow : Window
         SidebarOutlineTab.PointerPressed += (_, _) => SetSidebarFilesActive(false);
         SidebarFilesTab.PointerPressed += (_, _) => SetSidebarFilesActive(true);
         ProjectTree.DoubleTapped += OnProjectTreeDoubleTapped;
+        // The same from the keyboard: Enter switches, goes to a section or opens a file; Esc goes back.
+        SidebarOutlineTab.KeyDown += (_, e) => OnSidebarKey(e, () => SetSidebarFilesActive(false), space: true);
+        SidebarFilesTab.KeyDown += (_, e) => OnSidebarKey(e, () => SetSidebarFilesActive(true), space: true);
+        OutlineList.KeyDown += (_, e) => OnSidebarKey(e, () => _viewModel?.NavigateToOutlineItemCommand.Execute(OutlineList.SelectedItem));
+        ProjectTree.KeyDown += (_, e) => OnSidebarKey(e, () => OnProjectTreeDoubleTapped(null, e));
 
         // The menu-bar set of the application menus (the hamburger holds the
         // other). Its menus join the bar here, before they've ever been shown.
@@ -246,7 +251,10 @@ public partial class MainWindow : Window
         }
 
         if (e.PropertyName == nameof(MainWindowViewModel.ShowOutlinePane))
+        {
             UpdateSidebarColumn();
+            Dispatcher.UIThread.Post(FocusSidebarOrDocument, DispatcherPriority.Background);
+        }
 
         if (e.PropertyName is nameof(MainWindowViewModel.EditorMode) or nameof(MainWindowViewModel.InPlaceEditOpen)
             or nameof(MainWindowViewModel.SelectedDocument))
@@ -275,6 +283,31 @@ public partial class MainWindow : Window
     }
 
     // --- Project sidebar ---
+
+    private void OnSidebarKey(KeyEventArgs e, Action enter, bool space = false)
+    {
+        if (e.KeyModifiers != KeyModifiers.None) return;
+        if (e.Key == Key.Enter || space && e.Key == Key.Space) enter();
+        else if (e.Key == Key.Escape) SwitchPane(fromPage: !_pageHadKeyboard); // back to the pane it came from
+        else return;
+        e.Handled = true;
+    }
+
+    /// <summary>The sidebar takes the keyboard as it opens, and hands it back to the document as it closes.</summary>
+    private void FocusSidebarOrDocument()
+    {
+        if (_viewModel?.ShowOutlinePane == true)
+        {
+            // The selected row, or the first one.
+            var files = _viewModel.SidebarFilesActive;
+            var row = files
+                ? ProjectTree.SelectedItem is { } file ? ProjectTree.TreeContainerFromItem(file) : ProjectTree.ContainerFromIndex(0)
+                : OutlineList.ContainerFromIndex(Math.Max(0, OutlineList.SelectedIndex));
+            (row ?? (files ? ProjectTree : OutlineList)).Focus(NavigationMethod.Tab);
+        }
+        else if (FocusManager?.GetFocusedElement() is null or Visual { IsEffectivelyVisible: false })
+            SwitchPane(fromPage: !_pageHadKeyboard);
+    }
 
     private void SetSidebarFilesActive(bool filesActive)
     {
@@ -829,9 +862,12 @@ public partial class MainWindow : Window
         Dispatcher.UIThread.Post(() =>
         {
             // WYSIWYG hides the source pane, so move the page instead.
-            if (_viewModel?.EditorMode == EditorMode.Wysiwyg)
-                FindDescendant<PreviewView>(PreviewPane)?.ScrollToSourceLine(lineNumber,
-                    (_viewModel.SelectedDocument?.SourceText ?? "").AsSpan().Count('\n') + 1);
+            if (_viewModel?.EditorMode == EditorMode.Wysiwyg && FindDescendant<PreviewView>(PreviewPane) is { } page)
+            {
+                page.ScrollToSourceLine(lineNumber, (_viewModel.SelectedDocument?.SourceText ?? "").AsSpan().Count('\n') + 1);
+                // The keyboard follows, as it does to the source: onto the section's first block.
+                Dispatcher.UIThread.Post(page.FocusPage, DispatcherPriority.Background);
+            }
             else
                 FindDescendant<SourceEditorView>(EditorPane)?.ScrollToLine(lineNumber);
         }, DispatcherPriority.Background);

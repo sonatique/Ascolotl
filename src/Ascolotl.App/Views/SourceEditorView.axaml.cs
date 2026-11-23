@@ -301,6 +301,6 @@ public partial class SourceEditorView : UserControl
         var offset = Editor.Document.GetLineByNumber(line).Offset;
         Editor.CaretOffset = offset;
         Editor.ScrollTo(line, 0);
-        Editor.Focus();
+        Editor.TextArea.Focus(); // the input surface: the wrapper doesn't take the keyboard
     }
 }

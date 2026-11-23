@@ -64,6 +64,31 @@ public sealed class KeyboardShortcutTests
     }
 
     [AvaloniaFact]
+    public void Outline_WorksFromTheKeyboard()
+    {
+        var (window, vm) = Open("= Doc\n\n== One\n\nText.\n\n== Two\n\nMore.\n", EditorMode.Split);
+        var source = window.GetVisualDescendants().OfType<TextEditor>().First();
+        var outline = window.FindControl<ListBox>("OutlineList")!;
+        vm.ShowOutlinePane = false;
+        Pump(window);
+        source.TextArea.Focus();
+
+        Press(window, new KeyGesture(Key.B, KeyModifiers.Control));
+        Assert.True(outline.IsKeyboardFocusWithin); // the outline takes the keyboard as it opens
+        Press(window, new KeyGesture(Key.Down));
+        Press(window, new KeyGesture(Key.Enter));
+        var section = Assert.IsType<OutlineItem>(outline.SelectedItem);
+        Assert.True(source.TextArea.IsKeyboardFocusWithin); // Enter went to the section
+        Assert.Equal(section.LineNumber + 1, source.TextArea.Caret.Line);
+
+        Press(window, new KeyGesture(Key.B, KeyModifiers.Control)); // closed: the source keeps it
+        Assert.True(source.TextArea.IsKeyboardFocusWithin);
+        Press(window, new KeyGesture(Key.B, KeyModifiers.Control));
+        Press(window, new KeyGesture(Key.Escape)); // and Esc goes back
+        Assert.True(source.TextArea.IsKeyboardFocusWithin);
+    }
+
+    [AvaloniaFact]
     public void MenuKeys_NeedTheirExactModifiers()
     {
         var (window, vm) = Open("Text.\n", EditorMode.Split);
