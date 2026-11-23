@@ -52,6 +52,12 @@ no Ruby and no Java.
   cells can also be merged and split. Markdown tables stay aligned.
 - **Live preview** with images, checklists, quotes and highlighted text. Click
   the preview to jump to the source, and scrolling stays in sync.
+- **Math and diagrams:** formulas (`stem:[]`, `latexmath:[]`, `asciimath:[]`,
+  `[stem]` blocks; `$…$` and `$$` blocks in Markdown) are typeset offline, in
+  the preview and every export. Diagram blocks (`[mermaid]`, `[plantuml]`,
+  `[graphviz]`…) stay as code until you choose, under View → Diagrams, to draw
+  them with the programs installed on your computer or with a Kroki web
+  service, which then receives their source.
 - **Outline panel** on the right, as wide as you drag it, to jump between
   sections, and **project folders** with a file tree.
 - **Export** to PDF (portrait or landscape for wide tables), HTML, EPUB,

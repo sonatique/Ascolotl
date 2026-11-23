@@ -60,6 +60,37 @@ public class SpellingTests
     }
 
     [Fact]
+    public void Formulas_AreNotProse()
+    {
+        const string adoc = """
+            :stem: latexmath
+
+            Inline stem:[\sqrt{x}] and $$\frac{a}{b}$$ mathh.
+
+            $$
+            \mathbb{R} \cdot \sqrt{2}
+            $$
+
+            [latexmath]
+            --
+            \int_0^1 f
+            --
+            Endd.
+            """;
+        Assert.Equal(["Inline", "and", "mathh", "Endd"], Words(adoc));
+
+        const string md = """
+            Let $\sqrt{x}$ and $$\frac{a}{b}$$ cost $5 or $10 tottal.
+
+            $$
+            \mathbb{R}
+            $$
+            Endd.
+            """;
+        Assert.Equal(["Let", "and", "cost", "or", "tottal", "Endd"], Words(md, markdown: true));
+    }
+
+    [Fact]
     public void ShownText_LeavesOutUrlsAndEmails()
     {
         const string text = "See https://exmple.org/pagee, mail jane@exmple.org, teh end.";

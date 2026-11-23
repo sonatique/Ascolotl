@@ -4,7 +4,7 @@ namespace Ascolotl.Core.Spelling;
 
 /// <summary>
 /// The prose words of a document's source, the ones worth a spell check: not its code blocks,
-/// comments, attribute entries and lines, URLs, inline code, macro targets, attribute references
+/// formulas, comments, attribute entries and lines, URLs, inline code, macro targets, attribute references
 /// or HTML, nor words with digits, underscores, capitals inside (camelCase) or all in capitals.
 /// </summary>
 // ponytail: a line scanner, not the parser: a construct it doesn't know is checked as prose.
@@ -15,6 +15,7 @@ public static partial class SpellingWords
         var words = new List<(int, int)>();
         string? fence = null;      // the delimiter of the verbatim or comment block we're in
         var frontMatter = false;
+        var stemStyle = false;     // the line before was [stem], [latexmath] or [asciimath]
         var lineStart = 0;
         for (var n = 0; lineStart <= text.Length; n++)
         {
@@ -34,9 +35,12 @@ public static partial class SpellingWords
                 frontMatter = true;
             else if (Fence(trimmed, markdown) is { } opened)
                 fence = opened;
+            else if (stemStyle && trimmed == "--") // an open block holding a formula
+                fence = trimmed;
             else if (!SkippedLine(line, trimmed, markdown))
                 Tokenize(lineStart, Masked(line, markdown), words);
 
+            stemStyle = !markdown && StemStyle().IsMatch(trimmed);
             lineStart = end + 1;
         }
         return words;
@@ -57,6 +61,7 @@ public static partial class SpellingWords
     /// <summary>A line opening a block whose content isn't prose: what closes it.</summary>
     private static string? Fence(string trimmed, bool markdown)
     {
+        if (trimmed == "$$") return trimmed; // a formula
         if (trimmed.StartsWith("```", StringComparison.Ordinal) || markdown && trimmed.StartsWith("~~~", StringComparison.Ordinal)) return "```";
         if (markdown) return null;
         return trimmed.Length >= 4 && trimmed[0] is '-' or '.' or '+' or '/' && trimmed.All(c => c == trimmed[0]) ? trimmed : null;
@@ -88,8 +93,10 @@ public static partial class SpellingWords
         Blank(Url());
         Blank(Email());
         Blank(InlineCode());
+        Blank(DisplayMath());             // $$…$$
         if (markdown)
         {
+            Blank(InlineMath());
             Blank(Html()); // in AsciiDoc, <<id,text>> is a cross reference
             Blank(MarkdownLinkTarget());
         }
@@ -146,4 +153,8 @@ public static partial class SpellingWords
     [GeneratedRegex(@"\[\[[^\]]*\]\]|\[#[^\]]*\]")] private static partial Regex Anchor();
     [GeneratedRegex(@"(<<[^,>]*,?)[^>]*>>")] private static partial Regex CrossReference();
     [GeneratedRegex(@"\+\+?[^+]+\+\+?")] private static partial Regex Passthrough();
+    [GeneratedRegex(@"^\[(?:stem|latexmath|asciimath)\b")] private static partial Regex StemStyle();
+    [GeneratedRegex(@"\$\$.+?\$\$")] private static partial Regex DisplayMath();
+    // Markdig's rule: no space just inside the $s, and no digit after the closing one ($5 and $10).
+    [GeneratedRegex(@"(?<![\\$])\$(?=[^\s$])[^$]*?(?<=[^\s$\\])\$(?![\d$])")] private static partial Regex InlineMath();
 }
