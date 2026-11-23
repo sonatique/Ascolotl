@@ -535,8 +535,12 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="MenuTurnInto" xml:space="preserve"><value>Umwandeln in</value></data>
   <data name="StatusBlocksSelected" xml:space="preserve"><value>{0} Blöcke ausgewählt</value></data>
   <data name="StatusColumnMoved" xml:space="preserve"><value>Spalte verschoben</value></data>
+  <data name="StatusImagePasted" xml:space="preserve"><value>Bild gespeichert als {0}</value></data>
+  <data name="StatusImagePasteFailed" xml:space="preserve"><value>Das Bild konnte nicht gespeichert werden: {0}</value></data>
+  <data name="StatusImagesDirOutside" xml:space="preserve"><value>Der Bildordner des Dokuments (:imagesdir:) liegt außerhalb seines Ordners: Bild nicht gespeichert</value></data>
   <data name="StatusRowMoved" xml:space="preserve"><value>Zeile verschoben</value></data>
   <data name="StatusRowsSorted" xml:space="preserve"><value>Zeilen sortiert</value></data>
+  <data name="StatusSaveBeforePastingImage" xml:space="preserve"><value>Zuerst das Dokument speichern: ein eingefügtes Bild wird daneben gespeichert</value></data>
   <data name="StatusTableCannotMoveOrSort" xml:space="preserve"><value>Verbundene Zellen oder die Kopfzeile stehen im Weg: Quelle der Tabelle bearbeiten, um sie umzustellen</value></data>
   <data name="TableRowAbove" xml:space="preserve"><value>Zeile oberhalb einfügen</value></data>
   <data name="TableRowBelow" xml:space="preserve"><value>Zeile unterhalb einfügen</value></data>

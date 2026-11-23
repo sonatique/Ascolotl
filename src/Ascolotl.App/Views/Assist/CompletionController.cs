@@ -5,6 +5,7 @@ using Avalonia.Interactivity;
 using Avalonia.Threading;
 using AvaloniaEdit;
 using AvaloniaEdit.CodeCompletion;
+using Ascolotl.App.Services;
 using Ascolotl.Core.Editing;
 using Ascolotl.Core.Editing.Assist;
 using Ascolotl.Core.Resources;
@@ -183,6 +184,31 @@ internal sealed class CompletionController
     /// host's own key handling (e.g. block-edit Esc/Tab) should defer to us.</summary>
     public bool IsActive => _window is not null || _session is { Active: true };
 
+    /// <summary>An image alone on the clipboard: saved beside the document, and its macro (or Markdown)
+    /// put at the caret, a block of its own on an empty line.</summary>
+    private async void PasteImage()
+    {
+        try
+        {
+            if (TopLevel.GetTopLevel(_editor)?.Clipboard is not { } clipboard || !await PastedImage.OnlyImageAsync(clipboard)) return;
+            if (DocumentFolder?.Invoke() is not { Length: > 0 } folder)
+            {
+                Status(Strings.StatusSaveBeforePastingImage);
+                return;
+            }
+            if (await PastedImage.SaveAsync(clipboard, folder, DocumentSource(), _markdown, Status) is not { } target) return;
+            var caret = _editor.CaretOffset;
+            var reference = PastedImage.Reference(target, _markdown, _editor.Document.GetText(_editor.Document.GetLineByOffset(caret)).Trim().Length == 0);
+            _editor.Document.Insert(caret, reference);
+            _editor.CaretOffset = caret + reference.Length;
+            Status(string.Format(Strings.StatusImagePasted, target));
+        }
+        catch (Exception ex)
+        {
+            Status(string.Format(Strings.StatusImagePasteFailed, ex.Message)); // a clipboard that failed: never the app
+        }
+    }
+
     /// <summary>What Enter does when typing: closes a fence, continues a list or a table row. False when none applies.</summary>
     public bool SmartEnter() => HandleSmartEnter();
 
@@ -219,6 +245,10 @@ internal sealed class CompletionController
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
+        // The editor pastes text as ever; an image alone on the clipboard is saved and referred to.
+        if (e.Key == Key.V && e.KeyModifiers == KeyModifiers.Control || e.Key == Key.Insert && e.KeyModifiers == KeyModifiers.Shift)
+            PasteImage();
+
         // While the popup is open, let it own navigation — but make Tab COMMIT
         // the highlighted suggestion. AvaloniaEdit otherwise lets Tab fall
         // through to a literal tab, which is the "Tab just inserts a tab"

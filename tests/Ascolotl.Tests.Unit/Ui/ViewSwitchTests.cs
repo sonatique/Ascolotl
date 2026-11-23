@@ -427,6 +427,45 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
+    public void PastingAnImage_SavesItBesideTheDocument_AndRefersToIt()
+    {
+        var folder = Directory.CreateTempSubdirectory("ascolotl-paste-").FullName;
+        try
+        {
+            var (window, vm) = Open("Text.\n\n:imagesdir: ../elsewhere\n", EditorMode.Wysiwyg);
+            vm.SelectedDocument!.FilePath = Path.Combine(folder, "doc.adoc");
+            Pump(window);
+            var clipboard = TopLevel.GetTopLevel(window)!.Clipboard!;
+            using (var bitmap = new Avalonia.Media.Imaging.WriteableBitmap(new PixelSize(2, 2), new Vector(96, 96),
+                       Avalonia.Platform.PixelFormat.Bgra8888, Avalonia.Platform.AlphaFormat.Premul))
+                clipboard.SetBitmapAsync(bitmap).GetAwaiter().GetResult();
+            Preview(window).FocusPage();
+            Pump(window);
+
+            Press(window, Key.V, RawInputModifiers.Control); // an images folder outside the document's: refused
+            Pump(window);
+            Assert.Equal(Strings.StatusImagesDirOutside, vm.StatusText);
+            Assert.False(Directory.Exists(Path.Combine(folder, "..", "elsewhere")));
+
+            vm.SelectedDocument.SourceText = "Text.\n";
+            Pump(window);
+            Preview(window).FocusPage();
+            Pump(window);
+            Press(window, Key.V, RawInputModifiers.Control);
+            Pump(window);
+            // Beside the document, in images/. The headless platform's bitmaps can't be saved (the real
+            // app's can): it fails here as a full disk would, said in the status, the text left as it was.
+            Assert.True(Directory.Exists(Path.Combine(folder, "images")));
+            Assert.StartsWith(string.Format(Strings.StatusImagePasteFailed, ""), vm.StatusText);
+            Assert.Equal("Text.\n", vm.SelectedDocument.SourceText);
+        }
+        finally
+        {
+            Directory.Delete(folder, recursive: true);
+        }
+    }
+
+    [AvaloniaFact]
     public void CtrlEnter_AppliesTheBlock_OverAnOpenSuggestionList()
     {
         var (window, vm) = Open("Text.\n", EditorMode.Wysiwyg);

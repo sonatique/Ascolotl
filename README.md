@@ -33,6 +33,9 @@ no Ruby and no Java.
 - **Formatting toolbar and right-click menu** in Split and WYSIWYG: bold,
   italic, code, links, headings, lists, quotes, code blocks, images, tables and,
   in AsciiDoc, notes. Each applies to the selection or inserts at the caret.
+- **Pasting an image** (a screenshot, an image copied from another app) saves it
+  as a PNG beside the saved document, in its `:imagesdir:` or `images/`, and
+  inserts the image there.
 - **Table editing:** insert and delete rows and columns from the toolbar or a
   right-click, in the source, in the preview or while editing a cell; move rows
   and columns, and sort the rows by a column, from the right-click. AsciiDoc
@@ -150,6 +153,7 @@ On the WYSIWYG page (and the page in Split), one block at a time has the keyboar
 | Block menu | `Shift+F10` or the Menu key |
 | Select several blocks / all of them (`Esc`: none) | `Shift+↑` / `Shift+↓` / `Ctrl+A` |
 | Copy / cut the block or the selected blocks | `Ctrl+C` / `Ctrl+X` |
+| Paste text or an image as new blocks after the block | `Ctrl+V` |
 | Move the block (or the selected blocks) up / down | `Ctrl+Shift+↑` / `Ctrl+Shift+↓` |
 | Duplicate / delete the block | `Ctrl+Alt+D` / `Delete` |
 | New paragraph after the block | `Ctrl+Shift+N` |

@@ -22,6 +22,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
@@ -592,6 +593,7 @@ public partial class PreviewView : UserControl
                 (Key.D, KeyModifiers.Control | KeyModifiers.Alt) => DuplicateBlock(on),
                 (Key.Delete, KeyModifiers.None) => DeleteBlock(on),
                 (Key.C or Key.X, KeyModifiers.Control) => CopyBlocks(on, cut: e.Key == Key.X),
+                (Key.V, KeyModifiers.Control) => PasteBlocks(on),
                 (Key.N, KeyModifiers.Control | KeyModifiers.Shift) => NewParagraphAfter(on),
                 (>= Key.D0 and <= Key.D6, KeyModifiers.Control | KeyModifiers.Shift) =>
                     TurnBlockInto(on, e.Key == Key.D0 ? BlockKind.Paragraph : BlockKind.Heading1 + (e.Key - Key.D1)),
@@ -2455,6 +2457,46 @@ public partial class PreviewView : UserControl
         ClearSelection();
         _doc.SourceText = BlockSourceEditing.DeleteSlice(_doc.SourceText, range.Start, range.Length);
         return true;
+    }
+
+    /// <summary>Ctrl+V on a block: the clipboard's text, or an image alone on it, as new blocks after it,
+    /// the keyboard on the first. The image is saved beside the document.</summary>
+    private bool PasteBlocks(int i)
+    {
+        if (_doc is null || WholeBlock(i) is not { } after || TopLevel.GetTopLevel(this)?.Clipboard is not { } clipboard) return false;
+        PasteAfter(_doc, clipboard, after.Start + after.Length);
+        return true;
+    }
+
+    private async void PasteAfter(DocumentViewModel doc, IClipboard clipboard, int end)
+    {
+        void Status(string text) { if (_mainVm is not null) _mainVm.StatusText = text; }
+        try
+        {
+            var before = doc.SourceText;
+            string? pasted;
+            if (await PastedImage.OnlyImageAsync(clipboard))
+            {
+                if (doc.BaseDirectory is not { Length: > 0 } folder)
+                {
+                    Status(Strings.StatusSaveBeforePastingImage);
+                    return;
+                }
+                if (await PastedImage.SaveAsync(clipboard, folder, before, doc.IsMarkdown, Status) is not { } target) return;
+                pasted = PastedImage.Reference(target, doc.IsMarkdown, ownLine: true);
+                Status(string.Format(Strings.StatusImagePasted, target));
+            }
+            else pasted = (await clipboard.TryGetTextAsync())?.Trim();
+            // Changed meanwhile, or another tab: the place found before no longer holds.
+            if (string.IsNullOrEmpty(pasted) || doc != _doc || doc.SourceText != before) return;
+            _current++;
+            _refocusCurrent = true;
+            doc.SourceText = BlockInsertion.InsertAfter(before, end, pasted);
+        }
+        catch (Exception ex)
+        {
+            Status(string.Format(Strings.StatusImagePasteFailed, ex.Message)); // a clipboard that failed: never the app
+        }
     }
 
     /// <summary>Ctrl+C, Ctrl+X: the source of the selected blocks, or the one the keyboard is on, to the clipboard.</summary>

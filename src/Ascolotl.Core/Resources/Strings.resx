@@ -535,8 +535,12 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="MenuTurnInto" xml:space="preserve"><value>Turn into</value></data>
   <data name="StatusBlocksSelected" xml:space="preserve"><value>{0} blocks selected</value></data>
   <data name="StatusColumnMoved" xml:space="preserve"><value>Column moved</value></data>
+  <data name="StatusImagePasted" xml:space="preserve"><value>Image saved as {0}</value></data>
+  <data name="StatusImagePasteFailed" xml:space="preserve"><value>The image couldn’t be saved: {0}</value></data>
+  <data name="StatusImagesDirOutside" xml:space="preserve"><value>The document’s images folder (:imagesdir:) is outside its folder: the image wasn’t saved</value></data>
   <data name="StatusRowMoved" xml:space="preserve"><value>Row moved</value></data>
   <data name="StatusRowsSorted" xml:space="preserve"><value>Rows sorted</value></data>
+  <data name="StatusSaveBeforePastingImage" xml:space="preserve"><value>Save the document first: a pasted image is saved beside it</value></data>
   <data name="StatusTableCannotMoveOrSort" xml:space="preserve"><value>This table has merged cells or a header in the way: edit its source to rearrange it</value></data>
   <data name="TableRowAbove" xml:space="preserve"><value>Insert row above</value></data>
   <data name="TableRowBelow" xml:space="preserve"><value>Insert row below</value></data>

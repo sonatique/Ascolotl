@@ -535,8 +535,12 @@ Questo file esiste ma non è stato possibile leggerlo. Forse è bloccato da un a
   <data name="MenuTurnInto" xml:space="preserve"><value>Trasforma in</value></data>
   <data name="StatusBlocksSelected" xml:space="preserve"><value>{0} blocchi selezionati</value></data>
   <data name="StatusColumnMoved" xml:space="preserve"><value>Colonna spostata</value></data>
+  <data name="StatusImagePasted" xml:space="preserve"><value>Immagine salvata come {0}</value></data>
+  <data name="StatusImagePasteFailed" xml:space="preserve"><value>Impossibile salvare l’immagine: {0}</value></data>
+  <data name="StatusImagesDirOutside" xml:space="preserve"><value>La cartella immagini del documento (:imagesdir:) è fuori dalla sua cartella: immagine non salvata</value></data>
   <data name="StatusRowMoved" xml:space="preserve"><value>Riga spostata</value></data>
   <data name="StatusRowsSorted" xml:space="preserve"><value>Righe ordinate</value></data>
+  <data name="StatusSaveBeforePastingImage" xml:space="preserve"><value>Salva prima il documento: un’immagine incollata viene salvata accanto</value></data>
   <data name="StatusTableCannotMoveOrSort" xml:space="preserve"><value>Celle unite o l’intestazione sono d’intralcio: modifica il sorgente della tabella per riordinarla</value></data>
   <data name="TableRowAbove" xml:space="preserve"><value>Inserisci riga sopra</value></data>
   <data name="TableRowBelow" xml:space="preserve"><value>Inserisci riga sotto</value></data>
