@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using AvaloniaEdit;
@@ -552,11 +553,6 @@ public partial class MainWindow : Window
                 Dispatcher.UIThread.Post(() => CommandPaletteFilter.Focus(), DispatcherPriority.Input);
             e.Handled = true;
         }
-        else if (ctrl && shift && e.Key == Key.T)
-        {
-            _viewModel.ReopenClosedTabCommand.Execute(null);
-            e.Handled = true;
-        }
         else if (ctrl && shift && e.Key == Key.Tab)
         {
             _viewModel.PreviousTabCommand.Execute(null);
@@ -565,11 +561,6 @@ public partial class MainWindow : Window
         else if (ctrl && !shift && e.Key == Key.Tab)
         {
             _viewModel.NextTabCommand.Execute(null);
-            e.Handled = true;
-        }
-        else if (ctrl && e.Key == Key.B)
-        {
-            _viewModel.ToggleOutlinePaneCommand.Execute(null);
             e.Handled = true;
         }
         // Ctrl alone: AltGr (Ctrl+Alt) with a digit types a character on many layouts.
@@ -617,6 +608,15 @@ public partial class MainWindow : Window
         else if (e.Key == Key.F6 && e.KeyModifiers is KeyModifiers.None or KeyModifiers.Shift)
         {
             SwitchPane(PreviewPane.IsKeyboardFocusWithin);
+            e.Handled = true;
+        }
+        // The rest of the menus' keys. A menu item's InputGesture only shows its key; both
+        // menu sets show the same ones, so the hamburger's set is the one looked up.
+        else if (e.KeyModifiers != KeyModifiers.None
+                 && HamburgerMenuItem.GetLogicalDescendants().OfType<MenuItem>().FirstOrDefault(i => i.InputGesture?.Matches(e) == true)
+                     is { Command: { } command } item)
+        {
+            if (command.CanExecute(item.CommandParameter)) command.Execute(item.CommandParameter);
             e.Handled = true;
         }
     }
