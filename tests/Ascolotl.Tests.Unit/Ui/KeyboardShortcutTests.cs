@@ -1,3 +1,4 @@
+using Ascolotl.App.Views;
 using Ascolotl.Core.Models;
 using Ascolotl.Tests.Unit.Mocks;
 using Avalonia.Controls;
@@ -18,11 +19,16 @@ public sealed class KeyboardShortcutTests
     private static void TypeInTheSource(Window window) =>
         window.GetVisualDescendants().OfType<TextEditor>().First().TextArea.Focus();
 
-    private static void Press(Window window, KeyGesture gesture)
+    /// <summary>A key written with Ctrl, pressed as this platform's: Cmd on a Mac.</summary>
+    private static void Press(Window window, KeyGesture written) => PressAsShown(window, CommandKey.OnPlatform(written));
+
+    private static void PressAsShown(Window window, KeyGesture gesture)
     {
         window.KeyPress(gesture.Key, (RawInputModifiers)gesture.KeyModifiers, PhysicalKey.None, null);
         Pump(window);
     }
+
+    private static string Shown(KeyGesture written) => CommandKey.OnPlatform(written).ToString("p", null);
 
     [AvaloniaFact]
     public void EveryKeyAMenuShows_IsHandled()
@@ -39,7 +45,7 @@ public sealed class KeyboardShortcutTests
             var handled = false;
             window.AddHandler(InputElement.KeyDownEvent, (_, e) => handled |= e.Handled, RoutingStrategies.Bubble, handledEventsToo: true);
             TypeInTheSource(window);
-            Press(window, gesture);
+            PressAsShown(window, gesture); // the menus show this platform's keys already
             Assert.True(handled, $"{gesture} does nothing");
         }
     }
@@ -156,8 +162,9 @@ public sealed class KeyboardShortcutTests
         Assert.Contains("_word_", vm.SelectedDocument.SourceText);
 
         var tips = window.GetVisualDescendants().OfType<Button>().Select(b => ToolTip.GetTip(b) as string).ToList();
-        Assert.Contains(tips, t => t?.EndsWith("(Ctrl+B)") == true);
-        Assert.Contains(tips, t => t?.EndsWith("(Ctrl+Shift+1)") == true);
+        Assert.Contains(tips, t => t?.EndsWith($"({Shown(new KeyGesture(Key.B, KeyModifiers.Control))})") == true); // Ctrl+B, Cmd on a Mac
+        Assert.Contains(tips, t => t?.EndsWith($"({Shown(new KeyGesture(Key.D1, KeyModifiers.Control | KeyModifiers.Shift))})") == true);
+        if (CommandKey.Modifier == KeyModifiers.Control) Assert.Contains(tips, t => t?.EndsWith("(Ctrl+Shift+1)") == true); // "1", not "D1"
     }
 
     [AvaloniaFact]
@@ -166,7 +173,7 @@ public sealed class KeyboardShortcutTests
         var (window, vm) = Open("Text.\n", EditorMode.Split);
         var items = window.FindControl<MenuItem>("HamburgerMenuItem")!.GetLogicalDescendants().OfType<MenuItem>().ToList();
         MenuItem Item(string header) => items.First(i => (string?)i.Header == header);
-        Assert.Equal(new KeyGesture(Key.P, KeyModifiers.Control | KeyModifiers.Shift), Item(Ascolotl.Core.Resources.Strings.MenuCommandPalette).InputGesture);
+        Assert.Equal(CommandKey.OnPlatform(new KeyGesture(Key.P, KeyModifiers.Control | KeyModifiers.Shift)), Item(Ascolotl.Core.Resources.Strings.MenuCommandPalette).InputGesture);
         Assert.Equal(new KeyGesture(Key.F1), Item(Ascolotl.Core.Resources.Strings.MenuSyntaxReference).InputGesture);
         Assert.Equal(Ascolotl.App.Views.AppLinks.KeyboardShortcuts, Item(Ascolotl.Core.Resources.Strings.MenuKeyboardShortcuts).Tag);
 
@@ -215,8 +222,13 @@ public sealed class KeyboardShortcutTests
     }
 
     [AvaloniaFact]
-    public void TheStartScreen_WritesItsKeyAsTheMenusDo() =>
-        Assert.Equal("Ctrl+O", Ascolotl.App.Views.EmptyStateView.OpenKey); // not "Ctrl O", nor "Strg O" in German
+    public void TheStartScreen_WritesItsKeyAsTheMenusDo()
+    {
+        var (window, vm) = Open("Text.\n", EditorMode.Split);
+        var open = window.FindControl<MenuItem>("HamburgerMenuItem")!.GetLogicalDescendants().OfType<MenuItem>().First(i => i.Command == vm.OpenDocumentCommand);
+        Assert.Equal(open.InputGesture!.ToString("p", null), EmptyStateView.OpenKey); // not "Ctrl O", nor "Strg O" in German
+        if (CommandKey.Modifier == KeyModifiers.Control) Assert.Equal("Ctrl+O", EmptyStateView.OpenKey);
+    }
 
     [AvaloniaFact]
     public void MenuKeys_NeedTheirExactModifiers()

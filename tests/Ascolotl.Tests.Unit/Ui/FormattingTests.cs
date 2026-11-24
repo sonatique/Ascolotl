@@ -100,16 +100,16 @@ public sealed class FormattingTests
     public void Toolbar_AppliesTheInPlaceEdit_AndOffersItOnlyWhileOpen()
     {
         var (window, vm) = Open("Hello world", EditorMode.Wysiwyg);
-        Assert.False(ToolbarButton(window, Strings.InlineApplyTip).IsEffectivelyVisible);
+        Assert.False(ToolbarButton(window, CommandKey.Text(Strings.InlineApplyTip)!).IsEffectivelyVisible);
 
         var editor = OpenInlineEditor(window);
         Assert.Empty(Preview(window).FindControl<ScrollViewer>("PreviewScroll")!.GetVisualDescendants().OfType<Button>()); // nothing to clip in the block
         editor.Document.Insert(editor.Document.TextLength, " again");
-        Click(window, ToolbarButton(window, Strings.InlineApplyTip));
+        Click(window, ToolbarButton(window, CommandKey.Text(Strings.InlineApplyTip)!));
 
         Assert.Equal("Hello world again", vm.SelectedDocument!.SourceText.TrimEnd());
         Assert.Empty(Preview(window).GetVisualDescendants().OfType<TextEditor>());
-        Assert.False(ToolbarButton(window, Strings.InlineApplyTip).IsEffectivelyVisible);
+        Assert.False(ToolbarButton(window, CommandKey.Text(Strings.InlineApplyTip)!).IsEffectivelyVisible);
     }
 
     [AvaloniaFact]

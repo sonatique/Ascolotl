@@ -1,4 +1,5 @@
 using Ascolotl.Core.Models;
+using Ascolotl.App.Views;
 using Ascolotl.Core.Resources;
 using Ascolotl.Tests.Unit.Mocks;
 using Avalonia;
@@ -38,7 +39,7 @@ public sealed class ViewSwitchTests
             Assert.Equal([mode], buttons.Where(x => x.Classes.Contains("active")).Select(x => (EditorMode)x.CommandParameter!));
         }
 
-        Assert.Equal(["Ctrl+1", "Ctrl+2", "Ctrl+3"], buttons.Select(b => ToolTip.GetTip(b) as string)); // Source, Split, WYSIWYG
+        Assert.Equal(new[] { "Ctrl+1", "Ctrl+2", "Ctrl+3" }.Select(k => CommandKey.Text(k)), buttons.Select(b => ToolTip.GetTip(b) as string)); // Source, Split, WYSIWYG; Cmd on a Mac
         Click(EditorMode.Source);
         Assert.False(window.FindControl<Control>("FormatBar")!.IsEffectivelyVisible);
         Assert.True(modeSwitch.IsEffectivelyVisible); // still there to leave Source
@@ -52,13 +53,13 @@ public sealed class ViewSwitchTests
         var (window, vm) = Open("= Doc\n", EditorMode.Split);
         window.GetVisualDescendants().OfType<TextEditor>().First().TextArea.Focus(); // typing in the source
 
-        window.KeyPress(Key.D1, RawInputModifiers.Control, PhysicalKey.Digit1, "1");
+        window.KeyPress(Key.D1, Command, PhysicalKey.Digit1, "1");
         Assert.Equal(EditorMode.Source, vm.EditorMode);
-        window.KeyPress(Key.NumPad3, RawInputModifiers.Control, PhysicalKey.NumPad3, "3");
+        window.KeyPress(Key.NumPad3, Command, PhysicalKey.NumPad3, "3");
         Assert.Equal(EditorMode.Wysiwyg, vm.EditorMode);
-        window.KeyPress(Key.D2, RawInputModifiers.Control | RawInputModifiers.Alt, PhysicalKey.Digit2, "~");
+        window.KeyPress(Key.D2, Command | RawInputModifiers.Alt, PhysicalKey.Digit2, "~");
         Assert.Equal(EditorMode.Wysiwyg, vm.EditorMode); // AltGr+2 types "~" on a French keyboard
-        window.KeyPress(Key.D2, RawInputModifiers.Control, PhysicalKey.Digit2, "2");
+        window.KeyPress(Key.D2, Command, PhysicalKey.Digit2, "2");
         Assert.Equal(EditorMode.Split, vm.EditorMode);
     }
 
@@ -86,7 +87,7 @@ public sealed class ViewSwitchTests
     {
         var (window, vm) = Open(string.Concat(Enumerable.Range(1, 200).Select(i => $"Paragraph {i}.\n\n")), EditorMode.Split);
         window.GetVisualDescendants().OfType<TextEditor>().First().TextArea.Focus(); // typing in the source
-        window.KeyPress(Key.D3, RawInputModifiers.Control, PhysicalKey.Digit3, "3");
+        window.KeyPress(Key.D3, Command, PhysicalKey.Digit3, "3");
         Pump(window);
         var page = Preview(window).FindControl<ScrollViewer>("PreviewScroll")!;
         Assert.Equal("Paragraph 1.", OnBlock(window)); // the hidden source handed the keyboard to the first block
@@ -103,7 +104,7 @@ public sealed class ViewSwitchTests
         Assert.StartsWith("Paragraph ", paged);
         Press(window, Key.End);
         Assert.Equal("Paragraph 200.", OnBlock(window));
-        Press(window, Key.Home, RawInputModifiers.Control);
+        Press(window, Key.Home, Command);
         Assert.Equal(0, page.Offset.Y);
         Assert.Equal("Paragraph 1.", OnBlock(window));
 
@@ -132,7 +133,7 @@ public sealed class ViewSwitchTests
         // Applied with a change: the keyboard waits for the block's new rendering, then sits on it.
         Press(window, Key.F2);
         window.KeyTextInput("?");
-        Press(window, Key.Enter, RawInputModifiers.Control);
+        Press(window, Key.Enter, Command);
         Pump(window);
         Assert.Null(BlockEditor(window));
         Assert.Equal("?Paragraph 2.", OnBlock(window));
@@ -226,7 +227,7 @@ public sealed class ViewSwitchTests
         var items = opened!.Items.OfType<MenuItem>().ToList();
         Assert.Equal(string.Format(Strings.MenuEditBlock, Strings.GestureEnter), items[0].Header); // not "click"
         KeyGesture? GestureOf(string header) => items.Single(i => (string?)i.Header == header).InputGesture;
-        Assert.Equal(new KeyGesture(Key.D, KeyModifiers.Control | KeyModifiers.Alt), GestureOf(Strings.MenuDuplicateBlock));
+        Assert.Equal(CommandKey.OnPlatform(new KeyGesture(Key.D, KeyModifiers.Control | KeyModifiers.Alt)), GestureOf(Strings.MenuDuplicateBlock));
         Assert.Equal(new KeyGesture(Key.Delete), GestureOf(Strings.MenuDeleteBlock));
         Assert.Equal(ApplicationCommands.Copy.Gesture, GestureOf(Strings.MenuCopy));
         Assert.NotNull(GestureOf(Strings.MenuMoveUp));
@@ -301,7 +302,7 @@ public sealed class ViewSwitchTests
         Assert.Equal("b2", Cell());
 
         // Ctrl+Enter: a new row, its first cell open.
-        Press(window, Key.Enter, RawInputModifiers.Control);
+        Press(window, Key.Enter, Command);
         Pump(window);
         Assert.Equal(3, vm.SelectedDocument!.SourceText.Split('\n').Count(l => l.StartsWith("| ")));
         Assert.NotNull(BlockEditor(window));
@@ -334,12 +335,12 @@ public sealed class ViewSwitchTests
         Pump(window);
         Preview(window).FocusPage();
         Pump(window);
-        Press(window, Key.N, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Press(window, Key.N, Command | RawInputModifiers.Shift);
         Pump(window);
         foreach (var key in "```") window.KeyTextInput(key.ToString());
         Press(window, Key.Enter);
         window.KeyTextInput("x");
-        Press(window, Key.Enter, RawInputModifiers.Control);
+        Press(window, Key.Enter, Command);
         Pump(window);
         Assert.Equal("Text.\n\n```\nx\n```", vm.SelectedDocument.SourceText.TrimEnd());
     }
@@ -389,7 +390,7 @@ public sealed class ViewSwitchTests
         window.KeyTextInput("Zero.");
         Press(window, Key.Enter, RawInputModifiers.Shift); // a line in the same paragraph
         window.KeyTextInput("Still zero.");
-        Press(window, Key.Enter, RawInputModifiers.Control);
+        Press(window, Key.Enter, Command);
         Pump(window);
         Assert.Equal("== Title\n\nZero.\nStill zero.\n\nOnetwo.\n\nThree.\n", Text()); // the document's line ends
     }
@@ -403,14 +404,14 @@ public sealed class ViewSwitchTests
         Pump(window);
         Assert.Equal("Words.", OnBlock(window));
 
-        Press(window, Key.D2, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Press(window, Key.D2, Command | RawInputModifiers.Shift);
         Pump(window);
         Assert.StartsWith("== Words.\n", Text());
-        Press(window, Key.D2, RawInputModifiers.Control | RawInputModifiers.Shift); // its own level again: a paragraph
+        Press(window, Key.D2, Command | RawInputModifiers.Shift); // its own level again: a paragraph
         Pump(window);
         Assert.StartsWith("Words.\n", Text());
 
-        Press(window, Key.Oem2, RawInputModifiers.Control); // the Turn into menu: the 8th kind, a bulleted list
+        Press(window, Key.Oem2, Command); // the Turn into menu: the 8th kind, a bulleted list
         Press(window, Key.Down, repeat: 8);
         Press(window, Key.Enter);
         Pump(window);
@@ -418,13 +419,13 @@ public sealed class ViewSwitchTests
         Assert.Equal("• Words.", OnBlock(window)); // the keyboard still on it
 
         Press(window, Key.Down);
-        Press(window, Key.D0, RawInputModifiers.Control | RawInputModifiers.Shift); // code to a paragraph: its style line goes too
+        Press(window, Key.D0, Command | RawInputModifiers.Shift); // code to a paragraph: its style line goes too
         Pump(window);
         Assert.Equal("* Words.\n\nx = 1\n", Text());
 
         Press(window, Key.Enter); // in an open edit: applied, then the menu
         window.KeyTextInput("y");
-        Press(window, Key.Oem2, RawInputModifiers.Control);
+        Press(window, Key.Oem2, Command);
         Pump(window);
         Press(window, Key.Down, repeat: 11); // a code block
         Press(window, Key.Enter);
@@ -439,9 +440,9 @@ public sealed class ViewSwitchTests
         var source = window.GetVisualDescendants().OfType<TextEditor>().First(t => t.IsEffectivelyVisible);
         source.TextArea.Focus();
         Pump(window);
-        Press(window, Key.D3, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Press(window, Key.D3, Command | RawInputModifiers.Shift);
         Assert.Equal("=== Words.\n", vm.SelectedDocument!.SourceText);
-        Press(window, Key.D0, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Press(window, Key.D0, Command | RawInputModifiers.Shift);
         Assert.Equal("Words.\n", vm.SelectedDocument.SourceText);
     }
 
@@ -456,14 +457,14 @@ public sealed class ViewSwitchTests
         Press(window, Key.Down, RawInputModifiers.Shift);
         Assert.Equal(string.Format(Strings.StatusBlocksSelected, 3), vm.StatusText);
 
-        Press(window, Key.Down, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Press(window, Key.Down, Command | RawInputModifiers.Shift);
         Pump(window);
         Assert.Equal("D.\n\n[[a]]\nA.\n\nB.\n\nC.\n", Text()); // the three past D, the anchor with its block
-        Press(window, Key.Up, RawInputModifiers.Control | RawInputModifiers.Shift); // still selected: back together
+        Press(window, Key.Up, Command | RawInputModifiers.Shift); // still selected: back together
         Pump(window);
         Assert.Equal("[[a]]\nA.\n\nB.\n\nC.\n\nD.\n", Text());
 
-        Press(window, Key.D, RawInputModifiers.Control | RawInputModifiers.Alt);
+        Press(window, Key.D, Command | RawInputModifiers.Alt);
         Pump(window);
         Assert.Equal("[[a]]\nA.\n\nB.\n\nC.\n\nA.\n\nB.\n\nC.\n\nD.\n", Text()); // the copy without the ID
 
@@ -512,7 +513,7 @@ public sealed class ViewSwitchTests
         Preview(window).FocusPage();
         Pump(window);
         Press(window, Key.Enter); // an open block is applied first
-        Press(window, Key.F, RawInputModifiers.Control);
+        Press(window, Key.F, Command);
         Assert.Null(BlockEditor(window));
         var box = window.GetVisualDescendants().OfType<TextBox>().Single(t => t.Name == "FindBox");
         string Count() => window.GetVisualDescendants().OfType<TextBlock>().Single(t => t.Name == "FindCount").Text ?? "";
@@ -584,11 +585,11 @@ public sealed class ViewSwitchTests
         var (window, vm) = Open("Text.\n", EditorMode.Wysiwyg);
         Preview(window).FocusPage();
         Pump(window);
-        Press(window, Key.N, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Press(window, Key.N, Command | RawInputModifiers.Shift);
         Pump(window);
         window.KeyTextInput("N"); // NOTE, among the blocks a line can start
         Assert.NotEmpty(BlockEditor(window)!.TextArea.StackedInputHandlers);
-        Press(window, Key.Enter, RawInputModifiers.Control);
+        Press(window, Key.Enter, Command);
         Pump(window);
         Assert.Equal("Text.\n\nN", vm.SelectedDocument!.SourceText.TrimEnd());
     }
@@ -651,7 +652,7 @@ public sealed class ViewSwitchTests
         Press(window, Key.Tab);
         Press(window, Key.Tab);
         Assert.Equal("b1", Cell());
-        Press(window, Key.Enter, RawInputModifiers.Control); // a new row, its first cell open
+        Press(window, Key.Enter, Command); // a new row, its first cell open
         Pump(window);
         Assert.Equal("", Cell());
         window.KeyTextInput("a2");
@@ -672,7 +673,7 @@ public sealed class ViewSwitchTests
         Preview(window).FocusPage();
         Pump(window);
         Assert.Equal("One.", OnBlock(window));
-        Press(window, Key.N, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Press(window, Key.N, Command | RawInputModifiers.Shift);
         Pump(window);
         Assert.True(vm.SelectedDocument!.IsDirty);
         Press(window, Key.Escape);
@@ -680,16 +681,16 @@ public sealed class ViewSwitchTests
         Assert.False(vm.SelectedDocument.IsDirty); // a new paragraph cancelled: as it was
         Assert.Equal("One.", OnBlock(window));
 
-        Press(window, Key.Down, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Press(window, Key.Down, Command | RawInputModifiers.Shift);
         Pump(window);
         Assert.Equal(".Code\n[source]\n----\nx\n----\n\nOne.\n\nThree.\n", Text()); // its title and style go along
         Assert.Equal("One.", OnBlock(window)); // and the keyboard with the block
-        Press(window, Key.Up, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Press(window, Key.Up, Command | RawInputModifiers.Shift);
         Pump(window);
         Assert.Equal("One.\n\n.Code\n[source]\n----\nx\n----\n\nThree.\n", Text());
         Assert.Equal("One.", OnBlock(window));
 
-        Press(window, Key.D, RawInputModifiers.Control | RawInputModifiers.Alt);
+        Press(window, Key.D, Command | RawInputModifiers.Alt);
         Pump(window);
         Assert.StartsWith("One.\n\nOne.\n\n.Code", Text());
         Press(window, Key.Down);
@@ -699,18 +700,18 @@ public sealed class ViewSwitchTests
         Assert.Equal("One.\n\nOne.\n\nThree.\n", Text()); // the code block, its title and style
         Assert.Equal("Three.", OnBlock(window));
 
-        Press(window, Key.Z, RawInputModifiers.Control);
+        Press(window, Key.Z, Command);
         Pump(window);
         Assert.Equal("One.\n\nOne.\n\n.Code\n[source]\n----\nx\n----\n\nThree.\n", Text());
-        Press(window, Key.Y, RawInputModifiers.Control);
+        Press(window, Key.Y, Command);
         Pump(window);
         Assert.Equal("One.\n\nOne.\n\nThree.\n", Text());
 
-        Press(window, Key.N, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Press(window, Key.N, Command | RawInputModifiers.Shift);
         Pump(window);
         foreach (var key in "Four.") // key by key: "F" opens the block list, "Fo" leaves it empty
             window.KeyTextInput(key.ToString());
-        Press(window, Key.Enter, RawInputModifiers.Control);
+        Press(window, Key.Enter, Command);
         Pump(window);
         Assert.Equal("One.\n\nOne.\n\nThree.\n\nFour.", Text().TrimEnd());
         Assert.Equal("Four.", OnBlock(window));
@@ -719,7 +720,7 @@ public sealed class ViewSwitchTests
         var withFour = Text();
         foreach (var typed in new[] { "", "9", "Five" }) // "9": a list that matches nothing from the first key
         {
-            Press(window, Key.N, RawInputModifiers.Control | RawInputModifiers.Shift);
+            Press(window, Key.N, Command | RawInputModifiers.Shift);
             Pump(window);
             foreach (var key in typed) window.KeyTextInput(key.ToString());
             Assert.Empty(BlockEditor(window)!.TextArea.StackedInputHandlers); // no list left holding the keys
@@ -759,9 +760,9 @@ public sealed class ViewSwitchTests
         var moved = OnBlock(window); // the first block in view
         Assert.NotEqual("Paragraph 1.", moved);
 
-        Press(window, Key.Up, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Press(window, Key.Up, Command | RawInputModifiers.Shift);
         Pump(window);
-        Press(window, Key.Up, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Press(window, Key.Up, Command | RawInputModifiers.Shift);
         Pump(window);
         Assert.Equal(moved, OnBlock(window)); // above the view's top: brought back into view, not swapped for another
         var n = int.Parse(moved!["Paragraph ".Length..^1]);
@@ -779,7 +780,7 @@ public sealed class ViewSwitchTests
         Pump(window);
         vm.EditorMode = EditorMode.Wysiwyg; // the source, hidden, keeps the tab's history
         Pump(window);
-        Press(window, Key.Z, RawInputModifiers.Control);
+        Press(window, Key.Z, Command);
         Pump(window);
         Assert.Equal("First tab.\n\nKept.\n", first.SourceText);
 
@@ -793,7 +794,7 @@ public sealed class ViewSwitchTests
         Press(window, Key.Delete);
         Pump(window);
         Assert.Equal("Two.\n", vm.SelectedDocument.SourceText);
-        Press(window, Key.Z, RawInputModifiers.Control);
+        Press(window, Key.Z, Command);
         Pump(window);
         Assert.Equal("One.\n\nTwo.\n", vm.SelectedDocument.SourceText);
         Assert.Equal("First tab.\n\nKept.\n", first.SourceText);

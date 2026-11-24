@@ -75,7 +75,7 @@ public partial class MainWindow : Window
 
         // The view switch shows its shortcuts: key names, nothing to translate.
         foreach (var (button, n) in ModeSwitch.Children.OfType<Button>().Select((b, i) => (b, i + 1)))
-            ToolTip.SetTip(button, $"Ctrl+{n}");
+            ToolTip.SetTip(button, CommandKey.Text($"Ctrl+{n}"));
 
         // A click on an outline row goes to its section.
         OutlineList.Tapped += OnOutlineItemTapped;
