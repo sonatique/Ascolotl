@@ -86,10 +86,9 @@ public partial class MainWindow : Window
         TitleDragArea.PointerPressed += OnTitleDragPressed;
         AppIcon.PointerPressed += OnAppIconPressed;
 
-        // The view switch shows its shortcuts: key names, nothing to translate. Ctrl+1 to 4 go by the views'
-        // order (Source, Split, WYSIWYG, Read), whatever the buttons' order.
+        // The view switch shows its shortcuts: key names, nothing to translate.
         foreach (var button in ModeSwitch.Children.OfType<Button>())
-            ToolTip.SetTip(button, CommandKey.Text($"Ctrl+{(int)(EditorMode)button.CommandParameter! + 1}"));
+            ToolTip.SetTip(button, CommandKey.Text($"Ctrl+{Array.IndexOf(ViewKeys, (EditorMode)button.CommandParameter!) + 1}"));
 
         // A click on an outline row goes to its section.
         OutlineList.Tapped += OnOutlineItemTapped;
@@ -826,12 +825,13 @@ public partial class MainWindow : Window
             FindDescendant<PreviewView>(PreviewPane)?.FocusPage();
     }
 
+    /// <summary>The views in the order Ctrl+1 to 4 switch to them, as the toolbar and the View menu list them.</summary>
+    private static readonly EditorMode[] ViewKeys = [EditorMode.Read, EditorMode.Wysiwyg, EditorMode.Split, EditorMode.Source];
+
     private static EditorMode? ViewForKey(Key key) => key switch
     {
-        Key.D1 or Key.NumPad1 => EditorMode.Source,
-        Key.D2 or Key.NumPad2 => EditorMode.Split,
-        Key.D3 or Key.NumPad3 => EditorMode.Wysiwyg,
-        Key.D4 or Key.NumPad4 => EditorMode.Read,
+        >= Key.D1 and <= Key.D4 => ViewKeys[key - Key.D1],
+        >= Key.NumPad1 and <= Key.NumPad4 => ViewKeys[key - Key.NumPad1],
         _ => null,
     };
 

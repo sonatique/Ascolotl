@@ -128,30 +128,30 @@
         </MenuItem>
     </MenuItem>
     <MenuItem Header="{x:Static res:Strings.View}">
-        <MenuItem Header="{x:Static res:Strings.SourceMode}"
-                  Command="{Binding SetEditorModeCommand}"
-                  CommandParameter="{x:Static models:EditorMode.Source}"
-                  InputGesture="Ctrl+D1"
-                  ToggleType="Radio"
-                  IsChecked="{Binding IsSourceMode, Mode=OneWay}" />
-        <MenuItem Header="{x:Static res:Strings.SplitMode}"
-                  Command="{Binding SetEditorModeCommand}"
-                  CommandParameter="{x:Static models:EditorMode.Split}"
-                  InputGesture="Ctrl+D2"
-                  ToggleType="Radio"
-                  IsChecked="{Binding IsSplitMode, Mode=OneWay}" />
-        <MenuItem Header="{x:Static res:Strings.WYSIWYGMode}"
-                  Command="{Binding SetEditorModeCommand}"
-                  CommandParameter="{x:Static models:EditorMode.Wysiwyg}"
-                  InputGesture="Ctrl+D3"
-                  ToggleType="Radio"
-                  IsChecked="{Binding IsWysiwygMode, Mode=OneWay}" />
         <MenuItem Header="{x:Static res:Strings.ReadMode}"
                   Command="{Binding SetEditorModeCommand}"
                   CommandParameter="{x:Static models:EditorMode.Read}"
-                  InputGesture="Ctrl+D4"
+                  InputGesture="Ctrl+D1"
                   ToggleType="Radio"
                   IsChecked="{Binding IsReadMode, Mode=OneWay}" />
+        <MenuItem Header="{x:Static res:Strings.WYSIWYGMode}"
+                  Command="{Binding SetEditorModeCommand}"
+                  CommandParameter="{x:Static models:EditorMode.Wysiwyg}"
+                  InputGesture="Ctrl+D2"
+                  ToggleType="Radio"
+                  IsChecked="{Binding IsWysiwygMode, Mode=OneWay}" />
+        <MenuItem Header="{x:Static res:Strings.SplitMode}"
+                  Command="{Binding SetEditorModeCommand}"
+                  CommandParameter="{x:Static models:EditorMode.Split}"
+                  InputGesture="Ctrl+D3"
+                  ToggleType="Radio"
+                  IsChecked="{Binding IsSplitMode, Mode=OneWay}" />
+        <MenuItem Header="{x:Static res:Strings.SourceMode}"
+                  Command="{Binding SetEditorModeCommand}"
+                  CommandParameter="{x:Static models:EditorMode.Source}"
+                  InputGesture="Ctrl+D4"
+                  ToggleType="Radio"
+                  IsChecked="{Binding IsSourceMode, Mode=OneWay}" />
         <MenuItem Header="{x:Static res:Strings.SwitchPane}"
                   Command="{Binding SwitchPaneCommand}"
                   InputGesture="F6" />

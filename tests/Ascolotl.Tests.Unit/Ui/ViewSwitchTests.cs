@@ -42,7 +42,7 @@ public sealed class ViewSwitchTests
         }
 
         Assert.Equal([EditorMode.Read, EditorMode.Wysiwyg, EditorMode.Split, EditorMode.Source], buttons.Select(b => (EditorMode)b.CommandParameter!)); // from reading to source
-        Assert.Equal(new[] { "Ctrl+4", "Ctrl+3", "Ctrl+2", "Ctrl+1" }.Select(k => CommandKey.Text(k)), buttons.Select(b => ToolTip.GetTip(b) as string)); // each view's own key; Cmd on a Mac
+        Assert.Equal(new[] { "Ctrl+1", "Ctrl+2", "Ctrl+3", "Ctrl+4" }.Select(k => CommandKey.Text(k)), buttons.Select(b => ToolTip.GetTip(b) as string)); // each view's own key; Cmd on a Mac
         Click(EditorMode.Source);
         Assert.False(window.FindControl<Control>("FormatBar")!.IsEffectivelyVisible);
         Assert.True(modeSwitch.IsEffectivelyVisible); // still there to leave Source
@@ -170,14 +170,16 @@ public sealed class ViewSwitchTests
         var (window, vm) = Open("= Doc\n", EditorMode.Split);
         window.GetVisualDescendants().OfType<TextEditor>().First().TextArea.Focus(); // typing in the source
 
-        window.KeyPress(Key.D1, Command, PhysicalKey.Digit1, "1");
+        window.KeyPress(Key.D4, Command, PhysicalKey.Digit4, "4");
         Assert.Equal(EditorMode.Source, vm.EditorMode);
-        window.KeyPress(Key.NumPad3, Command, PhysicalKey.NumPad3, "3");
+        window.KeyPress(Key.NumPad2, Command, PhysicalKey.NumPad2, "2");
         Assert.Equal(EditorMode.Wysiwyg, vm.EditorMode);
-        window.KeyPress(Key.D2, Command | RawInputModifiers.Alt, PhysicalKey.Digit2, "~");
-        Assert.Equal(EditorMode.Wysiwyg, vm.EditorMode); // AltGr+2 types "~" on a French keyboard
-        window.KeyPress(Key.D2, Command, PhysicalKey.Digit2, "2");
+        window.KeyPress(Key.D3, Command | RawInputModifiers.Alt, PhysicalKey.Digit3, "#");
+        Assert.Equal(EditorMode.Wysiwyg, vm.EditorMode); // AltGr+3 types "#" on a French keyboard
+        window.KeyPress(Key.D3, Command, PhysicalKey.Digit3, "3");
         Assert.Equal(EditorMode.Split, vm.EditorMode);
+        window.KeyPress(Key.D1, Command, PhysicalKey.Digit1, "1");
+        Assert.Equal(EditorMode.Read, vm.EditorMode);
     }
 
     // The platform's command key for copy, paste and select all: Ctrl, or Cmd on a Mac.
@@ -204,7 +206,7 @@ public sealed class ViewSwitchTests
     {
         var (window, vm) = Open(string.Concat(Enumerable.Range(1, 200).Select(i => $"Paragraph {i}.\n\n")), EditorMode.Split);
         window.GetVisualDescendants().OfType<TextEditor>().First().TextArea.Focus(); // typing in the source
-        window.KeyPress(Key.D3, Command, PhysicalKey.Digit3, "3");
+        window.KeyPress(Key.D2, Command, PhysicalKey.Digit2, "2");
         Pump(window);
         var page = Preview(window).FindControl<ScrollViewer>("PreviewScroll")!;
         Assert.Equal("Paragraph 1.", OnBlock(window)); // the hidden source handed the keyboard to the first block
