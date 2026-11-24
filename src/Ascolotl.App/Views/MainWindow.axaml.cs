@@ -587,16 +587,43 @@ public partial class MainWindow : Window
     }
 
     /// <summary>A click on the app icon opens the window's system menu (Restore, Move, Size, Minimize,
-    /// Maximize, Close), as on any Windows window: the title bar is ours, so the click is passed on.</summary>
+    /// Maximize, Close) under it, as on any Windows window. The title bar is ours, and Avalonia keeps
+    /// the system menu's own message (it gives Alt to the app's menus), so the menu is shown here.</summary>
     private void OnAppIconPressed(object? sender, PointerPressedEventArgs e)
     {
         if (!OperatingSystem.IsWindows() || !e.GetCurrentPoint(this).Properties.IsLeftButtonPressed
             || TryGetPlatformHandle()?.Handle is not { } hwnd) return;
-        const uint WmSysCommand = 0x0112;
-        const int ScKeyMenu = 0xF100; // with a space: the system menu, as Alt+Space opens it
-        PostMessage(hwnd, WmSysCommand, ScKeyMenu, ' ');
         e.Handled = true;
+        var at = AppIcon.PointToScreen(new Point(0, AppIcon.Bounds.Height + 4));
+        Dispatcher.UIThread.Post(() => ShowSystemMenu(hwnd, at)); // out of the press: the menu runs its own loop
     }
+
+    private void ShowSystemMenu(IntPtr hwnd, PixelPoint at)
+    {
+        const int ScSize = 0xF000, ScMove = 0xF010, ScMinimize = 0xF020, ScMaximize = 0xF030, ScRestore = 0xF120;
+        const uint MfGrayed = 1, TpmReturnCmd = 0x0100, WmSysCommand = 0x0112;
+        var menu = GetSystemMenu(hwnd, false);
+        if (menu == IntPtr.Zero) return;
+        // Windows greys what the window's state rules out; for a menu shown by hand, so must we.
+        var maximized = WindowState == WindowState.Maximized;
+        void Enable(int command, bool on) => EnableMenuItem(menu, (uint)command, on ? 0 : MfGrayed);
+        Enable(ScRestore, maximized);
+        Enable(ScMove, !maximized);
+        Enable(ScSize, !maximized && CanResize);
+        Enable(ScMinimize, true);
+        Enable(ScMaximize, !maximized && CanResize);
+        var command = TrackPopupMenu(menu, TpmReturnCmd, at.X, at.Y, 0, hwnd, IntPtr.Zero);
+        if (command != 0) PostMessage(hwnd, WmSysCommand, command, 0);
+    }
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool revert);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern int EnableMenuItem(IntPtr menu, uint item, uint flags);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern int TrackPopupMenu(IntPtr menu, uint flags, int x, int y, int reserved, IntPtr hWnd, IntPtr rect);
 
     [System.Runtime.InteropServices.DllImport("user32.dll")]
     private static extern bool PostMessage(IntPtr hWnd, uint msg, nint wParam, nint lParam);
