@@ -171,8 +171,8 @@ On the WYSIWYG page (and the page in Split), one block at a time has the keyboar
 | First / last block | `Home` / `End` |
 | Edit the block (a table: its first cell) | `Enter` or `F2` |
 | Block menu | `Shift+F10` or the Menu key |
-| Select several blocks / all of them (`Esc`: none) | `Shift+↑` / `Shift+↓` / `Ctrl+A` |
-| Copy / cut the block or the selected blocks | `Ctrl+C` / `Ctrl+X` |
+| Select several blocks / all of them (`Esc`: none; with the mouse: `Shift`+click) | `Shift+↑` / `Shift+↓` / `Ctrl+A` |
+| Copy / cut the block or the selected blocks: as source in editors, formatted in Teams, Outlook, Word or a GitHub comment | `Ctrl+C` / `Ctrl+X` |
 | Paste text or an image as new blocks after the block | `Ctrl+V` |
 | Move the block (or the selected blocks) up / down | `Ctrl+Shift+↑` / `Ctrl+Shift+↓` |
 | Duplicate / delete the block | `Ctrl+Alt+D` / `Delete` |

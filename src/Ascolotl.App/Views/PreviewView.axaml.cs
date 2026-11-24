@@ -1419,8 +1419,21 @@ public partial class PreviewView : UserControl
     /// </summary>
     private void OnPreviewPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        ClearSelection();
         var src = e.Source as Visual;
+        var clickPoint = e.GetPosition(PreviewScroll);
+        var right = e.GetCurrentPoint(this).Properties.IsRightButtonPressed;
+        var hit = _activeEdit is null && TryHitBlock(src, clickPoint, out var hitVis, out _) ? _blockMap.FindIndex(b => b.Vis == hitVis) : -1;
+        // Shift+click selects whole blocks, from the first one so clicked to this one, to copy or move them.
+        if (hit >= 0 && !right && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+        {
+            var anchor = _selectAnchor >= 0 ? _selectAnchor : hit;
+            FocusBlock(hit, bringIntoView: false);
+            Select(anchor);
+            e.Handled = true;
+            return;
+        }
+        // A right-click in the selection keeps it: its menu acts on all of it.
+        if (!(right && Selection is var (first, last) && hit >= first && hit <= last)) ClearSelection();
         var inScrollBar = IsInScrollBar(src);
         if (HandlePressDuringEdit(src, inScrollBar, e) || inScrollBar) return;
 
@@ -1430,9 +1443,7 @@ public partial class PreviewView : UserControl
 
         // Block gestures, resolved with the same _blockMap hit-test as
         // click-to-source tier 2: right-click opens the block context menu.
-        var clickPoint = e.GetPosition(PreviewScroll);
-
-        if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed)
+        if (right)
         {
             if (TryHitBlock(src, clickPoint, out var menuVis, out var menuBlock))
                 ShowBlockContextMenu(menuVis, menuBlock, src, clickPoint);
@@ -2477,7 +2488,7 @@ public partial class PreviewView : UserControl
     }
 
     // Block i, or the selected blocks when i is the one the keyboard is on.
-    private (int First, int Last) BlocksAt(int i) => i == _current && Selection is { } s ? s : (i, i);
+    private (int First, int Last) BlocksAt(int i) => Selection is { } s && i >= s.First && i <= s.Last ? s : (i, i);
 
     private bool MoveBlock(int i, int step)
     {
@@ -2563,7 +2574,22 @@ public partial class PreviewView : UserControl
     {
         var (first, last) = BlocksAt(i);
         if (_doc is null || Blocks(first, last) is not { } range || TopLevel.GetTopLevel(this)?.Clipboard is not { } clipboard) return false;
-        _ = clipboard.SetTextAsync(_doc.SourceText.Substring(range.Start, range.Length));
+        var source = _doc.SourceText.Substring(range.Start, range.Length);
+        // The source, for editors and Ascolotl itself; the HTML, for apps that paste formatted.
+        var item = new DataTransferItem();
+        item.SetText(source);
+        try
+        {
+            var html = ClipboardHtml.Fragment(source, _doc.IsMarkdown, Path.GetDirectoryName(_doc.FilePath));
+            item.Set(DataFormat.CreateBytesPlatformFormat(ClipboardHtml.PlatformFormat), ClipboardHtml.PlatformBytes(html));
+        }
+        catch (Exception ex)
+        {
+            _mainVm?.LogError("Copying the blocks as HTML failed: the text alone goes", ex);
+        }
+        var transfer = new DataTransfer();
+        transfer.Add(item);
+        _ = clipboard.SetDataAsync(transfer);
         return !cut || DeleteBlock(i);
     }
 

@@ -1,6 +1,8 @@
 using Ascolotl.Core.Models;
 using Ascolotl.App.Views;
 using Ascolotl.Core.Resources;
+using Ascolotl.Export;
+using System.Text;
 using Ascolotl.Tests.Unit.Mocks;
 using Avalonia;
 using Avalonia.Automation.Peers;
@@ -483,6 +485,48 @@ public sealed class ViewSwitchTests
         Press(window, Key.Delete);
         Pump(window);
         Assert.Equal("", Text().Trim());
+    }
+
+    [AvaloniaFact]
+    public void ShiftClickedBlocks_CopyAsTheirSourceAndAsHtml()
+    {
+        var (window, _) = Open("One.\n\nTwo.\n\n|===\n| a1 | b1\n|===\n", EditorMode.Wysiwyg);
+        var clipboard = TopLevel.GetTopLevel(window)!.Clipboard!;
+        var html = DataFormat.CreateBytesPlatformFormat(ClipboardHtml.PlatformFormat);
+        Point At(string text)
+        {
+            var t = Preview(window).GetVisualDescendants().OfType<TextBlock>().First(t => (t.Inlines is { Count: > 0 } i ? i.Text : t.Text) == text);
+            return t.TranslatePoint(new Point(2, t.Bounds.Height / 2), window)!.Value;
+        }
+        void ShiftClick(string text)
+        {
+            window.MouseDown(At(text), MouseButton.Left, RawInputModifiers.Shift);
+            window.MouseUp(At(text), MouseButton.Left, RawInputModifiers.Shift);
+            Pump(window);
+        }
+
+        ShiftClick("Two.");
+        ShiftClick("b1"); // on to the table
+        Assert.Null(BlockEditor(window)); // selected, not opened
+        Press(window, Key.C, Command);
+        Assert.Equal("Two.\n\n|===\n| a1 | b1\n|===", clipboard.TryGetTextAsync().GetAwaiter().GetResult());
+        var pasted = Encoding.UTF8.GetString(clipboard.TryGetValueAsync(html).GetAwaiter().GetResult()!);
+        Assert.Contains("Two.", pasted);
+        Assert.Contains("<table border=\"1\"", pasted);
+
+        // The block menu's Copy, from a right-click in the selection, copies all of it too.
+        clipboard.SetTextAsync("x").GetAwaiter().GetResult();
+        ContextMenu? opened = null;
+        using (ContextMenu.OpenedEvent.AddClassHandler<ContextMenu>((menu, _) => opened = menu))
+        {
+            window.MouseDown(At("Two."), MouseButton.Right);
+            window.MouseUp(At("Two."), MouseButton.Right);
+            Pump(window);
+        }
+        opened!.Items.OfType<MenuItem>().Single(m => (string?)m.Header == Strings.MenuCopy)
+            .RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent));
+        Pump(window);
+        Assert.Equal("Two.\n\n|===\n| a1 | b1\n|===", clipboard.TryGetTextAsync().GetAwaiter().GetResult());
     }
 
     [AvaloniaFact]
