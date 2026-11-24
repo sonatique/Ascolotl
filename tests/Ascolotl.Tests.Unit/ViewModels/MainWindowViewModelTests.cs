@@ -1828,7 +1828,7 @@ public sealed class MainWindowViewModelTests : IDisposable
         _fileService.OpenFileResult = ("/tmp/notes.md", "# Notes");
         _ = vm.OpenDocumentCommand.ExecuteAsync(null);
 
-        vm.ToggleSyntaxReferenceCommand.Execute(null);
+        vm.ShowSyntaxReferenceCommand.Execute(null);
 
         Assert.True(vm.SyntaxReference.Markdown);
     }

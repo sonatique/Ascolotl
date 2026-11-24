@@ -3,13 +3,12 @@
              xmlns:res="using:Ascolotl.Core.Resources"
         xmlns:vm="using:Ascolotl.Core.ViewModels"
         xmlns:models="using:Ascolotl.Core.Models"
-        xmlns:assist="using:Ascolotl.Core.Editing.Assist"
         xmlns:views="using:Ascolotl.App.Views"
         xmlns:converters="using:Ascolotl.App.Converters"
         x:Class="Ascolotl.App.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="{x:Static res:Strings.Ascolotl}"
-        Icon="avares://Ascolotl/Assets/app-icon.png"
+        Icon="avares://Ascolotl/Resources/app.ico"
         Width="1280" Height="800"
         MinWidth="600" MinHeight="400"
         DragDrop.AllowDrop="True"
@@ -449,13 +448,14 @@
                          Margin="8"
                          FontSize="14" />
                 <ListBox Name="CommandPaletteList"
+                         Classes="picker"
                          ItemsSource="{Binding CommandPalette.FilteredCommands}"
                          SelectedIndex="{Binding CommandPalette.SelectedIndex, Mode=TwoWay}"
                          MaxHeight="300"
                          Padding="0">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="models:CommandEntry">
-                            <Grid ColumnDefinitions="*, Auto" Margin="8,4">
+                            <Grid ColumnDefinitions="*, Auto">
                                 <TextBlock Grid.Column="0"
                                            Text="{Binding Name}"
                                            VerticalAlignment="Center" />
@@ -466,54 +466,6 @@
                                            VerticalAlignment="Center"
                                            Margin="8,0,0,0" />
                             </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </DockPanel>
-        </Border>
-
-        <!-- Syntax Reference (F1): searchable AsciiDoc cheat-sheet backed by
-             the same catalog as completion. Enter inserts the snippet. -->
-        <Border Name="SyntaxReferenceBackdrop"
-                IsVisible="{Binding SyntaxReference.IsOpen}"
-                Background="Transparent"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch" />
-
-        <Border Name="SyntaxReferenceOverlay"
-                IsVisible="{Binding SyntaxReference.IsOpen}"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Top"
-                Margin="0,80,0,0"
-                Width="560"
-                MaxHeight="440"
-                CornerRadius="12"
-                Background="{DynamicResource ForgeBgSurfaceBrush}"
-                BorderBrush="{DynamicResource ForgeBorderBrush}"
-                BorderThickness="1"
-                BoxShadow="0 4 16 0 #40000000"
-                Padding="0">
-            <DockPanel>
-                <TextBox Name="SyntaxReferenceFilter"
-                         DockPanel.Dock="Top"
-                         Watermark="{Binding SyntaxReference.Watermark}"
-                         Text="{Binding SyntaxReference.FilterText, Mode=TwoWay}"
-                         Margin="8"
-                         FontSize="14" />
-                <ListBox Name="SyntaxReferenceList"
-                         ItemsSource="{Binding SyntaxReference.FilteredItems}"
-                         SelectedIndex="{Binding SyntaxReference.SelectedIndex, Mode=TwoWay}"
-                         MaxHeight="340"
-                         Padding="0">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate x:DataType="assist:AssistItem">
-                            <StackPanel Margin="8,4" Spacing="1">
-                                <TextBlock Text="{Binding Label}" FontSize="12.5" />
-                                <TextBlock Text="{Binding Description}"
-                                           Foreground="{DynamicResource ForgeTextMutedBrush}"
-                                           FontSize="11"
-                                           TextTrimming="CharacterEllipsis" />
-                            </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>

@@ -108,6 +108,32 @@ public class SyntaxReferenceViewModelTests
     }
 
     [Fact]
+    public void OpenAgain_KeepsTheSearch_AndAsksToComeForward()
+    {
+        var vm = new SyntaxReferenceViewModel();
+        vm.Open();
+        vm.FilterText = "table";
+        var asked = 0;
+        vm.ShowRequested += () => asked++;
+        vm.Open();
+        Assert.Equal(1, asked);
+        Assert.Equal("table", vm.FilterText);
+    }
+
+    [Fact]
+    public void AnOpenReference_FollowsTheDocumentInFront()
+    {
+        var vm = new SyntaxReferenceViewModel();
+        vm.Follow(markdown: true); // closed: nothing to follow
+        Assert.False(vm.Markdown);
+        vm.Open();
+        vm.Follow(markdown: true);
+        Assert.True(vm.Markdown);
+        Assert.Contains(vm.FilteredItems, i => i.Snippet.StartsWith("## "));
+        Assert.Contains("Markdown", vm.Title);
+    }
+
+    [Fact]
     public void Selection_NavigatesAndClamps()
     {
         var vm = new SyntaxReferenceViewModel(Items);

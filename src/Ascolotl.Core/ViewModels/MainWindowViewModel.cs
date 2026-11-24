@@ -197,12 +197,17 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private Task ShowAboutAsync() => _dialogService.ShowAboutAsync();
 
+    /// <summary>Opens the reference, in a window of its own, or brings it to the front.</summary>
     [RelayCommand]
-    private void ToggleSyntaxReference()
-    {
-        if (SyntaxReference.IsOpen) SyntaxReference.Close();
-        else SyntaxReference.Open(SelectedDocument?.IsMarkdown == true);
-    }
+    private void ShowSyntaxReference() => SyntaxReference.Open(SelectedDocument?.IsMarkdown == true);
+
+    /// <summary>What every key does, in a window of its own.</summary>
+    public IReadOnlyList<ShortcutGroup> KeyboardShortcuts => ShortcutGroup.For(CommandPalette.AllCommands);
+
+    public event Action? KeyboardShortcutsRequested;
+
+    [RelayCommand]
+    private void ShowKeyboardShortcuts() => KeyboardShortcutsRequested?.Invoke();
 
     public event Action? RecentFilesChanged;
     public event Action<int>? NavigateToLineRequested;
@@ -1550,6 +1555,7 @@ public partial class MainWindowViewModel : ObservableObject
         if (newValue is not null)
         {
             newValue.PropertyChanged += OnSelectedDocumentPropertyChanged;
+            SyntaxReference.Follow(newValue.IsMarkdown); // an open reference shows the syntax of the document in front
             if (EditorMode != newValue.EditorMode)
                 EditorMode = newValue.EditorMode; // renders the document unless Source
             else if (EditorMode != EditorMode.Source)
@@ -1754,7 +1760,8 @@ public partial class MainWindowViewModel : ObservableObject
             new(Strings.CommandSwitchPane, "F6", Strings.CommandCategoryNavigation, () => SwitchPaneCommand.Execute(null)),
             new(Strings.NextProblem, "F8", Strings.CommandCategoryNavigation, () => NextProblemCommand.Execute(null)),
             new(Strings.PreviousProblem, "Shift+F8", Strings.CommandCategoryNavigation, () => PreviousProblemCommand.Execute(null)),
-            new(Strings.CommandAsciiDocSyntaxReference, "F1", Strings.CommandCategoryHelp, () => ToggleSyntaxReferenceCommand.Execute(null)),
+            new(Strings.CommandAsciiDocSyntaxReference, "F1", Strings.CommandCategoryHelp, () => ShowSyntaxReferenceCommand.Execute(null)),
+            new(Strings.KeyboardShortcutsTitle, null, Strings.CommandCategoryHelp, () => ShowKeyboardShortcutsCommand.Execute(null)),
             new(Strings.CommandAbout, null, Strings.CommandCategoryHelp, () => ShowAboutCommand.Execute(null)),
         ];
     }

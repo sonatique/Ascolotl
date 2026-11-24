@@ -1,0 +1,50 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Ascolotl.Core.ViewModels"
+        xmlns:assist="using:Ascolotl.Core.Editing.Assist"
+        x:Class="Ascolotl.App.Views.SyntaxReferenceWindow"
+        x:DataType="vm:SyntaxReferenceViewModel"
+        Title="{Binding Title}"
+        Width="520" Height="560"
+        MinWidth="320" MinHeight="240"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        FontSize="12.5"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        ExtendClientAreaTitleBarHeightHint="34"
+        Background="{DynamicResource ForgeBgSurfaceBrush}">
+
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Height="34"
+                Background="{DynamicResource ForgeTitleBarBrush}">
+            <TextBlock Text="{Binding $parent[Window].Title}"
+                       VerticalAlignment="Center" Margin="14,0,0,0"
+                       FontSize="12" FontWeight="Medium"
+                       Foreground="{DynamicResource ForgeTextBrush}" />
+        </Border>
+        <TextBox Name="SyntaxReferenceFilter"
+                 DockPanel.Dock="Top"
+                 Watermark="{Binding Watermark}"
+                 Text="{Binding FilterText, Mode=TwoWay}"
+                 Margin="8"
+                 FontSize="14" />
+        <ListBox Name="SyntaxReferenceList"
+                 Classes="picker"
+                 Background="Transparent"
+                 ItemsSource="{Binding FilteredItems}"
+                 SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}">
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="assist:AssistItem">
+                    <StackPanel Spacing="1">
+                        <TextBlock Text="{Binding Label}" FontSize="12.5" />
+                        <TextBlock Text="{Binding Description}"
+                                   Foreground="{DynamicResource ForgeTextMutedBrush}"
+                                   FontSize="11"
+                                   TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</Window>

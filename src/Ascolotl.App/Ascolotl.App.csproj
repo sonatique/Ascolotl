@@ -40,6 +40,8 @@
   <ItemGroup>
     <AvaloniaResource Include="Assets\Fonts\JetBrainsMono-Regular.ttf" />
     <AvaloniaResource Include="Assets\app-icon.png" />
+    <!-- The window's icon: an image per size, as the exe's, so the taskbar's isn't shrunk from 256 px. -->
+    <AvaloniaResource Include="Resources\app.ico" />
     <!-- Licenses: shown from the About box, and beside the app in every download. -->
     <AvaloniaResource Include="..\..\THIRD-PARTY-NOTICES.txt" Link="Assets\THIRD-PARTY-NOTICES.txt" />
     <None Include="..\..\THIRD-PARTY-NOTICES.txt" Link="THIRD-PARTY-NOTICES.txt"

@@ -175,15 +175,63 @@ public sealed class KeyboardShortcutTests
         MenuItem Item(string header) => items.First(i => (string?)i.Header == header);
         Assert.Equal(CommandKey.OnPlatform(new KeyGesture(Key.P, KeyModifiers.Control | KeyModifiers.Shift)), Item(Ascolotl.Core.Resources.Strings.MenuCommandPalette).InputGesture);
         Assert.Equal(new KeyGesture(Key.F1), Item(Ascolotl.Core.Resources.Strings.MenuSyntaxReference).InputGesture);
-        Assert.Equal(Ascolotl.App.Views.AppLinks.KeyboardShortcuts, Item(Ascolotl.Core.Resources.Strings.MenuKeyboardShortcuts).Tag);
+        Assert.Equal(vm.ShowKeyboardShortcutsCommand, Item(Ascolotl.Core.Resources.Strings.MenuKeyboardShortcuts).Command);
 
         TypeInTheSource(window);
         vm.ToggleCommandPaletteCommand.Execute(null); // as the menu does: the search box still takes the keyboard
         Pump(window);
         Assert.True(window.FindControl<TextBox>("CommandPaletteFilter")!.IsFocused);
+        var row = window.FindControl<ListBox>("CommandPaletteList")!.GetVisualDescendants().OfType<ListBoxItem>().First();
+        Assert.InRange(row.Bounds.Height, 1, 30); // a line, not Fluent's 40 px
         Press(window, new KeyGesture(Key.Escape));
         Press(window, new KeyGesture(Key.F1));
-        Assert.True(window.FindControl<TextBox>("SyntaxReferenceFilter")!.IsFocused);
+        var reference = window.OwnedWindows.OfType<SyntaxReferenceWindow>().Single(); // its own window
+        Assert.True(reference.FindControl<TextBox>("SyntaxReferenceFilter")!.IsFocused);
+    }
+
+    [AvaloniaFact]
+    public void SyntaxReference_IsAWindowThatStays_InsertingAtTheCaret()
+    {
+        var (window, vm) = Open("Text.\n", EditorMode.Split);
+        TypeInTheSource(window);
+        Press(window, new KeyGesture(Key.F1));
+        var reference = window.OwnedWindows.OfType<SyntaxReferenceWindow>().Single();
+        vm.SyntaxReference.FilterText = "equation";
+        Pump(window);
+        reference.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.None, null);
+        Pump(window);
+        Assert.Contains("equation", vm.SelectedDocument!.SourceText); // inserted in the source
+        Assert.True(reference.IsVisible); // and still there for the next one
+
+        Press(window, new KeyGesture(Key.F1)); // open already: it comes forward with its search
+        Assert.Same(reference, window.OwnedWindows.OfType<SyntaxReferenceWindow>().Single());
+        Assert.Equal("equation", vm.SyntaxReference.FilterText);
+
+        reference.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.None, null);
+        Pump(window);
+        Assert.False(vm.SyntaxReference.IsOpen);
+        Assert.Empty(window.OwnedWindows.OfType<SyntaxReferenceWindow>());
+    }
+
+    [AvaloniaFact]
+    public void KeyboardShortcuts_ShowEveryCommandKey_AndThePageKeys_InAWindow()
+    {
+        var (window, vm) = Open("Text.\n", EditorMode.Split);
+        vm.ShowKeyboardShortcutsCommand.Execute(null);
+        Pump(window);
+        var shortcuts = window.OwnedWindows.OfType<KeyboardShortcutsWindow>().Single();
+        var shown = shortcuts.GetVisualDescendants().OfType<TextBlock>().Select(t => t.Text).ToList();
+        foreach (var command in vm.CommandPalette.AllCommands.Where(c => c.Shortcut is not null))
+            Assert.Contains(command.Name, shown);
+        Assert.Contains(CommandKey.Text("Ctrl+Shift+P"), shown);
+        Assert.Contains(Ascolotl.Core.Resources.Strings.KeysBlockMenu, shown);
+
+        vm.ShowKeyboardShortcutsCommand.Execute(null); // open already: no second one
+        Pump(window);
+        Assert.Single(window.OwnedWindows.OfType<KeyboardShortcutsWindow>());
+        shortcuts.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.None, null);
+        Pump(window);
+        Assert.Empty(window.OwnedWindows.OfType<KeyboardShortcutsWindow>());
     }
 
     [AvaloniaFact]
@@ -217,7 +265,9 @@ public sealed class KeyboardShortcutTests
 
         Press(window, new KeyGesture(Key.F1));
         Assert.False(source.IsKeyboardFocusWithin);
-        Press(window, new KeyGesture(Key.Escape));
+        var reference = window.OwnedWindows.OfType<SyntaxReferenceWindow>().Single();
+        reference.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.None, null);
+        Pump(window);
         Assert.True(source.IsKeyboardFocusWithin);
     }
 

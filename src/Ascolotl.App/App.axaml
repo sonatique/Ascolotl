@@ -333,6 +333,12 @@
             <Setter Property="Background" Value="{DynamicResource ForgeAccentSubtleBrush}" />
         </Style>
 
+        <!-- Command palette, syntax reference and shortcut rows: tight, as in the completion list. -->
+        <Style Selector="ListBox.picker ListBoxItem">
+            <Setter Property="Padding" Value="12,4" />
+            <Setter Property="MinHeight" Value="0" />
+        </Style>
+
         <!-- File tree rows as tall as the outline's (Fluent's are 32px). -->
         <Style Selector="TreeView#ProjectTree TreeViewItem">
             <Setter Property="MinHeight" Value="25" />

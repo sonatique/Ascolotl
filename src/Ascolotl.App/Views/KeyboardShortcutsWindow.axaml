@@ -1,0 +1,70 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:res="using:Ascolotl.Core.Resources"
+        xmlns:models="using:Ascolotl.Core.Models"
+        xmlns:views="using:Ascolotl.App.Views"
+        x:Class="Ascolotl.App.Views.KeyboardShortcutsWindow"
+        Title="{x:Static res:Strings.KeyboardShortcutsTitle}"
+        Width="600" Height="640"
+        MinWidth="380" MinHeight="240"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        FontSize="12.5"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        ExtendClientAreaTitleBarHeightHint="34"
+        Background="{DynamicResource ForgeBgBrush}">
+
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Height="34"
+                Background="{DynamicResource ForgeTitleBarBrush}">
+            <TextBlock Text="{Binding $parent[Window].Title}"
+                       VerticalAlignment="Center" Margin="14,0,0,0"
+                       FontSize="12" FontWeight="Medium"
+                       Foreground="{DynamicResource ForgeTextBrush}" />
+        </Border>
+        <ScrollViewer Name="ShortcutsScroll" Focusable="True" FocusAdorner="{x:Null}">
+            <ItemsControl Name="ShortcutGroups" Grid.IsSharedSizeScope="True" Margin="0,4,0,16">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="models:ShortcutGroup">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Title}"
+                                       Margin="18,14,18,6"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource ForgeAccentTextBrush}" />
+                            <ItemsControl ItemsSource="{Binding Rows}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="models:Shortcut">
+                                        <Grid Margin="18,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" SharedSizeGroup="Keys" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Action}"
+                                                       TextWrapping="Wrap"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource ForgeTextBrush}" />
+                                            <Border Grid.Column="1"
+                                                    Margin="16,0,0,0"
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Center"
+                                                    Padding="6,1"
+                                                    CornerRadius="4"
+                                                    Background="{DynamicResource ForgeBgSurfaceBrush}"
+                                                    BorderBrush="{DynamicResource ForgeBorderBrush}"
+                                                    BorderThickness="1">
+                                                <TextBlock Text="{Binding Keys, Converter={x:Static views:CommandKey.TextConverter}}"
+                                                           FontSize="11.5"
+                                                           Foreground="{DynamicResource ForgeTextMutedBrush}" />
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

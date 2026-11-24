@@ -572,4 +572,25 @@ Questo file esiste ma non è stato possibile leggerlo. Forse è bloccato da un a
   <data name="TableRowBelow" xml:space="preserve"><value>Inserisci riga sotto</value></data>
   <data name="TableColumnLeft" xml:space="preserve"><value>Inserisci colonna a sinistra</value></data>
   <data name="TableColumnRight" xml:space="preserve"><value>Inserisci colonna a destra</value></data>
+  <data name="KeyboardShortcutsTitle" xml:space="preserve"><value>Scorciatoie da tastiera</value></data>
+  <data name="MarkdownSyntaxReference" xml:space="preserve"><value>Guida alla sintassi Markdown</value></data>
+  <data name="KeysCommandPalette" xml:space="preserve"><value>Tavolozza dei comandi</value></data>
+  <data name="KeysGroupWriting" xml:space="preserve"><value>Nel sorgente o in un blocco aperto</value></data>
+  <data name="KeysGroupPage" xml:space="preserve"><value>Sulla pagina (WYSIWYG e la pagina in Divisa)</value></data>
+  <data name="KeysGroupBlock" xml:space="preserve"><value>In un blocco o una cella di tabella aperti</value></data>
+  <data name="KeysGroupRead" xml:space="preserve"><value>Lettura</value></data>
+  <data name="KeysHeadings" xml:space="preserve"><value>Titolo di livello da 1 a 6 / torna a paragrafo</value></data>
+  <data name="KeysCompletion" xml:space="preserve"><value>Completa la sintassi</value></data>
+  <data name="KeysUndoRedo" xml:space="preserve"><value>Annulla / ripeti</value></data>
+  <data name="KeysBlocks" xml:space="preserve"><value>Blocco precedente / successivo</value></data>
+  <data name="KeysFirstLast" xml:space="preserve"><value>Primo / ultimo blocco</value></data>
+  <data name="KeysEditBlock" xml:space="preserve"><value>Modifica il blocco (una tabella: la sua prima cella)</value></data>
+  <data name="KeysBlockMenu" xml:space="preserve"><value>Menu del blocco</value></data>
+  <data name="KeysSelectBlocks" xml:space="preserve"><value>Seleziona più blocchi / tutti</value></data>
+  <data name="KeysLeavePage" xml:space="preserve"><value>Esci dalla pagina</value></data>
+  <data name="KeysApplyCancel" xml:space="preserve"><value>Applica / annulla</value></data>
+  <data name="KeysNextCell" xml:space="preserve"><value>Cella successiva / precedente</value></data>
+  <data name="KeysAddRow" xml:space="preserve"><value>Applica la cella e aggiungi una riga sotto</value></data>
+  <data name="KeysReadEdit" xml:space="preserve"><value>Modifica il blocco visibile</value></data>
+  <data name="KeysSelectAll" xml:space="preserve"><value>Seleziona tutto</value></data>
 </root>

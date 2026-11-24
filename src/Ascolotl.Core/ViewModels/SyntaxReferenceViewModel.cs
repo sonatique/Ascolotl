@@ -26,10 +26,15 @@ public partial class SyntaxReferenceViewModel : ObservableObject
     private bool _isOpen;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Watermark))]
+    [NotifyPropertyChangedFor(nameof(Watermark), nameof(Title))]
     private bool _markdown;
 
     public string Watermark => Markdown ? Strings.SearchMarkdownSyntaxEnterInserts : Strings.SearchAsciiDocSyntaxEnterInserts;
+
+    public string Title => Markdown ? Strings.MarkdownSyntaxReference : Strings.CommandAsciiDocSyntaxReference;
+
+    /// <summary>Asked to open while open: its window comes to the front.</summary>
+    public event Action? ShowRequested;
 
     public ObservableCollection<AssistItem> FilteredItems { get; } = [];
 
@@ -44,15 +49,30 @@ public partial class SyntaxReferenceViewModel : ObservableObject
             ? FilteredItems[SelectedIndex]
             : null;
 
-    /// <summary>Opens on the syntax of the document in front.</summary>
+    /// <summary>Opens on the syntax of the document in front; open already, it keeps its search and comes to the front.</summary>
     public void Open(bool markdown = false)
     {
+        if (IsOpen)
+        {
+            Follow(markdown);
+            ShowRequested?.Invoke();
+            return;
+        }
         Markdown = markdown;
         _all = markdown ? MarkdownAssistCatalog.ReferenceItems : _asciiDoc;
         FilterText = string.Empty;
         RefreshFilter(); // also when the filter was already empty
         SelectedIndex = 0;
         IsOpen = true;
+    }
+
+    /// <summary>The document in front changed: the open reference shows its syntax, keeping the search.</summary>
+    public void Follow(bool markdown)
+    {
+        if (!IsOpen || markdown == Markdown) return;
+        Markdown = markdown;
+        _all = markdown ? MarkdownAssistCatalog.ReferenceItems : _asciiDoc;
+        RefreshFilter();
     }
 
     public void Close() => IsOpen = false;

@@ -572,4 +572,25 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="TableRowBelow" xml:space="preserve"><value>Insertar fila abajo</value></data>
   <data name="TableColumnLeft" xml:space="preserve"><value>Insertar columna a la izquierda</value></data>
   <data name="TableColumnRight" xml:space="preserve"><value>Insertar columna a la derecha</value></data>
+  <data name="KeyboardShortcutsTitle" xml:space="preserve"><value>Atajos de teclado</value></data>
+  <data name="MarkdownSyntaxReference" xml:space="preserve"><value>Referencia de sintaxis Markdown</value></data>
+  <data name="KeysCommandPalette" xml:space="preserve"><value>Paleta de comandos</value></data>
+  <data name="KeysGroupWriting" xml:space="preserve"><value>En la fuente o un bloque abierto</value></data>
+  <data name="KeysGroupPage" xml:space="preserve"><value>En la página (WYSIWYG y la página en Dividido)</value></data>
+  <data name="KeysGroupBlock" xml:space="preserve"><value>En un bloque o una celda de tabla abiertos</value></data>
+  <data name="KeysGroupRead" xml:space="preserve"><value>Lectura</value></data>
+  <data name="KeysHeadings" xml:space="preserve"><value>Encabezado de nivel 1 a 6 / volver a párrafo</value></data>
+  <data name="KeysCompletion" xml:space="preserve"><value>Completar la sintaxis</value></data>
+  <data name="KeysUndoRedo" xml:space="preserve"><value>Deshacer / rehacer</value></data>
+  <data name="KeysBlocks" xml:space="preserve"><value>Bloque anterior / siguiente</value></data>
+  <data name="KeysFirstLast" xml:space="preserve"><value>Primer / último bloque</value></data>
+  <data name="KeysEditBlock" xml:space="preserve"><value>Editar el bloque (una tabla: su primera celda)</value></data>
+  <data name="KeysBlockMenu" xml:space="preserve"><value>Menú del bloque</value></data>
+  <data name="KeysSelectBlocks" xml:space="preserve"><value>Seleccionar varios bloques / todos</value></data>
+  <data name="KeysLeavePage" xml:space="preserve"><value>Salir de la página</value></data>
+  <data name="KeysApplyCancel" xml:space="preserve"><value>Aplicar / cancelar</value></data>
+  <data name="KeysNextCell" xml:space="preserve"><value>Celda siguiente / anterior</value></data>
+  <data name="KeysAddRow" xml:space="preserve"><value>Aplicar la celda y añadir una fila debajo</value></data>
+  <data name="KeysReadEdit" xml:space="preserve"><value>Editar el bloque visible</value></data>
+  <data name="KeysSelectAll" xml:space="preserve"><value>Seleccionar todo</value></data>
 </root>

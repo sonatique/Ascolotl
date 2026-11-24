@@ -572,4 +572,25 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="TableRowBelow" xml:space="preserve"><value>Insert row below</value></data>
   <data name="TableColumnLeft" xml:space="preserve"><value>Insert column left</value></data>
   <data name="TableColumnRight" xml:space="preserve"><value>Insert column right</value></data>
+  <data name="KeyboardShortcutsTitle" xml:space="preserve"><value>Keyboard Shortcuts</value></data>
+  <data name="MarkdownSyntaxReference" xml:space="preserve"><value>Markdown Syntax Reference</value></data>
+  <data name="KeysCommandPalette" xml:space="preserve"><value>Command Palette</value></data>
+  <data name="KeysGroupWriting" xml:space="preserve"><value>In the source or an open block</value></data>
+  <data name="KeysGroupPage" xml:space="preserve"><value>On the page (WYSIWYG, and the page in Split)</value></data>
+  <data name="KeysGroupBlock" xml:space="preserve"><value>In an open block or table cell</value></data>
+  <data name="KeysGroupRead" xml:space="preserve"><value>Reading</value></data>
+  <data name="KeysHeadings" xml:space="preserve"><value>Heading level 1 to 6 / back to a paragraph</value></data>
+  <data name="KeysCompletion" xml:space="preserve"><value>Complete the syntax</value></data>
+  <data name="KeysUndoRedo" xml:space="preserve"><value>Undo / redo</value></data>
+  <data name="KeysBlocks" xml:space="preserve"><value>Previous / next block</value></data>
+  <data name="KeysFirstLast" xml:space="preserve"><value>First / last block</value></data>
+  <data name="KeysEditBlock" xml:space="preserve"><value>Edit the block (a table: its first cell)</value></data>
+  <data name="KeysBlockMenu" xml:space="preserve"><value>Block menu</value></data>
+  <data name="KeysSelectBlocks" xml:space="preserve"><value>Select several blocks / all of them</value></data>
+  <data name="KeysLeavePage" xml:space="preserve"><value>Leave the page</value></data>
+  <data name="KeysApplyCancel" xml:space="preserve"><value>Apply / cancel</value></data>
+  <data name="KeysNextCell" xml:space="preserve"><value>Next / previous cell</value></data>
+  <data name="KeysAddRow" xml:space="preserve"><value>Apply the cell and add a row below</value></data>
+  <data name="KeysReadEdit" xml:space="preserve"><value>Edit the block in view</value></data>
+  <data name="KeysSelectAll" xml:space="preserve"><value>Select all</value></data>
 </root>

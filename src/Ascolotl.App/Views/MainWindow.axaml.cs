@@ -10,6 +10,7 @@ using Avalonia.VisualTree;
 using AvaloniaEdit;
 using Ascolotl.App.Views.Assist;
 using Ascolotl.Core.Editing;
+using Ascolotl.Core.Editing.Assist;
 using Ascolotl.Core.Models;
 using Ascolotl.Core.Services;
 using Ascolotl.Core.ViewModels;
@@ -140,15 +141,6 @@ public partial class MainWindow : Window
 
         // Click outside command palette to close
         CommandPaletteBackdrop.PointerPressed += OnCommandPaletteBackdropPressed;
-
-        // Syntax reference (F1) routing
-        SyntaxReferenceFilter.KeyDown += OnSyntaxReferenceKeyDown;
-        SyntaxReferenceBackdrop.PointerPressed += (_, e) =>
-        {
-            _viewModel?.SyntaxReference.Close();
-            e.Handled = true;
-        };
-        SyntaxReferenceList.DoubleTapped += (_, _) => InsertSelectedSyntax();
     }
 
     private void OnDataContextChanged(object? sender, EventArgs e)
@@ -161,7 +153,9 @@ public partial class MainWindow : Window
             _viewModel.NewDocumentCreated -= OnNewDocumentCreated;
             _viewModel.SwitchPaneRequested -= OnSwitchPaneRequested;
             _viewModel.CommandPalette.PropertyChanged -= OnOverlayChanged;
-            _viewModel.SyntaxReference.PropertyChanged -= OnOverlayChanged;
+            _viewModel.SyntaxReference.PropertyChanged -= OnSyntaxReferenceChanged;
+            _viewModel.SyntaxReference.ShowRequested -= ShowSyntaxReference;
+            _viewModel.KeyboardShortcutsRequested -= ShowKeyboardShortcuts;
             _viewModel.ExportProfilesChanged -= RebuildExportMenu;
         }
 
@@ -175,7 +169,9 @@ public partial class MainWindow : Window
             _viewModel.NewDocumentCreated += OnNewDocumentCreated;
             _viewModel.SwitchPaneRequested += OnSwitchPaneRequested;
             _viewModel.CommandPalette.PropertyChanged += OnOverlayChanged;
-            _viewModel.SyntaxReference.PropertyChanged += OnOverlayChanged;
+            _viewModel.SyntaxReference.PropertyChanged += OnSyntaxReferenceChanged;
+            _viewModel.SyntaxReference.ShowRequested += ShowSyntaxReference;
+            _viewModel.KeyboardShortcutsRequested += ShowKeyboardShortcuts;
             RebuildRecentFilesMenu(_viewModel);
             UpdateEditorLayout(_viewModel.EditorMode);
             UpdateSidebarColumn();
@@ -655,23 +651,22 @@ public partial class MainWindow : Window
         BeginMoveDrag(e);
     }
 
-    // Where the keyboard was when the palette or the reference opened.
+    // Where the keyboard was when the palette opened.
     private IInputElement? _beforeOverlay;
 
-    /// <summary>The command palette or the syntax reference takes the keyboard in its search box as it opens,
+    /// <summary>The command palette takes the keyboard in its search box as it opens,
     /// from its key, the menu or the palette, and gives it back as it closes, unless a command took it.</summary>
     private void OnOverlayChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName != nameof(CommandPaletteViewModel.IsOpen) || _viewModel is null) return;
         var focused = FocusManager?.GetFocusedElement();
-        var inOverlay = focused == CommandPaletteFilter || focused == SyntaxReferenceFilter;
-        if (sender == _viewModel.CommandPalette ? _viewModel.CommandPalette.IsOpen : _viewModel.SyntaxReference.IsOpen)
+        var inOverlay = focused == CommandPaletteFilter;
+        if (_viewModel.CommandPalette.IsOpen)
         {
             if (!inOverlay) _beforeOverlay = focused;
-            var filter = sender == _viewModel.CommandPalette ? CommandPaletteFilter : SyntaxReferenceFilter;
-            Dispatcher.UIThread.Post(() => filter.Focus(), DispatcherPriority.Input);
+            Dispatcher.UIThread.Post(() => CommandPaletteFilter.Focus(), DispatcherPriority.Input);
         }
-        else if (!_viewModel.CommandPalette.IsOpen && !_viewModel.SyntaxReference.IsOpen)
+        else
         {
             var back = _beforeOverlay;
             _beforeOverlay = null;
@@ -681,6 +676,66 @@ public partial class MainWindow : Window
                 else FocusDocument();
             }
         }
+    }
+
+    // --- Windows kept open beside this one: the syntax reference and the keyboard shortcuts ---
+
+    private readonly Dictionary<Type, Window> _tools = [];
+    private readonly Dictionary<Type, PixelPoint> _toolPlaces = []; // where each was left, for this session
+
+    /// <summary>Shows the tool window of type <typeparamref name="T"/>, made by <paramref name="make"/> unless
+    /// it is open already, where it was last left; it stays above this window and closes with it.</summary>
+    private T ShowTool<T>(Func<T> make, Action? closed = null) where T : Window
+    {
+        if (_tools.TryGetValue(typeof(T), out var open))
+        {
+            open.Activate();
+            return (T)open;
+        }
+        var tool = make();
+        if (_toolPlaces.TryGetValue(typeof(T), out var at))
+        {
+            tool.WindowStartupLocation = WindowStartupLocation.Manual;
+            tool.Position = at;
+        }
+        var hadKeyboard = false;
+        tool.Closing += (_, _) =>
+        {
+            _toolPlaces[typeof(T)] = tool.Position;
+            hadKeyboard = tool.IsActive;
+        };
+        tool.Closed += (_, _) =>
+        {
+            _tools.Remove(typeof(T));
+            closed?.Invoke();
+            if (hadKeyboard) Activate(); // the keyboard comes back here, as Windows does but not every Linux desktop
+        };
+        _tools[typeof(T)] = tool;
+        tool.Show(this);
+        return tool;
+    }
+
+    private void ShowKeyboardShortcuts()
+    {
+        if (_viewModel is { } vm) ShowTool(() => new KeyboardShortcutsWindow(vm.KeyboardShortcuts));
+    }
+
+    private void OnSyntaxReferenceChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(SyntaxReferenceViewModel.IsOpen) || _viewModel is null) return;
+        if (_viewModel.SyntaxReference.IsOpen) ShowSyntaxReference();
+        else _tools.GetValueOrDefault(typeof(SyntaxReferenceWindow))?.Close();
+    }
+
+    private void ShowSyntaxReference()
+    {
+        if (_viewModel is not { } vm) return;
+        ShowTool(() =>
+        {
+            var reference = new SyntaxReferenceWindow { DataContext = vm.SyntaxReference };
+            reference.Insert += InsertSyntax;
+            return reference;
+        }, closed: vm.SyntaxReference.Close).FocusSearch();
     }
 
     // --- Keyboard shortcuts ---
@@ -735,11 +790,6 @@ public partial class MainWindow : Window
             _viewModel.CommandPalette.Close();
             e.Handled = true;
         }
-        else if (e.Key == Key.Escape && _viewModel.SyntaxReference.IsOpen)
-        {
-            _viewModel.SyntaxReference.Close();
-            e.Handled = true;
-        }
         // The page's changes are in the source's history, also while the source is hidden.
         // Not under an open block, whose own editor has its own history.
         else if (CommandKey.AsWritten(e.KeyModifiers) is KeyModifiers.Control or (KeyModifiers.Control | KeyModifiers.Shift) && e.Key is Key.Z or Key.Y
@@ -785,44 +835,12 @@ public partial class MainWindow : Window
         _ => null,
     };
 
-    // --- Syntax reference routing ---
-
-    private void OnSyntaxReferenceKeyDown(object? sender, KeyEventArgs e)
+    /// <summary>Insert a reference entry's snippet at the source editor's caret (Source/Split), and give
+    /// this window the keyboard to go on typing; the reference stays open. In WYSIWYG and Read, where
+    /// there is no caret to target, the reference stays a lookup tool.</summary>
+    private void InsertSyntax(AssistItem item)
     {
         if (_viewModel is null) return;
-
-        if (e.Key == Key.Enter)
-        {
-            InsertSelectedSyntax();
-            e.Handled = true;
-        }
-        else if (e.Key == Key.Escape)
-        {
-            _viewModel.SyntaxReference.Close();
-            e.Handled = true;
-        }
-        else if (e.Key == Key.Up)
-        {
-            _viewModel.SyntaxReference.MoveUp();
-            e.Handled = true;
-        }
-        else if (e.Key == Key.Down)
-        {
-            _viewModel.SyntaxReference.MoveDown();
-            e.Handled = true;
-        }
-    }
-
-    /// <summary>Insert the selected reference entry's snippet at the source
-    /// editor's caret (Source/Split); the reference stays a lookup tool in
-    /// WYSIWYG, where there is no caret to target.</summary>
-    private void InsertSelectedSyntax()
-    {
-        if (_viewModel?.SyntaxReference.SelectedItem is not { } item)
-            return;
-
-        _viewModel.SyntaxReference.Close();
-
         var editorView = FindDescendant<SourceEditorView>(EditorPane);
         if (editorView is null || !EditorPane.IsVisible) // WYSIWYG and Read keep it hidden: no caret to see
         {
@@ -830,8 +848,8 @@ public partial class MainWindow : Window
             return;
         }
 
-        var text = Ascolotl.Core.Editing.Assist.Snippet.Parse(item.Snippet).Text;
-        editorView.InsertAtCaret(text);
+        editorView.InsertAtCaret(Ascolotl.Core.Editing.Assist.Snippet.Parse(item.Snippet).Text);
+        Activate();
     }
 
     // --- Zoom gestures ---
