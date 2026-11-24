@@ -9,8 +9,10 @@
              laid out 40px too wide was clipped on both sides). The insets are a
              margin on the host and a bottom spacer in the panel instead, which
              measure and scroll correctly. -->
+        <!-- No focus frame: around the whole page it reads as a border; the status bar says the page has the keyboard. -->
         <ScrollViewer x:Name="PreviewScroll"
                       Focusable="True"
+                      FocusAdorner="{x:Null}"
                       HorizontalScrollBarVisibility="Disabled"
                       VerticalScrollBarVisibility="Auto">
             <!-- No clip of its own: the block outline reaches past the page edge. -->
