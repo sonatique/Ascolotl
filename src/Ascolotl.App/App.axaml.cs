@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
@@ -26,6 +27,19 @@ public class App : Application
 
     /// <summary>Set by Program when a running instance held the lock but never accepted the files.</summary>
     internal static bool ForwardFailed { get; set; }
+
+    static App()
+    {
+        // A window drawing its own title bar moves by it: Avalonia leaves that to the app. Every dialog and
+        // tool window; the main window's title row, with its tabs, does it itself.
+        InputElement.PointerPressedEvent.AddClassHandler<Window>((window, e) =>
+        {
+            if (window is Views.MainWindow || !window.ExtendClientAreaToDecorationsHint) return;
+            var press = e.GetCurrentPoint(window);
+            if (press.Properties.IsLeftButtonPressed && press.Position.Y < window.ExtendClientAreaTitleBarHeightHint)
+                window.BeginMoveDrag(e);
+        });
+    }
 
     public override void Initialize()
     {
