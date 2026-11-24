@@ -432,7 +432,7 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="StatusEditCancelled" xml:space="preserve"><value>Bearbeitung abgebrochen</value></data>
   <data name="StatusEditDiscarded" xml:space="preserve"><value>Bearbeitung verworfen — das Dokument hat sich geändert, während der Block offen war</value></data>
   <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ zwischen Blöcken wechseln · Enter bearbeiten · Shift+F10 Menü · Tab Seite verlassen</value></data>
-  <data name="StatusReadKeys" xml:space="preserve"><value>Lesen · Doppelklick oder Enter bearbeitet · Shift+Klick wählt aus · Ctrl+C kopiert</value></data>
+  <data name="StatusReadKeys" xml:space="preserve"><value>Lesen · Ziehen wählt aus, Doppelklick ein Wort · Ctrl+C kopiert · Enter bearbeitet</value></data>
   <data name="StatusEditingBlock" xml:space="preserve"><value>Block wird bearbeitet — Übernehmen (Ctrl+Enter) oder daneben klicken zum Übernehmen, Esc zum Abbrechen</value></data>
   <data name="StatusEditingCell" xml:space="preserve"><value>Zelle wird bearbeitet — Tab zur nächsten Zelle, Ctrl+Enter für eine neue Zeile, Esc zum Abbrechen</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Bearbeiten Sie für dieses Layout den Tabellenquelltext</value></data>

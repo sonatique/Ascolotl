@@ -432,7 +432,7 @@ Questo file esiste ma non è stato possibile leggerlo. Forse è bloccato da un a
   <data name="StatusEditCancelled" xml:space="preserve"><value>Modifica annullata</value></data>
   <data name="StatusEditDiscarded" xml:space="preserve"><value>Modifica scartata — il documento è cambiato mentre il blocco era aperto</value></data>
   <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ spostarsi tra i blocchi · Invio modifica · Shift+F10 menu · Tab esci dalla pagina</value></data>
-  <data name="StatusReadKeys" xml:space="preserve"><value>Lettura · doppio clic o Invio modifica · Shift+clic seleziona · Ctrl+C copia</value></data>
+  <data name="StatusReadKeys" xml:space="preserve"><value>Lettura · trascinare seleziona, doppio clic una parola · Ctrl+C copia · Invio modifica</value></data>
   <data name="StatusEditingBlock" xml:space="preserve"><value>Modifica del blocco — Applica (Ctrl+Invio) o fai clic altrove per confermare, Esc per annullare</value></data>
   <data name="StatusEditingCell" xml:space="preserve"><value>Modifica della cella — Tab alla cella successiva, Ctrl+Invio per una nuova riga, Esc per annullare</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Modifica la sorgente della tabella per questa disposizione</value></data>

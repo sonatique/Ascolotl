@@ -1553,15 +1553,16 @@ public partial class PreviewView : UserControl
         // the block map isn't built there, so the gestures would misfire.
         if (_mainVm?.PagePreview == true) return;
 
-        // Read view: a press starts selecting text, Shift extends it, as in a word processor; a right-click
-        // offers copy and edit; a double-click goes on below, to edit the block where clicked, in WYSIWYG.
-        var leaveReading = Reading && !right && e.ClickCount == 2;
-        if (Reading && !leaveReading)
+        // Read view, as in a word processor: a press starts selecting text, Shift extends it, a double-click
+        // takes the word; a right-click offers copy and edit.
+        if (Reading)
         {
             if (right)
             {
                 if (TryHitBlock(src, clickPoint, out var readVis, out _)) ShowReadingMenu(readVis);
             }
+            else if (e.ClickCount == 2)
+                _textSelection.SelectWord(e.GetPosition(_textSelection));
             else
             {
                 _textSelection.Begin(e.GetPosition(_textSelection), extend: e.KeyModifiers.HasFlag(KeyModifiers.Shift));
@@ -1597,10 +1598,7 @@ public partial class PreviewView : UserControl
                 ? EnterCellEdit(vis, table, src, clickPoint, RenderedCharOffset(src, e))
                 : EnterBlockEdit(vis, block, ResolveClickedBlockOffset(src, e));
             if (entered)
-            {
                 e.Handled = true;
-                if (leaveReading) _mainVm!.EditorMode = EditorMode.Wysiwyg; // the block open first: the re-render waits for it
-            }
         }
     }
 

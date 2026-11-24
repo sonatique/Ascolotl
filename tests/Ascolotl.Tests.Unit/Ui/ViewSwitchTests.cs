@@ -124,18 +124,24 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
-    public void ReadView_DoubleClickEditsTheBlock()
+    public void ReadView_DoubleClickSelectsAWord()
     {
-        var (window, vm) = Open("Para one.\n\nPara two.\n", EditorMode.Read);
-        var t = Preview(window).GetVisualDescendants().OfType<TextBlock>().First(t => (t.Inlines is { Count: > 0 } i ? i.Text : t.Text) == "Para two.");
-        var p = t.TranslatePoint(new Point(4, t.Bounds.Height / 2), window)!.Value;
+        var (window, vm) = Open("Para two_words here.\n", EditorMode.Read);
+        var t = Preview(window).GetVisualDescendants().OfType<TextBlock>().First(t => Ascolotl.App.Views.Assist.PageSpelling.ShownText(t) == "Para two_words here.");
+        var r = t.TextLayout.HitTestTextPosition(7); // inside "two_words"
+        var p = t.TranslatePoint(new Point(r.X + t.Padding.Left + 1, r.Y + t.Padding.Top + r.Height / 2), window)!.Value;
         window.MouseDown(p, MouseButton.Left);
         window.MouseUp(p, MouseButton.Left);
         window.MouseDown(p, MouseButton.Left);
         window.MouseUp(p, MouseButton.Left);
         Pump(window);
+        Assert.Equal(EditorMode.Read, vm.EditorMode); // still reading
+        Press(window, Key.C, Command);
+        Assert.Equal("two_words", TopLevel.GetTopLevel(window)!.Clipboard!.TryGetTextAsync().GetAwaiter().GetResult());
+
+        Press(window, Key.Enter); // and to edit, Enter
         Assert.Equal(EditorMode.Wysiwyg, vm.EditorMode);
-        Assert.Equal("Para two.", BlockEditor(window)!.Text.TrimEnd());
+        Assert.NotNull(BlockEditor(window));
     }
 
     [AvaloniaFact]

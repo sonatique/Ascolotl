@@ -432,7 +432,7 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="StatusEditCancelled" xml:space="preserve"><value>Edición cancelada</value></data>
   <data name="StatusEditDiscarded" xml:space="preserve"><value>Edición descartada — el documento cambió mientras el bloque estaba abierto</value></data>
   <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ moverse entre bloques · Intro editar · Shift+F10 menú · Tab salir de la página</value></data>
-  <data name="StatusReadKeys" xml:space="preserve"><value>Lectura · doble clic o Intro edita · Shift+clic selecciona · Ctrl+C copia</value></data>
+  <data name="StatusReadKeys" xml:space="preserve"><value>Lectura · arrastrar selecciona, doble clic una palabra · Ctrl+C copia · Intro edita</value></data>
   <data name="StatusEditingBlock" xml:space="preserve"><value>Editando bloque — Aplicar (Ctrl+Intro) o hacer clic fuera para confirmar, Esc para cancelar</value></data>
   <data name="StatusEditingCell" xml:space="preserve"><value>Editando celda — Tab a la celda siguiente, Ctrl+Intro para una fila nueva, Esc para cancelar</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Edite el código de la tabla para esta disposición</value></data>

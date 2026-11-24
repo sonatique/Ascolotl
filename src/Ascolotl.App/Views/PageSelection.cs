@@ -70,6 +70,24 @@ internal sealed class PageSelection : Control
         Place();
     }
 
+    /// <summary>A double-click: the word under <paramref name="point"/>, or the one character there if it is no word's.</summary>
+    public void SelectWord(Point point)
+    {
+        Place();
+        if (SpotAt(point) is not { } at) return;
+        var shown = Shown(at.Text);
+        bool InWord(int k) => k >= 0 && k < shown.Length && (char.IsLetterOrDigit(shown[k]) || shown[k] == '_');
+        var c = !InWord(at.At) && InWord(at.At - 1) ? at.At - 1 : at.At; // the hit may fall just after the word
+        var (start, end) = (c, Math.Min(c + 1, shown.Length));
+        if (InWord(c))
+        {
+            while (InWord(start - 1)) start--;
+            while (InWord(end)) end++;
+        }
+        (_anchor, _end) = (new Spot(at.Text, start), new Spot(at.Text, end));
+        Place();
+    }
+
     public void SelectAll()
     {
         if (_texts.Count == 0) return;

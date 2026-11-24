@@ -432,7 +432,7 @@ Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un
   <data name="StatusEditCancelled" xml:space="preserve"><value>Modification annulée</value></data>
   <data name="StatusEditDiscarded" xml:space="preserve"><value>Modification abandonnée — le document a changé pendant que le bloc était ouvert</value></data>
   <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ passer d’un bloc à l’autre · Entrée modifier · Shift+F10 menu · Tab quitter la page</value></data>
-  <data name="StatusReadKeys" xml:space="preserve"><value>Lecture · double-clic ou Entrée modifie · Shift+clic sélectionne · Ctrl+C copie</value></data>
+  <data name="StatusReadKeys" xml:space="preserve"><value>Lecture · glisser sélectionne, double-clic un mot · Ctrl+C copie · Entrée modifie</value></data>
   <data name="StatusEditingBlock" xml:space="preserve"><value>Modification du bloc — Appliquer (Ctrl+Entrée) ou cliquer ailleurs pour valider, Échap pour annuler</value></data>
   <data name="StatusEditingCell" xml:space="preserve"><value>Modification de la cellule — Tab vers la cellule suivante, Ctrl+Entrée pour une nouvelle ligne, Échap pour annuler</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Modifiez la source du tableau pour cette mise en page</value></data>
