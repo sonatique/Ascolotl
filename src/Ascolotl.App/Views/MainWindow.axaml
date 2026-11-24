@@ -148,7 +148,7 @@
                            Width="16" Height="16"
                            RenderOptions.BitmapInterpolationMode="HighQuality"
                            VerticalAlignment="Center"
-                           Margin="9,4,3,0" />
+                           Margin="9,4,1,0" />
                     <Menu x:Name="MainMenu"
                           Grid.Column="1"
                           VerticalAlignment="Stretch"
@@ -163,7 +163,7 @@
                             <MenuItem.Header>
                                 <!-- The menu item top-biases its content; the top margin puts the
                                      three lines' middle on the tabs' text line (y 17), as the app icon. -->
-                                <Panel Width="32" Height="30">
+                                <Panel Width="28" Height="30">
                                     <Path Classes="icon"
                                           Data="{StaticResource IconMenuGeometry}"
                                           Width="14" Height="14"
