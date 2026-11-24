@@ -436,6 +436,7 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="StatusEditingBlock" xml:space="preserve"><value>Block wird bearbeitet — Übernehmen (Ctrl+Enter) oder daneben klicken zum Übernehmen, Esc zum Abbrechen</value></data>
   <data name="StatusEditingCell" xml:space="preserve"><value>Zelle wird bearbeitet — Tab zur nächsten Zelle, Ctrl+Enter für eine neue Zeile, Esc zum Abbrechen</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Bearbeiten Sie für dieses Layout den Tabellenquelltext</value></data>
+  <data name="StatusTableCellsDontFill" xml:space="preserve"><value>Die Zellen dieser Tabelle füllen nicht alle Zeilen und Spalten, daher lassen sie sich hier nicht ändern: im Quelltext korrigieren (F8 zeigt das Problem)</value></data>
   <data name="StatusExportedTo" xml:space="preserve"><value>Exportiert nach {0}</value></data>
   <data name="StatusExportedWithWarnings" xml:space="preserve"><value>Exportiert nach {0} — {1} Bild(er) ohne Alternativtext; stattdessen wurde der Dateiname verwendet</value></data>
   <data name="StatusExporting" xml:space="preserve"><value>{0} wird exportiert...</value></data>

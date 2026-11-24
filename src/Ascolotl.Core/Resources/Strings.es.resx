@@ -436,6 +436,7 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="StatusEditingBlock" xml:space="preserve"><value>Editando bloque — Aplicar (Ctrl+Intro) o hacer clic fuera para confirmar, Esc para cancelar</value></data>
   <data name="StatusEditingCell" xml:space="preserve"><value>Editando celda — Tab a la celda siguiente, Ctrl+Intro para una fila nueva, Esc para cancelar</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Edite el código de la tabla para esta disposición</value></data>
+  <data name="StatusTableCellsDontFill" xml:space="preserve"><value>Las celdas de esta tabla no llenan todas sus filas y columnas, así que no se pueden cambiar aquí: corríjala en el código (F8 muestra el problema)</value></data>
   <data name="StatusExportedTo" xml:space="preserve"><value>Exportado a {0}</value></data>
   <data name="StatusExportedWithWarnings" xml:space="preserve"><value>Exportado a {0} — {1} imagen(es) sin texto alternativo; se usó su nombre de archivo</value></data>
   <data name="StatusExporting" xml:space="preserve"><value>Exportando {0}...</value></data>

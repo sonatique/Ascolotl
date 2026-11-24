@@ -28,6 +28,17 @@ public partial class MainWindow : Window
     private PreviewView? _cachedPreviewView;
     private bool _pendingNewDocFocus;
 
+    static MainWindow()
+    {
+        // Screen readers say a menu item's key as the menu shows it ("Ctrl+/"), not by its key name
+        // ("Ctrl+OemQuestion"): every menu item, the application's and the page's.
+        MenuItem.InputGestureProperty.Changed.AddClassHandler<MenuItem>((item, _) =>
+        {
+            if (item.InputGesture is { } key) Avalonia.Automation.AutomationProperties.SetAcceleratorKey(item, key.ToString("p", null));
+            else item.ClearValue(Avalonia.Automation.AutomationProperties.AcceleratorKeyProperty);
+        });
+    }
+
     public MainWindow()
     {
         InitializeComponent();

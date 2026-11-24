@@ -865,7 +865,8 @@ public partial class PreviewView : UserControl
         {
             PlaceOutline(); // no edit outline to read
             if (!Reading) _textSelection.Reset(null, [], null); // text is selected only to read
-            else if (_activeEdit is not null) CommitBlockEdit(); // an open block applies and closes, as on a click away
+            // A view where the page isn't edited, Read or Source: an open block applies and closes, as on a click away.
+            if (_activeEdit is not null && _mainVm?.EditorMode is EditorMode.Read or EditorMode.Source) CommitBlockEdit();
         }
         if (e.PropertyName is nameof(MainWindowViewModel.PreviewWordWrap)
                 or nameof(MainWindowViewModel.PagePreview)
@@ -3085,7 +3086,10 @@ public partial class PreviewView : UserControl
                 var grid = TableGrid.Parse(body, width);
                 if (grid is null)
                 {
-                    status = Strings.StatusEditTableSourceForLayout;
+                    // A row short of cells (the parser warns of it) or a valid layout the row model can't hold.
+                    status = _doc!.Diagnostics.Any(d => d.Hint is not null && d.Line >= open && d.Line <= close)
+                        ? Strings.StatusTableCellsDontFill
+                        : Strings.StatusEditTableSourceForLayout;
                     return;
                 }
                 if (!op(grid)) return;

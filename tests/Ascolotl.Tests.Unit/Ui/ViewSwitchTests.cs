@@ -124,8 +124,10 @@ public sealed class ViewSwitchTests
         Assert.Equal(0, selection.Highlights);
     }
 
-    [AvaloniaFact]
-    public void GoingToRead_AppliesAndClosesTheOpenBlock()
+    [AvaloniaTheory]
+    [InlineData(EditorMode.Read)]
+    [InlineData(EditorMode.Source)]
+    public void GoingToAViewWithoutPageEditing_AppliesAndClosesTheOpenBlock(EditorMode view)
     {
         var (window, vm) = Open("Para one.\n\nPara two.\n", EditorMode.Wysiwyg);
         Preview(window).FocusPage();
@@ -135,7 +137,7 @@ public sealed class ViewSwitchTests
         Pump(window);
         Assert.NotNull(BlockEditor(window));
 
-        vm.EditorMode = EditorMode.Read;
+        vm.EditorMode = view;
         Pump(window);
         Assert.Null(BlockEditor(window)); // closed
         Assert.StartsWith("!Para one.", vm.SelectedDocument!.SourceText); // and its change kept
@@ -347,7 +349,34 @@ public sealed class ViewSwitchTests
         Assert.Equal(ApplicationCommands.Copy.Gesture, GestureOf(Strings.MenuCopy));
         Assert.NotNull(GestureOf(Strings.MenuMoveUp));
         Assert.NotNull(GestureOf(Strings.MenuNewParagraph));
+        // A screen reader hears the key as the menu shows it, not "Ctrl+OemQuestion".
+        var turnInto = items.Single(i => (string?)i.Header == Strings.MenuTurnInto);
+        Assert.Equal(CommandKey.OnPlatform(new KeyGesture(Key.Oem2, KeyModifiers.Control)).ToString("p", null),
+            ControlAutomationPeer.CreatePeerForElement(turnInto).GetAcceleratorKey());
         opened.Close();
+    }
+
+    [AvaloniaTheory]
+    [InlineData("|===\n| a | b\n\n| c | d\n\n| e\n|===\n", true)] // a row short of a cell
+    [InlineData("|===\n| a | b\nmore b\n\n| c | d\n|===\n", false)] // valid, a cell on two lines
+    public void DeleteRow_OnATableItCantChange_SaysWhy(string source, bool incomplete)
+    {
+        var (window, vm) = Open(source, EditorMode.Wysiwyg);
+        Preview(window).FocusPage();
+        Pump(window);
+        ContextMenu? opened = null;
+        using (ContextMenu.OpenedEvent.AddClassHandler<ContextMenu>((menu, _) => opened = menu))
+        {
+            Press(window, Key.F10, RawInputModifiers.Shift);
+            window.KeyRelease(Key.F10, RawInputModifiers.Shift, PhysicalKey.None, null);
+            Pump(window);
+        }
+        var row = opened!.Items.OfType<MenuItem>().Single(m => (string?)m.Header == Strings.MenuRow);
+        row.Items.OfType<MenuItem>().Single(m => (string?)m.Header == Strings.MenuDeleteRow)
+            .RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent));
+        Pump(window);
+        Assert.Equal(incomplete ? Strings.StatusTableCellsDontFill : Strings.StatusEditTableSourceForLayout, vm.StatusText);
+        Assert.Equal(source, vm.SelectedDocument!.SourceText); // nothing changed
     }
 
     [AvaloniaFact]

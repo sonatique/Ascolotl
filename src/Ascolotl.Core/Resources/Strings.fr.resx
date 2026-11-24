@@ -436,6 +436,7 @@ Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un
   <data name="StatusEditingBlock" xml:space="preserve"><value>Modification du bloc — Appliquer (Ctrl+Entrée) ou cliquer ailleurs pour valider, Échap pour annuler</value></data>
   <data name="StatusEditingCell" xml:space="preserve"><value>Modification de la cellule — Tab vers la cellule suivante, Ctrl+Entrée pour une nouvelle ligne, Échap pour annuler</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Modifiez la source du tableau pour cette mise en page</value></data>
+  <data name="StatusTableCellsDontFill" xml:space="preserve"><value>Les cellules de ce tableau ne remplissent pas toutes ses lignes et colonnes, elles ne peuvent donc pas changer ici : corrigez-le dans la source (F8 montre le problème)</value></data>
   <data name="StatusExportedTo" xml:space="preserve"><value>Exporté vers {0}</value></data>
   <data name="StatusExportedWithWarnings" xml:space="preserve"><value>Exporté vers {0} — {1} image(s) sans texte alternatif ; leur nom de fichier a été utilisé</value></data>
   <data name="StatusExporting" xml:space="preserve"><value>Export {0}...</value></data>
