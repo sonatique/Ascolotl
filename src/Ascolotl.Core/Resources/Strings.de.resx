@@ -207,6 +207,7 @@
   <data name="CommandToggleTitleTOC" xml:space="preserve"><value>Titel und Inhaltsverzeichnis anzeigen</value></data>
   <data name="CommandUseBuiltInStyle" xml:space="preserve"><value>Integrierten Stil verwenden</value></data>
   <data name="CommandWYSIWYGMode" xml:space="preserve"><value>WYSIWYG-Modus</value></data>
+  <data name="CommandReadMode" xml:space="preserve"><value>Lesemodus</value></data>
   <data name="CommandZoomIn" xml:space="preserve"><value>Vergrößern</value></data>
   <data name="CommandZoomOut" xml:space="preserve"><value>Verkleinern</value></data>
   <data name="ConvertADocxToAsciiDocImages" xml:space="preserve"><value>Eine .docx-Datei in AsciiDoc umwandeln (Bilder werden daneben abgelegt)</value></data>
@@ -358,6 +359,7 @@
   <data name="ModeSource" xml:space="preserve"><value>Quelltext</value></data>
   <data name="ModeSplit" xml:space="preserve"><value>Geteilt</value></data>
   <data name="ModeWysiwyg" xml:space="preserve"><value>WYSIWYG</value></data>
+  <data name="ModeRead" xml:space="preserve"><value>Lesen</value></data>
   <data name="Name" xml:space="preserve"><value>Name</value></data>
   <data name="New" xml:space="preserve"><value>_Neu</value></data>
   <data name="NewFile" xml:space="preserve"><value>Neue Datei</value></data>
@@ -430,6 +432,7 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="StatusEditCancelled" xml:space="preserve"><value>Bearbeitung abgebrochen</value></data>
   <data name="StatusEditDiscarded" xml:space="preserve"><value>Bearbeitung verworfen — das Dokument hat sich geändert, während der Block offen war</value></data>
   <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ zwischen Blöcken wechseln · Enter bearbeiten · Shift+F10 Menü · Tab Seite verlassen</value></data>
+  <data name="StatusReadKeys" xml:space="preserve"><value>Lesen · Doppelklick oder Enter bearbeitet · Shift+Klick wählt aus · Ctrl+C kopiert</value></data>
   <data name="StatusEditingBlock" xml:space="preserve"><value>Block wird bearbeitet — Übernehmen (Ctrl+Enter) oder daneben klicken zum Übernehmen, Esc zum Abbrechen</value></data>
   <data name="StatusEditingCell" xml:space="preserve"><value>Zelle wird bearbeitet — Tab zur nächsten Zelle, Ctrl+Enter für eine neue Zeile, Esc zum Abbrechen</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Bearbeiten Sie für dieses Layout den Tabellenquelltext</value></data>
@@ -495,6 +498,7 @@ Diese Datei existiert, konnte aber nicht gelesen werden. Vielleicht ist sie durc
   <data name="WordDocument" xml:space="preserve"><value>_Word-Dokument...</value></data>
   <data name="WouldYouLikeToRecoverThese" xml:space="preserve"><value>Möchten Sie diese Dokumente wiederherstellen?</value></data>
   <data name="WYSIWYGMode" xml:space="preserve"><value>_WYSIWYG-Modus</value></data>
+  <data name="ReadMode" xml:space="preserve"><value>Lesemodus</value></data>
   <data name="ZoomFit" xml:space="preserve"><value>Angepasst</value></data>
   <data name="ZoomIn" xml:space="preserve"><value>_Vergrößern</value></data>
   <data name="ZoomOut" xml:space="preserve"><value>Ver_kleinern</value></data>

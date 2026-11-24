@@ -24,12 +24,15 @@ no Ruby and no Java.
   files. Markdown follows CommonMark, with GitHub's tables, task lists,
   strikethrough, autolinks and footnotes. Syntax colouring follows each file's
   format, and the toolbar and menus write its syntax.
-- **Three ways to work:** Source, Split (source and live preview side by side)
-  and WYSIWYG. Switch from the toolbar's right end or with `Ctrl+1`, `Ctrl+2`
-  and `Ctrl+3`. Each tab keeps its own view, and files open in WYSIWYG. Click a
-  rendered block to edit its source in place (in Split, the source pane jumps
-  there too), then apply with `Ctrl+Enter` or cancel with `Esc`. The source text
-  stays the single source of truth.
+- **Four views:** Source, Split (source and live preview side by side),
+  WYSIWYG and Read. Switch from the toolbar's right end or with `Ctrl+1` to
+  `Ctrl+4`. Each tab keeps its own view. Files open in WYSIWYG, and in Read when
+  opened from Explorer or the command line: the page to read, with no edit
+  outline and no spelling marks, where blocks can be selected and copied and a
+  double-click or `Enter` edits one. Click a rendered block to edit its source in
+  place (in Split, the source pane jumps there too), then apply with
+  `Ctrl+Enter` or cancel with `Esc`. The source text stays the single source of
+  truth.
 - **Formatting toolbar and right-click menu** in Split and WYSIWYG: bold,
   italic, code, links, headings, lists, quotes, code blocks, images, tables and,
   in AsciiDoc, notes. Each applies to the selection or inserts at the caret.
@@ -155,7 +158,7 @@ On a Mac, `Cmd` stands for `Ctrl` in these keys, except in `Ctrl+Tab` and `Ctrl+
 | Command palette | `Ctrl+Shift+P` |
 | Apply / cancel an in-place edit (a table cell: add a row) | `Ctrl+Enter` / `Esc` |
 | Completion | `Ctrl+Space` or `Tab` |
-| Source / Split / WYSIWYG | `Ctrl+1` / `Ctrl+2` / `Ctrl+3` |
+| Source / Split / WYSIWYG / Read | `Ctrl+1` / `Ctrl+2` / `Ctrl+3` / `Ctrl+4` |
 | Syntax reference (AsciiDoc or Markdown) | `F1` |
 | Toggle outline | `Ctrl+Shift+L` |
 | Bold / italic / inline code / link (in the source or an open block) | `Ctrl+B` / `Ctrl+I` / `Ctrl+Shift+C` / `Ctrl+K` |

@@ -146,6 +146,12 @@
                   InputGesture="Ctrl+D3"
                   ToggleType="Radio"
                   IsChecked="{Binding IsWysiwygMode, Mode=OneWay}" />
+        <MenuItem Header="{x:Static res:Strings.ReadMode}"
+                  Command="{Binding SetEditorModeCommand}"
+                  CommandParameter="{x:Static models:EditorMode.Read}"
+                  InputGesture="Ctrl+D4"
+                  ToggleType="Radio"
+                  IsChecked="{Binding IsReadMode, Mode=OneWay}" />
         <MenuItem Header="{x:Static res:Strings.SwitchPane}"
                   Command="{Binding SwitchPaneCommand}"
                   InputGesture="F6" />

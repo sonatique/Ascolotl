@@ -43,7 +43,7 @@
                                    VerticalAlignment="Center" />
                         <!-- Authoring-assist syntax hint for the caret context, while
                              the source shows. -->
-                        <Panel IsVisible="{Binding !IsWysiwygMode}">
+                        <Panel IsVisible="{Binding IsSourceShown}">
                             <TextBlock Name="SyntaxHintText"
                                        Text="{Binding SelectedDocument.SyntaxHint}"
                                        IsVisible="{Binding SelectedDocument.HasSyntaxHint}"
@@ -55,6 +55,14 @@
                         <TextBlock Name="PageKeysText"
                                    Text="{x:Static res:Strings.StatusPageKeys}"
                                    IsVisible="{Binding PageHasKeyboard}"
+                                   FontSize="11"
+                                   FontStyle="Italic"
+                                   Foreground="{DynamicResource ForgeTextMutedBrush}"
+                                   VerticalAlignment="Center" />
+                        <!-- Reading: how to edit, select and copy, always in view. -->
+                        <TextBlock Name="ReadKeysText"
+                                   Text="{Binding Source={x:Static res:Strings.StatusReadKeys}, Converter={x:Static views:CommandKey.TextConverter}}"
+                                   IsVisible="{Binding IsReadMode}"
                                    FontSize="11"
                                    FontStyle="Italic"
                                    Foreground="{DynamicResource ForgeTextMutedBrush}"
@@ -265,9 +273,14 @@
                                 Command="{Binding SetEditorModeCommand}"
                                 CommandParameter="{x:Static models:EditorMode.Wysiwyg}"
                                 Content="{x:Static res:Strings.ModeWysiwyg}" />
+                        <Button Classes="format-action view" Classes.active="{Binding IsReadMode}"
+                                Focusable="False"
+                                Command="{Binding SetEditorModeCommand}"
+                                CommandParameter="{x:Static models:EditorMode.Read}"
+                                Content="{x:Static res:Strings.ModeRead}" />
                     </StackPanel>
                     <views:FormatToolbar x:Name="FormatBar"
-                                         IsVisible="{Binding !IsSourceMode}"
+                                         IsVisible="{Binding IsFormattingShown}"
                                          Markdown="{Binding SelectedDocument.IsMarkdown, FallbackValue=False}"
                                          EditOpen="{Binding InPlaceEditOpen}"
                                          AutomationProperties.Name="{x:Static res:Strings.FormattingToolbar}" />

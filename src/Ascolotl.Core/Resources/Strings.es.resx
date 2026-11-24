@@ -207,6 +207,7 @@
   <data name="CommandToggleTitleTOC" xml:space="preserve"><value>Mostrar título e índice</value></data>
   <data name="CommandUseBuiltInStyle" xml:space="preserve"><value>Usar el estilo integrado</value></data>
   <data name="CommandWYSIWYGMode" xml:space="preserve"><value>Modo WYSIWYG</value></data>
+  <data name="CommandReadMode" xml:space="preserve"><value>Modo lectura</value></data>
   <data name="CommandZoomIn" xml:space="preserve"><value>Acercar</value></data>
   <data name="CommandZoomOut" xml:space="preserve"><value>Alejar</value></data>
   <data name="ConvertADocxToAsciiDocImages" xml:space="preserve"><value>Convertir un .docx a AsciiDoc (imágenes extraídas al lado)</value></data>
@@ -358,6 +359,7 @@
   <data name="ModeSource" xml:space="preserve"><value>Código</value></data>
   <data name="ModeSplit" xml:space="preserve"><value>Dividido</value></data>
   <data name="ModeWysiwyg" xml:space="preserve"><value>WYSIWYG</value></data>
+  <data name="ModeRead" xml:space="preserve"><value>Lectura</value></data>
   <data name="Name" xml:space="preserve"><value>Nombre</value></data>
   <data name="New" xml:space="preserve"><value>_Nuevo</value></data>
   <data name="NewFile" xml:space="preserve"><value>Nuevo archivo</value></data>
@@ -430,6 +432,7 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="StatusEditCancelled" xml:space="preserve"><value>Edición cancelada</value></data>
   <data name="StatusEditDiscarded" xml:space="preserve"><value>Edición descartada — el documento cambió mientras el bloque estaba abierto</value></data>
   <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ moverse entre bloques · Intro editar · Shift+F10 menú · Tab salir de la página</value></data>
+  <data name="StatusReadKeys" xml:space="preserve"><value>Lectura · doble clic o Intro edita · Shift+clic selecciona · Ctrl+C copia</value></data>
   <data name="StatusEditingBlock" xml:space="preserve"><value>Editando bloque — Aplicar (Ctrl+Intro) o hacer clic fuera para confirmar, Esc para cancelar</value></data>
   <data name="StatusEditingCell" xml:space="preserve"><value>Editando celda — Tab a la celda siguiente, Ctrl+Intro para una fila nueva, Esc para cancelar</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Edite el código de la tabla para esta disposición</value></data>
@@ -495,6 +498,7 @@ Este archivo existe, pero no se pudo leer. Puede que otro programa lo tenga bloq
   <data name="WordDocument" xml:space="preserve"><value>Documento de _Word...</value></data>
   <data name="WouldYouLikeToRecoverThese" xml:space="preserve"><value>¿Desea recuperar estos documentos?</value></data>
   <data name="WYSIWYGMode" xml:space="preserve"><value>Modo _WYSIWYG</value></data>
+  <data name="ReadMode" xml:space="preserve"><value>Modo lectura</value></data>
   <data name="ZoomFit" xml:space="preserve"><value>Ajustado</value></data>
   <data name="ZoomIn" xml:space="preserve"><value>_Acercar</value></data>
   <data name="ZoomOut" xml:space="preserve"><value>Ale_jar</value></data>

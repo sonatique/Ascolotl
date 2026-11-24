@@ -455,6 +455,24 @@ public sealed class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public async Task OpenedFromOutside_StartsInReadView_AndAnOpenDocumentKeepsItsView()
+    {
+        var vm = CreateViewModel();
+        _fileService.ReadFileResult = "Text";
+
+        await vm.OpenFileByPathAsync("/tmp/a.adoc", EditorMode.Read); // as from Explorer
+        Assert.Equal(EditorMode.Read, vm.SelectedDocument!.EditorMode);
+        Assert.Equal(EditorMode.Read, vm.EditorMode);
+
+        vm.EditorMode = EditorMode.Split; // chosen to edit
+        await vm.OpenFileByPathAsync("/tmp/a.adoc", EditorMode.Read); // opened again: already open
+        Assert.Equal(EditorMode.Split, vm.EditorMode);
+
+        await vm.OpenFileByPathAsync("/tmp/b.adoc"); // from inside the app: as before
+        Assert.Equal(EditorMode.Wysiwyg, vm.SelectedDocument!.EditorMode);
+    }
+
+    [Fact]
     public async Task OpenRecentFile_FileNotFound_RemovesFromList()
     {
         var vm = CreateViewModel();

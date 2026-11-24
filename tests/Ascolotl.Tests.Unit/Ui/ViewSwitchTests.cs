@@ -41,12 +41,61 @@ public sealed class ViewSwitchTests
             Assert.Equal([mode], buttons.Where(x => x.Classes.Contains("active")).Select(x => (EditorMode)x.CommandParameter!));
         }
 
-        Assert.Equal(new[] { "Ctrl+1", "Ctrl+2", "Ctrl+3" }.Select(k => CommandKey.Text(k)), buttons.Select(b => ToolTip.GetTip(b) as string)); // Source, Split, WYSIWYG; Cmd on a Mac
+        Assert.Equal(new[] { "Ctrl+1", "Ctrl+2", "Ctrl+3", "Ctrl+4" }.Select(k => CommandKey.Text(k)), buttons.Select(b => ToolTip.GetTip(b) as string)); // Source, Split, WYSIWYG, Read; Cmd on a Mac
         Click(EditorMode.Source);
         Assert.False(window.FindControl<Control>("FormatBar")!.IsEffectivelyVisible);
         Assert.True(modeSwitch.IsEffectivelyVisible); // still there to leave Source
         Click(EditorMode.Wysiwyg);
+        Click(EditorMode.Read);
+        Assert.False(window.FindControl<Control>("FormatBar")!.IsEffectivelyVisible); // nothing to format while reading
         Click(EditorMode.Split);
+    }
+
+    [AvaloniaFact]
+    public void ReadView_ScrollsSelectsAndCopies_AndEditsOnlyWhenAsked()
+    {
+        var (window, vm) = Open("Para one.\n\nPara two.\n", EditorMode.Read);
+        var page = Preview(window).FindControl<ScrollViewer>("PreviewScroll")!;
+        Assert.True(window.FindControl<TextBlock>("ReadKeysText")!.IsEffectivelyVisible); // how to edit, select and copy
+        Preview(window).FocusPage();
+        Pump(window);
+        Assert.Same(page, Focused(window)); // the page itself: no block outlined to edit
+        Assert.False(window.FindControl<TextBlock>("PageKeysText")!.IsEffectivelyVisible);
+
+        var t = Preview(window).GetVisualDescendants().OfType<TextBlock>().First(t => (t.Inlines is { Count: > 0 } i ? i.Text : t.Text) == "Para two.");
+        var p = t.TranslatePoint(new Point(4, t.Bounds.Height / 2), window)!.Value;
+        window.MouseDown(p, MouseButton.Left);
+        window.MouseUp(p, MouseButton.Left);
+        Pump(window);
+        Assert.Null(BlockEditor(window)); // a click doesn't edit
+        Assert.Equal(EditorMode.Read, vm.EditorMode);
+
+        Press(window, Key.Z, Command); // nothing to undo into
+        Press(window, Key.Delete);
+        Assert.Equal("Para one.\n\nPara two.\n", vm.SelectedDocument!.SourceText);
+        Press(window, Key.A, Command);
+        Press(window, Key.C, Command);
+        Assert.Equal("Para one.\n\nPara two.", TopLevel.GetTopLevel(window)!.Clipboard!.TryGetTextAsync().GetAwaiter().GetResult());
+
+        Press(window, Key.Escape);
+        Press(window, Key.Enter); // to edit: WYSIWYG, the block open
+        Assert.Equal(EditorMode.Wysiwyg, vm.EditorMode);
+        Assert.Equal("Para one.", BlockEditor(window)!.Text.TrimEnd());
+    }
+
+    [AvaloniaFact]
+    public void ReadView_DoubleClickEditsTheBlock()
+    {
+        var (window, vm) = Open("Para one.\n\nPara two.\n", EditorMode.Read);
+        var t = Preview(window).GetVisualDescendants().OfType<TextBlock>().First(t => (t.Inlines is { Count: > 0 } i ? i.Text : t.Text) == "Para two.");
+        var p = t.TranslatePoint(new Point(4, t.Bounds.Height / 2), window)!.Value;
+        window.MouseDown(p, MouseButton.Left);
+        window.MouseUp(p, MouseButton.Left);
+        window.MouseDown(p, MouseButton.Left);
+        window.MouseUp(p, MouseButton.Left);
+        Pump(window);
+        Assert.Equal(EditorMode.Wysiwyg, vm.EditorMode);
+        Assert.Equal("Para two.", BlockEditor(window)!.Text.TrimEnd());
     }
 
     [AvaloniaFact]

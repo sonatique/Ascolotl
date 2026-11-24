@@ -207,6 +207,7 @@
   <data name="CommandToggleTitleTOC" xml:space="preserve"><value>Mostra titolo e indice</value></data>
   <data name="CommandUseBuiltInStyle" xml:space="preserve"><value>Usa lo stile integrato</value></data>
   <data name="CommandWYSIWYGMode" xml:space="preserve"><value>Modalità WYSIWYG</value></data>
+  <data name="CommandReadMode" xml:space="preserve"><value>Modalità lettura</value></data>
   <data name="CommandZoomIn" xml:space="preserve"><value>Ingrandisci</value></data>
   <data name="CommandZoomOut" xml:space="preserve"><value>Riduci</value></data>
   <data name="ConvertADocxToAsciiDocImages" xml:space="preserve"><value>Converti un .docx in AsciiDoc (immagini estratte accanto)</value></data>
@@ -358,6 +359,7 @@
   <data name="ModeSource" xml:space="preserve"><value>Sorgente</value></data>
   <data name="ModeSplit" xml:space="preserve"><value>Divisa</value></data>
   <data name="ModeWysiwyg" xml:space="preserve"><value>WYSIWYG</value></data>
+  <data name="ModeRead" xml:space="preserve"><value>Lettura</value></data>
   <data name="Name" xml:space="preserve"><value>Nome</value></data>
   <data name="New" xml:space="preserve"><value>_Nuovo</value></data>
   <data name="NewFile" xml:space="preserve"><value>Nuovo file</value></data>
@@ -430,6 +432,7 @@ Questo file esiste ma non è stato possibile leggerlo. Forse è bloccato da un a
   <data name="StatusEditCancelled" xml:space="preserve"><value>Modifica annullata</value></data>
   <data name="StatusEditDiscarded" xml:space="preserve"><value>Modifica scartata — il documento è cambiato mentre il blocco era aperto</value></data>
   <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ spostarsi tra i blocchi · Invio modifica · Shift+F10 menu · Tab esci dalla pagina</value></data>
+  <data name="StatusReadKeys" xml:space="preserve"><value>Lettura · doppio clic o Invio modifica · Shift+clic seleziona · Ctrl+C copia</value></data>
   <data name="StatusEditingBlock" xml:space="preserve"><value>Modifica del blocco — Applica (Ctrl+Invio) o fai clic altrove per confermare, Esc per annullare</value></data>
   <data name="StatusEditingCell" xml:space="preserve"><value>Modifica della cella — Tab alla cella successiva, Ctrl+Invio per una nuova riga, Esc per annullare</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Modifica la sorgente della tabella per questa disposizione</value></data>
@@ -495,6 +498,7 @@ Questo file esiste ma non è stato possibile leggerlo. Forse è bloccato da un a
   <data name="WordDocument" xml:space="preserve"><value>Documento _Word...</value></data>
   <data name="WouldYouLikeToRecoverThese" xml:space="preserve"><value>Vuoi recuperare questi documenti?</value></data>
   <data name="WYSIWYGMode" xml:space="preserve"><value>Modalità _WYSIWYG</value></data>
+  <data name="ReadMode" xml:space="preserve"><value>Modalità lettura</value></data>
   <data name="ZoomFit" xml:space="preserve"><value>Adattato</value></data>
   <data name="ZoomIn" xml:space="preserve"><value>In_grandisci</value></data>
   <data name="ZoomOut" xml:space="preserve"><value>Rid_uci</value></data>

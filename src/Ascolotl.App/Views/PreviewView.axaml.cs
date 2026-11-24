@@ -250,7 +250,7 @@ public partial class PreviewView : UserControl
         {
             PlaceOutline();
             if (e.Source != PreviewScroll || e.NavigationMethod == NavigationMethod.Pointer) return;
-            if (e.NavigationMethod == NavigationMethod.Tab) FocusBlock(CurrentInView());
+            if (e.NavigationMethod == NavigationMethod.Tab) { if (!Reading) FocusBlock(CurrentInView()); }
             else RefocusSoon();
         };
         PreviewScroll.PropertyChanged += (_, e) =>
@@ -270,7 +270,7 @@ public partial class PreviewView : UserControl
     private void ShowPageKeys()
     {
         if (_mainVm is not null)
-            _mainVm.PageHasKeyboard = PreviewScroll.IsKeyboardFocusWithin && _openEdit is null && !_mainVm.PagePreview;
+            _mainVm.PageHasKeyboard = PreviewScroll.IsKeyboardFocusWithin && _openEdit is null && !_mainVm.PagePreview && !Reading;
     }
 
     private IInputElement? FocusedElement => TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement();
@@ -285,8 +285,56 @@ public partial class PreviewView : UserControl
     /// <summary>Gives the page the keyboard, e.g. once the source it was in is hidden.</summary>
     public void FocusPage()
     {
-        if (!FocusBlock(CurrentInView()))
+        if (Reading || !FocusBlock(CurrentInView())) // to read, the page itself: no block to edit
             PreviewScroll.Focus(NavigationMethod.Tab);
+    }
+
+    private bool Reading => _mainVm?.EditorMode == EditorMode.Read;
+
+    /// <summary>Read view: the keys scroll, select and copy; Enter or F2 edits the first block in view, in WYSIWYG.</summary>
+    private bool ReadingKey(KeyEventArgs e, KeyModifiers mods)
+    {
+        switch (e.Key, mods)
+        {
+            case (Key.Up, KeyModifiers.None): PreviewScroll.LineUp(); return true;
+            case (Key.Down, KeyModifiers.None): PreviewScroll.LineDown(); return true;
+            case (Key.Home, KeyModifiers.None or KeyModifiers.Control): PreviewScroll.ScrollToHome(); return true;
+            case (Key.End, KeyModifiers.None or KeyModifiers.Control): PreviewScroll.ScrollToEnd(); return true;
+            case (Key.Escape, KeyModifiers.None) when _selectAnchor >= 0: ClearSelection(); return true;
+            case (Key.Enter or Key.F2, KeyModifiers.None): return EditFromReading(_blockMap.FindIndex(b => InView(b.Vis))); // the first in view
+        }
+        if (Hotkey(e, ApplicationCommands.SelectAll) && _blockMap.Count > 0)
+        {
+            _current = _blockMap.Count - 1;
+            Select(0);
+            return true;
+        }
+        return Hotkey(e, ApplicationCommands.Copy) && Selection is not null && CopyBlocks(_current, cut: false);
+    }
+
+    /// <summary>From Read view to WYSIWYG, with block <paramref name="i"/> open (a table: its first cell).</summary>
+    private bool EditFromReading(int i)
+    {
+        if (i < 0 || i >= _blockMap.Count || _mainVm is null) return false;
+        var (vis, block) = _blockMap[i];
+        // Opened first: the view's re-render then waits for the edit, as any does.
+        if (!(block is TableLayout table ? EnterCellEditByIndex(vis, table, 0, 0) : EnterBlockEdit(vis, block))) return false;
+        _mainVm.EditorMode = EditorMode.Wysiwyg;
+        return true;
+    }
+
+    /// <summary>Read view's block menu: copy it, or edit it.</summary>
+    private void ShowReadingMenu(Control vis)
+    {
+        int Index() => _blockMap.FindIndex(b => b.Vis == vis);
+        new ContextMenu
+        {
+            ItemsSource = new List<Control>
+            {
+                Cmd(Strings.MenuCopy, () => CopyBlocks(Index(), cut: false), ApplicationCommands.Copy.Gesture),
+                Cmd(string.Format(Strings.MenuEditBlock, Strings.GestureEnter), () => EditFromReading(Index())),
+            },
+        }.Open(vis);
     }
 
     private bool InView(Control vis) =>
@@ -321,7 +369,7 @@ public partial class PreviewView : UserControl
 
     private void PlaceOutline()
     {
-        if (PreviewScroll.IsKeyboardFocusWithin && FocusedElement is Control vis && vis.Classes.Contains(FocusBlockClass)
+        if (!Reading && PreviewScroll.IsKeyboardFocusWithin && FocusedElement is Control vis && vis.Classes.Contains(FocusBlockClass)
             && vis.TranslatePoint(default, _pages) is { } tl
             && vis.TranslatePoint(new Point(vis.Bounds.Width, vis.Bounds.Height), _pages) is { } br)
         {
@@ -578,6 +626,11 @@ public partial class PreviewView : UserControl
         var on = _blockMap.FindIndex(b => b.Vis == e.Source);
         if (e.Source != PreviewScroll && on < 0) return;
         var mods = CommandKey.AsWritten(e.KeyModifiers); // Cmd on a Mac reads as the Ctrl the keys are written with
+        if (Reading)
+        {
+            if (!e.Handled) e.Handled = ReadingKey(e, mods); // the scroll viewer pages by itself
+            return;
+        }
         // Avalonia opens a menu on these keys only for an attached ContextMenu; the page builds one per block.
         if (e.Key == Key.Apps && mods == KeyModifiers.None || e.Key == Key.F10 && mods == KeyModifiers.Shift)
         {
@@ -757,7 +810,8 @@ public partial class PreviewView : UserControl
 
     private void OnMainVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(MainWindowViewModel.PagePreview)) ShowPageKeys();
+        if (e.PropertyName is nameof(MainWindowViewModel.PagePreview) or nameof(MainWindowViewModel.EditorMode)) ShowPageKeys();
+        if (e.PropertyName == nameof(MainWindowViewModel.EditorMode)) PlaceOutline(); // no edit outline to read
         if (e.PropertyName is nameof(MainWindowViewModel.PreviewWordWrap)
                 or nameof(MainWindowViewModel.PagePreview)
                 or nameof(MainWindowViewModel.StylePath)
@@ -1203,7 +1257,8 @@ public partial class PreviewView : UserControl
 
             _lineMap = BuildLineMap();
             if (_doc is not null && _frame is not null) // the page's own theme: the renderer is shared
-                _spelling.Check(_renderedRoot, _frame.Theme.MonospaceFont, SpellingController.Language(_doc.SourceText, _doc.IsMarkdown));
+                _spelling.Check(Reading ? null : _renderedRoot, // nothing to correct while reading
+                    _frame.Theme.MonospaceFont, SpellingController.Language(_doc.SourceText, _doc.IsMarkdown));
 
             // A click that committed an edit and landed on another block (or
             // table cell) queued it; now that the map + _astToEditor are
@@ -1251,7 +1306,7 @@ public partial class PreviewView : UserControl
             if (_restoreTopLine)
             {
                 _restoreTopLine = false;
-                if (_mainVm?.EditorMode == EditorMode.Wysiwyg && _doc is not null)
+                if (_mainVm?.EditorMode is EditorMode.Wysiwyg or EditorMode.Read && _doc is not null)
                 {
                     SuppressReverseSync = true;
                     if (_doc.TopLine > 0)
@@ -1271,7 +1326,7 @@ public partial class PreviewView : UserControl
     /// <summary>In WYSIWYG the page is the view: its top line is the tab's position.</summary>
     private void RememberTopLine()
     {
-        if (_restoreTopLine || _doc is null || _lineMap is null || _mainVm?.EditorMode != EditorMode.Wysiwyg) return;
+        if (_restoreTopLine || _doc is null || _lineMap is null || _mainVm?.EditorMode is not (EditorMode.Wysiwyg or EditorMode.Read)) return;
         _doc.TopLine = ScrollSyncCalculator.ComputeSourceLineFromPreviewY(
             PreviewScroll.Offset.Y, _lineMap, SourceLineCount(_doc), PreviewScroll.Extent.Height).Line;
     }
@@ -1441,6 +1496,17 @@ public partial class PreviewView : UserControl
         // the block map isn't built there, so the gestures would misfire.
         if (_mainVm?.PagePreview == true) return;
 
+        // Read view: a click only takes the keyboard, to scroll; a right-click offers copy and edit;
+        // a double-click goes on below, to edit the block where clicked, in WYSIWYG.
+        var leaveReading = Reading && !right && e.ClickCount == 2;
+        if (Reading && !leaveReading)
+        {
+            if (right && TryHitBlock(src, clickPoint, out var readVis, out _)) ShowReadingMenu(readVis);
+            else PreviewScroll.Focus();
+            e.Handled = right;
+            return;
+        }
+
         // Block gestures, resolved with the same _blockMap hit-test as
         // click-to-source tier 2: right-click opens the block context menu.
         if (right)
@@ -1465,7 +1531,10 @@ public partial class PreviewView : UserControl
                 ? EnterCellEdit(vis, table, src, clickPoint, RenderedCharOffset(src, e))
                 : EnterBlockEdit(vis, block, ResolveClickedBlockOffset(src, e));
             if (entered)
+            {
                 e.Handled = true;
+                if (leaveReading) _mainVm!.EditorMode = EditorMode.Wysiwyg; // the block open first: the re-render waits for it
+            }
         }
     }
 

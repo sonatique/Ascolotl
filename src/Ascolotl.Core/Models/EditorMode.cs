@@ -11,4 +11,8 @@ public enum EditorMode
     /// every in-place commit splices back into it.
     /// </summary>
     Wysiwyg,
+    /// <summary>The page to read: no editing, no edit outline, no spelling marks. Blocks can be
+    /// selected and copied; a double-click or Enter edits one, in WYSIWYG. Files opened from
+    /// outside the app (Explorer, the command line) open in it.</summary>
+    Read,
 }

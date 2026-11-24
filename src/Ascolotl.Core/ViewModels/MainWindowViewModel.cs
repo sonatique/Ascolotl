@@ -156,6 +156,11 @@ public partial class MainWindowViewModel : ObservableObject
     public bool IsSourceMode => EditorMode == EditorMode.Source;
     public bool IsSplitMode => EditorMode == EditorMode.Split;
     public bool IsWysiwygMode => EditorMode == EditorMode.Wysiwyg;
+    public bool IsReadMode => EditorMode == EditorMode.Read;
+    /// <summary>The source pane is shown: Source and Split.</summary>
+    public bool IsSourceShown => EditorMode is EditorMode.Source or EditorMode.Split;
+    /// <summary>Formatting applies: Split and WYSIWYG, not Source (its own keys) nor Read.</summary>
+    public bool IsFormattingShown => EditorMode is EditorMode.Split or EditorMode.Wysiwyg;
     public bool IsThemeLight => CurrentTheme == AppTheme.Light;
     public bool IsThemeDark => CurrentTheme == AppTheme.Dark;
     public bool IsThemeSystem => CurrentTheme == AppTheme.System;
@@ -571,7 +576,8 @@ public partial class MainWindowViewModel : ObservableObject
     /// Opens a file by path (e.g. from drag-and-drop). Does not modify
     /// the recent files list on failure — unlike OpenRecentFileAsync.
     /// </summary>
-    public async Task OpenFileByPathAsync(string path)
+    /// <param name="view">The view a newly opened document starts in; a document already open keeps its own.</param>
+    public async Task OpenFileByPathAsync(string path, EditorMode? view = null)
     {
         if (string.IsNullOrEmpty(path))
             return;
@@ -592,10 +598,10 @@ public partial class MainWindowViewModel : ObservableObject
             return;
         }
 
-        OpenDocumentFromPath(path, content);
+        OpenDocumentFromPath(path, content, view);
     }
 
-    private void OpenDocumentFromPath(string path, FileText content)
+    private void OpenDocumentFromPath(string path, FileText content, EditorMode? view = null)
     {
         var existing = Documents.FirstOrDefault(
             d => string.Equals(d.FilePath, path, StringComparison.OrdinalIgnoreCase));
@@ -614,6 +620,7 @@ public partial class MainWindowViewModel : ObservableObject
         doc.EndLoad();
         doc.MarkClean();
         doc.FileEncoding = content.Encoding;
+        if (view is { } v) doc.EditorMode = v;
 
         try { doc.LastKnownWriteTime = File.GetLastWriteTimeUtc(path); }
         catch { /* non-critical */ }
@@ -1560,6 +1567,9 @@ public partial class MainWindowViewModel : ObservableObject
         OnPropertyChanged(nameof(IsSourceMode));
         OnPropertyChanged(nameof(IsSplitMode));
         OnPropertyChanged(nameof(IsWysiwygMode));
+        OnPropertyChanged(nameof(IsReadMode));
+        OnPropertyChanged(nameof(IsSourceShown));
+        OnPropertyChanged(nameof(IsFormattingShown));
     }
 
     partial void OnCurrentThemeChanged(AppTheme value)
@@ -1725,6 +1735,7 @@ public partial class MainWindowViewModel : ObservableObject
             new(Strings.CommandSourceMode, "Ctrl+1", Strings.CommandCategoryView, () => SetEditorModeCommand.Execute(EditorMode.Source)),
             new(Strings.CommandSplitMode, "Ctrl+2", Strings.CommandCategoryView, () => SetEditorModeCommand.Execute(EditorMode.Split)),
             new(Strings.CommandWYSIWYGMode, "Ctrl+3", Strings.CommandCategoryView, () => SetEditorModeCommand.Execute(EditorMode.Wysiwyg)),
+            new(Strings.CommandReadMode, "Ctrl+4", Strings.CommandCategoryView, () => SetEditorModeCommand.Execute(EditorMode.Read)),
             new(Strings.CommandToggleTitleTOC, null, Strings.CommandCategoryView, () => ToggleShowTitleAndTocCommand.Execute(null)),
             new(Strings.CommandToggleSyncScrolling, null, Strings.CommandCategoryView, () => ToggleSyncScrollingCommand.Execute(null)),
             new(Strings.CommandToggleEditorWordWrap, null, Strings.CommandCategoryView, () => ToggleEditorWordWrapCommand.Execute(null)),

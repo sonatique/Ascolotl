@@ -207,6 +207,7 @@
   <data name="CommandToggleTitleTOC" xml:space="preserve"><value>Toggle Title &amp; TOC</value></data>
   <data name="CommandUseBuiltInStyle" xml:space="preserve"><value>Use Built-in Style</value></data>
   <data name="CommandWYSIWYGMode" xml:space="preserve"><value>WYSIWYG Mode</value></data>
+  <data name="CommandReadMode" xml:space="preserve"><value>Read Mode</value></data>
   <data name="CommandZoomIn" xml:space="preserve"><value>Zoom In</value></data>
   <data name="CommandZoomOut" xml:space="preserve"><value>Zoom Out</value></data>
   <data name="ConvertADocxToAsciiDocImages" xml:space="preserve"><value>Convert a .docx to AsciiDoc (images extracted beside it)</value></data>
@@ -358,6 +359,7 @@
   <data name="ModeSource" xml:space="preserve"><value>Source</value></data>
   <data name="ModeSplit" xml:space="preserve"><value>Split</value></data>
   <data name="ModeWysiwyg" xml:space="preserve"><value>WYSIWYG</value></data>
+  <data name="ModeRead" xml:space="preserve"><value>Read</value></data>
   <data name="Name" xml:space="preserve"><value>Name</value></data>
   <data name="New" xml:space="preserve"><value>_New</value></data>
   <data name="NewFile" xml:space="preserve"><value>New file</value></data>
@@ -430,6 +432,7 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="StatusEditCancelled" xml:space="preserve"><value>Edit cancelled</value></data>
   <data name="StatusEditDiscarded" xml:space="preserve"><value>Edit discarded — the document changed while the block was open</value></data>
   <data name="StatusPageKeys" xml:space="preserve"><value>↑ ↓ move between blocks · Enter edit · Shift+F10 menu · Tab leave the page</value></data>
+  <data name="StatusReadKeys" xml:space="preserve"><value>Reading · double-click or Enter edits · Shift+click selects · Ctrl+C copies</value></data>
   <data name="StatusEditingBlock" xml:space="preserve"><value>Editing block — Apply (Ctrl+Enter) or click away to commit, Esc to cancel</value></data>
   <data name="StatusEditingCell" xml:space="preserve"><value>Editing cell — Tab to the next cell, Ctrl+Enter for a new row, Esc to cancel</value></data>
   <data name="StatusEditTableSourceForLayout" xml:space="preserve"><value>Edit the table source for this layout</value></data>
@@ -495,6 +498,7 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="WordDocument" xml:space="preserve"><value>_Word Document...</value></data>
   <data name="WouldYouLikeToRecoverThese" xml:space="preserve"><value>Would you like to recover these documents?</value></data>
   <data name="WYSIWYGMode" xml:space="preserve"><value>_WYSIWYG Mode</value></data>
+  <data name="ReadMode" xml:space="preserve"><value>Read Mode</value></data>
   <data name="ZoomFit" xml:space="preserve"><value>Fit</value></data>
   <data name="ZoomIn" xml:space="preserve"><value>Zoom _In</value></data>
   <data name="ZoomOut" xml:space="preserve"><value>Zoom O_ut</value></data>

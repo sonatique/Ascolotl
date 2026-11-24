@@ -477,7 +477,7 @@ public partial class MainWindow : Window
     {
         var cols = ContentGrid.ColumnDefinitions;
         // Hidden under the page, the source kept no position of its own: the page's is the tab's.
-        if (mode != EditorMode.Wysiwyg && !EditorPane.IsVisible)
+        if (mode is not (EditorMode.Wysiwyg or EditorMode.Read) && !EditorPane.IsVisible)
             FindDescendant<SourceEditorView>(EditorPane)?.ShowTopLine();
 
         switch (mode)
@@ -495,6 +495,7 @@ public partial class MainWindow : Window
                 break;
 
             case EditorMode.Wysiwyg:
+            case EditorMode.Read: // the same page, to read
                 // Preview-only: the source pane is hidden but stays in the
                 // tree — it remains the single source of truth that in-place
                 // block edits splice into. It can't keep the keyboard: the page takes it.
@@ -687,7 +688,7 @@ public partial class MainWindow : Window
         // The page's changes are in the source's history, also while the source is hidden.
         // Not under an open block, whose own editor has its own history.
         else if (CommandKey.AsWritten(e.KeyModifiers) is KeyModifiers.Control or (KeyModifiers.Control | KeyModifiers.Shift) && e.Key is Key.Z or Key.Y
-                 && PreviewPane.IsKeyboardFocusWithin && !_viewModel.InPlaceEditOpen
+                 && PreviewPane.IsKeyboardFocusWithin && !_viewModel.InPlaceEditOpen && !_viewModel.IsReadMode
                  && FindDescendant<SourceEditorView>(EditorPane) is { } sourceView && sourceView.DataContext == _viewModel.SelectedDocument
                  && sourceView.Editor is { } source)
         {
@@ -715,7 +716,7 @@ public partial class MainWindow : Window
     /// (nothing, the window, a clicked button or a hidden control), so its keys show and work at once.</summary>
     private void GiveThePageAnIdleKeyboard()
     {
-        if (_viewModel is { EditorMode: EditorMode.Wysiwyg, SelectedDocument: not null }
+        if (_viewModel is { EditorMode: EditorMode.Wysiwyg or EditorMode.Read, SelectedDocument: not null }
             && FocusManager?.GetFocusedElement() is null or TopLevel or Button or Visual { IsEffectivelyVisible: false })
             FindDescendant<PreviewView>(PreviewPane)?.FocusPage();
     }
@@ -725,6 +726,7 @@ public partial class MainWindow : Window
         Key.D1 or Key.NumPad1 => EditorMode.Source,
         Key.D2 or Key.NumPad2 => EditorMode.Split,
         Key.D3 or Key.NumPad3 => EditorMode.Wysiwyg,
+        Key.D4 or Key.NumPad4 => EditorMode.Read,
         _ => null,
     };
 
@@ -767,7 +769,7 @@ public partial class MainWindow : Window
         _viewModel.SyntaxReference.Close();
 
         var editorView = FindDescendant<SourceEditorView>(EditorPane);
-        if (editorView is null)
+        if (editorView is null || !EditorPane.IsVisible) // WYSIWYG and Read keep it hidden: no caret to see
         {
             _viewModel.StatusText = Strings.StatusSwitchModeToInsert;
             return;
@@ -919,7 +921,7 @@ public partial class MainWindow : Window
         Dispatcher.UIThread.Post(() =>
         {
             // WYSIWYG hides the source pane, so move the page instead.
-            if (_viewModel?.EditorMode == EditorMode.Wysiwyg && FindDescendant<PreviewView>(PreviewPane) is { } page)
+            if (_viewModel?.EditorMode is EditorMode.Wysiwyg or EditorMode.Read && FindDescendant<PreviewView>(PreviewPane) is { } page)
             {
                 page.ScrollToSourceLine(lineNumber, (_viewModel.SelectedDocument?.SourceText ?? "").AsSpan().Count('\n') + 1);
                 // The keyboard follows, as it does to the source: onto the section's first block.

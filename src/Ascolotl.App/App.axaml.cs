@@ -332,11 +332,12 @@ public class App : Application
     private static long SinceStart()
         => (long)(DateTime.Now - System.Diagnostics.Process.GetCurrentProcess().StartTime).TotalMilliseconds;
 
-    /// <summary>Opens each existing file among <paramref name="paths"/>; other arguments are ignored.</summary>
+    /// <summary>Opens each existing file among <paramref name="paths"/>, from Explorer or the command line,
+    /// in Read view: opened to be read, until the user chooses to edit. Other arguments are ignored.</summary>
     private async Task OpenFilesAsync(IEnumerable<string> paths)
     {
         foreach (var path in paths.Where(File.Exists))
-            await _viewModel!.OpenFileByPathAsync(Path.GetFullPath(path));
+            await _viewModel!.OpenFileByPathAsync(Path.GetFullPath(path), EditorMode.Read);
     }
 
     /// <summary>Settings are saved from event handlers: a failed write is logged, never a crash.</summary>
