@@ -28,8 +28,10 @@ no Ruby and no Java.
   WYSIWYG and Read. Switch from the toolbar's right end or with `Ctrl+1` to
   `Ctrl+4`. Each tab keeps its own view. Files open in WYSIWYG, and in Read when
   opened from Explorer or the command line: the page to read, with no edit
-  outline and no spelling marks, where blocks can be selected and copied and a
-  double-click or `Enter` edits one. Click a rendered block to edit its source in
+  outline and no spelling marks. Text is selected with the mouse as in a word
+  processor, across paragraphs and table cells (`Shift`+click extends it,
+  `Ctrl+A` takes all), and copied formatted; a double-click or `Enter` edits a
+  block. Click a rendered block to edit its source in
   place (in Split, the source pane jumps there too), then apply with
   `Ctrl+Enter` or cancel with `Esc`. The source text stays the single source of
   truth.

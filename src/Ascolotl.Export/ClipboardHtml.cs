@@ -22,9 +22,15 @@ public static partial class ClipboardHtml
             BaseDirectory = basePath,
             StemRenderer = Formulas.Renderer,
         });
-        html = TableTag().Replace(html, "<table border=\"1\" cellpadding=\"4\" style=\"border-collapse:collapse\"");
-        return CellTag().Replace(html, m => $"<{m.Groups[1].Value} style=\"border:1px solid #999;padding:3px 8px;text-align:left;vertical-align:top\"");
+        html = TableTag().Replace(html, TableAttributes);
+        return CellTag().Replace(html, m => $"<{m.Groups[1].Value} {CellAttributes}");
     }
+
+    /// <summary>A table's borders in its own tag, for a paste without the stylesheet.</summary>
+    public const string TableAttributes = "<table border=\"1\" cellpadding=\"4\" style=\"border-collapse:collapse\"";
+
+    /// <summary>A cell's borders and padding in its own tag.</summary>
+    public const string CellAttributes = "style=\"border:1px solid #999;padding:3px 8px;text-align:left;vertical-align:top\"";
 
     /// <summary>This platform's clipboard format for HTML: Windows' name, a Mac's type identifier, X11's mime type.</summary>
     public static string PlatformFormat =>

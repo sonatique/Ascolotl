@@ -165,10 +165,12 @@ public partial class PreviewView : UserControl
         _outline.Bind(Border.BorderBrushProperty, this.GetResourceObservable("ForgeAccentBrush"));
         _selectionBox.Bind(Border.BackgroundProperty, this.GetResourceObservable("ForgeAccentBrush"));
         _pages.Children.Add(_spelling);
+        _pages.Children.Add(_textSelection);
         PreviewScroll.LayoutUpdated += (_, _) =>
         {
             PlaceOutline();
             _spelling.Place(_renderedRoot, _activeEdit);
+            _textSelection.Place();
         };
         DataContextChanged += OnDataContextChanged;
 
@@ -231,6 +233,22 @@ public partial class PreviewView : UserControl
             OnPreviewPointerPressed,
             RoutingStrategies.Bubble,
             handledEventsToo: true);
+        // Read view: the text selection follows the mouse while its button is down, scrolling at the edges.
+        PreviewScroll.AddHandler(InputElement.PointerMovedEvent, (_, e) =>
+        {
+            if (!_selectingText) return;
+            _textSelection.Extend(e.GetPosition(_textSelection));
+            var y = e.GetPosition(PreviewScroll).Y;
+            if (y < 0) PreviewScroll.LineUp();
+            else if (y > PreviewScroll.Viewport.Height) PreviewScroll.LineDown();
+        }, RoutingStrategies.Bubble, handledEventsToo: true);
+        PreviewScroll.AddHandler(InputElement.PointerReleasedEvent, (_, e) =>
+        {
+            if (!_selectingText) return;
+            _selectingText = false;
+            e.Pointer.Capture(null);
+        }, RoutingStrategies.Bubble, handledEventsToo: true);
+        PreviewScroll.PointerCaptureLost += (_, _) => _selectingText = false; // another window took the mouse
 
         // Without a mouse: one block at a time takes the keyboard. The arrows move
         // between blocks, Enter edits one, Shift+F10 or the Menu key opens its menu.
@@ -300,16 +318,46 @@ public partial class PreviewView : UserControl
             case (Key.Down, KeyModifiers.None): PreviewScroll.LineDown(); return true;
             case (Key.Home, KeyModifiers.None or KeyModifiers.Control): PreviewScroll.ScrollToHome(); return true;
             case (Key.End, KeyModifiers.None or KeyModifiers.Control): PreviewScroll.ScrollToEnd(); return true;
-            case (Key.Escape, KeyModifiers.None) when _selectAnchor >= 0: ClearSelection(); return true;
+            case (Key.Escape, KeyModifiers.None) when _textSelection.HasSelection: _textSelection.Clear(); return true;
             case (Key.Enter or Key.F2, KeyModifiers.None): return EditFromReading(_blockMap.FindIndex(b => InView(b.Vis))); // the first in view
         }
-        if (Hotkey(e, ApplicationCommands.SelectAll) && _blockMap.Count > 0)
+        if (Hotkey(e, ApplicationCommands.SelectAll))
         {
-            _current = _blockMap.Count - 1;
-            Select(0);
+            _textSelection.SelectAll();
             return true;
         }
-        return Hotkey(e, ApplicationCommands.Copy) && Selection is not null && CopyBlocks(_current, cut: false);
+        return Hotkey(e, ApplicationCommands.Copy) && CopySelectedText();
+    }
+
+    /// <summary>Read view's selected text to the clipboard, as text and as HTML.</summary>
+    private bool CopySelectedText()
+    {
+        if (!_textSelection.HasSelection) return false;
+        SetClipboard(_textSelection.Text, () => _textSelection.Html);
+        return true;
+    }
+
+    /// <summary>The page's tables, as grids: their cells are the grids' children.</summary>
+    private IEnumerable<Grid> TableGrids() =>
+        _blockMap.Where(b => b.Block is TableLayout).Select(b => b.Vis as Grid ?? FindDescendantGrid(b.Vis)).OfType<Grid>();
+
+    /// <summary>Text for editors and Ascolotl itself, and its HTML for apps that paste formatted.</summary>
+    private void SetClipboard(string text, Func<string> html)
+    {
+        if (TopLevel.GetTopLevel(this)?.Clipboard is not { } clipboard) return;
+        var item = new DataTransferItem();
+        item.SetText(text);
+        try
+        {
+            item.Set(DataFormat.CreateBytesPlatformFormat(ClipboardHtml.PlatformFormat), ClipboardHtml.PlatformBytes(html()));
+        }
+        catch (Exception ex)
+        {
+            _mainVm?.LogError("Copying as HTML failed: the text alone goes", ex);
+        }
+        var transfer = new DataTransfer();
+        transfer.Add(item);
+        _ = clipboard.SetDataAsync(transfer);
     }
 
     /// <summary>From Read view to WYSIWYG, with block <paramref name="i"/> open (a table: its first cell).</summary>
@@ -331,7 +379,7 @@ public partial class PreviewView : UserControl
         {
             ItemsSource = new List<Control>
             {
-                Cmd(Strings.MenuCopy, () => CopyBlocks(Index(), cut: false), ApplicationCommands.Copy.Gesture),
+                Cmd(Strings.MenuCopy, () => { if (!CopySelectedText()) CopyBlocks(Index(), cut: false); }, ApplicationCommands.Copy.Gesture),
                 Cmd(string.Format(Strings.MenuEditBlock, Strings.GestureEnter), () => EditFromReading(Index())),
             },
         }.Open(vis);
@@ -409,6 +457,8 @@ public partial class PreviewView : UserControl
 
     private readonly Canvas _findLayer = new();
     private readonly PageSpelling _spelling = new();
+    private readonly PageSelection _textSelection = new(); // Read view's text selection
+    private bool _selectingText; // the mouse button down, the selection following it
     private List<(TextBlock Text, int Start, int Length)> _findMatches = [];
     private int _findIndex = -1;
     private (Rect, Rect, List<(TextBlock, int, int)>, int) _findPlaced;
@@ -811,7 +861,11 @@ public partial class PreviewView : UserControl
     private void OnMainVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName is nameof(MainWindowViewModel.PagePreview) or nameof(MainWindowViewModel.EditorMode)) ShowPageKeys();
-        if (e.PropertyName == nameof(MainWindowViewModel.EditorMode)) PlaceOutline(); // no edit outline to read
+        if (e.PropertyName == nameof(MainWindowViewModel.EditorMode))
+        {
+            PlaceOutline(); // no edit outline to read
+            if (!Reading) _textSelection.Reset(null, [], null); // text is selected only to read
+        }
         if (e.PropertyName is nameof(MainWindowViewModel.PreviewWordWrap)
                 or nameof(MainWindowViewModel.PagePreview)
                 or nameof(MainWindowViewModel.StylePath)
@@ -1257,8 +1311,11 @@ public partial class PreviewView : UserControl
 
             _lineMap = BuildLineMap();
             if (_doc is not null && _frame is not null) // the page's own theme: the renderer is shared
+            {
                 _spelling.Check(Reading ? null : _renderedRoot, // nothing to correct while reading
                     _frame.Theme.MonospaceFont, SpellingController.Language(_doc.SourceText, _doc.IsMarkdown));
+                _textSelection.Reset(Reading ? _renderedRoot : null, TableGrids(), _frame.Theme.MonospaceFont);
+            }
 
             // A click that committed an edit and landed on another block (or
             // table cell) queued it; now that the map + _astToEditor are
@@ -1479,7 +1536,7 @@ public partial class PreviewView : UserControl
         var right = e.GetCurrentPoint(this).Properties.IsRightButtonPressed;
         var hit = _activeEdit is null && TryHitBlock(src, clickPoint, out var hitVis, out _) ? _blockMap.FindIndex(b => b.Vis == hitVis) : -1;
         // Shift+click selects whole blocks, from the first one so clicked to this one, to copy or move them.
-        if (hit >= 0 && !right && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+        if (hit >= 0 && !right && e.KeyModifiers.HasFlag(KeyModifiers.Shift) && !Reading) // reading selects text instead
         {
             var anchor = _selectAnchor >= 0 ? _selectAnchor : hit;
             FocusBlock(hit, bringIntoView: false);
@@ -1496,14 +1553,23 @@ public partial class PreviewView : UserControl
         // the block map isn't built there, so the gestures would misfire.
         if (_mainVm?.PagePreview == true) return;
 
-        // Read view: a click only takes the keyboard, to scroll; a right-click offers copy and edit;
-        // a double-click goes on below, to edit the block where clicked, in WYSIWYG.
+        // Read view: a press starts selecting text, Shift extends it, as in a word processor; a right-click
+        // offers copy and edit; a double-click goes on below, to edit the block where clicked, in WYSIWYG.
         var leaveReading = Reading && !right && e.ClickCount == 2;
         if (Reading && !leaveReading)
         {
-            if (right && TryHitBlock(src, clickPoint, out var readVis, out _)) ShowReadingMenu(readVis);
-            else PreviewScroll.Focus();
-            e.Handled = right;
+            if (right)
+            {
+                if (TryHitBlock(src, clickPoint, out var readVis, out _)) ShowReadingMenu(readVis);
+            }
+            else
+            {
+                _textSelection.Begin(e.GetPosition(_textSelection), extend: e.KeyModifiers.HasFlag(KeyModifiers.Shift));
+                _selectingText = true;
+                e.Pointer.Capture(PreviewScroll); // the drag goes on past the page's edge
+            }
+            PreviewScroll.Focus();
+            e.Handled = true;
             return;
         }
 
@@ -2642,23 +2708,10 @@ public partial class PreviewView : UserControl
     private bool CopyBlocks(int i, bool cut)
     {
         var (first, last) = BlocksAt(i);
-        if (_doc is null || Blocks(first, last) is not { } range || TopLevel.GetTopLevel(this)?.Clipboard is not { } clipboard) return false;
+        if (_doc is null || Blocks(first, last) is not { } range || TopLevel.GetTopLevel(this)?.Clipboard is null) return false;
         var source = _doc.SourceText.Substring(range.Start, range.Length);
-        // The source, for editors and Ascolotl itself; the HTML, for apps that paste formatted.
-        var item = new DataTransferItem();
-        item.SetText(source);
-        try
-        {
-            var html = ClipboardHtml.Fragment(source, _doc.IsMarkdown, Path.GetDirectoryName(_doc.FilePath));
-            item.Set(DataFormat.CreateBytesPlatformFormat(ClipboardHtml.PlatformFormat), ClipboardHtml.PlatformBytes(html));
-        }
-        catch (Exception ex)
-        {
-            _mainVm?.LogError("Copying the blocks as HTML failed: the text alone goes", ex);
-        }
-        var transfer = new DataTransfer();
-        transfer.Add(item);
-        _ = clipboard.SetDataAsync(transfer);
+        var (markdown, folder) = (_doc.IsMarkdown, Path.GetDirectoryName(_doc.FilePath));
+        SetClipboard(source, () => ClipboardHtml.Fragment(source, markdown, folder)); // the blocks' source, and their HTML
         return !cut || DeleteBlock(i);
     }
 

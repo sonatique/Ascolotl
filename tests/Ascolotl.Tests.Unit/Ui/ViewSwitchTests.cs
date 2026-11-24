@@ -75,12 +75,52 @@ public sealed class ViewSwitchTests
         Assert.Equal("Para one.\n\nPara two.\n", vm.SelectedDocument!.SourceText);
         Press(window, Key.A, Command);
         Press(window, Key.C, Command);
-        Assert.Equal("Para one.\n\nPara two.", TopLevel.GetTopLevel(window)!.Clipboard!.TryGetTextAsync().GetAwaiter().GetResult());
+        Assert.Equal($"Para one.{Environment.NewLine}Para two.", TopLevel.GetTopLevel(window)!.Clipboard!.TryGetTextAsync().GetAwaiter().GetResult()); // the text, as shown
 
         Press(window, Key.Escape);
         Press(window, Key.Enter); // to edit: WYSIWYG, the block open
         Assert.Equal(EditorMode.Wysiwyg, vm.EditorMode);
         Assert.Equal("Para one.", BlockEditor(window)!.Text.TrimEnd());
+    }
+
+    [AvaloniaFact]
+    public void ReadView_DragSelectsText_AcrossParagraphsAndIntoATable()
+    {
+        var (window, _) = Open("Alpha beta.\n\nGamma delta.\n\n|===\n| a1 | b1\n| a2 | b2\n|===\n", EditorMode.Read);
+        var clipboard = TopLevel.GetTopLevel(window)!.Clipboard!;
+        var selection = window.GetVisualDescendants().OfType<PageSelection>().Single();
+        TextBlock Text(string shown) => Preview(window).GetVisualDescendants().OfType<TextBlock>().First(t => Ascolotl.App.Views.Assist.PageSpelling.ShownText(t) == shown);
+        Point At(string shown, int index)
+        {
+            var t = Text(shown);
+            var r = t.TextLayout.HitTestTextPosition(index);
+            return t.TranslatePoint(new Point(r.X + t.Padding.Left + 0.5, r.Y + t.Padding.Top + r.Height / 2), window)!.Value;
+        }
+
+        window.MouseDown(At("Alpha beta.", 6), MouseButton.Left); // before "beta"
+        window.MouseMove(At("Gamma delta.", 3), RawInputModifiers.LeftMouseButton);
+        window.MouseMove(At("b1", 2), RawInputModifiers.LeftMouseButton); // on into the table, to the end of b1
+        window.MouseUp(At("b1", 2), MouseButton.Left);
+        Pump(window);
+        Assert.True(selection.Highlights >= 4); // beta., the paragraph, a1, b1
+        Press(window, Key.C, Command);
+        var nl = Environment.NewLine;
+        Assert.Equal($"beta.{nl}Gamma delta.{nl}a1\tb1", clipboard.TryGetTextAsync().GetAwaiter().GetResult());
+        var html = Encoding.UTF8.GetString(clipboard.TryGetValueAsync(DataFormat.CreateBytesPlatformFormat(ClipboardHtml.PlatformFormat)).GetAwaiter().GetResult()!);
+        Assert.Contains("<p>beta.</p><p>Gamma delta.</p><table border=\"1\"", html);
+        Assert.Contains(">a1</td><td ", html);
+        Assert.DoesNotContain("a2", html);
+
+        window.MouseDown(At("Gamma delta.", 0), MouseButton.Left, RawInputModifiers.Shift); // Shift: from the start, as before
+        window.MouseUp(At("Gamma delta.", 0), MouseButton.Left, RawInputModifiers.Shift);
+        Pump(window);
+        Press(window, Key.C, Command);
+        Assert.Equal("beta.", clipboard.TryGetTextAsync().GetAwaiter().GetResult()?.TrimEnd());
+
+        window.MouseDown(At("Alpha beta.", 2), MouseButton.Left); // a click alone: nothing selected
+        window.MouseUp(At("Alpha beta.", 2), MouseButton.Left);
+        Pump(window);
+        Assert.Equal(0, selection.Highlights);
     }
 
     [AvaloniaFact]
