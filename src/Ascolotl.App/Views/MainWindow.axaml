@@ -258,26 +258,26 @@
                                 VerticalAlignment="Center"
                                 Spacing="2"
                                 Margin="0,0,8,0">
-                        <Button Classes="format-action view" Classes.active="{Binding IsSourceMode}"
-                                Focusable="False"
-                                Command="{Binding SetEditorModeCommand}"
-                                CommandParameter="{x:Static models:EditorMode.Source}"
-                                Content="{x:Static res:Strings.ModeSource}" />
-                        <Button Classes="format-action view" Classes.active="{Binding IsSplitMode}"
-                                Focusable="False"
-                                Command="{Binding SetEditorModeCommand}"
-                                CommandParameter="{x:Static models:EditorMode.Split}"
-                                Content="{x:Static res:Strings.ModeSplit}" />
-                        <Button Classes="format-action view" Classes.active="{Binding IsWysiwygMode}"
-                                Focusable="False"
-                                Command="{Binding SetEditorModeCommand}"
-                                CommandParameter="{x:Static models:EditorMode.Wysiwyg}"
-                                Content="{x:Static res:Strings.ModeWysiwyg}" />
                         <Button Classes="format-action view" Classes.active="{Binding IsReadMode}"
                                 Focusable="False"
                                 Command="{Binding SetEditorModeCommand}"
                                 CommandParameter="{x:Static models:EditorMode.Read}"
                                 Content="{x:Static res:Strings.ModeRead}" />
+                        <Button Classes="format-action view" Classes.active="{Binding IsWysiwygMode}"
+                                Focusable="False"
+                                Command="{Binding SetEditorModeCommand}"
+                                CommandParameter="{x:Static models:EditorMode.Wysiwyg}"
+                                Content="{x:Static res:Strings.ModeWysiwyg}" />
+                        <Button Classes="format-action view" Classes.active="{Binding IsSplitMode}"
+                                Focusable="False"
+                                Command="{Binding SetEditorModeCommand}"
+                                CommandParameter="{x:Static models:EditorMode.Split}"
+                                Content="{x:Static res:Strings.ModeSplit}" />
+                        <Button Classes="format-action view" Classes.active="{Binding IsSourceMode}"
+                                Focusable="False"
+                                Command="{Binding SetEditorModeCommand}"
+                                CommandParameter="{x:Static models:EditorMode.Source}"
+                                Content="{x:Static res:Strings.ModeSource}" />
                     </StackPanel>
                     <views:FormatToolbar x:Name="FormatBar"
                                          IsVisible="{Binding IsFormattingShown}"

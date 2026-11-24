@@ -41,7 +41,8 @@ public sealed class ViewSwitchTests
             Assert.Equal([mode], buttons.Where(x => x.Classes.Contains("active")).Select(x => (EditorMode)x.CommandParameter!));
         }
 
-        Assert.Equal(new[] { "Ctrl+1", "Ctrl+2", "Ctrl+3", "Ctrl+4" }.Select(k => CommandKey.Text(k)), buttons.Select(b => ToolTip.GetTip(b) as string)); // Source, Split, WYSIWYG, Read; Cmd on a Mac
+        Assert.Equal([EditorMode.Read, EditorMode.Wysiwyg, EditorMode.Split, EditorMode.Source], buttons.Select(b => (EditorMode)b.CommandParameter!)); // from reading to source
+        Assert.Equal(new[] { "Ctrl+4", "Ctrl+3", "Ctrl+2", "Ctrl+1" }.Select(k => CommandKey.Text(k)), buttons.Select(b => ToolTip.GetTip(b) as string)); // each view's own key; Cmd on a Mac
         Click(EditorMode.Source);
         Assert.False(window.FindControl<Control>("FormatBar")!.IsEffectivelyVisible);
         Assert.True(modeSwitch.IsEffectivelyVisible); // still there to leave Source

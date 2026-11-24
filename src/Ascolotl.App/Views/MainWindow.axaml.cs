@@ -73,9 +73,10 @@ public partial class MainWindow : Window
         // window, and a double-click toggles maximize (standard gestures).
         TitleDragArea.PointerPressed += OnTitleDragPressed;
 
-        // The view switch shows its shortcuts: key names, nothing to translate.
-        foreach (var (button, n) in ModeSwitch.Children.OfType<Button>().Select((b, i) => (b, i + 1)))
-            ToolTip.SetTip(button, CommandKey.Text($"Ctrl+{n}"));
+        // The view switch shows its shortcuts: key names, nothing to translate. Ctrl+1 to 4 go by the views'
+        // order (Source, Split, WYSIWYG, Read), whatever the buttons' order.
+        foreach (var button in ModeSwitch.Children.OfType<Button>())
+            ToolTip.SetTip(button, CommandKey.Text($"Ctrl+{(int)(EditorMode)button.CommandParameter! + 1}"));
 
         // A click on an outline row goes to its section.
         OutlineList.Tapped += OnOutlineItemTapped;
