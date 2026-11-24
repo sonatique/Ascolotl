@@ -72,6 +72,7 @@ public partial class MainWindow : Window
         // Header drag region: empty space on the menu/tab row drags the
         // window, and a double-click toggles maximize (standard gestures).
         TitleDragArea.PointerPressed += OnTitleDragPressed;
+        AppIcon.PointerPressed += OnAppIconPressed;
 
         // The view switch shows its shortcuts: key names, nothing to translate. Ctrl+1 to 4 go by the views'
         // order (Source, Split, WYSIWYG, Read), whatever the buttons' order.
@@ -584,6 +585,21 @@ public partial class MainWindow : Window
             recent.IsEnabled = vm.RecentFiles.Count > 0;
         }
     }
+
+    /// <summary>A click on the app icon opens the window's system menu (Restore, Move, Size, Minimize,
+    /// Maximize, Close), as on any Windows window: the title bar is ours, so the click is passed on.</summary>
+    private void OnAppIconPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (!OperatingSystem.IsWindows() || !e.GetCurrentPoint(this).Properties.IsLeftButtonPressed
+            || TryGetPlatformHandle()?.Handle is not { } hwnd) return;
+        const uint WmSysCommand = 0x0112;
+        const int ScKeyMenu = 0xF100; // with a space: the system menu, as Alt+Space opens it
+        PostMessage(hwnd, WmSysCommand, ScKeyMenu, ' ');
+        e.Handled = true;
+    }
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern bool PostMessage(IntPtr hWnd, uint msg, nint wParam, nint lParam);
 
     private void OnTitleDragPressed(object? sender, PointerPressedEventArgs e)
     {

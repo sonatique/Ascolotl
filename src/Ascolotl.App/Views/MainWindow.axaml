@@ -142,7 +142,8 @@
                       Height="30"
                       Background="{DynamicResource ForgeTitleBarBrush}"
                       ColumnDefinitions="Auto,Auto,*">
-                    <Image Grid.Column="0"
+                    <Image x:Name="AppIcon"
+                           Grid.Column="0"
                            Source="avares://Ascolotl/Assets/app-icon.png"
                            Width="16" Height="16"
                            RenderOptions.BitmapInterpolationMode="HighQuality"
@@ -160,8 +161,8 @@
                                   ToolTip.Tip="{x:Static res:Strings.Menu}"
                                   AutomationProperties.Name="{x:Static res:Strings.MainMenuName}">
                             <MenuItem.Header>
-                                <!-- The menu item top-biases its content; position
-                                     the icon with an explicit top margin (tunable). -->
+                                <!-- The menu item top-biases its content; the top margin puts the
+                                     three lines' middle on the tabs' text line (y 17), as the app icon. -->
                                 <Panel Width="32" Height="30">
                                     <Path Classes="icon"
                                           Data="{StaticResource IconMenuGeometry}"
@@ -169,7 +170,7 @@
                                           StrokeThickness="1.5"
                                           VerticalAlignment="Top"
                                           HorizontalAlignment="Center"
-                                          Margin="0,10.5,0,0"
+                                          Margin="0,13,0,0"
                                           Stroke="{DynamicResource ForgeTextBrush}" />
                                 </Panel>
                             </MenuItem.Header>
