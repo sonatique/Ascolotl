@@ -865,6 +865,7 @@ public partial class PreviewView : UserControl
         {
             PlaceOutline(); // no edit outline to read
             if (!Reading) _textSelection.Reset(null, [], null); // text is selected only to read
+            else if (_activeEdit is not null) CommitBlockEdit(); // an open block applies and closes, as on a click away
         }
         if (e.PropertyName is nameof(MainWindowViewModel.PreviewWordWrap)
                 or nameof(MainWindowViewModel.PagePreview)

@@ -124,6 +124,23 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
+    public void GoingToRead_AppliesAndClosesTheOpenBlock()
+    {
+        var (window, vm) = Open("Para one.\n\nPara two.\n", EditorMode.Wysiwyg);
+        Preview(window).FocusPage();
+        Pump(window);
+        Press(window, Key.Enter);
+        window.KeyTextInput("!");
+        Pump(window);
+        Assert.NotNull(BlockEditor(window));
+
+        vm.EditorMode = EditorMode.Read;
+        Pump(window);
+        Assert.Null(BlockEditor(window)); // closed
+        Assert.StartsWith("!Para one.", vm.SelectedDocument!.SourceText); // and its change kept
+    }
+
+    [AvaloniaFact]
     public void ReadView_DoubleClickSelectsAWord()
     {
         var (window, vm) = Open("Para two_words here.\n", EditorMode.Read);
