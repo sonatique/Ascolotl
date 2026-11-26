@@ -15,6 +15,7 @@ def make_render_page(size):
 <style>
   *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
   body {{ background: transparent; margin: 0; padding: 0; width: {size}px; height: {size}px; overflow: hidden; }}
+  h1, .subtitle {{ display: none; }} /* the design page's heading, captured with the icon at 1024 px otherwise */
 </style>
 </head><body>
 {html_content.split('<body>')[1].split('<div class="grid">')[0]}
