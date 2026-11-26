@@ -34,6 +34,31 @@ public sealed class JsonSettingsServiceTests : IDisposable
         Assert.Equal(800, settings.WindowHeight);
     }
 
+    /// <summary>The compile-time JSON metadata writes the file earlier versions wrote, by reflection.</summary>
+    [Fact]
+    public void TheFile_IsWrittenAsBefore()
+    {
+        var service = CreateService();
+        var settings = new AppSettings
+        {
+            Theme = AppTheme.Dark,
+            PdfTitleRule = PdfTitleRule.FullTitle,
+            RecentFiles = ["a.adoc"],
+            ExportProfiles = [new ExportProfile { Name = "Mine", Format = ExportFormat.PdfLandscape, OutputFolder = "out" }],
+        };
+        service.Save(settings);
+
+        var byReflection = new System.Text.Json.JsonSerializerOptions
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+            Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter(System.Text.Json.JsonNamingPolicy.CamelCase) },
+            TypeInfoResolver = new System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver(),
+        };
+        Assert.Equal(System.Text.Json.JsonSerializer.Serialize(settings, byReflection), File.ReadAllText(Path.Combine(_tempDir, "settings.json")));
+        Assert.Contains("\"theme\": \"dark\"", File.ReadAllText(Path.Combine(_tempDir, "settings.json")));
+    }
+
     [Fact]
     public void Save_ThenLoad_RoundTrips()
     {

@@ -226,7 +226,7 @@ dotnet run --project src/Ascolotl.App
 ```
 
 To make release builds, run `publish.ps1` in PowerShell. It runs the tests first,
-then publishes one self-contained, trimmed, compressed executable per runtime to
+then publishes one self-contained, trimmed executable per runtime to
 `publish/<runtime>/` and the release archives to `publish/dist/`:
 
 ```powershell

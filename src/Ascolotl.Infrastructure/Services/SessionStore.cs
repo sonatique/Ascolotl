@@ -12,6 +12,7 @@ public sealed class SessionStore : ISessionStore
         WriteIndented = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
+        TypeInfoResolver = StoreJson.Default,
     };
 
     private readonly string _sessionPath;

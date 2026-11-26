@@ -12,6 +12,7 @@ public sealed class RecoveryStore : IRecoveryStore
         WriteIndented = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
+        TypeInfoResolver = StoreJson.Default,
     };
 
     private readonly string _recoveryDirectory;
