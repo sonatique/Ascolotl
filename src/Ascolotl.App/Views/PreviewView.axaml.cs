@@ -68,6 +68,29 @@ public partial class PreviewView : UserControl
     private static readonly AvaloniaRenderer _avaloniaRenderer = new() { WrapInScrollViewer = false, StemRenderer = Ascolotl.Export.Formulas.Renderer };
     // The renderer's own look, restored when no style is active.
     private static readonly AvaloniaRenderTheme _builtInTheme = _avaloniaRenderer.Theme;
+    // The same on the dark page: the text takes the page's light colour, so its boxes are dark.
+    private static readonly AvaloniaRenderTheme _builtInDarkTheme = new()
+    {
+        LinkBrush = Rgb(0x6C, 0xB6, 0xFF),
+        CodeBlockBackground = Rgb(0x2A, 0x27, 0x24),
+        CodeLanguageForeground = Rgb(0x8C, 0x86, 0x80),
+        TableBorderBrush = Rgb(0x4A, 0x45, 0x40),
+        TableHeaderBackground = Rgb(0x2E, 0x2A, 0x27),
+        ThematicBreakBrush = Rgb(0x4A, 0x45, 0x40),
+        DescriptionTermForeground = Rgb(0xD6, 0xD1, 0xCB),
+        QuoteBorderBrush = Rgb(0x4A, 0x45, 0x40),
+        QuoteAttributionForeground = Rgb(0xA0, 0x9A, 0x93),
+        AdmonitionPalettes = new Dictionary<AdmonitionKind, AdmonitionPalette>
+        {
+            [AdmonitionKind.Note] = new(Color.FromRgb(70, 130, 180), Color.FromRgb(0x1C, 0x26, 0x31), Color.FromRgb(0x86, 0xB8, 0xE8)),
+            [AdmonitionKind.Tip] = new(Color.FromRgb(60, 150, 120), Color.FromRgb(0x1A, 0x2A, 0x23), Color.FromRgb(0x72, 0xCF, 0xA2)),
+            [AdmonitionKind.Warning] = new(Color.FromRgb(210, 160, 50), Color.FromRgb(0x30, 0x28, 0x18), Color.FromRgb(0xE8, 0xC0, 0x68)),
+            [AdmonitionKind.Important] = new(Color.FromRgb(210, 120, 50), Color.FromRgb(0x31, 0x23, 0x1A), Color.FromRgb(0xF0, 0xA0, 0x60)),
+            [AdmonitionKind.Caution] = new(Color.FromRgb(200, 60, 60), Color.FromRgb(0x32, 0x1C, 0x1C), Color.FromRgb(0xF0, 0x80, 0x80)),
+        },
+    };
+
+    private static SolidColorBrush Rgb(byte r, byte g, byte b) => new(Color.FromRgb(r, g, b));
     private static readonly LayoutBuilder _layoutBuilder = new();
 
     // Page preview: shares the block renderer; A4 geometry mirrors the PDF
@@ -988,7 +1011,9 @@ public partial class PreviewView : UserControl
             // every render: another document may carry its own :pdf-theme:).
             var docDir = doc.BaseDirectory ?? Directory.GetCurrentDirectory();
             var style = PreviewStyle.Load(_mainVm?.StylePath, doc.RenderedDocument.Attributes, docDir);
-            _avaloniaRenderer.Theme = style is null ? _builtInTheme : PreviewStyle.ThemeFor(style);
+            // The dark look on the dark page; Page Preview's pages are paper, light in every theme.
+            _avaloniaRenderer.Theme = style is not null ? PreviewStyle.ThemeFor(style)
+                : IsDarkTheme && _mainVm?.PagePreview != true ? _builtInDarkTheme : _builtInTheme;
             // Relative images load from the document's folder.
             _avaloniaRenderer.BaseDirectory = doc.BaseDirectory;
             // Print-like page preview: flow the blocks into fixed A4 pages
@@ -1466,9 +1491,9 @@ public partial class PreviewView : UserControl
             var pages = await Task.Run(() => new PdfRenderer().LayoutPages(document, pdfWithFormulas));
             if (generation != _renderGeneration)
                 return;
-            Shown = Zoomed(
-                _pagedRenderer.Render(layout, pages, PageLayoutOptions.FromPdf(pdf)),
-                pdf.PageWidth * PreviewStyle.DipPerPoint, doc);
+            var paper = _pagedRenderer.Render(layout, pages, PageLayoutOptions.FromPdf(pdf));
+            paper.SetValue(TextElement.ForegroundProperty, Brushes.Black); // printed text, not the dark theme's light one
+            Shown = Zoomed(paper, pdf.PageWidth * PreviewStyle.DipPerPoint, doc);
         }
         catch (Exception ex)
         {

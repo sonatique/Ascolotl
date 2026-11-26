@@ -11,16 +11,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AdocNet.Layout" Version="1.0.45" />
-    <PackageReference Include="AdocNet.Parser" Version="1.0.45" />
-    <PackageReference Include="AdocNet.Converters.Pdf" Version="1.0.45" />
-    <PackageReference Include="AdocNet.Converters.Html" Version="1.0.45" />
-    <PackageReference Include="AdocNet.Converters.Docbook" Version="1.0.45" />
-    <PackageReference Include="AdocNet.Converters.Epub" Version="1.0.45" />
-    <PackageReference Include="AdocNet.Importers.Docx" Version="1.0.45" />
-    <PackageReference Include="AdocNet.Importers" Version="1.0.45" />
+    <PackageReference Include="AdocNet.Layout" Version="1.0.46" />
+    <PackageReference Include="AdocNet.Parser" Version="1.0.46" />
+    <PackageReference Include="AdocNet.Converters.Pdf" Version="1.0.46" />
+    <PackageReference Include="AdocNet.Converters.Html" Version="1.0.46" />
+    <PackageReference Include="AdocNet.Converters.Docbook" Version="1.0.46" />
+    <PackageReference Include="AdocNet.Converters.Epub" Version="1.0.46" />
+    <PackageReference Include="AdocNet.Importers.Docx" Version="1.0.46" />
+    <PackageReference Include="AdocNet.Importers" Version="1.0.46" />
     <!-- Typesets STEM (LaTeX, AsciiMath) for the preview and every export, offline. -->
-    <PackageReference Include="AdocNet.Stem" Version="1.0.45" />
+    <PackageReference Include="AdocNet.Stem" Version="1.0.46" />
   </ItemGroup>
 
 </Project>
