@@ -108,7 +108,7 @@ public sealed class LocalIncludeReader(string? baseDirectory, string? projectFol
 
     private static bool IsInside(string path, string folder)
     {
-        var comparison = OperatingSystem.IsLinux() ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+        var comparison = FilePaths.Comparison;
         var root = Path.TrimEndingDirectorySeparator(folder); // keeps C:\ and / whole
         var prefix = Path.EndsInDirectorySeparator(root) ? root : root + Path.DirectorySeparatorChar;
         return path.Equals(root, comparison) || path.StartsWith(prefix, comparison);

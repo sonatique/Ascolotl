@@ -433,7 +433,7 @@ public partial class MainWindowViewModel : ObservableObject
         foreach (var (sessionDoc, content, writeTime) in loaded)
         {
             // Skip if already open (e.g. from recovery)
-            if (Documents.Any(d => string.Equals(d.FilePath, sessionDoc.FilePath, StringComparison.OrdinalIgnoreCase)))
+            if (Documents.Any(d => FilePaths.Same(d.FilePath, sessionDoc.FilePath)))
                 continue;
 
             var doc = new DocumentViewModel { DocumentId = sessionDoc.DocumentId };
@@ -460,7 +460,7 @@ public partial class MainWindowViewModel : ObservableObject
                 ? session.OpenDocuments[session.SelectedIndex].FilePath
                 : null;
             SelectedDocument = Documents.FirstOrDefault(
-                d => string.Equals(d.FilePath, front, StringComparison.OrdinalIgnoreCase)) ?? Documents[0];
+                d => FilePaths.Same(d.FilePath, front)) ?? Documents[0];
         }
 
         if (Documents.Count > 0)
@@ -552,7 +552,7 @@ public partial class MainWindowViewModel : ObservableObject
             return;
 
         var existing = Documents.FirstOrDefault(
-            d => string.Equals(d.FilePath, path, StringComparison.OrdinalIgnoreCase));
+            d => FilePaths.Same(d.FilePath, path));
         if (existing is not null)
         {
             SelectedDocument = existing;
@@ -591,7 +591,7 @@ public partial class MainWindowViewModel : ObservableObject
             return;
 
         var existing = Documents.FirstOrDefault(
-            d => string.Equals(d.FilePath, path, StringComparison.OrdinalIgnoreCase));
+            d => FilePaths.Same(d.FilePath, path));
         if (existing is not null)
         {
             SelectedDocument = existing;
@@ -612,7 +612,7 @@ public partial class MainWindowViewModel : ObservableObject
     private void OpenDocumentFromPath(string path, FileText content, EditorMode? view = null)
     {
         var existing = Documents.FirstOrDefault(
-            d => string.Equals(d.FilePath, path, StringComparison.OrdinalIgnoreCase));
+            d => FilePaths.Same(d.FilePath, path));
         if (existing is not null)
         {
             SelectedDocument = existing;
@@ -1700,7 +1700,7 @@ public partial class MainWindowViewModel : ObservableObject
         // Remove existing entry (case-insensitive)
         for (var i = RecentFiles.Count - 1; i >= 0; i--)
         {
-            if (string.Equals(RecentFiles[i], path, StringComparison.OrdinalIgnoreCase))
+            if (FilePaths.Same(RecentFiles[i], path))
                 RecentFiles.RemoveAt(i);
         }
 

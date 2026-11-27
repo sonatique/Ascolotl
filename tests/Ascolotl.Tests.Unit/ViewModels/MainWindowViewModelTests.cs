@@ -699,14 +699,14 @@ public sealed class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
-    public void AddRecentFile_CaseInsensitiveDedup()
+    public void AddRecentFile_DedupsAsTheFileSystemComparesNames()
     {
         var vm = CreateViewModel();
 
         vm.AddRecentFile("/tmp/Test.adoc");
         vm.AddRecentFile("/tmp/test.adoc");
 
-        Assert.Single(vm.RecentFiles);
+        Assert.Equal(OperatingSystem.IsLinux() ? 2 : 1, vm.RecentFiles.Count); // two files on Linux
         Assert.Equal("/tmp/test.adoc", vm.RecentFiles[0]);
     }
 
@@ -1609,6 +1609,19 @@ public sealed class MainWindowViewModelTests : IDisposable
         {
             if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(locked, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
         }
+    }
+
+    [Fact]
+    public async Task OpenDocument_PathsDifferingByCase_AreTwoTabsOnLinux()
+    {
+        var vm = CreateViewModel();
+        _fileService.OpenFileResult = ("/tmp/notes/Readme.adoc", "one");
+        await vm.OpenDocumentCommand.ExecuteAsync(null);
+        _fileService.OpenFileResult = ("/tmp/notes/README.adoc", "two");
+        await vm.OpenDocumentCommand.ExecuteAsync(null);
+
+        Assert.Equal(OperatingSystem.IsLinux() ? 2 : 1, vm.Documents.Count);
+        Assert.Equal(OperatingSystem.IsLinux() ? "two" : "one", vm.SelectedDocument!.SourceText);
     }
 
     [Fact]
