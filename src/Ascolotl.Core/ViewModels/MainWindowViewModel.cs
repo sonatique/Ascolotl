@@ -65,9 +65,6 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool _editorWordWrap = false;
 
-    [ObservableProperty]
-    private bool _previewWordWrap = true;
-
     /// <summary>Print-like page preview: the preview pane flows content into
     /// fixed A4 pages (matching the PDF export's geometry) instead of a
     /// continuous column.</summary>
@@ -1472,9 +1469,6 @@ public partial class MainWindowViewModel : ObservableObject
     private void ToggleEditorWordWrap() => EditorWordWrap = !EditorWordWrap;
 
     [RelayCommand]
-    private void TogglePreviewWordWrap() => PreviewWordWrap = !PreviewWordWrap;
-
-    [RelayCommand]
     private void TogglePreviewFitWidth() => PreviewFitWidth = !PreviewFitWidth;
 
     // --- Outline pane ---
@@ -1783,7 +1777,6 @@ public partial class MainWindowViewModel : ObservableObject
             new(Strings.CommandToggleTitleTOC, null, Strings.CommandCategoryView, () => ToggleShowTitleAndTocCommand.Execute(null)),
             new(Strings.CommandToggleSyncScrolling, null, Strings.CommandCategoryView, () => ToggleSyncScrollingCommand.Execute(null)),
             new(Strings.CommandToggleEditorWordWrap, null, Strings.CommandCategoryView, () => ToggleEditorWordWrapCommand.Execute(null)),
-            new(Strings.CommandTogglePreviewWordWrap, null, Strings.CommandCategoryView, () => TogglePreviewWordWrapCommand.Execute(null)),
             new(Strings.CommandTogglePagePreview, null, Strings.CommandCategoryView, () => TogglePagePreviewCommand.Execute(null)),
             new(Strings.CommandToggleOutlinePane, "Ctrl+Shift+L", Strings.CommandCategoryView, () => ToggleOutlinePaneCommand.Execute(null)),
             new(Strings.CommandZoomIn, "Ctrl++", Strings.CommandCategoryView, () => ZoomInCommand.Execute(null)),

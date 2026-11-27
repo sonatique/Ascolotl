@@ -906,8 +906,7 @@ public partial class PreviewView : UserControl
             // A view where the page isn't edited, Read or Source: an open block applies and closes, as on a click away.
             if (_activeEdit is not null && _mainVm?.EditorMode is EditorMode.Read or EditorMode.Source) CommitBlockEdit();
         }
-        if (e.PropertyName is nameof(MainWindowViewModel.PreviewWordWrap)
-                or nameof(MainWindowViewModel.PagePreview)
+        if (e.PropertyName is nameof(MainWindowViewModel.PagePreview)
                 or nameof(MainWindowViewModel.StylePath)
                 or nameof(MainWindowViewModel.PreviewFitWidth)
             && _doc is not null)

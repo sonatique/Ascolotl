@@ -204,7 +204,6 @@
   <data name="CommandToggleFitWidth" xml:space="preserve"><value>Ajustar al ancho</value></data>
   <data name="CommandToggleOutlinePane" xml:space="preserve"><value>Mostrar esquema</value></data>
   <data name="CommandTogglePagePreview" xml:space="preserve"><value>Vista previa de páginas</value></data>
-  <data name="CommandTogglePreviewWordWrap" xml:space="preserve"><value>Ajuste de línea en la vista previa</value></data>
   <data name="CommandToggleSyncScrolling" xml:space="preserve"><value>Desplazamiento sincronizado</value></data>
   <data name="CommandToggleTitleTOC" xml:space="preserve"><value>Mostrar título e índice</value></data>
   <data name="CommandUndo" xml:space="preserve"><value>Deshacer</value></data>
@@ -379,7 +378,6 @@
   <data name="PDFTitle" xml:space="preserve"><value>_Título del PDF</value></data>
   <data name="PlainText" xml:space="preserve"><value>_Texto sin formato...</value></data>
   <data name="Press" xml:space="preserve"><value>pulse</value></data>
-  <data name="PreviewWordWrap" xml:space="preserve"><value>Ajuste de línea en la _vista previa</value></data>
   <data name="ProfileNew" xml:space="preserve"><value>Nuevo perfil</value></data>
   <data name="ProfileNextToDocument" xml:space="preserve"><value>junto al documento</value></data>
   <data name="ProfileNumbered" xml:space="preserve"><value>Perfil {0}</value></data>

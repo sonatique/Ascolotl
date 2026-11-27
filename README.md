@@ -85,7 +85,7 @@ no Ruby and no Java.
 - **Tabs and session restore:** reopen a closed tab, and come back to the tab
   you were on, each tab in its view and where it was scrolled. Unsaved work is
   recovered after a crash.
-- **Light, dark or system theme**, with zoom and word wrap for each pane.
+- **Light, dark or system theme**, with zoom for each pane and word wrap for the source.
 - **English, French, German, Italian or Spanish** interface, following the system language by
   default (View → Language).
 

@@ -211,10 +211,6 @@
                   Command="{Binding ToggleEditorWordWrapCommand}"
                   ToggleType="CheckBox"
                   IsChecked="{Binding EditorWordWrap, Mode=OneWay}" />
-        <MenuItem Header="{x:Static res:Strings.PreviewWordWrap}"
-                  Command="{Binding TogglePreviewWordWrapCommand}"
-                  ToggleType="CheckBox"
-                  IsChecked="{Binding PreviewWordWrap, Mode=OneWay}" />
         <MenuItem Header="{x:Static res:Strings.ToggleOutline}"
                   Command="{Binding ToggleOutlinePaneCommand}"
                   InputGesture="Ctrl+Shift+L"

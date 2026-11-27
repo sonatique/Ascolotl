@@ -121,8 +121,8 @@ public sealed class PreviewEditingTests
         editor.Document.Insert(editor.Document.TextLength, " again");
         Assert.True(doc.IsDirty, "typing in the inline editor must make closing prompt");
 
-        // A re-render (word wrap toggle) must not throw the open edit away.
-        vm.PreviewWordWrap = !vm.PreviewWordWrap;
+        // A re-render (fit width toggle) must not throw the open edit away.
+        vm.PreviewFitWidth = !vm.PreviewFitWidth;
         Pump(window);
         Assert.Contains(Preview(window).GetVisualDescendants().OfType<TextEditor>(), e => e.Text.EndsWith(" again"));
 
