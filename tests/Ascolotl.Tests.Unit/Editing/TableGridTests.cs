@@ -115,6 +115,14 @@ public class TableGridTests
     }
 
     [Fact]
+    public void MergeRight_PastARowSpanFromAbove_False()
+    {
+        var g = Parse("| a .2+| b | c", "| d | e"); // d in column 0, e in column 2: b holds column 1
+        Assert.False(g.MergeRight(1, 0));
+        Assert.Equal(new[] { "| a .2+| b | c", "| d | e" }, g.ToLines());
+    }
+
+    [Fact]
     public void MergeDown_GrowsRowSpanAndDropsBelow()
     {
         var g = Parse("| a | b", "| c | d");

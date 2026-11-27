@@ -223,7 +223,9 @@ public sealed partial class TableGrid
         if (!Valid(row, cell) || cell + 1 >= Rows[row].Count) return false;
         var a = Rows[row][cell];
         var b = Rows[row][cell + 1];
-        if (a.RowSpan != b.RowSpan) return false;
+        // Beside it on the grid: a row span from above may hold the columns between.
+        var (logicalCol, _, _) = BuildLayout();
+        if (a.RowSpan != b.RowSpan || logicalCol[row][cell + 1] != logicalCol[row][cell] + a.ColSpan) return false;
         a.ColSpan += b.ColSpan;
         Rows[row].RemoveAt(cell + 1);
         return true;
