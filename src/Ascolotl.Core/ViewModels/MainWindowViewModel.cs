@@ -1578,18 +1578,24 @@ public partial class MainWindowViewModel : ObservableObject
             newValue.PropertyChanged += OnSelectedDocumentPropertyChanged;
             SyntaxReference.Follow(newValue.IsMarkdown); // an open reference shows the syntax of the document in front
             if (EditorMode != newValue.EditorMode)
-                EditorMode = newValue.EditorMode; // renders the document unless Source
-            else if (EditorMode != EditorMode.Source)
+                EditorMode = newValue.EditorMode; // renders the document
+            else
                 RequestRender(immediate: true);
+        }
+        else
+        {
+            _renderCts?.Cancel();
+            OutlineItems.Clear();
         }
     }
 
     partial void OnEditorModeChanged(EditorMode value)
     {
         if (SelectedDocument is not null)
+        {
             SelectedDocument.EditorMode = value;
-        if (value != EditorMode.Source && SelectedDocument is not null)
             RequestRender(immediate: true);
+        }
 
         OnPropertyChanged(nameof(IsSourceMode));
         OnPropertyChanged(nameof(IsSplitMode));
@@ -1615,15 +1621,15 @@ public partial class MainWindowViewModel : ObservableObject
     private void OnSelectedDocumentPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         // Saving as .md (or back) changes the parser, not the text.
-        if (e.PropertyName is nameof(DocumentViewModel.SourceText) or nameof(DocumentViewModel.IsMarkdown)
-            && EditorMode != EditorMode.Source)
+        if (e.PropertyName is nameof(DocumentViewModel.SourceText) or nameof(DocumentViewModel.IsMarkdown))
             RequestRender();
     }
 
     /// <summary>
     /// Renders the selected document. Typing waits out the debounce so each
     /// keystroke doesn't re-render; <paramref name="immediate"/> skips it for a
-    /// document just shown (startup, tab switch, mode change).
+    /// document just shown (startup, tab switch, mode change). In Source mode only
+    /// the outline and the problems follow: the page is built when it is shown.
     /// </summary>
     public void RequestRender(bool immediate = false)
     {
@@ -1655,23 +1661,25 @@ public partial class MainWindowViewModel : ObservableObject
 
             var result = await _renderService.RenderAsync(source, basePath, doc.IsMarkdown, ShowTitleAndToc, ct, ProjectFolderPath);
 
-            if (ct.IsCancellationRequested)
+            if (ct.IsCancellationRequested || doc != SelectedDocument)
+                return;
+
+            // Parser diagnostics: AdocNet 1.0.17 (Adoc.Net#67) reports these in
+            // original source coordinates, so they map straight to editor lines.
+            doc.Diagnostics = DiagnosticMapper.Map(result.Diagnostics);
+            // Outline from the same parsed AST (title + section tree), mapped
+            // back to editor lines via the render's line origins.
+            OutlineItems.Clear();
+            foreach (var item in OutlineBuilder.Build(result.Document, result.LineOrigins))
+                OutlineItems.Add(item);
+            if (EditorMode == EditorMode.Source)
                 return;
 
             // Set origins before the document so PreviewView (which reacts to
             // RenderedDocument) sees the matching line map for this render.
             doc.LineOrigins = result.LineOrigins;
             doc.RenderedSource = source;
-            // Parser diagnostics: AdocNet 1.0.17 (Adoc.Net#67) reports these in
-            // original source coordinates, so they map straight to editor lines.
-            doc.Diagnostics = DiagnosticMapper.Map(result.Diagnostics);
             doc.RenderedDocument = result.Document;
-
-            // Outline from the same parsed AST (title + section tree), mapped
-            // back to editor lines via the render's line origins.
-            OutlineItems.Clear();
-            foreach (var item in OutlineBuilder.Build(result.Document, result.LineOrigins))
-                OutlineItems.Add(item);
             doc.LastRenderSucceeded = result.IsSuccess;
             doc.RenderError = result.ErrorSummary;
 

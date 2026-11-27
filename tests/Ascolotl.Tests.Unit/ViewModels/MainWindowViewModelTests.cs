@@ -860,18 +860,45 @@ public sealed class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
-    public async Task Render_SourceMode_DoesNotTriggerRender()
+    public async Task Render_SourceMode_UpdatesTheOutline_NotThePage()
     {
         var vm = CreateViewModel();
         vm.NewDocumentCommand.Execute(null);
         vm.SetEditorModeCommand.Execute(EditorMode.Source);
-        await vm.PendingRenderTask; // the new tab's WYSIWYG render
-        _renderService.RenderCalled = 0;
+        await vm.PendingRenderTask;
+        var page = vm.SelectedDocument!.RenderedDocument;
 
-        vm.SelectedDocument!.SourceText = "= Hello";
-        await Task.Delay(50); // Give any async work time to run
+        vm.SelectedDocument.SourceText = "= Hello\n\n== Part\n";
+        await vm.PendingRenderTask;
 
-        Assert.Equal(0, _renderService.RenderCalled);
+        Assert.Equal(["Hello", "Part"], vm.OutlineItems.Select(i => i.Title));
+        Assert.Same(page, vm.SelectedDocument.RenderedDocument); // the hidden page is built when shown
+    }
+
+    [Fact]
+    public async Task Render_SwitchingSourceModeTabs_ShowsEachTabsOutline()
+    {
+        var vm = CreateViewModel();
+        vm.NewDocumentCommand.Execute(null);
+        var first = vm.SelectedDocument!;
+        vm.SetEditorModeCommand.Execute(EditorMode.Source);
+        first.SourceText = "= First\n";
+        await vm.PendingRenderTask;
+        vm.NewDocumentCommand.Execute(null);
+        vm.SetEditorModeCommand.Execute(EditorMode.Source);
+        vm.SelectedDocument!.SourceText = "= Second\n";
+        await vm.PendingRenderTask;
+        Assert.Equal(["Second"], vm.OutlineItems.Select(i => i.Title));
+
+        vm.SelectedDocument = first;
+        await vm.PendingRenderTask;
+        Assert.Equal(["First"], vm.OutlineItems.Select(i => i.Title));
+
+        foreach (var doc in vm.Documents) doc.MarkClean(); // closed without a question
+        await vm.CloseDocumentCommand.ExecuteAsync(first);
+        await vm.CloseDocumentCommand.ExecuteAsync(vm.SelectedDocument);
+        Assert.Empty(vm.Documents);
+        Assert.Empty(vm.OutlineItems);
     }
 
     [Fact]
