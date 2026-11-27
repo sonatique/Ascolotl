@@ -39,6 +39,16 @@ public sealed class TableEditingTests
             Run(TableOp.DeleteColumn, false, AdocAt("A")));
 
     [Fact]
+    public void AsciiDoc_ColumnEdits_KeepTheOtherAttributes_AndTheColumnsSpecs()
+    {
+        const string table = "[%header,cols=\"1h,3\",frame=none]\n|===\n| A | B\n| a1 | b1\n|===\n";
+        Assert.Equal("[%header,cols=\"3\",frame=none]\n|===\n| ‸B\n| b1\n|===\n",
+            Run(TableOp.DeleteColumn, false, table.Replace("A", "‸A")));
+        Assert.Equal("[%header,cols=\"1,1h,3\",frame=none]\n|===\n| ‸| A | B\n| | a1 | b1\n|===\n",
+            Run(TableOp.ColumnLeft, false, table.Replace("A", "‸A")));
+    }
+
+    [Fact]
     public void AsciiDoc_DeleteRow_MovesUp()
         => Assert.Equal("[cols=\"1,1\"]\n|===\n| A | B\n\n| ‸a1 | b1\n|===\n",
             Run(TableOp.DeleteRow, false, AdocAt("a2")));

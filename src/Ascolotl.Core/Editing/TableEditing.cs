@@ -91,7 +91,7 @@ public static class TableEditing
         // A [cols=…] line just above the fence sets the width and follows column edits.
         int? colsLine = null;
         for (var i = open - 1; i >= Math.Max(0, open - 3) && lines[i].Trim().Length > 0; i--)
-            if (lines[i].TrimStart().StartsWith("[cols=", StringComparison.OrdinalIgnoreCase)) { colsLine = i; break; }
+            if (TableStructure.DeclaresCols(lines[i])) { colsLine = i; break; }
 
         var grid = TableGrid.Parse(body, colsLine is int cl ? ColsCount(lines[cl]) : null);
         if (grid is null) return null;
@@ -127,7 +127,7 @@ public static class TableEditing
         var newLines = new List<string>();
         for (var i = first; i <= open; i++)
             newLines.Add(i != colsLine ? lines[i]
-                : colDelta != 0 ? TableStructure.AdjustColsAttribute(lines[i], colDelta) ?? lines[i]
+                : colDelta != 0 ? TableStructure.AdjustColsAttribute(lines[i], grid.EditedColumn, colDelta) ?? lines[i]
                 : op is TableOp.MoveColumnLeft or TableOp.MoveColumnRight ? TableStructure.SwapColsSpecs(lines[i], cell, toCell)
                 : lines[i]);
         var bodyAt = newLines.Count;

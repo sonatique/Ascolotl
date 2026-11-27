@@ -3124,7 +3124,7 @@ public partial class PreviewView : UserControl
                 lines.InsertRange(open + 1, newBody);
 
                 if (colDelta != 0 && colsLine is int cl && cl < lines.Count
-                    && TableStructure.AdjustColsAttribute(lines[cl], colDelta) is string adj)
+                    && TableStructure.AdjustColsAttribute(lines[cl], grid.EditedColumn, colDelta) is string adj)
                     lines[cl] = adj;
 
                 status = okStatus;
@@ -3152,7 +3152,7 @@ public partial class PreviewView : UserControl
         for (var i = tableStart - 1; i >= 0 && i >= tableStart - 3; i--)
         {
             var ln = lines[i].Trim();
-            if (ln.StartsWith("[cols=", StringComparison.OrdinalIgnoreCase)) return i;
+            if (TableStructure.DeclaresCols(ln)) return i;
             if (ln.Length == 0) break;                       // blank line → previous block
             if (!ln.StartsWith('[') && !ln.StartsWith('.')) break; // not an attribute/title
         }

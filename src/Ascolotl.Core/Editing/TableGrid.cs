@@ -30,6 +30,9 @@ public sealed partial class TableGrid
     /// <summary>Total logical columns.</summary>
     public int ColumnCount { get; private set; }
 
+    /// <summary>The column the last <see cref="InsertColumn"/> added or <see cref="DeleteColumn"/> removed.</summary>
+    public int EditedColumn { get; private set; }
+
     /// <summary>Explicit (anchor) cells per source row, in source order.</summary>
     public List<List<TableCell>> Rows { get; } = new();
 
@@ -362,6 +365,7 @@ public sealed partial class TableGrid
         var at = LogicalColNoRowSpan(row, cell) + (right ? Rows[row][cell].ColSpan : 0);
         foreach (var r in Rows) InsertColInRow(r, at);
         ColumnCount += 1;
+        EditedColumn = at;
         return true;
     }
 
@@ -373,6 +377,7 @@ public sealed partial class TableGrid
         var at = LogicalColNoRowSpan(row, cell);
         foreach (var r in Rows) DeleteColInRow(r, at);
         ColumnCount -= 1;
+        EditedColumn = at;
         return true;
     }
 
