@@ -807,7 +807,7 @@ public partial class MainWindow : Window
         }
         // The rest of the menus' keys. A menu item's InputGesture only shows its key; both
         // menu sets show the same ones, so the hamburger's set is the one looked up.
-        else if ((e.KeyModifiers != KeyModifiers.None || e.Key is >= Key.F1 and <= Key.F24)
+        else if ((e.KeyModifiers != KeyModifiers.None || e.Key is >= Key.F1 and <= Key.F24) && !CommandKey.TypesWithAltGr(e)
                  && HamburgerMenuItem.GetLogicalDescendants().OfType<MenuItem>().FirstOrDefault(i => i.InputGesture?.Matches(e) == true)
                      is { Command: { } command } item)
         {
