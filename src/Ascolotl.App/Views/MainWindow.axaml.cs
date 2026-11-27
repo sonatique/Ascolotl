@@ -230,7 +230,7 @@ public partial class MainWindow : Window
         {
             var item = new MenuItem
             {
-                Header = profile.Name,
+                Header = profile.Name.Replace("_", "__"), // "_" marks access keys in menu headers
                 Command = _viewModel.ExportWithProfileCommand,
                 CommandParameter = profile,
             };
@@ -584,7 +584,7 @@ public partial class MainWindow : Window
             recent.Items.Clear();
             foreach (var path in vm.RecentFiles)
             {
-                var item = new MenuItem { Header = path };
+                var item = new MenuItem { Header = path.Replace("_", "__") }; // "_" marks access keys in menu headers
                 item.Click += (_, _) => vm.OpenRecentFileCommand.Execute(path);
                 recent.Items.Add(item);
             }
