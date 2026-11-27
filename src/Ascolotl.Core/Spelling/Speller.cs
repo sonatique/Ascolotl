@@ -17,9 +17,11 @@ public sealed partial class Speller
     public static readonly PersonalWords Personal = new();
 
     public bool IsKnown(string word) =>
-        Personal.Contains(word) || _words.Check(word)
+        Known(word)
         // A sentence's first word is capitalised: Bonjour is right when bonjour is.
-        || char.IsUpper(word[0]) && _words.Check(char.ToLowerInvariant(word[0]) + word[1..]);
+        || char.IsUpper(word[0]) && Known(char.ToLowerInvariant(word[0]) + word[1..]);
+
+    private bool Known(string word) => Personal.Contains(word) || _words.Check(word);
 
     public IReadOnlyList<string> Suggest(string word, int max = 5) => [.. _words.Suggest(word).Take(max)];
 

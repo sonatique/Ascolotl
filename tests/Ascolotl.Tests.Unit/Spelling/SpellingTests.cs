@@ -113,6 +113,8 @@ public class SpellingTests
 
         Speller.Personal.Ignore("Ascolotl");
         Assert.True(speller.IsKnown("Ascolotl"));
+        Speller.Personal.Ignore("kubectl");
+        Assert.True(speller.IsKnown("Kubectl")); // the user's word at a sentence's start
     }
 
     [Fact]
