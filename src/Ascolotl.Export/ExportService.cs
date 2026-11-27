@@ -189,10 +189,11 @@ public sealed class ExportService : IExportService
     /// <summary>Windows sharing or lock violation: another program holds the file open.</summary>
     private static bool IsInUse(IOException ex) => (ex.HResult & 0xFFFF) is 32 or 33;
 
-    /// <summary>Folder images load from; never a network or device path (:imagesdir: \server would leak credentials).</summary>
+    /// <summary>Folder images load from; never a network or device path (:imagesdir: \server would leak credentials).
+    /// An unsaved document has no folder: the diagram cache then, as the renderer loads no image without one.</summary>
     private static string? ImageBase(string? basePath, string imagesDir)
     {
-        if (basePath is null) return null;
+        if (basePath is null) return Diagrams.CacheFolder;
         var dir = Path.Combine(basePath, imagesDir);
         return LocalIncludeReader.IsBlocked(dir, basePath) ? null : dir;
     }

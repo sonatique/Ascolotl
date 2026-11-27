@@ -15,7 +15,8 @@ public static class Diagrams
     /// <summary>Turns diagram blocks into images; null while diagrams are off.</summary>
     public static DiagramPass? Pass { get; private set; }
 
-    private static string CacheFolder => Path.Combine(
+    /// <summary>Where the drawn images are kept.</summary>
+    public static string CacheFolder => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create),
         "Ascolotl", "diagrams");
 

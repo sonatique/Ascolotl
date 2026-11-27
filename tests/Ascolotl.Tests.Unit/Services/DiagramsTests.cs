@@ -174,4 +174,15 @@ public sealed class DiagramsTests : IDisposable
         Assert.True(result.IsSuccess, result.ErrorMessage);
         Assert.Contains("/Subtype /Image", System.Text.Encoding.Latin1.GetString(File.ReadAllBytes(path)));
     }
+
+    [Fact]
+    public async Task PdfExport_OfAnUnsavedDocument_EmbedsTheDiagram()
+    {
+        var path = Path.Combine(_dir, "unsaved.pdf");
+
+        var result = await new ExportService().ExportAsync(Mermaid, false, null, path, ExportFormat.Pdf, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
+
+        Assert.True(result.IsSuccess, result.ErrorMessage);
+        Assert.Contains("/Subtype /Image", System.Text.Encoding.Latin1.GetString(File.ReadAllBytes(path)));
+    }
 }
