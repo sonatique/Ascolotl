@@ -98,6 +98,11 @@ public sealed class TableEditingTests
             Run(TableOp.ColumnLeft, true, Md.Replace("Age", "A‸ge")));
 
     [Fact]
+    public void Markdown_TableInAListItem_StaysIndented()
+        => Assert.Equal("- Item\n\n  | a   | b   |\n  | --- | --- |\n  | 1   | 2   |\n  | ‸    |     |\n",
+            Run(TableOp.RowBelow, true, "- Item\n\n  | a | b |\n  |---|---|\n  | ‸1 | 2 |\n"));
+
+    [Fact]
     public void Markdown_DeleteColumn()
         => Assert.Equal("Intro.\n\n| ‸Age |\n| --: |\n| 3   |\n\nAfter.",
             Run(TableOp.DeleteColumn, true, Md.Replace("Name", "Na‸me")));

@@ -238,15 +238,17 @@ public static class TableEditing
                 return null;
         }
 
-        // Written back aligned: every column as wide as its widest cell.
+        // Written back aligned: every column as wide as its widest cell, indented as the header was
+        // (in a list item, say).
         var count = rows[0].Count;
         var widths = Enumerable.Range(0, count).Select(c => Math.Max(3, rows.Max(r => r[c].Length))).ToArray();
-        string Write(IEnumerable<string> cells) => "| " + string.Join(" | ", cells) + " |";
+        var indent = lines[first][..^lines[first].TrimStart().Length];
+        string Write(IEnumerable<string> cells) => indent + "| " + string.Join(" | ", cells) + " |";
         var newLines = rows.Select(r => Write(r.Select((t, c) => t.PadRight(widths[c])))).ToList();
         newLines.Insert(1, Write(align.Take(count).Select((a, c) => Dashes(a, widths[c]))));
 
         var target = toRow == 0 ? 0 : toRow + 1;
-        var offset = 2 + widths.Take(toCell).Sum(w => w + 3);
+        var offset = indent.Length + 2 + widths.Take(toCell).Sum(w => w + 3);
         return Replace(lines, first, last, newLines, target, offset);
     }
 
