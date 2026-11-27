@@ -50,6 +50,25 @@ public partial class DocumentViewModel : ObservableObject
     [ObservableProperty]
     private string _sourceText = string.Empty;
 
+    /// <summary>How the change being made joins the undo history: read while
+    /// <see cref="SourceText"/> changes; see <see cref="ChangeSource"/>.</summary>
+    public UndoJoin ChangeUndo { get; private set; }
+
+    /// <summary>Changes the text from outside the source editor, joining its undo history as
+    /// <paramref name="join"/> says.</summary>
+    public void ChangeSource(string text, UndoJoin join)
+    {
+        ChangeUndo = join;
+        try
+        {
+            SourceText = text;
+        }
+        finally
+        {
+            ChangeUndo = UndoJoin.NewStep;
+        }
+    }
+
     /// <summary>One-line description of the AsciiDoc syntax at the caret, shown
     /// in the status bar by the authoring-assist layer. Empty when there's
     /// nothing useful to say (ordinary prose).</summary>
@@ -279,4 +298,17 @@ public partial class DocumentViewModel : ObservableObject
     }
 
     partial void OnZoomLevelChanged(int value) => OnPropertyChanged(nameof(FontSize));
+}
+
+/// <summary>How a change made outside the source editor joins its undo history.</summary>
+public enum UndoJoin
+{
+    /// <summary>A step of its own.</summary>
+    NewStep,
+
+    /// <summary>One step with the last: the text typed into a new paragraph, with the paragraph.</summary>
+    WithLastStep,
+
+    /// <summary>Takes the last step back, leaving no step: a new paragraph given up.</summary>
+    UndoesLastStep,
 }

@@ -204,7 +204,47 @@ public partial class SourceEditorView : UserControl
     /// <summary>Apply a change made outside the editor (preview edit, block or
     /// table command) to the same document as one replace of the differing
     /// middle, so the undo stack and caret survive (setting Text clears both).</summary>
-    private void ApplyExternalEdit(string newText)
+    private void ApplyExternalEdit(string newText, UndoJoin join = UndoJoin.NewStep)
+    {
+        var history = Editor.Document.UndoStack;
+        if (join == UndoJoin.UndoesLastStep && history.CanUndo)
+        {
+            _updatingFromEditor = true;
+            try
+            {
+                history.Undo();
+            }
+            finally
+            {
+                _updatingFromEditor = false;
+            }
+            if (Editor.Document.Text == newText)
+            {
+                history.ClearRedoStack(); // given up: not to be redone
+                return;
+            }
+            _updatingFromEditor = true;
+            try
+            {
+                history.Redo(); // another step was the last: it stays
+            }
+            finally
+            {
+                _updatingFromEditor = false;
+            }
+        }
+        if (join == UndoJoin.WithLastStep) history.StartContinuedUndoGroup(null);
+        try
+        {
+            Replace(newText);
+        }
+        finally
+        {
+            if (join == UndoJoin.WithLastStep) history.EndUndoGroup();
+        }
+    }
+
+    private void Replace(string newText)
     {
         var old = Editor.Document.Text;
         var max = Math.Min(old.Length, newText.Length);
@@ -242,9 +282,7 @@ public partial class SourceEditorView : UserControl
         {
             case nameof(DocumentViewModel.SourceText):
                 if (!_updatingFromEditor && Editor.Text != _currentDocument.SourceText)
-                {
-                    ApplyExternalEdit(_currentDocument.SourceText);
-                }
+                    ApplyExternalEdit(_currentDocument.SourceText, _currentDocument.ChangeUndo);
                 break;
 
             case nameof(DocumentViewModel.FontSize):

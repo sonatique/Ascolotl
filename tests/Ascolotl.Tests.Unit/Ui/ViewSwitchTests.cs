@@ -1069,6 +1069,35 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
+    public void ANewParagraph_AndItsText_AreOneUndoStep_AndOneGivenUpIsNone()
+    {
+        var (window, vm) = Open("One.\n\nTwo.\n", EditorMode.Wysiwyg);
+        string Text() => vm.SelectedDocument!.SourceText;
+        window.GetVisualDescendants().OfType<SourceEditorView>().Single().Editor.Document.UndoStack.ClearAll(); // as opened
+        Preview(window).FocusPage();
+        Pump(window);
+
+        Press(window, Key.N, Command | RawInputModifiers.Shift);
+        window.KeyTextInput("Typed.");
+        Press(window, Key.Enter, Command);
+        Pump(window);
+        Assert.Equal("One.\n\nTyped.\n\nTwo.\n", Text());
+        Press(window, Key.Z, Command);
+        Assert.Equal("One.\n\nTwo.\n", Text()); // not the "New paragraph." placeholder
+        Press(window, Key.Y, Command);
+        Assert.Equal("One.\n\nTyped.\n\nTwo.\n", Text());
+        Press(window, Key.Z, Command);
+
+        Press(window, Key.N, Command | RawInputModifiers.Shift);
+        Press(window, Key.Escape); // given up
+        Pump(window);
+        Preview(window).FocusPage();
+        Press(window, Key.Z, Command);
+        Assert.Equal("One.\n\nTwo.\n", Text()); // nothing comes back
+        Assert.False(vm.SelectedDocument!.IsDirty);
+    }
+
+    [AvaloniaFact]
     public void UndoOnThePage_UndoesTheShownTab_NotAnotherOne()
     {
         var (window, vm) = Open("First tab.\n\nKept.\n", EditorMode.Split);

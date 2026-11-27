@@ -862,6 +862,7 @@ public partial class PreviewView : UserControl
         // rebuilds the block map and ConsumeReentry opens the new paragraph.
         _selectAllOnNextEdit = true;
         _pendingReentry = (0, -1, -1, false);
+        _newParagraph = (_doc.SourceText, BlockSnippets.Paragraph, 0, _doc.IsDirty);
         _doc.SourceText = BlockSnippets.Paragraph;
     }
 
@@ -2422,7 +2423,9 @@ public partial class PreviewView : UserControl
             _frozenEditSlot = _renderedRoot is Panel panel
                 ? edit.Host.GetSelfAndVisualAncestors().OfType<Control>().FirstOrDefault(c => c.GetVisualParent() == panel)
                 : null;
-            _doc.SourceText = _doc.SourceText.Remove(s, len).Insert(s, newSlice);
+            // A new paragraph's text: one undo step with the paragraph.
+            _doc.ChangeSource(_doc.SourceText.Remove(s, len).Insert(s, newSlice),
+                edit.NewParagraph is null ? UndoJoin.NewStep : UndoJoin.WithLastStep);
             if (_mainVm is not null) _mainVm.StatusText = Strings.StatusBlockUpdated;
             _rebuildPending = false; // the splice's own re-render rebuilds the panel
 
@@ -2553,7 +2556,7 @@ public partial class PreviewView : UserControl
         if (edit.NewParagraph is { } added && _doc is not null && _doc.SourceText == edit.SourceAtOpen)
         {
             _current = Math.Max(0, _current - 1);
-            _doc.SourceText = added.Before;
+            _doc.ChangeSource(added.Before, UndoJoin.UndoesLastStep);
             _doc.IsDirty = added.WasDirty;
         }
         if (_mainVm is not null) _mainVm.StatusText = Strings.StatusEditCancelled;
