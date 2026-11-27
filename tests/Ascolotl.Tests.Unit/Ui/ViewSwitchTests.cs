@@ -1,5 +1,6 @@
 using Ascolotl.Core.Models;
 using Ascolotl.App.Views;
+using Ascolotl.App.Views.Assist;
 using Ascolotl.Core.Resources;
 using Ascolotl.Export;
 using System.Text;
@@ -741,6 +742,27 @@ public sealed class ViewSwitchTests
         Press(window, Key.Escape);
         Press(window, Key.C, Command); // the selection ended: the one block
         Assert.Equal("After.", TopLevel.GetTopLevel(window)!.Clipboard!.TryGetTextAsync().GetAwaiter().GetResult());
+    }
+
+    [AvaloniaFact]
+    public void FindInPagePreview_FindsEachMatchOnce()
+    {
+        var words = string.Join(' ', Enumerable.Repeat("filler", 60));
+        var (window, vm) = Open(string.Concat(Enumerable.Range(1, 40).Select(i => $"{words} marker{i} {words}\n\n")), EditorMode.Wysiwyg);
+        vm.PagePreview = true;
+        for (var i = 0; i < 250 && !window.GetVisualDescendants().OfType<TextBlock>().Any(t => PageSpelling.ShownText(t).Contains("marker40")); i++)
+        {
+            Thread.Sleep(20); // the pages laid out, off the UI thread
+            Pump(window);
+        }
+        Preview(window).FocusPage();
+        Press(window, Key.F, Command);
+        window.KeyTextInput("marker");
+        Pump(window);
+
+        // A paragraph cut by a page break is on both pages: still one match.
+        var count = window.GetVisualDescendants().OfType<TextBlock>().Single(t => t.Name == "FindCount").Text;
+        Assert.Equal(string.Format(Strings.FindCount, 1, 40), count);
     }
 
     [AvaloniaFact]

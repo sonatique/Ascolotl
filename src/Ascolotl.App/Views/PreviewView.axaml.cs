@@ -543,13 +543,15 @@ public partial class PreviewView : UserControl
     {
         var query = FindBar.IsVisible ? FindBox.Text ?? "" : "";
         var matches = new List<(TextBlock, int, int)>();
-        if (query.Length > 0 && _renderedRoot is not null)
-            foreach (var text in _renderedRoot.GetVisualDescendants().OfType<TextBlock>())
+        var paged = _mainVm?.PagePreview == true;
+        if (query.Length > 0 && (paged ? Shown : _renderedRoot) is { } root)
+            foreach (var text in root.GetVisualDescendants().OfType<TextBlock>())
             {
                 var shown = PageSpelling.ShownText(text);
                 for (var i = shown.IndexOf(query, StringComparison.OrdinalIgnoreCase); i >= 0;
                      i = shown.IndexOf(query, i + query.Length, StringComparison.OrdinalIgnoreCase))
-                    matches.Add((text, i, query.Length));
+                    if (!paged || OnItsPage(text, i, query.Length, root))
+                        matches.Add((text, i, query.Length));
             }
         _findMatches = matches;
         _findIndex = matches.Count == 0 ? -1
@@ -558,6 +560,18 @@ public partial class PreviewView : UserControl
         ShowFindCount(query);
         PlaceFindMarks();
         if (!keepPlace) BringMatchIntoView();
+    }
+
+    /// <summary>A Page Preview match on the part of the page that shows it: a block cut by a page
+    /// break is on both pages, each clipped to its own part.</summary>
+    private static bool OnItsPage(TextBlock text, int start, int length, Visual root)
+    {
+        if (text.TextLayout.HitTestTextRange(start, length).FirstOrDefault() is not { Width: > 0 } range) return false;
+        var center = range.Center + new Vector(text.Padding.Left, text.Padding.Top);
+        foreach (var clip in text.GetVisualAncestors().TakeWhile(a => a != root).OfType<Control>().Where(c => c.ClipToBounds))
+            if (text.TranslatePoint(center, clip) is not { } p || !new Rect(clip.Bounds.Size).Contains(p))
+                return false;
+        return true;
     }
 
     private void FindStep(int step)
