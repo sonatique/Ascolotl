@@ -67,6 +67,22 @@ public sealed class DiagramsTests : IDisposable
     }
 
     [Fact]
+    public void CleanCache_DeletesOnlyOldFiles()
+    {
+        var old = Path.Combine(_dir, "old.png");
+        var recent = Path.Combine(_dir, "recent.png");
+        File.WriteAllBytes(old, Png);
+        File.WriteAllBytes(recent, Png);
+        File.SetLastWriteTimeUtc(old, DateTime.UtcNow.AddDays(-31));
+
+        Diagrams.CleanCache(_dir, TimeSpan.FromDays(30));
+        Diagrams.CleanCache(Path.Combine(_dir, "none"), TimeSpan.FromDays(30)); // no cache yet: nothing happens
+
+        Assert.False(File.Exists(old));
+        Assert.True(File.Exists(recent));
+    }
+
+    [Fact]
     public void LocalTool_IsFoundOnThePath_OrIsMissing()
     {
         Assert.NotNull(Diagrams.LocalTool.Find("dotnet")); // on the PATH wherever the tests run
