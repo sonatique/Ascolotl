@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -7,6 +8,7 @@ using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using AvaloniaEdit;
+using AvaloniaEdit.Document;
 using AvaloniaEdit.Search;
 using Ascolotl.App.Views.Assist;
 using Ascolotl.Core.Models;
@@ -21,6 +23,8 @@ public partial class SourceEditorView : UserControl
     private bool _restoringTopLine;
     private readonly DiagnosticRenderer _diagnosticRenderer = new();
     private readonly CompletionController _assist;
+    // Each tab's text with its own undo history, kept while the tab is open.
+    private readonly ConditionalWeakTable<DocumentViewModel, TextDocument> _texts = new();
 
     public SourceEditorView()
     {
@@ -170,8 +174,15 @@ public partial class SourceEditorView : UserControl
     private void LoadTextFromDocument(DocumentViewModel doc)
     {
         _updatingFromEditor = true;
-        Editor.Text = doc.SourceText;
-        _updatingFromEditor = false;
+        try
+        {
+            Editor.Document = _texts.GetValue(doc, d => new TextDocument(d.SourceText));
+        }
+        finally
+        {
+            _updatingFromEditor = false;
+        }
+        if (Editor.Document.Text != doc.SourceText) ApplyExternalEdit(doc.SourceText); // changed while another tab was shown
 
         // AvaloniaEdit's LineNumberMargin sometimes ends up displaying only
         // the last digit of each line number (clipped from the left) when

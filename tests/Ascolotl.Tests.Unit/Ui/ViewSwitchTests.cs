@@ -1007,6 +1007,30 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
+    public void EachTab_KeepsItsUndoHistory()
+    {
+        var (window, vm) = Open("First.\n", EditorMode.Source);
+        var first = vm.SelectedDocument!;
+        var editor = window.GetVisualDescendants().OfType<SourceEditorView>().Single().Editor;
+        editor.Document.Insert(editor.Document.TextLength, "Typed.\n");
+        Pump(window);
+        Assert.Equal("First.\nTyped.\n", first.SourceText);
+
+        vm.NewDocumentCommand.Execute(null);
+        Pump(window);
+        while (editor.CanUndo) editor.Undo(); // the new tab's own history only
+        Pump(window);
+        Assert.Equal("First.\nTyped.\n", first.SourceText);
+        vm.SelectedDocument = first;
+        Pump(window);
+
+        Assert.True(editor.CanUndo);
+        editor.Undo();
+        Pump(window);
+        Assert.Equal("First.\n", first.SourceText);
+    }
+
+    [AvaloniaFact]
     public void UndoOnThePage_UndoesTheShownTab_NotAnotherOne()
     {
         var (window, vm) = Open("First tab.\n\nKept.\n", EditorMode.Split);
