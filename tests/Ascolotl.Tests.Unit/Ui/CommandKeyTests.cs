@@ -17,6 +17,9 @@ public sealed class CommandKeyTests
         Assert.Equal(KeyModifiers.Meta, CommandKey.AsWritten(KeyModifiers.Control, Mac)); // Ctrl on a Mac is not the command key
         Assert.Equal("Cmd+Shift+P", CommandKey.Text("Ctrl+Shift+P", Mac));
         Assert.Equal("Ctrl+Tab", CommandKey.Text("Ctrl+Tab", Mac));
+        Assert.Equal("Ctrl+Shift+Tab", CommandKey.Text("Ctrl+Shift+Tab", Mac));
+        Assert.Equal("Ctrl+Space", CommandKey.Text("Ctrl+Space", Mac));
+        Assert.Equal("Cmd+Alt+D / Delete", CommandKey.Text("Ctrl+Alt+D / Delete", Mac));
     }
 
     [Fact]
