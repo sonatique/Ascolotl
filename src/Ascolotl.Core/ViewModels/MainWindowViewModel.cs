@@ -469,9 +469,11 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
+    /// <summary>Saves the open tabs for the next start; not while startup is still opening them,
+    /// when the tabs shown are not yet the session.</summary>
     public void SaveSession()
     {
-        if (_sessionStore is null) return;
+        if (_sessionStore is null || OpeningDocuments) return;
 
         var state = new SessionState();
 

@@ -1582,6 +1582,17 @@ public sealed class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public void SaveSession_WhileStartupIsOpeningTheTabs_KeepsTheSavedOne()
+    {
+        var vm = CreateViewModel();
+        vm.OpeningDocuments = true; // the window closed before the session's files were read
+
+        vm.SaveSession();
+
+        Assert.Equal(0, _sessionStore.SaveCalled);
+    }
+
+    [Fact]
     public void SaveSession_SkipsUntitledDocs()
     {
         var vm = CreateViewModel();
