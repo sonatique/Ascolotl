@@ -916,12 +916,16 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private async Task SaveAllAsync()
     {
+        var conflict = false; // its answer's status (reloaded, still unsaved) stays
         foreach (var doc in Documents.Where(d => d.IsDirty).ToList())
         {
             if (doc.FilePath is not null)
             {
                 if (await CheckFileConflictAsync(doc))
+                {
+                    conflict = true;
                     continue; // Conflict handled (reload/saveas/cancel) — skip to next
+                }
 
                 if (!await WriteDocumentAsync(doc, saveAs: false))
                     return; // Failure reported — stop Save All
@@ -939,7 +943,7 @@ public partial class MainWindowViewModel : ObservableObject
             }
         }
 
-        StatusText = Strings.StatusAllSaved;
+        if (!conflict) StatusText = Strings.StatusAllSaved;
     }
 
     /// <summary>

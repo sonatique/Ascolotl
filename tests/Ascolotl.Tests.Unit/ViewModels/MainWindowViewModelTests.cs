@@ -1846,6 +1846,24 @@ public sealed class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public async Task SaveAll_ConflictAnsweredCancel_DoesNotSayAllSaved()
+    {
+        var vm = CreateViewModel();
+        var path = CreateTempFile("on disk");
+        _fileService.OpenFileResult = (path, "on disk");
+        await vm.OpenDocumentCommand.ExecuteAsync(null);
+        var conflicting = vm.SelectedDocument!;
+        conflicting.SourceText = "my edits";
+        conflicting.LastKnownWriteTime = File.GetLastWriteTimeUtc(path).AddMinutes(-1); // changed on disk since
+        _dialogService.NextFileConflictResult = FileConflictResult.Cancel;
+
+        await vm.SaveAllCommand.ExecuteAsync(null);
+
+        Assert.True(conflicting.IsDirty);
+        Assert.NotEqual(Ascolotl.Core.Resources.Strings.StatusAllSaved, vm.StatusText);
+    }
+
+    [Fact]
     public async Task SaveAll_ConflictAnsweredSaveAs_SavesTheConflictingDocument()
     {
         var vm = CreateViewModel();
