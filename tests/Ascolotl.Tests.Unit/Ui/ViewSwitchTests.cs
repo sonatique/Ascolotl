@@ -657,6 +657,30 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
+    public void SelectedBlocks_StayWithTheirTab()
+    {
+        var (window, vm) = Open("A.\n\nB.\n\nC.\n", EditorMode.Wysiwyg);
+        var first = vm.SelectedDocument!;
+        Preview(window).FocusPage();
+        Pump(window);
+        Press(window, Key.Down);
+        Press(window, Key.Down, RawInputModifiers.Shift);
+        Assert.Equal(string.Format(Strings.StatusBlocksSelected, 2), vm.StatusText);
+
+        vm.NewDocumentCommand.Execute(null);
+        vm.SelectedDocument!.SourceText = "One.\n\nTwo.\n\nThree.\n";
+        vm.RequestRender(immediate: true);
+        Pump(window);
+        Preview(window).FocusPage();
+        Pump(window);
+
+        Press(window, Key.Delete); // the block in view only, none selected in the other tab
+        Pump(window);
+        Assert.Equal("Two.\n\nThree.\n", vm.SelectedDocument.SourceText);
+        Assert.Equal("A.\n\nB.\n\nC.\n", first.SourceText);
+    }
+
+    [AvaloniaFact]
     public void ShiftClickedBlocks_CopyAsTheirSourceAndAsHtml()
     {
         var (window, _) = Open("One.\n\nTwo.\n\n|===\n| a1 | b1\n|===\n", EditorMode.Wysiwyg);
