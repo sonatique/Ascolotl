@@ -155,6 +155,7 @@ public partial class MainWindow : Window
             _viewModel.SyntaxReference.PropertyChanged -= OnSyntaxReferenceChanged;
             _viewModel.SyntaxReference.ShowRequested -= ShowSyntaxReference;
             _viewModel.KeyboardShortcutsRequested -= ShowKeyboardShortcuts;
+            _viewModel.UndoRequested -= OnUndoRequested;
             _viewModel.ExportProfilesChanged -= RebuildExportMenu;
         }
 
@@ -171,6 +172,7 @@ public partial class MainWindow : Window
             _viewModel.SyntaxReference.PropertyChanged += OnSyntaxReferenceChanged;
             _viewModel.SyntaxReference.ShowRequested += ShowSyntaxReference;
             _viewModel.KeyboardShortcutsRequested += ShowKeyboardShortcuts;
+            _viewModel.UndoRequested += OnUndoRequested;
             RebuildRecentFilesMenu(_viewModel);
             UpdateEditorLayout(_viewModel.EditorMode);
             UpdateSidebarColumn();
@@ -712,6 +714,18 @@ public partial class MainWindow : Window
         _tools[typeof(T)] = tool;
         tool.Show(this);
         return tool;
+    }
+
+    /// <summary>Undo or redo as the keys do: in the block open on the page, with its own history, else
+    /// in the tab's source, whose history holds the page's changes too. Not in Read view, which edits nothing.</summary>
+    private void OnUndoRequested(bool redo)
+    {
+        if (_viewModel is not { } vm || vm.IsReadMode) return;
+        var editor = vm.InPlaceEditOpen
+            ? FindDescendant<PreviewView>(PreviewPane)?.GetVisualDescendants().OfType<TextEditor>().FirstOrDefault(e => !e.IsReadOnly)
+            : FindDescendant<SourceEditorView>(EditorPane) is { } source && source.DataContext == vm.SelectedDocument ? source.Editor : null;
+        if (redo) editor?.Redo();
+        else editor?.Undo();
     }
 
     private void ShowKeyboardShortcuts()

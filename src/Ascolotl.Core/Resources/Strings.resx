@@ -153,6 +153,7 @@
   <data name="CloseTab" xml:space="preserve"><value>_Close Tab</value></data>
   <data name="CloseTabTooltip" xml:space="preserve"><value>Close tab</value></data>
   <data name="CommandAsciiDocSyntaxReference" xml:space="preserve"><value>AsciiDoc Syntax Reference</value></data>
+  <data name="CommandCategoryEdit" xml:space="preserve"><value>Edit</value></data>
   <data name="CommandCategoryFile" xml:space="preserve"><value>File</value></data>
   <data name="CommandCategoryHelp" xml:space="preserve"><value>Help</value></data>
   <data name="CommandCategoryImport" xml:space="preserve"><value>Import</value></data>
@@ -184,6 +185,7 @@
   <data name="CommandPDFTitleFullTitle" xml:space="preserve"><value>PDF Title: Full Title</value></data>
   <data name="CommandPDFTitleUpToFirstColon" xml:space="preserve"><value>PDF Title: Up to First Colon</value></data>
   <data name="CommandPreviousTab" xml:space="preserve"><value>Previous Tab</value></data>
+  <data name="CommandRedo" xml:space="preserve"><value>Redo</value></data>
   <data name="CommandRefreshFolder" xml:space="preserve"><value>Refresh Folder</value></data>
   <data name="CommandReopenClosedTab" xml:space="preserve"><value>Reopen Closed Tab</value></data>
   <data name="CommandResetZoom" xml:space="preserve"><value>Reset Zoom</value></data>
@@ -205,6 +207,7 @@
   <data name="CommandTogglePreviewWordWrap" xml:space="preserve"><value>Toggle Preview Word Wrap</value></data>
   <data name="CommandToggleSyncScrolling" xml:space="preserve"><value>Toggle Sync Scrolling</value></data>
   <data name="CommandToggleTitleTOC" xml:space="preserve"><value>Toggle Title &amp; TOC</value></data>
+  <data name="CommandUndo" xml:space="preserve"><value>Undo</value></data>
   <data name="CommandUseBuiltInStyle" xml:space="preserve"><value>Use Built-in Style</value></data>
   <data name="CommandWYSIWYGMode" xml:space="preserve"><value>WYSIWYG Mode</value></data>
   <data name="CommandReadMode" xml:space="preserve"><value>Read Mode</value></data>
@@ -223,6 +226,7 @@
   <data name="Discard" xml:space="preserve"><value>Discard</value></data>
   <data name="DocBook" xml:space="preserve"><value>_DocBook...</value></data>
   <data name="DonTSave" xml:space="preserve"><value>Don't Save</value></data>
+  <data name="Edit" xml:space="preserve"><value>E_dit</value></data>
   <data name="EditBeforeEachPDFExport" xml:space="preserve"><value>_Edit Before Each PDF Export</value></data>
   <data name="EditorWordWrap" xml:space="preserve"><value>_Editor Word Wrap</value></data>
   <data name="EmptyNextToTheDocument" xml:space="preserve"><value>Empty — next to the document</value></data>
@@ -393,6 +397,7 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="RecoverHeadingsTextTablesAndNotes" xml:space="preserve"><value>Recover headings, text, tables and notes from a PDF (layout is approximated)</value></data>
   <data name="RecoveryFoundMany" xml:space="preserve"><value>Ascolotl found {0} unsaved documents from a previous session.</value></data>
   <data name="RecoveryFoundOne" xml:space="preserve"><value>Ascolotl found 1 unsaved document from a previous session.</value></data>
+  <data name="Redo" xml:space="preserve"><value>_Redo</value></data>
   <data name="Reload" xml:space="preserve"><value>Reload</value></data>
   <data name="RemoveSelectedProfile" xml:space="preserve"><value>Remove selected profile</value></data>
   <data name="ReopenClosedTab" xml:space="preserve"><value>Reopen C_losed Tab</value></data>
@@ -485,6 +490,7 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="ToggleOutline" xml:space="preserve"><value>Toggle _Outline</value></data>
   <data name="ToOpenAFile" xml:space="preserve"><value>to open a file</value></data>
   <data name="TypeACommand" xml:space="preserve"><value>Type a command...</value></data>
+  <data name="Undo" xml:space="preserve"><value>_Undo</value></data>
   <data name="Untitled" xml:space="preserve"><value>Untitled {0}</value></data>
   <data name="UpToFirstColon" xml:space="preserve"><value>_Up to First Colon</value></data>
   <data name="UseBuiltInStyle" xml:space="preserve"><value>Use _Built-in Style</value></data>
@@ -581,7 +587,6 @@ This file exists but could not be read. It may be locked by another program, or 
   <data name="KeysGroupRead" xml:space="preserve"><value>Reading</value></data>
   <data name="KeysHeadings" xml:space="preserve"><value>Heading level 1 to 6 / back to a paragraph</value></data>
   <data name="KeysCompletion" xml:space="preserve"><value>Complete the syntax</value></data>
-  <data name="KeysUndoRedo" xml:space="preserve"><value>Undo / redo</value></data>
   <data name="KeysBlocks" xml:space="preserve"><value>Previous / next block</value></data>
   <data name="KeysFirstLast" xml:space="preserve"><value>First / last block</value></data>
   <data name="KeysEditBlock" xml:space="preserve"><value>Edit the block (a table: its first cell)</value></data>

@@ -1128,6 +1128,41 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
+    public void EditMenu_UndoesAndRedoes_ThePageTheSourceAndAnOpenBlock()
+    {
+        var (window, vm) = Open("One.\n\nTwo.\n", EditorMode.Wysiwyg);
+        string Text() => vm.SelectedDocument!.SourceText;
+        MenuItem Item(string header) => window.FindControl<MenuItem>("HamburgerMenuItem")!.GetLogicalDescendants()
+            .OfType<MenuItem>().First(m => m.Header as string == header);
+        void Click(string header) { Item(header).RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent)); Pump(window); }
+        Preview(window).FocusPage();
+        Pump(window);
+
+        Press(window, Key.Delete); // on the page
+        Click(Strings.Undo);
+        Assert.Equal("One.\n\nTwo.\n", Text());
+        Click(Strings.Redo);
+        Assert.Equal("Two.\n", Text());
+        Click(Strings.Undo);
+
+        Press(window, Key.Enter); // in an open block, its own history
+        var block = BlockEditor(window)!;
+        block.CaretOffset = 0;
+        window.KeyTextInput("x");
+        Click(Strings.Undo);
+        Assert.Equal("One.", block.Text.TrimEnd());
+        Press(window, Key.Escape);
+
+        vm.EditorMode = EditorMode.Source; // in the source
+        Pump(window);
+        var source = window.GetVisualDescendants().OfType<SourceEditorView>().Single().Editor;
+        source.Document.Insert(0, "Zero.\n\n");
+        Click(Strings.Undo);
+        Assert.Equal("One.\n\nTwo.\n", Text());
+        Assert.Contains(vm.CommandPalette.AllCommands, c => c.Name == Strings.CommandUndo && c.Shortcut == "Ctrl+Z");
+    }
+
+    [AvaloniaFact]
     public void UndoOnThePage_UndoesTheShownTab_NotAnotherOne()
     {
         var (window, vm) = Open("First tab.\n\nKept.\n", EditorMode.Split);

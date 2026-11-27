@@ -207,6 +207,15 @@ public partial class MainWindowViewModel : ObservableObject
 
     public event Action? KeyboardShortcutsRequested;
 
+    /// <summary>Undo (false) or redo (true) asked from the menu or the palette, for the view's editor.</summary>
+    public event Action<bool>? UndoRequested;
+
+    [RelayCommand]
+    private void Undo() => UndoRequested?.Invoke(false);
+
+    [RelayCommand]
+    private void Redo() => UndoRequested?.Invoke(true);
+
     [RelayCommand]
     private void ShowKeyboardShortcuts() => KeyboardShortcutsRequested?.Invoke();
 
@@ -1765,6 +1774,8 @@ public partial class MainWindowViewModel : ObservableObject
             new(Strings.CommandToggleAccessiblePdf, null, Strings.CommandCategoryFile, () => ToggleAccessiblePdfCommand.Execute(null)),
             new(Strings.CommandExportAsHTMLWithStyle, null, Strings.CommandCategoryFile, () => ExportWithStyleCommand.Execute(ExportFormat.Html)),
             new(Strings.CommandExportAsEPUBWithStyle, null, Strings.CommandCategoryFile, () => ExportWithStyleCommand.Execute(ExportFormat.Epub)),
+            new(Strings.CommandUndo, "Ctrl+Z", Strings.CommandCategoryEdit, () => UndoCommand.Execute(null)),
+            new(Strings.CommandRedo, "Ctrl+Y / Ctrl+Shift+Z", Strings.CommandCategoryEdit, () => RedoCommand.Execute(null)),
             new(Strings.CommandReadMode, "Ctrl+1", Strings.CommandCategoryView, () => SetEditorModeCommand.Execute(EditorMode.Read)),
             new(Strings.CommandWYSIWYGMode, "Ctrl+2", Strings.CommandCategoryView, () => SetEditorModeCommand.Execute(EditorMode.Wysiwyg)),
             new(Strings.CommandSplitMode, "Ctrl+3", Strings.CommandCategoryView, () => SetEditorModeCommand.Execute(EditorMode.Split)),

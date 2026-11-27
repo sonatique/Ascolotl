@@ -153,6 +153,7 @@
   <data name="CloseTab" xml:space="preserve"><value>_Fermer l'onglet</value></data>
   <data name="CloseTabTooltip" xml:space="preserve"><value>Fermer l'onglet</value></data>
   <data name="CommandAsciiDocSyntaxReference" xml:space="preserve"><value>Aide-mémoire de la syntaxe AsciiDoc</value></data>
+  <data name="CommandCategoryEdit" xml:space="preserve"><value>Édition</value></data>
   <data name="CommandCategoryFile" xml:space="preserve"><value>Fichier</value></data>
   <data name="CommandCategoryHelp" xml:space="preserve"><value>Aide</value></data>
   <data name="CommandCategoryImport" xml:space="preserve"><value>Importer</value></data>
@@ -184,6 +185,7 @@
   <data name="CommandPDFTitleFullTitle" xml:space="preserve"><value>Titre du PDF : titre complet</value></data>
   <data name="CommandPDFTitleUpToFirstColon" xml:space="preserve"><value>Titre du PDF : jusqu'aux premiers deux-points</value></data>
   <data name="CommandPreviousTab" xml:space="preserve"><value>Onglet précédent</value></data>
+  <data name="CommandRedo" xml:space="preserve"><value>Rétablir</value></data>
   <data name="CommandRefreshFolder" xml:space="preserve"><value>Actualiser le dossier</value></data>
   <data name="CommandReopenClosedTab" xml:space="preserve"><value>Rouvrir l'onglet fermé</value></data>
   <data name="CommandResetZoom" xml:space="preserve"><value>Réinitialiser le zoom</value></data>
@@ -205,6 +207,7 @@
   <data name="CommandTogglePreviewWordWrap" xml:space="preserve"><value>Retour à la ligne dans l'aperçu</value></data>
   <data name="CommandToggleSyncScrolling" xml:space="preserve"><value>Défilement synchronisé</value></data>
   <data name="CommandToggleTitleTOC" xml:space="preserve"><value>Afficher le titre et la table des matières</value></data>
+  <data name="CommandUndo" xml:space="preserve"><value>Annuler</value></data>
   <data name="CommandUseBuiltInStyle" xml:space="preserve"><value>Utiliser le style intégré</value></data>
   <data name="CommandWYSIWYGMode" xml:space="preserve"><value>Mode WYSIWYG</value></data>
   <data name="CommandReadMode" xml:space="preserve"><value>Mode lecture</value></data>
@@ -223,6 +226,7 @@
   <data name="Discard" xml:space="preserve"><value>Abandonner</value></data>
   <data name="DocBook" xml:space="preserve"><value>_DocBook...</value></data>
   <data name="DonTSave" xml:space="preserve"><value>Ne pas enregistrer</value></data>
+  <data name="Edit" xml:space="preserve"><value>Éditio_n</value></data>
   <data name="EditBeforeEachPDFExport" xml:space="preserve"><value>_Modifier avant chaque export PDF</value></data>
   <data name="EditorWordWrap" xml:space="preserve"><value>Retour à la ligne dans l'_éditeur</value></data>
   <data name="EmptyNextToTheDocument" xml:space="preserve"><value>Vide — à côté du document</value></data>
@@ -393,6 +397,7 @@ Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un
   <data name="RecoverHeadingsTextTablesAndNotes" xml:space="preserve"><value>Récupérer titres, texte, tableaux et remarques d'un PDF (mise en page approximative)</value></data>
   <data name="RecoveryFoundMany" xml:space="preserve"><value>Ascolotl a trouvé {0} documents non enregistrés lors d'une session précédente.</value></data>
   <data name="RecoveryFoundOne" xml:space="preserve"><value>Ascolotl a trouvé 1 document non enregistré lors d'une session précédente.</value></data>
+  <data name="Redo" xml:space="preserve"><value>_Rétablir</value></data>
   <data name="Reload" xml:space="preserve"><value>Recharger</value></data>
   <data name="RemoveSelectedProfile" xml:space="preserve"><value>Supprimer le profil sélectionné</value></data>
   <data name="ReopenClosedTab" xml:space="preserve"><value>Rou_vrir l'onglet fermé</value></data>
@@ -485,6 +490,7 @@ Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un
   <data name="ToggleOutline" xml:space="preserve"><value>Afficher le p_lan</value></data>
   <data name="ToOpenAFile" xml:space="preserve"><value>pour ouvrir un fichier</value></data>
   <data name="TypeACommand" xml:space="preserve"><value>Tapez une commande...</value></data>
+  <data name="Undo" xml:space="preserve"><value>_Annuler</value></data>
   <data name="Untitled" xml:space="preserve"><value>Sans titre {0}</value></data>
   <data name="UpToFirstColon" xml:space="preserve"><value>_Jusqu'aux premiers deux-points</value></data>
   <data name="UseBuiltInStyle" xml:space="preserve"><value>Utiliser le style _intégré</value></data>
@@ -581,7 +587,6 @@ Ce fichier existe mais n'a pas pu être lu. Il est peut-être verrouillé par un
   <data name="KeysGroupRead" xml:space="preserve"><value>Lecture</value></data>
   <data name="KeysHeadings" xml:space="preserve"><value>Titre de niveau 1 à 6 / retour au paragraphe</value></data>
   <data name="KeysCompletion" xml:space="preserve"><value>Compléter la syntaxe</value></data>
-  <data name="KeysUndoRedo" xml:space="preserve"><value>Annuler / rétablir</value></data>
   <data name="KeysBlocks" xml:space="preserve"><value>Bloc précédent / suivant</value></data>
   <data name="KeysFirstLast" xml:space="preserve"><value>Premier / dernier bloc</value></data>
   <data name="KeysEditBlock" xml:space="preserve"><value>Modifier le bloc (un tableau : sa première cellule)</value></data>

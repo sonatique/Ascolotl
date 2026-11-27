@@ -44,6 +44,14 @@
         <MenuItem Header="{x:Static res:Strings.Exit}"
                   Click="OnExitClick" />
     </MenuItem>
+    <MenuItem Header="{x:Static res:Strings.Edit}">
+        <MenuItem Header="{x:Static res:Strings.Undo}"
+                  Command="{Binding UndoCommand}"
+                  InputGesture="Ctrl+Z" />
+        <MenuItem Header="{x:Static res:Strings.Redo}"
+                  Command="{Binding RedoCommand}"
+                  InputGesture="Ctrl+Y" />
+    </MenuItem>
     <MenuItem Header="{x:Static res:Strings.Import}">
         <MenuItem Header="{x:Static res:Strings.WordDocument}"
                   Command="{Binding ImportCommand}"

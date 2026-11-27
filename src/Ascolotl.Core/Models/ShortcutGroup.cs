@@ -30,7 +30,6 @@ public sealed record ShortcutGroup(string Title, IReadOnlyList<Shortcut> Rows)
                 new(Strings.FormatLink, "Ctrl+K"),
                 new(Strings.KeysHeadings, "Ctrl+Shift+1…6 / Ctrl+Shift+0"),
                 new(Strings.KeysCompletion, "Ctrl+Space"),
-                new(Strings.KeysUndoRedo, "Ctrl+Z / Ctrl+Y"),
             ]),
             new(Strings.KeysGroupPage,
             [
