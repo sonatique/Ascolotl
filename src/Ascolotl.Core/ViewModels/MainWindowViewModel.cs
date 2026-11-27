@@ -371,7 +371,7 @@ public partial class MainWindowViewModel : ObservableObject
             doc.LastKnownWriteTime = entry.FileWriteTime;
             if (doc.LastKnownWriteTime is null && entry.OriginalFilePath is not null)
             {
-                try { doc.LastKnownWriteTime = File.GetLastWriteTimeUtc(entry.OriginalFilePath); }
+                try { doc.LastKnownWriteTime = TextFile.WriteTime(entry.OriginalFilePath); }
                 catch { /* file may be gone — conflict check will be skipped */ }
             }
             // Save back in the file's own encoding (BOM, UTF-16, 1252), not plain UTF-8.
@@ -417,7 +417,7 @@ public partial class MainWindowViewModel : ObservableObject
                 try
                 {
                     var content = TextFile.Read(sessionDoc.FilePath);
-                    var writeTime = File.GetLastWriteTimeUtc(sessionDoc.FilePath);
+                    var writeTime = TextFile.WriteTime(sessionDoc.FilePath);
                     results.Add((sessionDoc, content, writeTime));
                 }
                 catch (Exception ex)
@@ -627,7 +627,7 @@ public partial class MainWindowViewModel : ObservableObject
         doc.FileEncoding = content.Encoding;
         if (view is { } v) doc.EditorMode = v;
 
-        try { doc.LastKnownWriteTime = File.GetLastWriteTimeUtc(path); }
+        try { doc.LastKnownWriteTime = TextFile.WriteTime(path); }
         catch { /* non-critical */ }
 
         Documents.Add(doc);
@@ -1029,7 +1029,7 @@ public partial class MainWindowViewModel : ObservableObject
         try
         {
             // Any other time is a change: sync tools, unzip and restores keep older times.
-            if (!File.Exists(doc.FilePath) || File.GetLastWriteTimeUtc(doc.FilePath) == doc.LastKnownWriteTime.Value)
+            if (!File.Exists(doc.FilePath) || TextFile.WriteTime(doc.FilePath) == doc.LastKnownWriteTime.Value)
                 return false;
         }
         catch
@@ -1073,7 +1073,7 @@ public partial class MainWindowViewModel : ObservableObject
     private static void UpdateLastKnownWriteTime(DocumentViewModel doc)
     {
         if (doc.FilePath is null) return;
-        try { doc.LastKnownWriteTime = File.GetLastWriteTimeUtc(doc.FilePath); }
+        try { doc.LastKnownWriteTime = TextFile.WriteTime(doc.FilePath); }
         catch { /* non-critical */ }
     }
 

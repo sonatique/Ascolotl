@@ -32,7 +32,7 @@ public static class PreviewStyle
 
             // The font root also depends on the document's folder and :pdf-fontsdir:.
             var key = $"{path}\n{docDir}\n{attributes.GetValueOrDefault("pdf-fontsdir")}";
-            var stamp = File.GetLastWriteTimeUtc(path);
+            var stamp = Ascolotl.Core.Services.TextFile.WriteTime(path);
             if (_cache is { } c && c.Key == key && c.Stamp == stamp)
                 return c.Options;
 

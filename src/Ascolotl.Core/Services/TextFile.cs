@@ -72,6 +72,14 @@ public static class TextFile
         }
     }
 
+    /// <summary>When the file was last written (UTC), through symlinks: a link's own time stays
+    /// when its target changes.</summary>
+    public static DateTime WriteTime(string path)
+    {
+        var info = new FileInfo(path);
+        return (info.ResolveLinkTarget(returnFinalTarget: true) ?? info).LastWriteTimeUtc;
+    }
+
     /// <summary>
     /// Writes to a temp file next to <paramref name="path"/>, then swaps it in, so a
     /// failed write never leaves a truncated file. Writes through symlinks.

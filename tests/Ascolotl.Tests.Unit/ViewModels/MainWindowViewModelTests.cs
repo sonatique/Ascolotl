@@ -1765,6 +1765,33 @@ public sealed class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public async Task Save_ThroughASymlink_SeesTheTargetChange()
+    {
+        var vm = CreateViewModel();
+        var target = CreateTempFile("on disk");
+        var link = target + ".link.adoc";
+        try { File.CreateSymbolicLink(link, target); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return; } // Windows without Developer Mode
+        try
+        {
+            _fileService.OpenFileResult = (link, "on disk");
+            await vm.OpenDocumentCommand.ExecuteAsync(null);
+            var doc = vm.SelectedDocument!;
+            doc.SourceText = "my edits";
+            File.SetLastWriteTimeUtc(target, doc.LastKnownWriteTime!.Value.AddHours(1)); // another program wrote the file
+
+            await vm.SaveDocumentCommand.ExecuteAsync(null);
+
+            Assert.Equal(1, _dialogService.ShowFileConflictCalled);
+            Assert.Equal(0, _fileService.SaveFileCalled);
+        }
+        finally
+        {
+            File.Delete(link);
+        }
+    }
+
+    [Fact]
     public async Task SaveAll_ConflictAnsweredSaveAs_SavesTheConflictingDocument()
     {
         var vm = CreateViewModel();
