@@ -24,6 +24,19 @@ public sealed class TextFileTests : IDisposable
         return await File.ReadAllBytesAsync(path);
     }
 
+    [Theory]
+    [InlineData("a\r\nb\nc", "\r\n")]
+    [InlineData("a\nb\r\nc", "\n")]
+    [InlineData("one line", null)]
+    public void NewLineOf_IsTheFirstLineEnds(string text, string? expected)
+        => Assert.Equal(expected, TextFile.NewLineOf(text));
+
+    [Theory]
+    [InlineData("a\r\nb\nc\rd", "\r\n", "a\r\nb\r\nc\rd")] // a lone CR stays
+    [InlineData("a\r\nb\nc", "\n", "a\nb\nc")]
+    public void WithLineEnds_WritesEveryLineEndTheSame(string text, string newLine, string expected)
+        => Assert.Equal(expected, TextFile.WithLineEnds(text, newLine));
+
     [Fact]
     public async Task WriteAsync_ReadOnlyFile_IsRefusedOnEverySystem()
     {

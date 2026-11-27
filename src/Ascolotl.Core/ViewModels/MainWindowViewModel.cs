@@ -378,7 +378,12 @@ public partial class MainWindowViewModel : ObservableObject
             // Save back in the file's own encoding (BOM, UTF-16, 1252), not plain UTF-8.
             if (entry.OriginalFilePath is not null)
             {
-                try { doc.FileEncoding = TextFile.Read(entry.OriginalFilePath).Encoding; }
+                try
+                {
+                    var original = TextFile.Read(entry.OriginalFilePath);
+                    doc.FileEncoding = original.Encoding;
+                    doc.FileNewLine = TextFile.NewLineOf(original.Text);
+                }
                 catch { /* gone or unreadable: UTF-8 */ }
             }
 
@@ -445,6 +450,7 @@ public partial class MainWindowViewModel : ObservableObject
             doc.MarkClean();
             doc.LastKnownWriteTime = writeTime;
             doc.FileEncoding = content.Encoding;
+            doc.FileNewLine = TextFile.NewLineOf(content.Text);
             doc.TopLine = sessionDoc.TopLine;
             if (Enum.IsDefined(sessionDoc.EditorMode)) doc.EditorMode = sessionDoc.EditorMode;
             if (sessionDoc.PageScroll is > 0 and <= 1) doc.PageScroll = sessionDoc.PageScroll;
@@ -628,6 +634,7 @@ public partial class MainWindowViewModel : ObservableObject
         doc.EndLoad();
         doc.MarkClean();
         doc.FileEncoding = content.Encoding;
+        doc.FileNewLine = TextFile.NewLineOf(content.Text);
         if (view is { } v) doc.EditorMode = v;
 
         try { doc.LastKnownWriteTime = TextFile.WriteTime(path); }
@@ -974,20 +981,21 @@ public partial class MainWindowViewModel : ObservableObject
         FlushPendingEdits?.Invoke();
         // Typing continues during the await: only what was written counts as saved.
         var text = doc.SourceText;
-        var encoding = TextFile.EncodingFor(text, doc.FileEncoding);
+        var written = doc.FileNewLine is { } newLine ? TextFile.WithLineEnds(text, newLine) : text;
+        var encoding = TextFile.EncodingFor(written, doc.FileEncoding);
         string? path;
         try
         {
             if (saveAs || doc.FilePath is null)
             {
-                path = await _fileService.SaveFileAsAsync(doc.DisplayName, text, encoding);
+                path = await _fileService.SaveFileAsAsync(doc.DisplayName, written, encoding);
                 if (path is null)
                     return false;
             }
             else
             {
                 path = doc.FilePath;
-                await _fileService.SaveFileAsync(path, text, encoding);
+                await _fileService.SaveFileAsync(path, written, encoding);
             }
         }
         catch (Exception ex)
@@ -1066,6 +1074,7 @@ public partial class MainWindowViewModel : ObservableObject
                     doc.EndLoad();
                     doc.MarkClean();
                     doc.FileEncoding = content.Encoding;
+                    doc.FileNewLine = TextFile.NewLineOf(content.Text);
                     UpdateLastKnownWriteTime(doc);
                     RemoveRecoverySnapshot(doc);
                     StatusText = string.Format(Strings.StatusReloaded, doc.DisplayName);

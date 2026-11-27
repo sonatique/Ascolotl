@@ -28,6 +28,10 @@ public partial class DocumentViewModel : ObservableObject
     /// <summary>Encoding the file was read with, reused on save; null = UTF-8 without BOM.</summary>
     public System.Text.Encoding? FileEncoding { get; set; }
 
+    /// <summary>Line end the file was read with, "\r\n" or "\n", every line's on save: lines the page
+    /// adds break as the editor's do. Null: as they are.</summary>
+    public string? FileNewLine { get; set; }
+
     private bool _isRecovered;
     public bool IsRecovered
     {

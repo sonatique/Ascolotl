@@ -1819,6 +1819,21 @@ public sealed class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public async Task Save_WritesEveryLineEndAsTheFileHadThem()
+    {
+        var vm = CreateViewModel();
+        _fileService.OpenFileResult = ("/tmp/crlf.adoc", "= Title\r\n\r\nText.\r\n");
+        await vm.OpenDocumentCommand.ExecuteAsync(null);
+        var doc = vm.SelectedDocument!;
+        doc.SourceText += "\nNew paragraph.\n"; // as a block command adds lines
+
+        await vm.SaveDocumentCommand.ExecuteAsync(null);
+
+        Assert.Equal("= Title\r\n\r\nText.\r\n\r\nNew paragraph.\r\n", _fileService.LastSavedContent);
+        Assert.False(doc.IsDirty);
+    }
+
+    [Fact]
     public async Task Save_ThroughASymlink_SeesTheTargetChange()
     {
         var vm = CreateViewModel();
