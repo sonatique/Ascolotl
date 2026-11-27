@@ -36,7 +36,8 @@ public sealed class ExportService : IExportService
                 var parsed = DocumentParser.Parse(source, markdown, basePath, projectFolder: projectFolder);
                 if (FirstNetworkImage(parsed.Document, basePath) is { } image)
                     return ExportResult.Failure(string.Format(Strings.ExportNetworkImage, image));
-                // HTML and EPUB carry their diagrams inside; PDF and DocBook read the cached images.
+                // HTML and EPUB carry their diagrams inside; PDF reads the cached images, DocBook copies of them.
+                var imagesBefore = ImageBlocks(parsed.Document, new(ReferenceEqualityComparer.Instance));
                 DrawDiagramsAsync(parsed.Document, embed: format is ExportFormat.Html or ExportFormat.Epub, cancellationToken)
                     .GetAwaiter().GetResult(); // already on a worker thread
 
@@ -94,6 +95,7 @@ public sealed class ExportService : IExportService
                         });
                         break;
                     case ExportFormat.DocBook:
+                        CopyDiagramsBeside(parsed.Document, imagesBefore, outputPath);
                         new DocBookRenderer().Render(parsed.Document, ms, RenderOptions.Default);
                         break;
                     case ExportFormat.Epub:
@@ -184,6 +186,47 @@ public sealed class ExportService : IExportService
         if (Diagrams.Pass is not { } diagrams) return;
         await diagrams.GenerateAsync(document, cancellationToken).ConfigureAwait(false);
         diagrams.Apply(document, embed);
+    }
+
+    private static HashSet<BlockImageNode> ImageBlocks(AstNode node, HashSet<BlockImageNode> found)
+    {
+        if (node is BlockImageNode image) found.Add(image);
+        foreach (var child in node.Children) ImageBlocks(child, found);
+        return found;
+    }
+
+    /// <summary>The diagrams drawn into the cache, copied into a folder beside <paramref name="outputPath"/>
+    /// and referred to there, so the file names no private path. True when one was.</summary>
+    private static bool CopyDiagramsBeside(AstNode parent, HashSet<BlockImageNode> before, string outputPath)
+    {
+        var copied = false;
+        for (var i = 0; i < parent.Children.Count; i++)
+        {
+            if (parent.Children[i] is not BlockImageNode image || before.Contains(image) || !Path.IsPathRooted(image.Target))
+            {
+                copied |= CopyDiagramsBeside(parent.Children[i], before, outputPath);
+                continue;
+            }
+            var folder = Path.GetFileNameWithoutExtension(outputPath) + "-diagrams";
+            var name = Path.GetFileName(image.Target);
+            var copy = Path.Combine(Path.GetDirectoryName(outputPath)!, folder, name);
+            Directory.CreateDirectory(Path.GetDirectoryName(copy)!);
+            File.Copy(image.Target, copy, overwrite: true);
+            parent.RemoveChildAt(i);
+            parent.InsertChild(i, new BlockImageNode
+            {
+                Target = folder + "/" + name,
+                Alt = image.Alt,
+                Title = image.Title,
+                Id = image.Id,
+                Reftext = image.Reftext,
+                Roles = image.Roles,
+                Source = image.Source,
+            });
+            copied = true;
+        }
+        if (copied) parent.InvalidateStructuralHash();
+        return copied;
     }
 
     /// <summary>Windows sharing or lock violation: another program holds the file open.</summary>

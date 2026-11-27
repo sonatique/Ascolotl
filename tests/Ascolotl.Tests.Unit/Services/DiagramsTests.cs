@@ -165,6 +165,23 @@ public sealed class DiagramsTests : IDisposable
     }
 
     [Fact]
+    public async Task DocBookExport_RefersToACopyBesideIt()
+    {
+        var output = Directory.CreateDirectory(Path.Combine(_dir, "out")).FullName;
+        var path = Path.Combine(output, "book.xml");
+
+        var result = await new ExportService().ExportAsync(Mermaid + "\nimage::photo.png[]\n", false, _dir, path, ExportFormat.DocBook, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
+
+        Assert.True(result.IsSuccess, result.ErrorMessage);
+        var text = File.ReadAllText(path);
+        var copy = System.Text.RegularExpressions.Regex.Match(text, "fileref=\"(book-diagrams/[^\"]+)\"").Groups[1].Value;
+        Assert.NotEmpty(copy);
+        Assert.Equal(Png, File.ReadAllBytes(Path.Combine(output, copy)));
+        Assert.DoesNotContain(_dir, text);
+        Assert.Contains("fileref=\"photo.png\"", text); // the document's own image as written
+    }
+
+    [Fact]
     public async Task PdfExport_EmbedsTheDiagram()
     {
         var path = Path.Combine(_dir, "out.pdf");
