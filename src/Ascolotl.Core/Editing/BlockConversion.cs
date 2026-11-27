@@ -31,7 +31,7 @@ public static partial class BlockConversion
     public static string TurnInto(string block, BlockKind kind, bool markdown)
     {
         var nl = block.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
-        var lines = Words(block);
+        var lines = Words(block, markdown);
         var text = string.Join(nl, lines);
         return kind switch
         {
@@ -47,12 +47,12 @@ public static partial class BlockConversion
         };
     }
 
-    /// <summary>The block's lines of words: inside its delimiters, without a style line above
-    /// them, without heading, list, quote or note markers, without blank lines.</summary>
-    private static List<string> Words(string block)
+    /// <summary>The block's lines of words: inside its delimiters, without an AsciiDoc style line
+    /// above them, without heading, list, quote or note markers, without blank lines.</summary>
+    private static List<string> Words(string block, bool markdown)
     {
         var lines = block.Split('\n').Select(l => l.TrimEnd('\r')).ToList();
-        if (lines.Count > 0 && StyleLine().IsMatch(lines[0].Trim())) lines.RemoveAt(0);
+        if (!markdown && lines.Count > 1 && StyleLine().IsMatch(lines[0].Trim())) lines.RemoveAt(0);
         var verbatim = false;
         if (lines.Count >= 2 && Delimiter().IsMatch(lines[0].Trim()) && Delimiter().IsMatch(lines[^1].Trim()))
         {
