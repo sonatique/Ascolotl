@@ -1582,6 +1582,36 @@ public sealed class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public void ProjectFolder_ListsItsDocuments_PastFoldersItCannotRead()
+    {
+        var root = Directory.CreateTempSubdirectory("ascolotl-project-").FullName;
+        _tempDirs.Add(root);
+        File.WriteAllText(Path.Combine(root, "a.adoc"), "");
+        Directory.CreateDirectory(Path.Combine(root, "sub"));
+        File.WriteAllText(Path.Combine(root, "sub", "b.md"), "");
+        Directory.CreateDirectory(Path.Combine(root, ".git"));
+        File.WriteAllText(Path.Combine(root, ".git", "c.md"), "");
+        var locked = Directory.CreateDirectory(Path.Combine(root, "locked")).FullName;
+        File.WriteAllText(Path.Combine(locked, "d.adoc"), "");
+        if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(locked, UnixFileMode.None);
+        try
+        {
+            var vm = CreateViewModel();
+            vm.LoadProjectFolder(root);
+
+            Assert.Equal(string.Format(Ascolotl.Core.Resources.Strings.StatusFolderOpened, Path.GetFileName(root)), vm.StatusText);
+            var names = vm.ProjectRoots.SelectMany(n => n.Children.Select(c => c.Name).Prepend(n.Name)).ToList();
+            Assert.Contains("a.adoc", names);
+            Assert.Contains("b.md", names);
+            Assert.DoesNotContain("c.md", names);
+        }
+        finally
+        {
+            if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(locked, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        }
+    }
+
+    [Fact]
     public void SaveSession_WhileStartupIsOpeningTheTabs_KeepsTheSavedOne()
     {
         var vm = CreateViewModel();

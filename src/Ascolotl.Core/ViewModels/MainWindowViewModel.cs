@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO.Enumeration;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Ascolotl.Core.Editing;
@@ -825,14 +826,19 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     /// <summary>The project's documents as relative paths (capped at
-    /// <see cref="MaxProjectFiles"/> + 1 so callers can detect the cap).</summary>
+    /// <see cref="MaxProjectFiles"/> + 1 so callers can detect the cap). Folders that can't be
+    /// read are left out, and dot-folders (.git, .venv) are not walked.</summary>
     private List<string> EnumerateProjectDocuments()
     {
         if (ProjectFolderPath is null) return [];
 
-        var relative = Directory
-            .EnumerateFiles(ProjectFolderPath, "*", SearchOption.AllDirectories)
-            .Select(p => Path.GetRelativePath(ProjectFolderPath, p));
+        var root = ProjectFolderPath;
+        var everyReadableFolder = new EnumerationOptions { RecurseSubdirectories = true, IgnoreInaccessible = true, AttributesToSkip = 0 };
+        var relative = new FileSystemEnumerable<string>(root, (ref FileSystemEntry e) => Path.GetRelativePath(root, e.ToFullPath()), everyReadableFolder)
+        {
+            ShouldIncludePredicate = (ref FileSystemEntry e) => !e.IsDirectory,
+            ShouldRecursePredicate = (ref FileSystemEntry e) => !e.FileName.StartsWith('.'),
+        };
 
         return ProjectTreeBuilder.FilterDocumentPaths(relative)
             .Take(MaxProjectFiles + 1)
