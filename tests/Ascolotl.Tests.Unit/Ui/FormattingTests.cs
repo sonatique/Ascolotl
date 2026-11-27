@@ -1,5 +1,6 @@
 using Ascolotl.App.Views;
 using Ascolotl.App.Views.Assist;
+using Ascolotl.Core.Editing;
 using Ascolotl.Core.Models;
 using Ascolotl.Core.Resources;
 using Avalonia;
@@ -144,6 +145,32 @@ public sealed class FormattingTests
 
         Assert.Equal("Intro.\n\n|===\n| a | b\n| |\n| c | d\n|===\n", vm.SelectedDocument!.SourceText);
         Assert.True(ToolbarButton(window, Strings.TableRowBelow).IsEffectivelyVisible); // the caret is in the new row
+    }
+
+    [AvaloniaFact]
+    public void Tab_AfterALinksFieldsAreUndone_IsTheEditorsOwn()
+    {
+        var (window, vm) = Open("See ", EditorMode.Split);
+        var editor = SourceEditor(window);
+        var assist = CompletionController.For(editor)!;
+        editor.TextArea.Focus();
+        editor.CaretOffset = 4;
+        assist.Format(FormatCommand.Link); // link:url[text], Tab from url to text
+        Pump(window);
+        Assert.True(assist.IsActive);
+
+        editor.Undo();
+        Pump(window);
+        Assert.False(assist.IsActive);
+        window.KeyPress(Key.Tab, RawInputModifiers.None, PhysicalKey.Tab, null);
+        Pump(window);
+        Assert.StartsWith("See", vm.SelectedDocument!.SourceText);
+        Assert.DoesNotContain("link:", vm.SelectedDocument.SourceText);
+
+        assist.Format(FormatCommand.Link);
+        Pump(window);
+        editor.CaretOffset = 0; // the caret left the link: Tab no longer moves through it
+        Assert.False(assist.IsActive);
     }
 
     [AvaloniaFact]
