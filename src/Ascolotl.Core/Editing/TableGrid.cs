@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace Ascolotl.Core.Editing;
 
 /// <summary>One cell of a <see cref="TableGrid"/> — its content plus span.</summary>
@@ -23,7 +25,7 @@ public sealed class TableCell
 /// <see cref="Parse"/> returns null for those so the caller can fall back to
 /// editing the table source directly.</para>
 /// </summary>
-public sealed class TableGrid
+public sealed partial class TableGrid
 {
     /// <summary>Total logical columns.</summary>
     public int ColumnCount { get; private set; }
@@ -94,16 +96,16 @@ public sealed class TableGrid
         if (pipes.Count == 0) return null;
 
         // Anything before the first cell's spec must be whitespace.
-        if (line[..SpecStart(line, pipes[0])].Trim().Length != 0) return null;
+        if (line[..SpecStart(line, 0, pipes[0])].Trim().Length != 0) return null;
 
         var cells = new List<TableCell>();
         for (var j = 0; j < pipes.Count; j++)
         {
             var p = pipes[j];
-            var specStr = line[SpecStart(line, p)..p];
+            var specStr = line[SpecStart(line, j == 0 ? 0 : pipes[j - 1] + 1, p)..p];
             if (specStr.Contains('*')) return null; // multiplier — unsupported
 
-            var contentEnd = j + 1 < pipes.Count ? SpecStart(line, pipes[j + 1]) : line.Length;
+            var contentEnd = j + 1 < pipes.Count ? SpecStart(line, p + 1, pipes[j + 1]) : line.Length;
             var content = line[(p + 1)..contentEnd].Trim();
 
             if (!TryParseSpec(specStr, out var col, out var row, out var extra))
@@ -114,20 +116,19 @@ public sealed class TableGrid
         return cells;
     }
 
-    /// <summary>Start index of the spec run immediately before pipe at
-    /// <paramref name="p"/> — back over spec characters to whitespace, line start
-    /// or a previous pipe.</summary>
-    private static int SpecStart(string line, int p)
+    /// <summary>Start index of the spec immediately before the pipe at <paramref name="p"/>, in the
+    /// segment starting at <paramref name="from"/>; <paramref name="p"/> when there is none. As AdocNet
+    /// reads it, a spec fills the segment or follows whitespace: in <c>|1|2</c> or <c>| Version 2|</c>
+    /// the text before the pipe is content.</summary>
+    private static int SpecStart(string line, int from, int p)
     {
-        var i = p;
-        while (i > 0 && !char.IsWhiteSpace(line[i - 1]) && line[i - 1] != '|' && IsSpecChar(line[i - 1]))
-            i--;
-        return i;
+        var m = CellSpec().Match(line, from, p - from);
+        return m.Success ? m.Index : p;
     }
 
-    private static bool IsSpecChar(char c) =>
-        char.IsDigit(c) || c is '.' or '+' or '*' or '<' or '^' or '>'
-        || c is 'a' or 'd' or 'e' or 'h' or 'l' or 'm' or 's' or 'v';
+    // [span or multiplier][alignment][style], ending at the pipe.
+    [GeneratedRegex(@"(?:^|(?<=\s))(?:(?:\d+(?:\.\d*)?|(?:\d*\.)?\d+)[*+])?(?:[<^>](?:\.[<^>]?)?|(?:[<^>]?\.)?[<^>])?[adehlmsv]?$")]
+    private static partial Regex CellSpec();
 
     /// <summary>Parse a cell spec into col/row span plus the preserved
     /// alignment/style remainder. Returns false only when the run looks like a

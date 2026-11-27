@@ -21,6 +21,28 @@ public class TableGridTests
         Assert.Equal(new[] { "| a | b", "| c | d" }, g.ToLines());
     }
 
+    [Theory]
+    [InlineData("|1|2|3", "| 1 | 2 | 3")]
+    [InlineData("| Version 2| Notes", "| Version 2 | Notes")]
+    [InlineData("| 10| 20", "| 10 | 20")]
+    [InlineData("|Name|Value", "| Name | Value")]
+    public void Parse_TextRightBeforeAPipe_IsContent(string row, string written)
+    {
+        var g = Parse(row);
+        Assert.Equal(new[] { written }, g.ToLines());
+    }
+
+    [Theory]
+    [InlineData("| a 2+^| b", 3, "| a 2+^| b")]
+    [InlineData("|2+| a", 3, "| 2+| a")]
+    [InlineData("| a h| b", 2, "| a h| b")]
+    public void Parse_SpecAfterWhitespaceOrFillingItsSegment_IsASpec(string row, int columns, string written)
+    {
+        var g = Parse(row);
+        Assert.Equal(columns, g.ColumnCount);
+        Assert.Equal(new[] { written }, g.ToLines());
+    }
+
     [Fact]
     public void Parse_ColSpan_CountsColumns()
     {
