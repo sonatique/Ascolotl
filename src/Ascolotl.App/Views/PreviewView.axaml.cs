@@ -2226,14 +2226,16 @@ public partial class PreviewView : UserControl
         }
         else if (after.Length == 0)
         {
+            var end = edit.Start + AsInDocument(text).Length;
             CommitBlockEdit();
-            OpenNewParagraph(edit.Start + text.Length);
+            OpenNewParagraph(end);
         }
         else
         {
+            var second = edit.Start + AsInDocument(before + "\n\n").Length;
             edit.Editor.Text = before + "\n\n" + after;
             CommitBlockEdit();
-            _pendingReentry = (edit.Start + before.Length + 2, -1, -1, false); // in the split text: not shifted by the commit
+            _pendingReentry = (second, -1, -1, false); // in the split text: not shifted by the commit
         }
         return true;
     }
@@ -2253,7 +2255,7 @@ public partial class PreviewView : UserControl
             || above + aboveLength > edit.Start
             || !_doc.SourceText.AsSpan(above + aboveLength, edit.Start - above - aboveLength).IsWhiteSpace())
             return false;
-        var typed = edit.Editor.Text;
+        var typed = AsInDocument(edit.Editor.Text);
         CommitBlockEdit();
         var text = _doc.SourceText;
         if (!text.AsSpan(edit.Start).StartsWith(typed)) return true; // not applied: nothing to join
@@ -2377,6 +2379,11 @@ public partial class PreviewView : UserControl
         });
     }
 
+    /// <summary>A block editor's text as the commit writes it: an editor of one line breaks lines
+    /// the system's way, the document its own.</summary>
+    private string AsInDocument(string editorText) =>
+        editorText.ReplaceLineEndings(_doc?.SourceText.Contains("\r\n") == true ? "\r\n" : "\n");
+
     private void CommitBlockEdit()
     {
         var edit = _activeEdit;
@@ -2387,8 +2394,7 @@ public partial class PreviewView : UserControl
         edit.Host.LostFocus -= OnBlockEditLostFocus;
         _activeEdit = null;
 
-        // An editor of one line breaks lines the system's way: here, the document's.
-        var newSlice = edit.Editor.Text.ReplaceLineEndings(_doc.SourceText.Contains("\r\n") ? "\r\n" : "\n");
+        var newSlice = AsInDocument(edit.Editor.Text);
         var (action, s, len) = BlockSourceEditing.DecideCommit(
             _doc.SourceText, edit.Start, edit.Length, edit.OriginalSlice, newSlice);
 
@@ -2493,7 +2499,7 @@ public partial class PreviewView : UserControl
     private bool TableEditAtCell(TableOp op)
     {
         if (_activeEdit is not { } edit || _doc is null) return false;
-        var typed = edit.Editor.Text;
+        var typed = AsInDocument(edit.Editor.Text);
         CommitBlockEdit(); // the splice starts where the cell's text did
         // A commit refused because the text changed meanwhile leaves the offset stale.
         var at = _doc.SourceText.AsSpan(Math.Min(edit.Start, _doc.SourceText.Length));

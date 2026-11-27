@@ -541,6 +541,31 @@ public sealed class ViewSwitchTests
         Assert.Equal("== Title\n\nZero.\nStill zero.\n\nOnetwo.\n\nThree.\n", Text()); // the document's line ends
     }
 
+    /// <summary>A line typed with Shift+Enter breaks the system's way in the block editor, the document
+    /// its own: Enter at the end still opens the new paragraph after the whole block.</summary>
+    [AvaloniaTheory]
+    [InlineData("\r\n")]
+    [InlineData("\n")]
+    public void EnterAtTheEnd_AfterALineBreak_KeepsTheBlockWhole(string newLine)
+    {
+        var (window, vm) = Open($"One.{newLine}{newLine}Two.{newLine}", EditorMode.Wysiwyg);
+        Preview(window).FocusPage();
+        Pump(window);
+        Assert.Equal("One.", OnBlock(window));
+
+        Press(window, Key.Enter);
+        Press(window, Key.End);
+        Press(window, Key.Enter, RawInputModifiers.Shift);
+        window.KeyTextInput("xy");
+        Press(window, Key.Enter);
+        Pump(window);
+
+        var text = vm.SelectedDocument!.SourceText;
+        Assert.StartsWith($"One.{newLine}xy", text);
+        Assert.True(text.IndexOf("New paragraph.", StringComparison.Ordinal) > text.IndexOf("xy", StringComparison.Ordinal));
+        Assert.EndsWith($"Two.{newLine}", text);
+    }
+
     [AvaloniaFact]
     public void HeadingKeysAndTurnInto_ChangeTheBlocksKind()
     {
