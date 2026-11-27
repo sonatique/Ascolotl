@@ -1826,6 +1826,28 @@ public sealed class MainWindowViewModelTests : IDisposable
 
         Assert.Equal("modified", _fileService.LastSavedContent);
         Assert.True(doc.IsDirty);
+        doc.SourceText = "modified"; // the typing undone: as saved
+        Assert.False(doc.IsDirty);
+    }
+
+    [Fact]
+    public void Document_EditedBackToItsSavedText_IsNotDirty_UnlessRecovered()
+    {
+        var doc = new DocumentViewModel();
+        doc.BeginLoad();
+        doc.SourceText = "saved";
+        doc.EndLoad();
+        doc.MarkClean();
+
+        doc.SourceText = "saved and more";
+        Assert.True(doc.IsDirty);
+        doc.SourceText = "saved";
+        Assert.False(doc.IsDirty);
+
+        doc.MarkUnsaved(); // recovered: the file holds other text
+        doc.SourceText = "saved!";
+        doc.SourceText = "saved";
+        Assert.True(doc.IsDirty);
     }
 
     [Fact]

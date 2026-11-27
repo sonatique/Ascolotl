@@ -208,17 +208,30 @@ public partial class DocumentViewModel : ObservableObject
 
     public void EndLoad() => _suppressDirtyTracking = false;
 
-    public void MarkClean()
+    // The text as last saved or opened; null when the file holds other text (a recovered document).
+    private string? _savedText = string.Empty;
+
+    public void MarkClean() => MarkSaved(SourceText);
+
+    /// <summary><paramref name="text"/> is now the file's: unsaved while the document holds other text.</summary>
+    public void MarkSaved(string text)
     {
-        IsDirty = false;
+        _savedText = text;
+        IsDirty = SourceText != text;
+    }
+
+    /// <summary>Unsaved whatever the text: the file holds other text (a recovered document).</summary>
+    public void MarkUnsaved()
+    {
+        _savedText = null;
+        IsDirty = true;
     }
 
     partial void OnSourceTextChanged(string value)
     {
+        // Undone back to the saved text: nothing to save.
         if (!_suppressDirtyTracking)
-        {
-            IsDirty = true;
-        }
+            IsDirty = value != _savedText;
 
         _stats = null;
         OnPropertyChanged(nameof(WordCountText));

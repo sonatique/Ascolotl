@@ -1053,6 +1053,22 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
+    public void UndoOnThePage_BackToTheSavedText_LeavesNothingToSave()
+    {
+        var (window, vm) = Open("One.\n\nTwo.\n", EditorMode.Wysiwyg);
+        Preview(window).FocusPage();
+        Pump(window);
+        Press(window, Key.Delete);
+        Assert.True(vm.SelectedDocument!.IsDirty);
+
+        Press(window, Key.Z, Command);
+        Assert.Equal("One.\n\nTwo.\n", vm.SelectedDocument.SourceText);
+        Assert.False(vm.SelectedDocument.IsDirty);
+        Press(window, Key.Y, Command);
+        Assert.True(vm.SelectedDocument.IsDirty);
+    }
+
+    [AvaloniaFact]
     public void UndoOnThePage_UndoesTheShownTab_NotAnotherOne()
     {
         var (window, vm) = Open("First tab.\n\nKept.\n", EditorMode.Split);

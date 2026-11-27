@@ -364,7 +364,7 @@ public partial class MainWindowViewModel : ObservableObject
             doc.DisplayName = entry.DisplayName;
             doc.SourceText = sourceText;
             doc.EndLoad();
-            doc.IsDirty = true; // Recovered docs are dirty
+            doc.MarkUnsaved(); // Recovered docs are dirty
 
             // The write time the edits were based on, so the first save flags
             // changes made to the file while the app was down. Older manifests
@@ -1030,11 +1030,9 @@ public partial class MainWindowViewModel : ObservableObject
         doc.FileEncoding = encoding;
         doc.IsRecovered = false;
         UpdateLastKnownWriteTime(doc);
-        if (doc.SourceText == text)
-        {
-            doc.MarkClean();
+        doc.MarkSaved(text); // typed during the save: still unsaved
+        if (!doc.IsDirty)
             RemoveRecoverySnapshot(doc);
-        }
         return true;
     }
 
