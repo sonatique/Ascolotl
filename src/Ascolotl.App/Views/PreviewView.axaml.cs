@@ -1377,8 +1377,9 @@ public partial class PreviewView : UserControl
             // preview, NOT a user scroll — suppress reverse-sync so the
             // resulting offset change doesn't bounce back and yank the
             // editor (toward the error line, where a parse error truncates
-            // the line-map and any stray sync resolves).
-            if (_lastSyncTotal > 0)
+            // the line-map and any stray sync resolves). Split only: elsewhere
+            // the source doesn't drive the page, and its last position is old.
+            if (_lastSyncTotal > 0 && _mainVm?.EditorMode == EditorMode.Split)
             {
                 SuppressReverseSync = true;
                 SyncToSourceLine(_lastSyncLine, _lastSyncFrac, _lastSyncTotal, _lastSyncToEnd);
