@@ -1097,6 +1097,36 @@ public sealed class ViewSwitchTests
         Assert.False(vm.SelectedDocument!.IsDirty);
     }
 
+    [AvaloniaTheory]
+    [InlineData(EditorMode.Source)]
+    [InlineData(EditorMode.Wysiwyg)] // an open block's own editor
+    public void ShiftCtrlZ_RedoesInTheEditors(EditorMode mode)
+    {
+        var (window, _) = Open("One.\n", mode);
+        TextEditor editor;
+        if (mode == EditorMode.Source)
+        {
+            editor = window.GetVisualDescendants().OfType<SourceEditorView>().Single().Editor;
+            editor.TextArea.Focus();
+        }
+        else
+        {
+            Preview(window).FocusPage();
+            Pump(window);
+            Press(window, Key.Enter);
+            editor = BlockEditor(window)!;
+        }
+        editor.CaretOffset = 0;
+        window.KeyTextInput("abc");
+        Pump(window);
+        var typed = editor.Text;
+
+        Press(window, Key.Z, Command);
+        Assert.NotEqual(typed, editor.Text);
+        Press(window, Key.Z, Command | RawInputModifiers.Shift);
+        Assert.Equal(typed, editor.Text);
+    }
+
     [AvaloniaFact]
     public void UndoOnThePage_UndoesTheShownTab_NotAnotherOne()
     {

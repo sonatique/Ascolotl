@@ -789,6 +789,13 @@ public partial class MainWindow : Window
             _viewModel.CommandPalette.Close();
             e.Handled = true;
         }
+        // Redo with Ctrl+Shift+Z in an editor too, as on the page; the editors know only Ctrl+Y.
+        else if (CommandKey.AsWritten(e.KeyModifiers) == (KeyModifiers.Control | KeyModifiers.Shift) && e.Key == Key.Z
+                 && (FocusManager?.GetFocusedElement() as Visual)?.FindAncestorOfType<TextEditor>(includeSelf: true) is { } focusedEditor)
+        {
+            focusedEditor.Redo();
+            e.Handled = true;
+        }
         // The page's changes are in the source's history, also while the source is hidden.
         // Not under an open block, whose own editor has its own history.
         else if (CommandKey.AsWritten(e.KeyModifiers) is KeyModifiers.Control or (KeyModifiers.Control | KeyModifiers.Shift) && e.Key is Key.Z or Key.Y
