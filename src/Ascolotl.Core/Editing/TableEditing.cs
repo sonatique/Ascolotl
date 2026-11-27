@@ -111,7 +111,7 @@ public static class TableEditing
             TableOp.MoveColumnRight => (grid.MoveColumn(row, cell, +1), 0, row, cell + 1),
             TableOp.SortAscending => (grid.SortRows(row, cell, descending: false, header), 0, row, cell),
             TableOp.SortDescending => (grid.SortRows(row, cell, descending: true, header), 0, row, cell),
-            TableOp.RowAbove => (grid.InsertRow(row, below: false), 0, row, 0),
+            TableOp.RowAbove => (grid.InsertRow(row, below: false, header), 0, row, 0),
             TableOp.RowBelow => (grid.InsertRow(row, below: true), 0, row + 1, 0),
             TableOp.DeleteRow => (grid.DeleteRow(row), 0, Math.Max(0, row - 1), 0),
             TableOp.ColumnLeft => (grid.InsertColumn(row, cell, right: false), 1, row, cell),

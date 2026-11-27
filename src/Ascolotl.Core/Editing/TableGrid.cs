@@ -288,10 +288,11 @@ public sealed partial class TableGrid
 
     /// <summary>Insert a blank row above or below the given row, extending any
     /// row-spanning cell that crosses the new boundary instead of placing a cell
-    /// in its columns.</summary>
-    public bool InsertRow(int row, bool below)
+    /// in its columns. Never above the header row (a <paramref name="header"/>
+    /// option, or a blank line after row 0).</summary>
+    public bool InsertRow(int row, bool below, bool header = false)
     {
-        if (row < 0 || row >= Rows.Count) return false;
+        if (row < 0 || row >= Rows.Count || (row == 0 && !below && (header || _headerSeparated))) return false;
         var (_, owner, anchorRow) = BuildLayout();
         var ri = below ? row + 1 : row;
 

@@ -2815,7 +2815,7 @@ public partial class PreviewView : UserControl
                     var rowMenu = new MenuItem { Header = Strings.MenuRow };
                     rowMenu.ItemsSource = new List<Control>
                     {
-                        Cmd(Strings.MenuInsertAbove, () => GridTableOp(table, g => g.InsertRow(r, below: false), 0, Strings.StatusRowInserted)),
+                        Cmd(Strings.MenuInsertAbove, () => GridTableOp(table, g => g.InsertRow(r, below: false, table.HasHeader), 0, Strings.StatusRowInserted)),
                         Cmd(Strings.MenuInsertBelow, () => GridTableOp(table, g => g.InsertRow(r, below: true), 0, Strings.StatusRowInserted)),
                         Cmd(Strings.MenuDeleteRow, () => GridTableOp(table, g => g.DeleteRow(r), 0, Strings.StatusRowDeleted)),
                     }.Concat(at is int a1 ? RowMoves(a1) : []).ToList();

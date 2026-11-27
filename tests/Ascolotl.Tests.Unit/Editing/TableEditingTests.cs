@@ -28,6 +28,12 @@ public sealed class TableEditingTests
         => Assert.Equal("[cols=\"1,1\"]\n|===\n| A | B\n\n| a1 | b1\n| ‸|\n| a2 | b2\n|===\n",
             Run(TableOp.RowAbove, false, AdocAt("a2")));
 
+    [Theory]
+    [InlineData("|===\n| ‸A | B\n\n| a1 | b1\n|===\n")]
+    [InlineData("[options=\"header\"]\n|===\n| ‸A | B\n| a1 | b1\n|===\n")]
+    public void AsciiDoc_RowAbove_TheHeaderRow_IsRefused(string marked)
+        => Assert.Null(Run(TableOp.RowAbove, false, marked));
+
     [Fact]
     public void AsciiDoc_ColumnRight_WidensTheColsAttribute()
         => Assert.Equal("[cols=\"1,1,1\"]\n|===\n| A | B |\n\n| a1 | b1 |‸\n| a2 | b2 |\n|===\n",
