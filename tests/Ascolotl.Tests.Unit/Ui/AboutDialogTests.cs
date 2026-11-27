@@ -42,10 +42,10 @@ public sealed class AboutDialogTests
     [AvaloniaFact]
     public void Notices_NameEveryPackageTheAppShips_AndOpenFromTheAboutBox()
     {
-        var notices = AboutDialog.ThirdPartyNotices();
+        var notices = AboutDialog.ThirdPartyNotices().ReplaceLineEndings("\n"); // a Windows checkout may have CRLF
         var packages = AppPackages();
-        Assert.Contains("SkiaSharp", packages); // the walk reached the native graphics stack
-        var missing = packages.Where(id => !notices.Contains($"\n{id} ", StringComparison.Ordinal)).ToList();
+        Assert.Contains(packages, p => p.StartsWith("SkiaSharp ", StringComparison.Ordinal)); // the walk reached the native graphics stack
+        var missing = packages.Where(package => !notices.Contains($"\n{package}\n", StringComparison.Ordinal)).ToList();
         Assert.True(missing.Count == 0, $"Run tools/notices/make_notices.py: no notice for {string.Join(", ", missing)}");
         Assert.Contains("JetBrains Mono", notices); // fonts shipped inside packages and the app
         Assert.Contains("Inter typeface", notices);
@@ -61,7 +61,7 @@ public sealed class AboutDialogTests
         dialog.Close();
     }
 
-    /// <summary>The packages Ascolotl.App needs at run time, from this test's deps.json.</summary>
+    /// <summary>The packages Ascolotl.App needs at run time, "id version", from this test's deps.json.</summary>
     private static IEnumerable<string> AppPackages()
     {
         using var deps = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,
@@ -79,7 +79,7 @@ public sealed class AboutDialogTests
                     queue.Enqueue($"{child.Name}/{child.Value.GetString()}");
         }
         return seen.Where(k => libraries.TryGetProperty(k, out var lib) && lib.GetProperty("type").GetString() == "package")
-            .Select(k => k[..k.IndexOf('/')]).ToList();
+            .Select(k => k.Replace('/', ' ')).ToList();
     }
 
     [AvaloniaFact]
