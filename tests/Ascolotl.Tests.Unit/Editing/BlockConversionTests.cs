@@ -26,6 +26,9 @@ public class BlockConversionTests
     [InlineData("NOTE: Words.", BlockKind.Heading1, false, "= Words.")]
     [InlineData("One\ntwo", BlockKind.Heading2, false, "== One two")] // a heading holds one line
     [InlineData("One\r\ntwo", BlockKind.BulletedList, false, "* One\r\n* two")]
+    [InlineData("[TOC]", BlockKind.BulletedList, true, "- [TOC]")]
+    [InlineData("[Home][home]\nand more", BlockKind.Quote, true, "> [Home][home]\n> and more")]
+    [InlineData("[x]", BlockKind.Paragraph, false, "[x]")]
     public void TurnInto_KeepsTheWords_SwapsTheMarkers(string block, BlockKind kind, bool markdown, string expected) =>
         Assert.Equal(expected, BlockConversion.TurnInto(block, kind, markdown));
 }

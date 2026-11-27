@@ -30,7 +30,8 @@ no Ruby and no Java.
   opened from Explorer or the command line: the page to read, with no edit
   outline and no spelling marks. Text is selected with the mouse as in a word
   processor, across paragraphs and table cells (`Shift`+click extends it, a
-  double-click takes a word, `Ctrl+A` all), and copied formatted; `Enter`, or
+  double-click takes a word, `Ctrl+A` all), and copied formatted; web and mail
+  links open in the browser or mail program; `Enter`, or
   Edit block in the right-click menu, edits a block. Click a rendered block to edit its source in
   place (in Split, the source pane jumps there too), then apply with
   `Ctrl+Enter` or cancel with `Esc`. The source text stays the single source of
@@ -85,7 +86,7 @@ no Ruby and no Java.
 - **Tabs and session restore:** reopen a closed tab, and come back to the tab
   you were on, each tab in its view and where it was scrolled. Unsaved work is
   recovered after a crash.
-- **Light, dark or system theme**, with zoom and word wrap for each pane.
+- **Light, dark or system theme**, with zoom for each pane and word wrap for the source.
 - **English, French, German, Italian or Spanish** interface, following the system language by
   default (View → Language).
 
@@ -184,7 +185,7 @@ On the WYSIWYG page (and the page in Split), one block at a time has the keyboar
 | New paragraph after the block | `Ctrl+Shift+N` |
 | Turn the block into a heading, list, quote, code block… | `Ctrl+/` (where `/` is `Shift+7`: `Ctrl+Shift+7`) |
 | Heading level 1 to 6 / back to a paragraph (also in the source) | `Ctrl+Shift+1`…`6` / `Ctrl+Shift+0` |
-| Undo / redo | `Ctrl+Z` / `Ctrl+Y` |
+| Undo / redo (also in the Edit menu; a new paragraph and its text are one step) | `Ctrl+Z` / `Ctrl+Y` or `Ctrl+Shift+Z` |
 | Find on the page (next / previous: `Enter` or `F3` / with `Shift`) | `Ctrl+F` |
 | Leave the page | `Tab` / `Shift+Tab` |
 

@@ -16,39 +16,61 @@ namespace Ascolotl.Core.Editing;
 public static class TableStructure
 {
     /// <summary>
-    /// Adjust a <c>[cols="…"]</c> attribute line by <paramref name="delta"/>
-    /// columns: appends <c>,1</c> specs when growing, drops trailing specs when
-    /// shrinking. Returns null when the line isn't a recognised cols attribute
-    /// (the caller then leaves it alone — AsciiDoc infers columns from the
-    /// first row when no spec is present).
+    /// An attribute line with its <c>cols</c> value following a column inserted
+    /// (<paramref name="delta"/> 1) or deleted (-1) at <paramref name="column"/>: a count changes
+    /// by one; a spec list gets a <c>1</c> there or loses that column's spec, with its
+    /// <c>N*</c> repeats written out. The rest of the line stays as it was. Null when the line
+    /// has no <c>cols</c> value.
     /// </summary>
-    public static string? AdjustColsAttribute(string attrLine, int delta)
+    public static string? AdjustColsAttribute(string attrLine, int column, int delta)
     {
-        var trimmed = attrLine.Trim();
-        // Accept [cols="1,1"] or [cols=2] etc.
-        if (!trimmed.StartsWith("[cols=", StringComparison.OrdinalIgnoreCase)
-            || !trimmed.EndsWith("]", StringComparison.Ordinal))
-            return null;
+        if (ColsValue(attrLine) is not var (start, length)) return null;
+        var value = attrLine.Substring(start, length);
+        if (value.Trim().Length == 0) return null;
 
-        var inner = trimmed["[cols=".Length..^1].Trim().Trim('"');
-
-        // Numeric form: [cols=3] → just change the number.
-        if (int.TryParse(inner, out var count))
+        string updated;
+        if (int.TryParse(value.Trim(), out var count))
+            updated = Math.Max(1, count + delta).ToString(System.Globalization.CultureInfo.InvariantCulture);
+        else
         {
-            var newCount = Math.Max(1, count + delta);
-            return $"[cols={newCount}]";
+            var specs = new List<string>();
+            foreach (var entry in value.Split(','))
+            {
+                var spec = entry.Trim();
+                var star = spec.IndexOf('*');
+                if (star > 0 && int.TryParse(spec[..star], out var times))
+                    specs.AddRange(Enumerable.Repeat(star + 1 < spec.Length ? spec[(star + 1)..] : "1", times));
+                else
+                    specs.Add(entry);
+            }
+            if (delta > 0) specs.Insert(Math.Clamp(column, 0, specs.Count), "1");
+            else if (delta < 0 && specs.Count > 1) specs.RemoveAt(Math.Clamp(column, 0, specs.Count - 1));
+            updated = string.Join(",", specs);
         }
+        return attrLine[..start] + updated + attrLine[(start + length)..];
+    }
 
-        var specs = inner.Split(',', StringSplitOptions.RemoveEmptyEntries)
-            .Select(s => s.Trim()).ToList();
-        if (specs.Count == 0) return null;
+    /// <summary>An attribute line, such as <c>[%header,cols="1,2"]</c>, that has a <c>cols</c> value.</summary>
+    public static bool DeclaresCols(string line) =>
+        line.TrimStart().StartsWith('[') && ColsValue(line) is not null;
 
-        if (delta > 0)
-            specs.AddRange(Enumerable.Repeat("1", delta));
-        else if (delta < 0)
-            specs = specs.Take(Math.Max(1, specs.Count + delta)).ToList();
-
-        return $"[cols=\"{string.Join(",", specs)}\"]";
+    /// <summary>Where the <c>cols</c> value is in an attribute line, inside its quotes if quoted.</summary>
+    private static (int Start, int Length)? ColsValue(string line)
+    {
+        for (var at = line.IndexOf("cols=", StringComparison.OrdinalIgnoreCase); at >= 0;
+             at = line.IndexOf("cols=", at + 1, StringComparison.OrdinalIgnoreCase))
+        {
+            if (at > 0 && line[at - 1] is not ('[' or ',' or ' ' or '\t')) continue;
+            var start = at + 5;
+            if (start < line.Length && line[start] is '"' or '\'')
+            {
+                var close = line.IndexOf(line[start], start + 1);
+                return close < 0 ? null : (start + 1, close - start - 1);
+            }
+            var end = line.IndexOfAny([',', ']'], start);
+            return end < 0 ? null : (start, end - start);
+        }
+        return null;
     }
 
     /// <summary>A <c>[cols="1,3"]</c> line with the specs of columns <paramref name="a"/> and

@@ -116,6 +116,8 @@ public partial class PreviewView : UserControl
     private Control? _frozenEditSlot;
     // Guards a single subscription to the shared renderer's LinkClicked.
     private static bool _linkHandlerWired;
+    // The view whose links open: the renderer is shared, its event is not per view.
+    private static PreviewView? _linkView;
 
     // In-flight block-WYSIWYG edit: the rendered block visual has been
     // swapped for an in-place source editor. Null when not editing.
@@ -201,12 +203,18 @@ public partial class PreviewView : UserControl
         // OS-shell navigation while editing — a stray click on a link in
         // the preview shouldn't yank the user into a browser. The
         // click-to-source handler still runs and moves the editor caret to
-        // the link's source. Wired once: the renderer is shared/static, so
-        // multiple PreviewView instances must not each add a handler.
+        // the link's source. In Read view the link opens. Wired once: the
+        // renderer is shared/static, so multiple PreviewView instances must
+        // not each add a handler.
+        _linkView = this;
         if (!_linkHandlerWired)
         {
             _linkHandlerWired = true;
-            _avaloniaRenderer.LinkClicked += (_, args) => args.Handled = true;
+            _avaloniaRenderer.LinkClicked += (_, args) =>
+            {
+                args.Handled = true;
+                if (_linkView is { Reading: true } view) view.OpenLink(args.Url);
+            };
         }
 
         if (Application.Current is not null)
@@ -331,6 +339,18 @@ public partial class PreviewView : UserControl
     }
 
     private bool Reading => _mainVm?.EditorMode == EditorMode.Read;
+
+    /// <summary>Opens a web or mail link in the system's browser or mail program; any other link
+    /// (a file, another program's scheme, an anchor in the page) stays shut.</summary>
+    private void OpenLink(string url)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https" or "mailto")) return;
+        if (LinkOpener is { } open) open(uri);
+        else _ = TopLevel.GetTopLevel(this)?.Launcher.LaunchUriAsync(uri);
+    }
+
+    /// <summary>Opens links instead of the system's launcher (tests).</summary>
+    internal Action<Uri>? LinkOpener { get; set; }
 
     /// <summary>Read view: the keys scroll, select and copy; Enter or F2 edits the first block in view, in WYSIWYG.</summary>
     private bool ReadingKey(KeyEventArgs e, KeyModifiers mods)
@@ -543,13 +563,15 @@ public partial class PreviewView : UserControl
     {
         var query = FindBar.IsVisible ? FindBox.Text ?? "" : "";
         var matches = new List<(TextBlock, int, int)>();
-        if (query.Length > 0 && _renderedRoot is not null)
-            foreach (var text in _renderedRoot.GetVisualDescendants().OfType<TextBlock>())
+        var paged = _mainVm?.PagePreview == true;
+        if (query.Length > 0 && (paged ? Shown : _renderedRoot) is { } root)
+            foreach (var text in root.GetVisualDescendants().OfType<TextBlock>())
             {
                 var shown = PageSpelling.ShownText(text);
                 for (var i = shown.IndexOf(query, StringComparison.OrdinalIgnoreCase); i >= 0;
                      i = shown.IndexOf(query, i + query.Length, StringComparison.OrdinalIgnoreCase))
-                    matches.Add((text, i, query.Length));
+                    if (!paged || OnItsPage(text, i, query.Length, root))
+                        matches.Add((text, i, query.Length));
             }
         _findMatches = matches;
         _findIndex = matches.Count == 0 ? -1
@@ -558,6 +580,18 @@ public partial class PreviewView : UserControl
         ShowFindCount(query);
         PlaceFindMarks();
         if (!keepPlace) BringMatchIntoView();
+    }
+
+    /// <summary>A Page Preview match on the part of the page that shows it: a block cut by a page
+    /// break is on both pages, each clipped to its own part.</summary>
+    private static bool OnItsPage(TextBlock text, int start, int length, Visual root)
+    {
+        if (text.TextLayout.HitTestTextRange(start, length).FirstOrDefault() is not { Width: > 0 } range) return false;
+        var center = range.Center + new Vector(text.Padding.Left, text.Padding.Top);
+        foreach (var clip in text.GetVisualAncestors().TakeWhile(a => a != root).OfType<Control>().Where(c => c.ClipToBounds))
+            if (text.TranslatePoint(center, clip) is not { } p || !new Rect(clip.Bounds.Size).Contains(p))
+                return false;
+        return true;
     }
 
     private void FindStep(int step)
@@ -848,6 +882,7 @@ public partial class PreviewView : UserControl
         // rebuilds the block map and ConsumeReentry opens the new paragraph.
         _selectAllOnNextEdit = true;
         _pendingReentry = (0, -1, -1, false);
+        _newParagraph = (_doc.SourceText, BlockSnippets.Paragraph, 0, _doc.IsDirty);
         _doc.SourceText = BlockSnippets.Paragraph;
     }
 
@@ -891,8 +926,7 @@ public partial class PreviewView : UserControl
             // A view where the page isn't edited, Read or Source: an open block applies and closes, as on a click away.
             if (_activeEdit is not null && _mainVm?.EditorMode is EditorMode.Read or EditorMode.Source) CommitBlockEdit();
         }
-        if (e.PropertyName is nameof(MainWindowViewModel.PreviewWordWrap)
-                or nameof(MainWindowViewModel.PagePreview)
+        if (e.PropertyName is nameof(MainWindowViewModel.PagePreview)
                 or nameof(MainWindowViewModel.StylePath)
                 or nameof(MainWindowViewModel.PreviewFitWidth)
             && _doc is not null)
@@ -929,6 +963,7 @@ public partial class PreviewView : UserControl
 
         _doc = DataContext as DocumentViewModel;
         _current = 0; // the outgoing document's block: this one starts at its first block in view
+        _selectAnchor = -1;
 
         if (_doc is not null)
         {
@@ -1376,8 +1411,9 @@ public partial class PreviewView : UserControl
             // preview, NOT a user scroll — suppress reverse-sync so the
             // resulting offset change doesn't bounce back and yank the
             // editor (toward the error line, where a parse error truncates
-            // the line-map and any stray sync resolves).
-            if (_lastSyncTotal > 0)
+            // the line-map and any stray sync resolves). Split only: elsewhere
+            // the source doesn't drive the page, and its last position is old.
+            if (_lastSyncTotal > 0 && _mainVm?.EditorMode == EditorMode.Split)
             {
                 SuppressReverseSync = true;
                 SyncToSourceLine(_lastSyncLine, _lastSyncFrac, _lastSyncTotal, _lastSyncToEnd);
@@ -2226,14 +2262,16 @@ public partial class PreviewView : UserControl
         }
         else if (after.Length == 0)
         {
+            var end = edit.Start + AsInDocument(text).Length;
             CommitBlockEdit();
-            OpenNewParagraph(edit.Start + text.Length);
+            OpenNewParagraph(end);
         }
         else
         {
+            var second = edit.Start + AsInDocument(before + "\n\n").Length;
             edit.Editor.Text = before + "\n\n" + after;
             CommitBlockEdit();
-            _pendingReentry = (edit.Start + before.Length + 2, -1, -1, false); // in the split text: not shifted by the commit
+            _pendingReentry = (second, -1, -1, false); // in the split text: not shifted by the commit
         }
         return true;
     }
@@ -2253,7 +2291,7 @@ public partial class PreviewView : UserControl
             || above + aboveLength > edit.Start
             || !_doc.SourceText.AsSpan(above + aboveLength, edit.Start - above - aboveLength).IsWhiteSpace())
             return false;
-        var typed = edit.Editor.Text;
+        var typed = AsInDocument(edit.Editor.Text);
         CommitBlockEdit();
         var text = _doc.SourceText;
         if (!text.AsSpan(edit.Start).StartsWith(typed)) return true; // not applied: nothing to join
@@ -2377,6 +2415,11 @@ public partial class PreviewView : UserControl
         });
     }
 
+    /// <summary>A block editor's text as the commit writes it: an editor of one line breaks lines
+    /// the system's way, the document its own.</summary>
+    private string AsInDocument(string editorText) =>
+        editorText.ReplaceLineEndings(_doc?.SourceText.Contains("\r\n") == true ? "\r\n" : "\n");
+
     private void CommitBlockEdit()
     {
         var edit = _activeEdit;
@@ -2387,8 +2430,7 @@ public partial class PreviewView : UserControl
         edit.Host.LostFocus -= OnBlockEditLostFocus;
         _activeEdit = null;
 
-        // An editor of one line breaks lines the system's way: here, the document's.
-        var newSlice = edit.Editor.Text.ReplaceLineEndings(_doc.SourceText.Contains("\r\n") ? "\r\n" : "\n");
+        var newSlice = AsInDocument(edit.Editor.Text);
         var (action, s, len) = BlockSourceEditing.DecideCommit(
             _doc.SourceText, edit.Start, edit.Length, edit.OriginalSlice, newSlice);
 
@@ -2400,7 +2442,9 @@ public partial class PreviewView : UserControl
             _frozenEditSlot = _renderedRoot is Panel panel
                 ? edit.Host.GetSelfAndVisualAncestors().OfType<Control>().FirstOrDefault(c => c.GetVisualParent() == panel)
                 : null;
-            _doc.SourceText = _doc.SourceText.Remove(s, len).Insert(s, newSlice);
+            // A new paragraph's text: one undo step with the paragraph.
+            _doc.ChangeSource(_doc.SourceText.Remove(s, len).Insert(s, newSlice),
+                edit.NewParagraph is null ? UndoJoin.NewStep : UndoJoin.WithLastStep);
             if (_mainVm is not null) _mainVm.StatusText = Strings.StatusBlockUpdated;
             _rebuildPending = false; // the splice's own re-render rebuilds the panel
 
@@ -2493,7 +2537,7 @@ public partial class PreviewView : UserControl
     private bool TableEditAtCell(TableOp op)
     {
         if (_activeEdit is not { } edit || _doc is null) return false;
-        var typed = edit.Editor.Text;
+        var typed = AsInDocument(edit.Editor.Text);
         CommitBlockEdit(); // the splice starts where the cell's text did
         // A commit refused because the text changed meanwhile leaves the offset stale.
         var at = _doc.SourceText.AsSpan(Math.Min(edit.Start, _doc.SourceText.Length));
@@ -2531,7 +2575,7 @@ public partial class PreviewView : UserControl
         if (edit.NewParagraph is { } added && _doc is not null && _doc.SourceText == edit.SourceAtOpen)
         {
             _current = Math.Max(0, _current - 1);
-            _doc.SourceText = added.Before;
+            _doc.ChangeSource(added.Before, UndoJoin.UndoesLastStep);
             _doc.IsDirty = added.WasDirty;
         }
         if (_mainVm is not null) _mainVm.StatusText = Strings.StatusEditCancelled;
@@ -2808,7 +2852,7 @@ public partial class PreviewView : UserControl
                     var rowMenu = new MenuItem { Header = Strings.MenuRow };
                     rowMenu.ItemsSource = new List<Control>
                     {
-                        Cmd(Strings.MenuInsertAbove, () => GridTableOp(table, g => g.InsertRow(r, below: false), 0, Strings.StatusRowInserted)),
+                        Cmd(Strings.MenuInsertAbove, () => GridTableOp(table, g => g.InsertRow(r, below: false, table.HasHeader), 0, Strings.StatusRowInserted)),
                         Cmd(Strings.MenuInsertBelow, () => GridTableOp(table, g => g.InsertRow(r, below: true), 0, Strings.StatusRowInserted)),
                         Cmd(Strings.MenuDeleteRow, () => GridTableOp(table, g => g.DeleteRow(r), 0, Strings.StatusRowDeleted)),
                     }.Concat(at is int a1 ? RowMoves(a1) : []).ToList();
@@ -3124,7 +3168,7 @@ public partial class PreviewView : UserControl
                 lines.InsertRange(open + 1, newBody);
 
                 if (colDelta != 0 && colsLine is int cl && cl < lines.Count
-                    && TableStructure.AdjustColsAttribute(lines[cl], colDelta) is string adj)
+                    && TableStructure.AdjustColsAttribute(lines[cl], grid.EditedColumn, colDelta) is string adj)
                     lines[cl] = adj;
 
                 status = okStatus;
@@ -3152,7 +3196,7 @@ public partial class PreviewView : UserControl
         for (var i = tableStart - 1; i >= 0 && i >= tableStart - 3; i--)
         {
             var ln = lines[i].Trim();
-            if (ln.StartsWith("[cols=", StringComparison.OrdinalIgnoreCase)) return i;
+            if (TableStructure.DeclaresCols(ln)) return i;
             if (ln.Length == 0) break;                       // blank line → previous block
             if (!ln.StartsWith('[') && !ln.StartsWith('.')) break; // not an attribute/title
         }

@@ -50,7 +50,7 @@ public static class ProjectTreeBuilder
 
                 var existing = children.FirstOrDefault(n =>
                     n.IsDirectory == isDir
-                    && string.Equals(n.Name, parts[i], StringComparison.OrdinalIgnoreCase));
+                    && string.Equals(n.Name, parts[i], Services.FilePaths.Comparison));
                 if (existing is null)
                 {
                     existing = new ProjectNode { Name = parts[i], FullPath = current, IsDirectory = isDir };

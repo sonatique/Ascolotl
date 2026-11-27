@@ -99,18 +99,22 @@ public sealed class WebsiteExportService : IWebsiteExportService
 
     /// <summary>
     /// Copies the files pages refer to (images, downloads…): everything in the
-    /// project except its documents, dot-folders (.git…) and the output folder.
+    /// project except its documents, dot-folders (.git…) and an output folder inside it.
+    /// Nothing when the output folder is the project's: the files are already beside the pages.
     /// </summary>
     private static void CopyProjectFiles(string projectRoot, string outputFolder, CancellationToken cancellationToken)
     {
+        var root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(projectRoot)) + Path.DirectorySeparatorChar;
         var output = Path.TrimEndingDirectorySeparator(Path.GetFullPath(outputFolder)) + Path.DirectorySeparatorChar;
+        if (output.Equals(root, FilePaths.Comparison)) return;
+        var outputInProject = output.StartsWith(root, FilePaths.Comparison);
         // Links are skipped: one in a cloned repo can point at ~/.ssh or anything else.
         var everyRealFile = new EnumerationOptions { RecurseSubdirectories = true, AttributesToSkip = FileAttributes.ReparsePoint };
         foreach (var file in Directory.EnumerateFiles(projectRoot, "*", everyRealFile))
         {
             cancellationToken.ThrowIfCancellationRequested();
             var rel = Path.GetRelativePath(projectRoot, file);
-            if (Path.GetFullPath(file).StartsWith(output, StringComparison.OrdinalIgnoreCase)
+            if (outputInProject && Path.GetFullPath(file).StartsWith(output, FilePaths.Comparison)
                 || rel.Split('/', '\\').Any(p => p.StartsWith('.'))
                 || Path.GetExtension(rel).ToLowerInvariant() is ".adoc" or ".asciidoc"
                 || MarkdownFile.Is(rel))

@@ -15,11 +15,34 @@ public static class Diagrams
     /// <summary>Turns diagram blocks into images; null while diagrams are off.</summary>
     public static DiagramPass? Pass { get; private set; }
 
-    private static string CacheFolder => Path.Combine(
+    /// <summary>Where the drawn images are kept.</summary>
+    public static string CacheFolder => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create),
         "Ascolotl", "diagrams");
 
-    public static void Configure(DiagramMode mode, string? krokiServer = null) => Pass = mode switch
+    public static void Configure(DiagramMode mode, string? krokiServer = null) => Pass = Renderer(mode, krokiServer);
+
+    /// <summary>Cleans the cache off the UI thread; once at startup.</summary>
+    public static void CleanCacheInBackground() => Task.Run(() => CleanCache(CacheFolder, TimeSpan.FromDays(30)));
+
+    /// <summary>Deletes the images and tool inputs not written for <paramref name="age"/>: each version of
+    /// a diagram, as it is edited, leaves its own. One still shown is drawn again.</summary>
+    internal static void CleanCache(string folder, TimeSpan age)
+    {
+        try
+        {
+            var cutoff = DateTime.UtcNow - age;
+            foreach (var file in Directory.EnumerateFiles(folder))
+                if (File.GetLastWriteTimeUtc(file) < cutoff)
+                    try { File.Delete(file); } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // no cache yet, or not readable: nothing to clean
+        }
+    }
+
+    private static DiagramPass? Renderer(DiagramMode mode, string? krokiServer) => mode switch
     {
         DiagramMode.LocalTools => new DiagramPass(LocalTools(), CacheFolder),
         DiagramMode.Kroki => new DiagramPass(

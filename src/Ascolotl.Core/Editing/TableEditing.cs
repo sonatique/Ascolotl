@@ -91,7 +91,7 @@ public static class TableEditing
         // A [cols=…] line just above the fence sets the width and follows column edits.
         int? colsLine = null;
         for (var i = open - 1; i >= Math.Max(0, open - 3) && lines[i].Trim().Length > 0; i--)
-            if (lines[i].TrimStart().StartsWith("[cols=", StringComparison.OrdinalIgnoreCase)) { colsLine = i; break; }
+            if (TableStructure.DeclaresCols(lines[i])) { colsLine = i; break; }
 
         var grid = TableGrid.Parse(body, colsLine is int cl ? ColsCount(lines[cl]) : null);
         if (grid is null) return null;
@@ -111,7 +111,7 @@ public static class TableEditing
             TableOp.MoveColumnRight => (grid.MoveColumn(row, cell, +1), 0, row, cell + 1),
             TableOp.SortAscending => (grid.SortRows(row, cell, descending: false, header), 0, row, cell),
             TableOp.SortDescending => (grid.SortRows(row, cell, descending: true, header), 0, row, cell),
-            TableOp.RowAbove => (grid.InsertRow(row, below: false), 0, row, 0),
+            TableOp.RowAbove => (grid.InsertRow(row, below: false, header), 0, row, 0),
             TableOp.RowBelow => (grid.InsertRow(row, below: true), 0, row + 1, 0),
             TableOp.DeleteRow => (grid.DeleteRow(row), 0, Math.Max(0, row - 1), 0),
             TableOp.ColumnLeft => (grid.InsertColumn(row, cell, right: false), 1, row, cell),
@@ -127,7 +127,7 @@ public static class TableEditing
         var newLines = new List<string>();
         for (var i = first; i <= open; i++)
             newLines.Add(i != colsLine ? lines[i]
-                : colDelta != 0 ? TableStructure.AdjustColsAttribute(lines[i], colDelta) ?? lines[i]
+                : colDelta != 0 ? TableStructure.AdjustColsAttribute(lines[i], grid.EditedColumn, colDelta) ?? lines[i]
                 : op is TableOp.MoveColumnLeft or TableOp.MoveColumnRight ? TableStructure.SwapColsSpecs(lines[i], cell, toCell)
                 : lines[i]);
         var bodyAt = newLines.Count;
@@ -238,15 +238,17 @@ public static class TableEditing
                 return null;
         }
 
-        // Written back aligned: every column as wide as its widest cell.
+        // Written back aligned: every column as wide as its widest cell, indented as the header was
+        // (in a list item, say).
         var count = rows[0].Count;
         var widths = Enumerable.Range(0, count).Select(c => Math.Max(3, rows.Max(r => r[c].Length))).ToArray();
-        string Write(IEnumerable<string> cells) => "| " + string.Join(" | ", cells) + " |";
+        var indent = lines[first][..^lines[first].TrimStart().Length];
+        string Write(IEnumerable<string> cells) => indent + "| " + string.Join(" | ", cells) + " |";
         var newLines = rows.Select(r => Write(r.Select((t, c) => t.PadRight(widths[c])))).ToList();
         newLines.Insert(1, Write(align.Take(count).Select((a, c) => Dashes(a, widths[c]))));
 
         var target = toRow == 0 ? 0 : toRow + 1;
-        var offset = 2 + widths.Take(toCell).Sum(w => w + 3);
+        var offset = indent.Length + 2 + widths.Take(toCell).Sum(w => w + 3);
         return Replace(lines, first, last, newLines, target, offset);
     }
 

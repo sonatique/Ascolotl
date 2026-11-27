@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace Ascolotl.Core.Editing;
 
 /// <summary>One cell of a <see cref="TableGrid"/> — its content plus span.</summary>
@@ -23,10 +25,13 @@ public sealed class TableCell
 /// <see cref="Parse"/> returns null for those so the caller can fall back to
 /// editing the table source directly.</para>
 /// </summary>
-public sealed class TableGrid
+public sealed partial class TableGrid
 {
     /// <summary>Total logical columns.</summary>
     public int ColumnCount { get; private set; }
+
+    /// <summary>The column the last <see cref="InsertColumn"/> added or <see cref="DeleteColumn"/> removed.</summary>
+    public int EditedColumn { get; private set; }
 
     /// <summary>Explicit (anchor) cells per source row, in source order.</summary>
     public List<List<TableCell>> Rows { get; } = new();
@@ -94,16 +99,16 @@ public sealed class TableGrid
         if (pipes.Count == 0) return null;
 
         // Anything before the first cell's spec must be whitespace.
-        if (line[..SpecStart(line, pipes[0])].Trim().Length != 0) return null;
+        if (line[..SpecStart(line, 0, pipes[0])].Trim().Length != 0) return null;
 
         var cells = new List<TableCell>();
         for (var j = 0; j < pipes.Count; j++)
         {
             var p = pipes[j];
-            var specStr = line[SpecStart(line, p)..p];
+            var specStr = line[SpecStart(line, j == 0 ? 0 : pipes[j - 1] + 1, p)..p];
             if (specStr.Contains('*')) return null; // multiplier — unsupported
 
-            var contentEnd = j + 1 < pipes.Count ? SpecStart(line, pipes[j + 1]) : line.Length;
+            var contentEnd = j + 1 < pipes.Count ? SpecStart(line, p + 1, pipes[j + 1]) : line.Length;
             var content = line[(p + 1)..contentEnd].Trim();
 
             if (!TryParseSpec(specStr, out var col, out var row, out var extra))
@@ -114,20 +119,19 @@ public sealed class TableGrid
         return cells;
     }
 
-    /// <summary>Start index of the spec run immediately before pipe at
-    /// <paramref name="p"/> — back over spec characters to whitespace, line start
-    /// or a previous pipe.</summary>
-    private static int SpecStart(string line, int p)
+    /// <summary>Start index of the spec immediately before the pipe at <paramref name="p"/>, in the
+    /// segment starting at <paramref name="from"/>; <paramref name="p"/> when there is none. As AdocNet
+    /// reads it, a spec fills the segment or follows whitespace: in <c>|1|2</c> or <c>| Version 2|</c>
+    /// the text before the pipe is content.</summary>
+    private static int SpecStart(string line, int from, int p)
     {
-        var i = p;
-        while (i > 0 && !char.IsWhiteSpace(line[i - 1]) && line[i - 1] != '|' && IsSpecChar(line[i - 1]))
-            i--;
-        return i;
+        var m = CellSpec().Match(line, from, p - from);
+        return m.Success ? m.Index : p;
     }
 
-    private static bool IsSpecChar(char c) =>
-        char.IsDigit(c) || c is '.' or '+' or '*' or '<' or '^' or '>'
-        || c is 'a' or 'd' or 'e' or 'h' or 'l' or 'm' or 's' or 'v';
+    // [span or multiplier][alignment][style], ending at the pipe.
+    [GeneratedRegex(@"(?:^|(?<=\s))(?:(?:\d+(?:\.\d*)?|(?:\d*\.)?\d+)[*+])?(?:[<^>](?:\.[<^>]?)?|(?:[<^>]?\.)?[<^>])?[adehlmsv]?$")]
+    private static partial Regex CellSpec();
 
     /// <summary>Parse a cell spec into col/row span plus the preserved
     /// alignment/style remainder. Returns false only when the run looks like a
@@ -219,7 +223,9 @@ public sealed class TableGrid
         if (!Valid(row, cell) || cell + 1 >= Rows[row].Count) return false;
         var a = Rows[row][cell];
         var b = Rows[row][cell + 1];
-        if (a.RowSpan != b.RowSpan) return false;
+        // Beside it on the grid: a row span from above may hold the columns between.
+        var (logicalCol, _, _) = BuildLayout();
+        if (a.RowSpan != b.RowSpan || logicalCol[row][cell + 1] != logicalCol[row][cell] + a.ColSpan) return false;
         a.ColSpan += b.ColSpan;
         Rows[row].RemoveAt(cell + 1);
         return true;
@@ -284,10 +290,11 @@ public sealed class TableGrid
 
     /// <summary>Insert a blank row above or below the given row, extending any
     /// row-spanning cell that crosses the new boundary instead of placing a cell
-    /// in its columns.</summary>
-    public bool InsertRow(int row, bool below)
+    /// in its columns. Never above the header row (a <paramref name="header"/>
+    /// option, or a blank line after row 0).</summary>
+    public bool InsertRow(int row, bool below, bool header = false)
     {
-        if (row < 0 || row >= Rows.Count) return false;
+        if (row < 0 || row >= Rows.Count || (row == 0 && !below && (header || _headerSeparated))) return false;
         var (_, owner, anchorRow) = BuildLayout();
         var ri = below ? row + 1 : row;
 
@@ -361,6 +368,7 @@ public sealed class TableGrid
         var at = LogicalColNoRowSpan(row, cell) + (right ? Rows[row][cell].ColSpan : 0);
         foreach (var r in Rows) InsertColInRow(r, at);
         ColumnCount += 1;
+        EditedColumn = at;
         return true;
     }
 
@@ -372,6 +380,7 @@ public sealed class TableGrid
         var at = LogicalColNoRowSpan(row, cell);
         foreach (var r in Rows) DeleteColInRow(r, at);
         ColumnCount -= 1;
+        EditedColumn = at;
         return true;
     }
 

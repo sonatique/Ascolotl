@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO.Enumeration;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Ascolotl.Core.Editing;
@@ -63,9 +64,6 @@ public partial class MainWindowViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _editorWordWrap = false;
-
-    [ObservableProperty]
-    private bool _previewWordWrap = true;
 
     /// <summary>Print-like page preview: the preview pane flows content into
     /// fixed A4 pages (matching the PDF export's geometry) instead of a
@@ -205,6 +203,15 @@ public partial class MainWindowViewModel : ObservableObject
     public IReadOnlyList<ShortcutGroup> KeyboardShortcuts => ShortcutGroup.For(CommandPalette.AllCommands);
 
     public event Action? KeyboardShortcutsRequested;
+
+    /// <summary>Undo (false) or redo (true) asked from the menu or the palette, for the view's editor.</summary>
+    public event Action<bool>? UndoRequested;
+
+    [RelayCommand]
+    private void Undo() => UndoRequested?.Invoke(false);
+
+    [RelayCommand]
+    private void Redo() => UndoRequested?.Invoke(true);
 
     [RelayCommand]
     private void ShowKeyboardShortcuts() => KeyboardShortcutsRequested?.Invoke();
@@ -363,7 +370,7 @@ public partial class MainWindowViewModel : ObservableObject
             doc.DisplayName = entry.DisplayName;
             doc.SourceText = sourceText;
             doc.EndLoad();
-            doc.IsDirty = true; // Recovered docs are dirty
+            doc.MarkUnsaved(); // Recovered docs are dirty
 
             // The write time the edits were based on, so the first save flags
             // changes made to the file while the app was down. Older manifests
@@ -371,13 +378,18 @@ public partial class MainWindowViewModel : ObservableObject
             doc.LastKnownWriteTime = entry.FileWriteTime;
             if (doc.LastKnownWriteTime is null && entry.OriginalFilePath is not null)
             {
-                try { doc.LastKnownWriteTime = File.GetLastWriteTimeUtc(entry.OriginalFilePath); }
+                try { doc.LastKnownWriteTime = TextFile.WriteTime(entry.OriginalFilePath); }
                 catch { /* file may be gone — conflict check will be skipped */ }
             }
             // Save back in the file's own encoding (BOM, UTF-16, 1252), not plain UTF-8.
             if (entry.OriginalFilePath is not null)
             {
-                try { doc.FileEncoding = TextFile.Read(entry.OriginalFilePath).Encoding; }
+                try
+                {
+                    var original = TextFile.Read(entry.OriginalFilePath);
+                    doc.FileEncoding = original.Encoding;
+                    doc.FileNewLine = TextFile.NewLineOf(original.Text);
+                }
                 catch { /* gone or unreadable: UTF-8 */ }
             }
 
@@ -417,7 +429,7 @@ public partial class MainWindowViewModel : ObservableObject
                 try
                 {
                     var content = TextFile.Read(sessionDoc.FilePath);
-                    var writeTime = File.GetLastWriteTimeUtc(sessionDoc.FilePath);
+                    var writeTime = TextFile.WriteTime(sessionDoc.FilePath);
                     results.Add((sessionDoc, content, writeTime));
                 }
                 catch (Exception ex)
@@ -432,7 +444,7 @@ public partial class MainWindowViewModel : ObservableObject
         foreach (var (sessionDoc, content, writeTime) in loaded)
         {
             // Skip if already open (e.g. from recovery)
-            if (Documents.Any(d => string.Equals(d.FilePath, sessionDoc.FilePath, StringComparison.OrdinalIgnoreCase)))
+            if (Documents.Any(d => FilePaths.Same(d.FilePath, sessionDoc.FilePath)))
                 continue;
 
             var doc = new DocumentViewModel { DocumentId = sessionDoc.DocumentId };
@@ -444,6 +456,7 @@ public partial class MainWindowViewModel : ObservableObject
             doc.MarkClean();
             doc.LastKnownWriteTime = writeTime;
             doc.FileEncoding = content.Encoding;
+            doc.FileNewLine = TextFile.NewLineOf(content.Text);
             doc.TopLine = sessionDoc.TopLine;
             if (Enum.IsDefined(sessionDoc.EditorMode)) doc.EditorMode = sessionDoc.EditorMode;
             if (sessionDoc.PageScroll is > 0 and <= 1) doc.PageScroll = sessionDoc.PageScroll;
@@ -459,7 +472,7 @@ public partial class MainWindowViewModel : ObservableObject
                 ? session.OpenDocuments[session.SelectedIndex].FilePath
                 : null;
             SelectedDocument = Documents.FirstOrDefault(
-                d => string.Equals(d.FilePath, front, StringComparison.OrdinalIgnoreCase)) ?? Documents[0];
+                d => FilePaths.Same(d.FilePath, front)) ?? Documents[0];
         }
 
         if (Documents.Count > 0)
@@ -469,9 +482,11 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
+    /// <summary>Saves the open tabs for the next start; not while startup is still opening them,
+    /// when the tabs shown are not yet the session.</summary>
     public void SaveSession()
     {
-        if (_sessionStore is null) return;
+        if (_sessionStore is null || OpeningDocuments) return;
 
         var state = new SessionState();
 
@@ -549,7 +564,7 @@ public partial class MainWindowViewModel : ObservableObject
             return;
 
         var existing = Documents.FirstOrDefault(
-            d => string.Equals(d.FilePath, path, StringComparison.OrdinalIgnoreCase));
+            d => FilePaths.Same(d.FilePath, path));
         if (existing is not null)
         {
             SelectedDocument = existing;
@@ -588,7 +603,7 @@ public partial class MainWindowViewModel : ObservableObject
             return;
 
         var existing = Documents.FirstOrDefault(
-            d => string.Equals(d.FilePath, path, StringComparison.OrdinalIgnoreCase));
+            d => FilePaths.Same(d.FilePath, path));
         if (existing is not null)
         {
             SelectedDocument = existing;
@@ -609,7 +624,7 @@ public partial class MainWindowViewModel : ObservableObject
     private void OpenDocumentFromPath(string path, FileText content, EditorMode? view = null)
     {
         var existing = Documents.FirstOrDefault(
-            d => string.Equals(d.FilePath, path, StringComparison.OrdinalIgnoreCase));
+            d => FilePaths.Same(d.FilePath, path));
         if (existing is not null)
         {
             SelectedDocument = existing;
@@ -625,9 +640,10 @@ public partial class MainWindowViewModel : ObservableObject
         doc.EndLoad();
         doc.MarkClean();
         doc.FileEncoding = content.Encoding;
+        doc.FileNewLine = TextFile.NewLineOf(content.Text);
         if (view is { } v) doc.EditorMode = v;
 
-        try { doc.LastKnownWriteTime = File.GetLastWriteTimeUtc(path); }
+        try { doc.LastKnownWriteTime = TextFile.WriteTime(path); }
         catch { /* non-critical */ }
 
         Documents.Add(doc);
@@ -823,14 +839,19 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     /// <summary>The project's documents as relative paths (capped at
-    /// <see cref="MaxProjectFiles"/> + 1 so callers can detect the cap).</summary>
+    /// <see cref="MaxProjectFiles"/> + 1 so callers can detect the cap). Folders that can't be
+    /// read are left out, and dot-folders (.git, .venv) are not walked.</summary>
     private List<string> EnumerateProjectDocuments()
     {
         if (ProjectFolderPath is null) return [];
 
-        var relative = Directory
-            .EnumerateFiles(ProjectFolderPath, "*", SearchOption.AllDirectories)
-            .Select(p => Path.GetRelativePath(ProjectFolderPath, p));
+        var root = ProjectFolderPath;
+        var everyReadableFolder = new EnumerationOptions { RecurseSubdirectories = true, IgnoreInaccessible = true, AttributesToSkip = 0 };
+        var relative = new FileSystemEnumerable<string>(root, (ref FileSystemEntry e) => Path.GetRelativePath(root, e.ToFullPath()), everyReadableFolder)
+        {
+            ShouldIncludePredicate = (ref FileSystemEntry e) => !e.IsDirectory,
+            ShouldRecursePredicate = (ref FileSystemEntry e) => !e.FileName.StartsWith('.'),
+        };
 
         return ProjectTreeBuilder.FilterDocumentPaths(relative)
             .Take(MaxProjectFiles + 1)
@@ -908,12 +929,16 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private async Task SaveAllAsync()
     {
+        var conflict = false; // its answer's status (reloaded, still unsaved) stays
         foreach (var doc in Documents.Where(d => d.IsDirty).ToList())
         {
             if (doc.FilePath is not null)
             {
                 if (await CheckFileConflictAsync(doc))
+                {
+                    conflict = true;
                     continue; // Conflict handled (reload/saveas/cancel) — skip to next
+                }
 
                 if (!await WriteDocumentAsync(doc, saveAs: false))
                     return; // Failure reported — stop Save All
@@ -931,7 +956,7 @@ public partial class MainWindowViewModel : ObservableObject
             }
         }
 
-        StatusText = Strings.StatusAllSaved;
+        if (!conflict) StatusText = Strings.StatusAllSaved;
     }
 
     /// <summary>
@@ -962,20 +987,21 @@ public partial class MainWindowViewModel : ObservableObject
         FlushPendingEdits?.Invoke();
         // Typing continues during the await: only what was written counts as saved.
         var text = doc.SourceText;
-        var encoding = TextFile.EncodingFor(text, doc.FileEncoding);
+        var written = doc.FileNewLine is { } newLine ? TextFile.WithLineEnds(text, newLine) : text;
+        var encoding = TextFile.EncodingFor(written, doc.FileEncoding);
         string? path;
         try
         {
             if (saveAs || doc.FilePath is null)
             {
-                path = await _fileService.SaveFileAsAsync(doc.DisplayName, text, encoding);
+                path = await _fileService.SaveFileAsAsync(doc.DisplayName, written, encoding);
                 if (path is null)
                     return false;
             }
             else
             {
                 path = doc.FilePath;
-                await _fileService.SaveFileAsync(path, text, encoding);
+                await _fileService.SaveFileAsync(path, written, encoding);
             }
         }
         catch (Exception ex)
@@ -1010,11 +1036,9 @@ public partial class MainWindowViewModel : ObservableObject
         doc.FileEncoding = encoding;
         doc.IsRecovered = false;
         UpdateLastKnownWriteTime(doc);
-        if (doc.SourceText == text)
-        {
-            doc.MarkClean();
+        doc.MarkSaved(text); // typed during the save: still unsaved
+        if (!doc.IsDirty)
             RemoveRecoverySnapshot(doc);
-        }
         return true;
     }
 
@@ -1029,7 +1053,7 @@ public partial class MainWindowViewModel : ObservableObject
         try
         {
             // Any other time is a change: sync tools, unzip and restores keep older times.
-            if (!File.Exists(doc.FilePath) || File.GetLastWriteTimeUtc(doc.FilePath) == doc.LastKnownWriteTime.Value)
+            if (!File.Exists(doc.FilePath) || TextFile.WriteTime(doc.FilePath) == doc.LastKnownWriteTime.Value)
                 return false;
         }
         catch
@@ -1054,6 +1078,7 @@ public partial class MainWindowViewModel : ObservableObject
                     doc.EndLoad();
                     doc.MarkClean();
                     doc.FileEncoding = content.Encoding;
+                    doc.FileNewLine = TextFile.NewLineOf(content.Text);
                     UpdateLastKnownWriteTime(doc);
                     RemoveRecoverySnapshot(doc);
                     StatusText = string.Format(Strings.StatusReloaded, doc.DisplayName);
@@ -1073,7 +1098,7 @@ public partial class MainWindowViewModel : ObservableObject
     private static void UpdateLastKnownWriteTime(DocumentViewModel doc)
     {
         if (doc.FilePath is null) return;
-        try { doc.LastKnownWriteTime = File.GetLastWriteTimeUtc(doc.FilePath); }
+        try { doc.LastKnownWriteTime = TextFile.WriteTime(doc.FilePath); }
         catch { /* non-critical */ }
     }
 
@@ -1444,9 +1469,6 @@ public partial class MainWindowViewModel : ObservableObject
     private void ToggleEditorWordWrap() => EditorWordWrap = !EditorWordWrap;
 
     [RelayCommand]
-    private void TogglePreviewWordWrap() => PreviewWordWrap = !PreviewWordWrap;
-
-    [RelayCommand]
     private void TogglePreviewFitWidth() => PreviewFitWidth = !PreviewFitWidth;
 
     // --- Outline pane ---
@@ -1557,18 +1579,24 @@ public partial class MainWindowViewModel : ObservableObject
             newValue.PropertyChanged += OnSelectedDocumentPropertyChanged;
             SyntaxReference.Follow(newValue.IsMarkdown); // an open reference shows the syntax of the document in front
             if (EditorMode != newValue.EditorMode)
-                EditorMode = newValue.EditorMode; // renders the document unless Source
-            else if (EditorMode != EditorMode.Source)
+                EditorMode = newValue.EditorMode; // renders the document
+            else
                 RequestRender(immediate: true);
+        }
+        else
+        {
+            _renderCts?.Cancel();
+            OutlineItems.Clear();
         }
     }
 
     partial void OnEditorModeChanged(EditorMode value)
     {
         if (SelectedDocument is not null)
+        {
             SelectedDocument.EditorMode = value;
-        if (value != EditorMode.Source && SelectedDocument is not null)
             RequestRender(immediate: true);
+        }
 
         OnPropertyChanged(nameof(IsSourceMode));
         OnPropertyChanged(nameof(IsSplitMode));
@@ -1594,15 +1622,15 @@ public partial class MainWindowViewModel : ObservableObject
     private void OnSelectedDocumentPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         // Saving as .md (or back) changes the parser, not the text.
-        if (e.PropertyName is nameof(DocumentViewModel.SourceText) or nameof(DocumentViewModel.IsMarkdown)
-            && EditorMode != EditorMode.Source)
+        if (e.PropertyName is nameof(DocumentViewModel.SourceText) or nameof(DocumentViewModel.IsMarkdown))
             RequestRender();
     }
 
     /// <summary>
     /// Renders the selected document. Typing waits out the debounce so each
     /// keystroke doesn't re-render; <paramref name="immediate"/> skips it for a
-    /// document just shown (startup, tab switch, mode change).
+    /// document just shown (startup, tab switch, mode change). In Source mode only
+    /// the outline and the problems follow: the page is built when it is shown.
     /// </summary>
     public void RequestRender(bool immediate = false)
     {
@@ -1634,23 +1662,25 @@ public partial class MainWindowViewModel : ObservableObject
 
             var result = await _renderService.RenderAsync(source, basePath, doc.IsMarkdown, ShowTitleAndToc, ct, ProjectFolderPath);
 
-            if (ct.IsCancellationRequested)
+            if (ct.IsCancellationRequested || doc != SelectedDocument)
+                return;
+
+            // Parser diagnostics: AdocNet 1.0.17 (Adoc.Net#67) reports these in
+            // original source coordinates, so they map straight to editor lines.
+            doc.Diagnostics = DiagnosticMapper.Map(result.Diagnostics);
+            // Outline from the same parsed AST (title + section tree), mapped
+            // back to editor lines via the render's line origins.
+            OutlineItems.Clear();
+            foreach (var item in OutlineBuilder.Build(result.Document, result.LineOrigins))
+                OutlineItems.Add(item);
+            if (EditorMode == EditorMode.Source)
                 return;
 
             // Set origins before the document so PreviewView (which reacts to
             // RenderedDocument) sees the matching line map for this render.
             doc.LineOrigins = result.LineOrigins;
             doc.RenderedSource = source;
-            // Parser diagnostics: AdocNet 1.0.17 (Adoc.Net#67) reports these in
-            // original source coordinates, so they map straight to editor lines.
-            doc.Diagnostics = DiagnosticMapper.Map(result.Diagnostics);
             doc.RenderedDocument = result.Document;
-
-            // Outline from the same parsed AST (title + section tree), mapped
-            // back to editor lines via the render's line origins.
-            OutlineItems.Clear();
-            foreach (var item in OutlineBuilder.Build(result.Document, result.LineOrigins))
-                OutlineItems.Add(item);
             doc.LastRenderSucceeded = result.IsSuccess;
             doc.RenderError = result.ErrorSummary;
 
@@ -1692,7 +1722,7 @@ public partial class MainWindowViewModel : ObservableObject
         // Remove existing entry (case-insensitive)
         for (var i = RecentFiles.Count - 1; i >= 0; i--)
         {
-            if (string.Equals(RecentFiles[i], path, StringComparison.OrdinalIgnoreCase))
+            if (FilePaths.Same(RecentFiles[i], path))
                 RecentFiles.RemoveAt(i);
         }
 
@@ -1738,6 +1768,8 @@ public partial class MainWindowViewModel : ObservableObject
             new(Strings.CommandToggleAccessiblePdf, null, Strings.CommandCategoryFile, () => ToggleAccessiblePdfCommand.Execute(null)),
             new(Strings.CommandExportAsHTMLWithStyle, null, Strings.CommandCategoryFile, () => ExportWithStyleCommand.Execute(ExportFormat.Html)),
             new(Strings.CommandExportAsEPUBWithStyle, null, Strings.CommandCategoryFile, () => ExportWithStyleCommand.Execute(ExportFormat.Epub)),
+            new(Strings.CommandUndo, "Ctrl+Z", Strings.CommandCategoryEdit, () => UndoCommand.Execute(null)),
+            new(Strings.CommandRedo, "Ctrl+Y / Ctrl+Shift+Z", Strings.CommandCategoryEdit, () => RedoCommand.Execute(null)),
             new(Strings.CommandReadMode, "Ctrl+1", Strings.CommandCategoryView, () => SetEditorModeCommand.Execute(EditorMode.Read)),
             new(Strings.CommandWYSIWYGMode, "Ctrl+2", Strings.CommandCategoryView, () => SetEditorModeCommand.Execute(EditorMode.Wysiwyg)),
             new(Strings.CommandSplitMode, "Ctrl+3", Strings.CommandCategoryView, () => SetEditorModeCommand.Execute(EditorMode.Split)),
@@ -1745,7 +1777,6 @@ public partial class MainWindowViewModel : ObservableObject
             new(Strings.CommandToggleTitleTOC, null, Strings.CommandCategoryView, () => ToggleShowTitleAndTocCommand.Execute(null)),
             new(Strings.CommandToggleSyncScrolling, null, Strings.CommandCategoryView, () => ToggleSyncScrollingCommand.Execute(null)),
             new(Strings.CommandToggleEditorWordWrap, null, Strings.CommandCategoryView, () => ToggleEditorWordWrapCommand.Execute(null)),
-            new(Strings.CommandTogglePreviewWordWrap, null, Strings.CommandCategoryView, () => TogglePreviewWordWrapCommand.Execute(null)),
             new(Strings.CommandTogglePagePreview, null, Strings.CommandCategoryView, () => TogglePagePreviewCommand.Execute(null)),
             new(Strings.CommandToggleOutlinePane, "Ctrl+Shift+L", Strings.CommandCategoryView, () => ToggleOutlinePaneCommand.Execute(null)),
             new(Strings.CommandZoomIn, "Ctrl++", Strings.CommandCategoryView, () => ZoomInCommand.Execute(null)),

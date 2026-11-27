@@ -80,6 +80,41 @@ public sealed class LocalIncludeReaderTests
         }
     }
 
+    /// <summary>Two links each inside the repository, or a link then "..", still lead out of it.</summary>
+    [Fact]
+    public void IncludesThroughChainedLinksOrDotDot_AreNotRead()
+    {
+        var top = Directory.CreateTempSubdirectory("ascolotl-chain-").FullName;
+        try
+        {
+            var repo = Directory.CreateDirectory(Path.Combine(top, "repo")).FullName;
+            Directory.CreateDirectory(Path.Combine(repo, ".git"));
+            var secret = Directory.CreateDirectory(Path.Combine(top, "secret", "deeper")).FullName;
+            File.WriteAllText(Path.Combine(top, "secret", "s.txt"), "SECRET");
+            File.WriteAllText(Path.Combine(repo, "own.txt"), "OWN");
+            try
+            {
+                Directory.CreateSymbolicLink(Path.Combine(repo, "d"), "..");          // repo/d: the folder above
+                Directory.CreateSymbolicLink(Path.Combine(repo, "k"), "d/secret");    // inside, by its name
+                Directory.CreateSymbolicLink(Path.Combine(repo, "m"), secret);        // its parent holds s.txt
+                Directory.CreateSymbolicLink(Path.Combine(repo, "same"), ".");        // a link that stays inside
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return; } // Windows without Developer Mode
+
+            var parsed = DocumentParser.Parse("= Doc\n\ninclude::k/s.txt[]\n\ninclude::m/../s.txt[]\n\ninclude::same/own.txt[]\n", false, repo);
+            using var output = new MemoryStream();
+            new AdocNet.Converters.Html.HtmlRenderer().Render(parsed.Document, output, new AdocNet.Converters.Html.HtmlRenderOptions());
+            var text = System.Text.Encoding.UTF8.GetString(output.ToArray());
+
+            Assert.DoesNotContain("SECRET", text);
+            Assert.Contains("OWN", text);
+        }
+        finally
+        {
+            Directory.Delete(top, recursive: true);
+        }
+    }
+
     [Fact]
     public async Task IncludesThatMultiply_StopAtTheBudget_AndSaySo()
     {

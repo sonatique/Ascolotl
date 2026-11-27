@@ -57,6 +57,13 @@ public class ProjectTreeBuilderTests
     }
 
     [Fact]
+    public void Build_NamesDifferingByCase_AreTwoFilesOnLinux()
+    {
+        var roots = ProjectTreeBuilder.Build("/p", ["Readme.adoc", "README.adoc"]);
+        Assert.Equal(OperatingSystem.IsLinux() ? 2 : 1, roots.Count);
+    }
+
+    [Fact]
     public void Build_MergesSharedDirectories()
     {
         var roots = ProjectTreeBuilder.Build(@"C:\p", ["docs/a.adoc", "docs/b.adoc"]);

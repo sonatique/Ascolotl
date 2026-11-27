@@ -37,6 +37,27 @@ public sealed class ScrollSyncTests
     }
 
     [AvaloniaFact]
+    public void Wysiwyg_ARender_KeepsThePageWhereItIs_NotWhereSplitLeftIt()
+    {
+        var (window, vm) = Open(Text, EditorMode.Split);
+        var editor = window.GetVisualDescendants().OfType<TextEditor>().First(e => e.IsEffectivelyVisible);
+        var source = editor.GetVisualDescendants().OfType<ScrollViewer>().First();
+        source.Offset = new Vector(0, source.Extent.Height / 2);
+        Pump(window);
+
+        vm.EditorMode = EditorMode.Wysiwyg;
+        Pump(window);
+        var preview = Preview(window).FindControl<ScrollViewer>("PreviewScroll")!;
+        preview.Offset = new Vector(0, 0);
+        Pump(window);
+        vm.SelectedDocument!.SourceText += "\nMore.\n"; // a change from the page re-renders it
+        vm.RequestRender(immediate: true);
+        Pump(window);
+
+        Assert.True(preview.Offset.Y < preview.Extent.Height / 10, $"page at {preview.Offset.Y} of {preview.Extent.Height}");
+    }
+
+    [AvaloniaFact]
     public void Split_SourceAndPreviewReachTheirEndsTogether()
     {
         // The source stops at its last line (no empty screen below it), never

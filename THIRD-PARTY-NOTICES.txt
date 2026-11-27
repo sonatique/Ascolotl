@@ -9,67 +9,67 @@ components carry themselves.
 Components
 ==============================================================================
 
-AdocNet.Ast 1.0.44
+AdocNet.Ast 1.0.47
   License: MIT
   Copyright (c) 2026 Sylvain Fasel
   https://github.com/sonatique/Adoc.Net
 
-AdocNet.Avalonia 1.0.44
+AdocNet.Avalonia 1.0.47
   License: MIT
   Copyright (c) 2026 Sylvain Fasel
   https://github.com/sonatique/Adoc.Net
 
-AdocNet.Converters.DocBook 1.0.44
+AdocNet.Converters.DocBook 1.0.47
   License: MIT
   Copyright (c) 2026 Sylvain Fasel
   https://github.com/sonatique/Adoc.Net
 
-AdocNet.Converters.Epub 1.0.44
+AdocNet.Converters.Epub 1.0.47
   License: MIT
   Copyright (c) 2026 Sylvain Fasel
   https://github.com/sonatique/Adoc.Net
 
-AdocNet.Converters.Html 1.0.44
+AdocNet.Converters.Html 1.0.47
   License: MIT
   Copyright (c) 2026 Sylvain Fasel
   https://github.com/sonatique/Adoc.Net
 
-AdocNet.Converters.Pdf 1.0.44
+AdocNet.Converters.Pdf 1.0.47
   License: MIT
   Copyright (c) 2026 Sylvain Fasel
   https://github.com/sonatique/Adoc.Net
 
-AdocNet.Core 1.0.44
+AdocNet.Core 1.0.47
   License: MIT
   Copyright (c) 2026 Sylvain Fasel
   https://github.com/sonatique/Adoc.Net
 
-AdocNet.Emitter 1.0.44
+AdocNet.Emitter 1.0.47
   License: MIT
   Copyright (c) 2026 Sylvain Fasel
   https://github.com/sonatique/Adoc.Net
 
-AdocNet.Importers 1.0.44
+AdocNet.Importers 1.0.47
   License: MIT
   Copyright (c) 2026 Sylvain Fasel
   https://github.com/sonatique/Adoc.Net
 
-AdocNet.Importers.Docx 1.0.44
+AdocNet.Importers.Docx 1.0.47
   License: MIT
   Copyright (c) 2026 Sylvain Fasel
   https://github.com/sonatique/Adoc.Net
 
-AdocNet.Layout 1.0.44
+AdocNet.Layout 1.0.47
   License: MIT
   Copyright (c) 2026 Sylvain Fasel
   https://github.com/sonatique/Adoc.Net
 
-AdocNet.Parser 1.0.44
+AdocNet.Parser 1.0.47
   License: MIT
   Copyright (c) 2026 Sylvain Fasel
   https://github.com/sonatique/Adoc.Net
 
-AdocNet.Stem 1.0.44
+AdocNet.Stem 1.0.47
   License: MIT
   Copyright (c) 2026 Sylvain Fasel
   https://github.com/sonatique/Adoc.Net

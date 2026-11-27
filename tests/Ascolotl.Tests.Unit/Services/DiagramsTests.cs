@@ -67,6 +67,22 @@ public sealed class DiagramsTests : IDisposable
     }
 
     [Fact]
+    public void CleanCache_DeletesOnlyOldFiles()
+    {
+        var old = Path.Combine(_dir, "old.png");
+        var recent = Path.Combine(_dir, "recent.png");
+        File.WriteAllBytes(old, Png);
+        File.WriteAllBytes(recent, Png);
+        File.SetLastWriteTimeUtc(old, DateTime.UtcNow.AddDays(-31));
+
+        Diagrams.CleanCache(_dir, TimeSpan.FromDays(30));
+        Diagrams.CleanCache(Path.Combine(_dir, "none"), TimeSpan.FromDays(30)); // no cache yet: nothing happens
+
+        Assert.False(File.Exists(old));
+        Assert.True(File.Exists(recent));
+    }
+
+    [Fact]
     public void LocalTool_IsFoundOnThePath_OrIsMissing()
     {
         Assert.NotNull(Diagrams.LocalTool.Find("dotnet")); // on the PATH wherever the tests run
@@ -165,11 +181,39 @@ public sealed class DiagramsTests : IDisposable
     }
 
     [Fact]
+    public async Task DocBookExport_RefersToACopyBesideIt()
+    {
+        var output = Directory.CreateDirectory(Path.Combine(_dir, "out")).FullName;
+        var path = Path.Combine(output, "book.xml");
+
+        var result = await new ExportService().ExportAsync(Mermaid + "\nimage::photo.png[]\n", false, _dir, path, ExportFormat.DocBook, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
+
+        Assert.True(result.IsSuccess, result.ErrorMessage);
+        var text = File.ReadAllText(path);
+        var copy = System.Text.RegularExpressions.Regex.Match(text, "fileref=\"(book-diagrams/[^\"]+)\"").Groups[1].Value;
+        Assert.NotEmpty(copy);
+        Assert.Equal(Png, File.ReadAllBytes(Path.Combine(output, copy)));
+        Assert.DoesNotContain(_dir, text);
+        Assert.Contains("fileref=\"photo.png\"", text); // the document's own image as written
+    }
+
+    [Fact]
     public async Task PdfExport_EmbedsTheDiagram()
     {
         var path = Path.Combine(_dir, "out.pdf");
 
         var result = await new ExportService().ExportAsync(Mermaid, false, _dir, path, ExportFormat.Pdf, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
+
+        Assert.True(result.IsSuccess, result.ErrorMessage);
+        Assert.Contains("/Subtype /Image", System.Text.Encoding.Latin1.GetString(File.ReadAllBytes(path)));
+    }
+
+    [Fact]
+    public async Task PdfExport_OfAnUnsavedDocument_EmbedsTheDiagram()
+    {
+        var path = Path.Combine(_dir, "unsaved.pdf");
+
+        var result = await new ExportService().ExportAsync(Mermaid, false, null, path, ExportFormat.Pdf, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
 
         Assert.True(result.IsSuccess, result.ErrorMessage);
         Assert.Contains("/Subtype /Image", System.Text.Encoding.Latin1.GetString(File.ReadAllBytes(path)));

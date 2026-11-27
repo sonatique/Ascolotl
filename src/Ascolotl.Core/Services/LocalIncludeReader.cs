@@ -88,17 +88,8 @@ public sealed class LocalIncludeReader(string? baseDirectory, string? projectFol
         if (_root is null) return false;
         try
         {
-            var full = Path.GetFullPath(path);
-            if (!IsInside(full, _root)) return true;
-            // A link below the root may lead out of it: check every one on the way down.
-            for (var p = full; p.Length > _root.Length; p = Path.GetDirectoryName(p)!)
-            {
-                FileSystemInfo item = Directory.Exists(p) ? new DirectoryInfo(p) : new FileInfo(p);
-                if (item.LinkTarget is not null && item.ResolveLinkTarget(returnFinalTarget: true) is { } target
-                    && !IsInside(target.FullName, _root))
-                    return true;
-            }
-            return false;
+            // By name, then as the system opens it: links, even chained or followed by "..", may lead out.
+            return !IsInside(Path.GetFullPath(path), _root) || !IsInside(RealPath(path), RealPath(_root));
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
         {
@@ -106,9 +97,47 @@ public sealed class LocalIncludeReader(string? baseDirectory, string? projectFol
         }
     }
 
+    /// <summary>The path with every link on the way resolved, one name at a time, as the system
+    /// opens it: on Linux and macOS a ".." after a link goes up from the link's target.</summary>
+    internal static string RealPath(string path)
+    {
+        var start = OperatingSystem.IsWindows() || Path.IsPathRooted(path) ? path : Path.Combine(Directory.GetCurrentDirectory(), path);
+        if (OperatingSystem.IsWindows()) start = Path.GetFullPath(start); // Windows takes ".." by name
+        var real = Path.GetPathRoot(start)!;
+        var names = new Stack<string>();
+        Push(start[real.Length..]);
+        for (var links = 0; names.Count > 0;)
+        {
+            var name = names.Pop();
+            if (name == ".") continue;
+            if (name == "..")
+            {
+                real = Path.GetDirectoryName(real) ?? real;
+                continue;
+            }
+            var next = Path.Combine(real, name);
+            FileSystemInfo item = Directory.Exists(next) ? new DirectoryInfo(next) : new FileInfo(next);
+            if (item.LinkTarget is not { } target)
+            {
+                real = next;
+                continue;
+            }
+            if (++links > 40) throw new IOException("too many links");
+            if (Path.IsPathRooted(target)) real = Path.GetPathRoot(target)!;
+            Push(Path.IsPathRooted(target) ? target[real.Length..] : target);
+        }
+        return real;
+
+        void Push(string rest)
+        {
+            foreach (var part in rest.Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries).Reverse())
+                names.Push(part);
+        }
+    }
+
     private static bool IsInside(string path, string folder)
     {
-        var comparison = OperatingSystem.IsLinux() ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+        var comparison = FilePaths.Comparison;
         var root = Path.TrimEndingDirectorySeparator(folder); // keeps C:\ and / whole
         var prefix = Path.EndsInDirectorySeparator(root) ? root : root + Path.DirectorySeparatorChar;
         return path.Equals(root, comparison) || path.StartsWith(prefix, comparison);

@@ -181,4 +181,36 @@ public class ExportServiceTests
         var xml = System.Text.Encoding.UTF8.GetString(bytes);
         Assert.StartsWith("<?xml", xml.TrimStart());
     }
+
+    [Fact]
+    public async Task Export_ImagesUnderImagesDir_AreReferredToThere_AndTheEpubCarriesThem()
+    {
+        var dir = Directory.CreateTempSubdirectory("ascolotl-images-").FullName;
+        try
+        {
+            Directory.CreateDirectory(Path.Combine(dir, "img"));
+            var png = Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==");
+            File.WriteAllBytes(Path.Combine(dir, "img", "pic.png"), png);
+            const string source = "= Book\n:imagesdir: img\n\nimage::pic.png[]\n";
+            async Task<string> Export(ExportFormat format)
+            {
+                var path = Path.Combine(dir, "out." + format.Extension());
+                var result = await new ExportService().ExportAsync(source, false, dir, path, format, ExportTheme.Asciidoctor, null, null, CancellationToken.None);
+                Assert.True(result.IsSuccess, result.ErrorMessage);
+                return path;
+            }
+
+            Assert.Contains("<img src=\"img/pic.png\" alt=\"pic\">", File.ReadAllText(await Export(ExportFormat.Html)));
+            Assert.Contains("fileref=\"img/pic.png\"", File.ReadAllText(await Export(ExportFormat.DocBook)));
+            using var epub = System.IO.Compression.ZipFile.OpenRead(await Export(ExportFormat.Epub));
+            using var carried = new MemoryStream();
+            epub.GetEntry("EPUB/img/pic.png")!.Open().CopyTo(carried);
+            Assert.Equal(png, carried.ToArray());
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
 }

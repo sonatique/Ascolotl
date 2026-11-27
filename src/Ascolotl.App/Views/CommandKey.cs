@@ -21,14 +21,24 @@ public static class CommandKey
             : pressed;
     }
 
+    /// <summary>AltGr with a key that types a character on this layout, such as AltGr+S for ś on a
+    /// Polish keyboard: Windows reports AltGr as Ctrl+Alt, so it must not run a Ctrl+Alt shortcut.</summary>
+    public static bool TypesWithAltGr(KeyEventArgs e) => TypesWithAltGr(e, OperatingSystem.IsWindows());
+
+    internal static bool TypesWithAltGr(KeyEventArgs e, bool windows) =>
+        windows && (e.KeyModifiers & (KeyModifiers.Control | KeyModifiers.Alt)) == (KeyModifiers.Control | KeyModifiers.Alt)
+        && e.KeySymbol is { Length: > 0 } typed && !char.IsControl(typed[0]);
+
     /// <summary>A gesture written with Ctrl, as this platform's: Cmd on a Mac.</summary>
     public static KeyGesture OnPlatform(KeyGesture written, KeyModifiers? command = null) =>
         new(written.Key, AsWritten(written.KeyModifiers, command));
 
-    /// <summary>A shortcut's text written with Ctrl, as this platform's: "Cmd+S" on a Mac.</summary>
+    /// <summary>A shortcut's text written with Ctrl, as this platform's: "Cmd+S" on a Mac. Keys with Tab
+    /// or Space keep Ctrl, as their handlers do.</summary>
     public static string? Text(string? written, KeyModifiers? command = null) =>
-        (command ?? Modifier) == KeyModifiers.Meta && written is not null && !written.StartsWith("Ctrl+Tab")
-            ? written.Replace("Ctrl+", "Cmd+")
+        (command ?? Modifier) == KeyModifiers.Meta && written is not null
+            ? string.Join(" / ", written.Split(" / ").Select(key =>
+                key.EndsWith("Tab", StringComparison.Ordinal) || key.EndsWith("Space", StringComparison.Ordinal) ? key : key.Replace("Ctrl+", "Cmd+")))
             : written;
 
     public static readonly IValueConverter TextConverter = new FuncValueConverter<string?, string?>(s => Text(s));

@@ -28,6 +28,10 @@ public partial class DocumentViewModel : ObservableObject
     /// <summary>Encoding the file was read with, reused on save; null = UTF-8 without BOM.</summary>
     public System.Text.Encoding? FileEncoding { get; set; }
 
+    /// <summary>Line end the file was read with, "\r\n" or "\n", every line's on save: lines the page
+    /// adds break as the editor's do. Null: as they are.</summary>
+    public string? FileNewLine { get; set; }
+
     private bool _isRecovered;
     public bool IsRecovered
     {
@@ -45,6 +49,25 @@ public partial class DocumentViewModel : ObservableObject
 
     [ObservableProperty]
     private string _sourceText = string.Empty;
+
+    /// <summary>How the change being made joins the undo history: read while
+    /// <see cref="SourceText"/> changes; see <see cref="ChangeSource"/>.</summary>
+    public UndoJoin ChangeUndo { get; private set; }
+
+    /// <summary>Changes the text from outside the source editor, joining its undo history as
+    /// <paramref name="join"/> says.</summary>
+    public void ChangeSource(string text, UndoJoin join)
+    {
+        ChangeUndo = join;
+        try
+        {
+            SourceText = text;
+        }
+        finally
+        {
+            ChangeUndo = UndoJoin.NewStep;
+        }
+    }
 
     /// <summary>One-line description of the AsciiDoc syntax at the caret, shown
     /// in the status bar by the authoring-assist layer. Empty when there's
@@ -204,17 +227,30 @@ public partial class DocumentViewModel : ObservableObject
 
     public void EndLoad() => _suppressDirtyTracking = false;
 
-    public void MarkClean()
+    // The text as last saved or opened; null when the file holds other text (a recovered document).
+    private string? _savedText = string.Empty;
+
+    public void MarkClean() => MarkSaved(SourceText);
+
+    /// <summary><paramref name="text"/> is now the file's: unsaved while the document holds other text.</summary>
+    public void MarkSaved(string text)
     {
-        IsDirty = false;
+        _savedText = text;
+        IsDirty = SourceText != text;
+    }
+
+    /// <summary>Unsaved whatever the text: the file holds other text (a recovered document).</summary>
+    public void MarkUnsaved()
+    {
+        _savedText = null;
+        IsDirty = true;
     }
 
     partial void OnSourceTextChanged(string value)
     {
+        // Undone back to the saved text: nothing to save.
         if (!_suppressDirtyTracking)
-        {
-            IsDirty = true;
-        }
+            IsDirty = value != _savedText;
 
         _stats = null;
         OnPropertyChanged(nameof(WordCountText));
@@ -262,4 +298,17 @@ public partial class DocumentViewModel : ObservableObject
     }
 
     partial void OnZoomLevelChanged(int value) => OnPropertyChanged(nameof(FontSize));
+}
+
+/// <summary>How a change made outside the source editor joins its undo history.</summary>
+public enum UndoJoin
+{
+    /// <summary>A step of its own.</summary>
+    NewStep,
+
+    /// <summary>One step with the last: the text typed into a new paragraph, with the paragraph.</summary>
+    WithLastStep,
+
+    /// <summary>Takes the last step back, leaving no step: a new paragraph given up.</summary>
+    UndoesLastStep,
 }

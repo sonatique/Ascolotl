@@ -118,7 +118,7 @@ public sealed class RecoveryStore : IRecoveryStore
         try
         {
             if (!File.Exists(_manifestPath))
-                return [];
+                return SnapshotsOnDisk();
 
             var json = File.ReadAllText(_manifestPath);
             return JsonSerializer.Deserialize<List<RecoveryEntry>>(json, JsonOptions) ?? [];
@@ -128,9 +128,36 @@ public sealed class RecoveryStore : IRecoveryStore
             // The next save overwrites the manifest: keep the unreadable one for inspection.
             try { File.Copy(_manifestPath, _manifestPath + ".corrupt", overwrite: true); }
             catch { /* best effort */ }
+            return SnapshotsOnDisk();
+        }
+    }
+
+    /// <summary>Without a readable manifest, the snapshots still on disk: offered back as unsaved
+    /// documents, their file and name lost, named after their title.</summary>
+    private List<RecoveryEntry> SnapshotsOnDisk()
+    {
+        try
+        {
+            if (!Directory.Exists(_recoveryDirectory)) return [];
+            var n = 0;
+            return [.. Directory.EnumerateFiles(_recoveryDirectory)
+                .Where(f => Path.GetExtension(f).Equals(".adoc", StringComparison.OrdinalIgnoreCase))
+                .Select(f => new RecoveryEntry
+                {
+                    DocumentId = Path.GetFileNameWithoutExtension(f),
+                    DisplayName = Title(f) ?? string.Format(Ascolotl.Core.Resources.Strings.Untitled, ++n),
+                    Timestamp = File.GetLastWriteTimeUtc(f),
+                })];
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
             return [];
         }
     }
+
+    private static string? Title(string snapshot) =>
+        File.ReadLines(snapshot).Take(20).Select(l => l.Trim()).FirstOrDefault(l => l.StartsWith("= ") || l.StartsWith("# ")) is { } heading
+            ? heading[2..].Trim() : null;
 
     private void SaveManifest(List<RecoveryEntry> entries)
     {

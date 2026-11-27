@@ -135,6 +135,7 @@ public class App : Application
             };
 
             _viewModel.LoadRecentFiles(_settings.RecentFiles);
+            Diagrams.CleanCacheInBackground();
 
             _viewModel.PropertyChanged += (_, e) =>
             {

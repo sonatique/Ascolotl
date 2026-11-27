@@ -28,6 +28,12 @@ public sealed class TableEditingTests
         => Assert.Equal("[cols=\"1,1\"]\n|===\n| A | B\n\n| a1 | b1\n| ‸|\n| a2 | b2\n|===\n",
             Run(TableOp.RowAbove, false, AdocAt("a2")));
 
+    [Theory]
+    [InlineData("|===\n| ‸A | B\n\n| a1 | b1\n|===\n")]
+    [InlineData("[options=\"header\"]\n|===\n| ‸A | B\n| a1 | b1\n|===\n")]
+    public void AsciiDoc_RowAbove_TheHeaderRow_IsRefused(string marked)
+        => Assert.Null(Run(TableOp.RowAbove, false, marked));
+
     [Fact]
     public void AsciiDoc_ColumnRight_WidensTheColsAttribute()
         => Assert.Equal("[cols=\"1,1,1\"]\n|===\n| A | B |\n\n| a1 | b1 |‸\n| a2 | b2 |\n|===\n",
@@ -37,6 +43,16 @@ public sealed class TableEditingTests
     public void AsciiDoc_DeleteColumn()
         => Assert.Equal("[cols=\"1\"]\n|===\n| ‸B\n\n| b1\n| b2\n|===\n",
             Run(TableOp.DeleteColumn, false, AdocAt("A")));
+
+    [Fact]
+    public void AsciiDoc_ColumnEdits_KeepTheOtherAttributes_AndTheColumnsSpecs()
+    {
+        const string table = "[%header,cols=\"1h,3\",frame=none]\n|===\n| A | B\n| a1 | b1\n|===\n";
+        Assert.Equal("[%header,cols=\"3\",frame=none]\n|===\n| ‸B\n| b1\n|===\n",
+            Run(TableOp.DeleteColumn, false, table.Replace("A", "‸A")));
+        Assert.Equal("[%header,cols=\"1,1h,3\",frame=none]\n|===\n| ‸| A | B\n| | a1 | b1\n|===\n",
+            Run(TableOp.ColumnLeft, false, table.Replace("A", "‸A")));
+    }
 
     [Fact]
     public void AsciiDoc_DeleteRow_MovesUp()
@@ -80,6 +96,11 @@ public sealed class TableEditingTests
     public void Markdown_ColumnLeft_KeepsTheOtherAlignment()
         => Assert.Equal("Intro.\n\n| Name | ‸    | Age |\n| ---- | --- | --: |\n| Ada  |     | 3   |\n\nAfter.",
             Run(TableOp.ColumnLeft, true, Md.Replace("Age", "A‸ge")));
+
+    [Fact]
+    public void Markdown_TableInAListItem_StaysIndented()
+        => Assert.Equal("- Item\n\n  | a   | b   |\n  | --- | --- |\n  | 1   | 2   |\n  | ‸    |     |\n",
+            Run(TableOp.RowBelow, true, "- Item\n\n  | a | b |\n  |---|---|\n  | ‸1 | 2 |\n"));
 
     [Fact]
     public void Markdown_DeleteColumn()

@@ -153,6 +153,7 @@
   <data name="CloseTab" xml:space="preserve"><value>Chiu_di scheda</value></data>
   <data name="CloseTabTooltip" xml:space="preserve"><value>Chiudi scheda</value></data>
   <data name="CommandAsciiDocSyntaxReference" xml:space="preserve"><value>Guida alla sintassi AsciiDoc</value></data>
+  <data name="CommandCategoryEdit" xml:space="preserve"><value>Modifica</value></data>
   <data name="CommandCategoryFile" xml:space="preserve"><value>File</value></data>
   <data name="CommandCategoryHelp" xml:space="preserve"><value>Aiuto</value></data>
   <data name="CommandCategoryImport" xml:space="preserve"><value>Importa</value></data>
@@ -184,6 +185,7 @@
   <data name="CommandPDFTitleFullTitle" xml:space="preserve"><value>Titolo del PDF: titolo completo</value></data>
   <data name="CommandPDFTitleUpToFirstColon" xml:space="preserve"><value>Titolo del PDF: fino ai primi due punti</value></data>
   <data name="CommandPreviousTab" xml:space="preserve"><value>Scheda precedente</value></data>
+  <data name="CommandRedo" xml:space="preserve"><value>Ripeti</value></data>
   <data name="CommandRefreshFolder" xml:space="preserve"><value>Aggiorna cartella</value></data>
   <data name="CommandReopenClosedTab" xml:space="preserve"><value>Riapri scheda chiusa</value></data>
   <data name="CommandResetZoom" xml:space="preserve"><value>Ripristina zoom</value></data>
@@ -202,9 +204,9 @@
   <data name="CommandToggleFitWidth" xml:space="preserve"><value>Adatta alla larghezza</value></data>
   <data name="CommandToggleOutlinePane" xml:space="preserve"><value>Mostra struttura</value></data>
   <data name="CommandTogglePagePreview" xml:space="preserve"><value>Anteprima pagine</value></data>
-  <data name="CommandTogglePreviewWordWrap" xml:space="preserve"><value>A capo automatico nell'anteprima</value></data>
   <data name="CommandToggleSyncScrolling" xml:space="preserve"><value>Scorrimento sincronizzato</value></data>
   <data name="CommandToggleTitleTOC" xml:space="preserve"><value>Mostra titolo e indice</value></data>
+  <data name="CommandUndo" xml:space="preserve"><value>Annulla</value></data>
   <data name="CommandUseBuiltInStyle" xml:space="preserve"><value>Usa lo stile integrato</value></data>
   <data name="CommandWYSIWYGMode" xml:space="preserve"><value>Modalità WYSIWYG</value></data>
   <data name="CommandReadMode" xml:space="preserve"><value>Modalità lettura</value></data>
@@ -223,6 +225,7 @@
   <data name="Discard" xml:space="preserve"><value>Scarta</value></data>
   <data name="DocBook" xml:space="preserve"><value>_DocBook...</value></data>
   <data name="DonTSave" xml:space="preserve"><value>Non salvare</value></data>
+  <data name="Edit" xml:space="preserve"><value>_Modifica</value></data>
   <data name="EditBeforeEachPDFExport" xml:space="preserve"><value>_Modifica prima di ogni esportazione PDF</value></data>
   <data name="EditorWordWrap" xml:space="preserve"><value>A capo nell'_editor</value></data>
   <data name="EmptyNextToTheDocument" xml:space="preserve"><value>Vuoto — accanto al documento</value></data>
@@ -375,7 +378,6 @@
   <data name="PDFTitle" xml:space="preserve"><value>_Titolo del PDF</value></data>
   <data name="PlainText" xml:space="preserve"><value>_Testo semplice...</value></data>
   <data name="Press" xml:space="preserve"><value>premi</value></data>
-  <data name="PreviewWordWrap" xml:space="preserve"><value>A capo nell'anteprim_a</value></data>
   <data name="ProfileNew" xml:space="preserve"><value>Nuovo profilo</value></data>
   <data name="ProfileNextToDocument" xml:space="preserve"><value>accanto al documento</value></data>
   <data name="ProfileNumbered" xml:space="preserve"><value>Profilo {0}</value></data>
@@ -393,6 +395,7 @@ Questo file esiste ma non è stato possibile leggerlo. Forse è bloccato da un a
   <data name="RecoverHeadingsTextTablesAndNotes" xml:space="preserve"><value>Recupera titoli, testo, tabelle e note da un PDF (impaginazione approssimata)</value></data>
   <data name="RecoveryFoundMany" xml:space="preserve"><value>Ascolotl ha trovato {0} documenti non salvati da una sessione precedente.</value></data>
   <data name="RecoveryFoundOne" xml:space="preserve"><value>Ascolotl ha trovato 1 documento non salvato da una sessione precedente.</value></data>
+  <data name="Redo" xml:space="preserve"><value>_Ripeti</value></data>
   <data name="Reload" xml:space="preserve"><value>Ricarica</value></data>
   <data name="RemoveSelectedProfile" xml:space="preserve"><value>Rimuovi il profilo selezionato</value></data>
   <data name="ReopenClosedTab" xml:space="preserve"><value>Ria_pri scheda chiusa</value></data>
@@ -485,6 +488,7 @@ Questo file esiste ma non è stato possibile leggerlo. Forse è bloccato da un a
   <data name="ToggleOutline" xml:space="preserve"><value>Mostra st_ruttura</value></data>
   <data name="ToOpenAFile" xml:space="preserve"><value>per aprire un file</value></data>
   <data name="TypeACommand" xml:space="preserve"><value>Digita un comando...</value></data>
+  <data name="Undo" xml:space="preserve"><value>_Annulla</value></data>
   <data name="Untitled" xml:space="preserve"><value>Senza titolo {0}</value></data>
   <data name="UpToFirstColon" xml:space="preserve"><value>_Fino ai primi due punti</value></data>
   <data name="UseBuiltInStyle" xml:space="preserve"><value>Usa lo stile _integrato</value></data>
@@ -581,7 +585,6 @@ Questo file esiste ma non è stato possibile leggerlo. Forse è bloccato da un a
   <data name="KeysGroupRead" xml:space="preserve"><value>Lettura</value></data>
   <data name="KeysHeadings" xml:space="preserve"><value>Titolo di livello da 1 a 6 / torna a paragrafo</value></data>
   <data name="KeysCompletion" xml:space="preserve"><value>Completa la sintassi</value></data>
-  <data name="KeysUndoRedo" xml:space="preserve"><value>Annulla / ripeti</value></data>
   <data name="KeysBlocks" xml:space="preserve"><value>Blocco precedente / successivo</value></data>
   <data name="KeysFirstLast" xml:space="preserve"><value>Primo / ultimo blocco</value></data>
   <data name="KeysEditBlock" xml:space="preserve"><value>Modifica il blocco (una tabella: la sua prima cella)</value></data>

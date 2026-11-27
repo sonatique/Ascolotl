@@ -8,38 +8,31 @@ using Ascolotl.Core.Editing;
 /// </summary>
 public class TableStructureTests
 {
-    [Fact]
-    public void AdjustCols_QuotedSpecs_Grow()
-    {
-        Assert.Equal("[cols=\"1,2,1\"]", TableStructure.AdjustColsAttribute("[cols=\"1,2\"]", 1));
-    }
+    [Theory]
+    [InlineData("[cols=\"1,2\"]", 2, 1, "[cols=\"1,2,1\"]")]
+    [InlineData("[cols=\"2,3\"]", 0, 1, "[cols=\"1,2,3\"]")]
+    [InlineData("[cols=\"1,2,1\"]", 2, -1, "[cols=\"1,2\"]")]
+    [InlineData("[cols=\"1h,3a\"]", 0, -1, "[cols=\"3a\"]")]
+    [InlineData("[cols=3]", 1, 1, "[cols=4]")]
+    [InlineData("[cols=3]", 1, -1, "[cols=2]")]
+    [InlineData("[cols=1]", 0, -1, "[cols=1]")]
+    [InlineData("[cols=\"1\"]", 0, -1, "[cols=\"1\"]")]
+    [InlineData("[cols=\"3*\"]", 1, -1, "[cols=\"1,1\"]")]
+    [InlineData("[cols=\"2*^,1\"]", 3, 1, "[cols=\"^,^,1,1\"]")]
+    [InlineData("[cols=\"1,2\",options=\"header\"]", 2, 1, "[cols=\"1,2,1\",options=\"header\"]")]
+    [InlineData("[cols=\"1,2\",options=\"header\"]", 1, -1, "[cols=\"1\",options=\"header\"]")]
+    [InlineData("[%header,cols=\"1,2\"]", 0, -1, "[%header,cols=\"2\"]")]
+    [InlineData("[cols=3,options=\"header\"]", 3, 1, "[cols=4,options=\"header\"]")]
+    [InlineData("[cols='1,2']\r", 2, 1, "[cols='1,2,1']\r")]
+    public void AdjustCols_ChangesOnlyTheColsValue_AtTheColumn(string line, int column, int delta, string expected)
+        => Assert.Equal(expected, TableStructure.AdjustColsAttribute(line, column, delta));
 
-    [Fact]
-    public void AdjustCols_QuotedSpecs_Shrink()
-    {
-        Assert.Equal("[cols=\"1,2\"]", TableStructure.AdjustColsAttribute("[cols=\"1,2,1\"]", -1));
-    }
-
-    [Fact]
-    public void AdjustCols_NumericForm()
-    {
-        Assert.Equal("[cols=4]", TableStructure.AdjustColsAttribute("[cols=3]", 1));
-        Assert.Equal("[cols=2]", TableStructure.AdjustColsAttribute("[cols=3]", -1));
-    }
-
-    [Fact]
-    public void AdjustCols_NeverDropsBelowOne()
-    {
-        Assert.Equal("[cols=1]", TableStructure.AdjustColsAttribute("[cols=1]", -5));
-        Assert.Equal("[cols=\"1\"]", TableStructure.AdjustColsAttribute("[cols=\"1,1\"]", -5));
-    }
-
-    [Fact]
-    public void AdjustCols_NotAColsLine_ReturnsNull()
-    {
-        Assert.Null(TableStructure.AdjustColsAttribute("[options=\"header\"]", 1));
-        Assert.Null(TableStructure.AdjustColsAttribute("| a | b", 1));
-    }
+    [Theory]
+    [InlineData("[options=\"header\"]")]
+    [InlineData("| a | b")]
+    [InlineData("[subcols=\"1,2\"]")]
+    public void AdjustCols_NoColsValue_ReturnsNull(string line)
+        => Assert.Null(TableStructure.AdjustColsAttribute(line, 0, 1));
 
     // ── FlatCellIndex ─────────────────────────────────────────────────────
 

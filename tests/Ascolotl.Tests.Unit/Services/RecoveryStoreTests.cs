@@ -153,4 +153,19 @@ public sealed class RecoveryStoreTests : IDisposable
         Assert.Empty(_store.GetRecoveryEntries());
         Assert.Equal("{ not json", File.ReadAllText(manifest + ".corrupt"));
     }
+
+    [Fact]
+    public void GetRecoveryEntries_UnreadableManifest_OffersTheSnapshotsOnDisk()
+    {
+        _store.SaveSnapshot("doc-1", "= My Notes\n\nText.", "/tmp/notes.adoc", "notes.adoc");
+        _store.SaveSnapshot("doc-2", "No title here.", null, "Untitled 1");
+        File.WriteAllText(Path.Combine(_testDir, "recovery-manifest.json"), "{ cut sho");
+
+        var entries = _store.GetRecoveryEntries().OrderBy(e => e.DocumentId).ToList();
+
+        Assert.Equal(["doc-1", "doc-2"], entries.Select(e => e.DocumentId));
+        Assert.Equal("My Notes", entries[0].DisplayName);
+        Assert.Null(entries[0].OriginalFilePath); // not known any more: saved as a new file
+        Assert.Equal("= My Notes\n\nText.", _store.LoadSnapshot("doc-1"));
+    }
 }

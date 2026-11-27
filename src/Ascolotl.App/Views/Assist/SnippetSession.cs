@@ -13,14 +13,28 @@ namespace Ascolotl.App.Views.Assist;
 internal sealed class SnippetSession
 {
     private readonly TextEditor _editor;
+    private readonly TextDocument _document;
     private readonly List<(TextAnchor Start, TextAnchor End, int Index)> _stops = new();
     private int _index = -1;
+    private bool _active;
 
-    public bool Active { get; private set; }
+    /// <summary>Tab moves through the stops. False once the snippet's text is undone, deleted or
+    /// replaced, or the caret has left it: Tab is the editor's own again.</summary>
+    public bool Active
+    {
+        get
+        {
+            if (_active && !(Intact() && _editor.CaretOffset >= _stops.Min(s => s.Start.Offset)
+                                      && _editor.CaretOffset <= _stops.Max(s => s.End.Offset)))
+                _active = false;
+            return _active;
+        }
+    }
 
     public SnippetSession(TextEditor editor, int baseOffset, ParsedSnippet snippet)
     {
         _editor = editor;
+        _document = editor.Document;
 
         var docLength = editor.Document.TextLength;
         foreach (var s in snippet.Stops)
@@ -39,7 +53,7 @@ internal sealed class SnippetSession
 
         if (_stops.Count > 0)
         {
-            Active = true;
+            _active = true;
             MoveTo(0);
         }
     }
@@ -58,7 +72,9 @@ internal sealed class SnippetSession
         MoveTo(_index - 1);
     }
 
-    public void Finish() => Active = false;
+    public void Finish() => _active = false;
+
+    private bool Intact() => _editor.Document == _document && _stops.TrueForAll(s => !s.Start.IsDeleted && !s.End.IsDeleted);
 
     /// <summary>Re-apply the selection for the current stop — used after focus
     /// is returned to the editor when the snippet first opens.</summary>
@@ -70,6 +86,11 @@ internal sealed class SnippetSession
 
     private void MoveTo(int i)
     {
+        if (!Intact())
+        {
+            Finish();
+            return;
+        }
         _index = i;
         var (start, end, index) = _stops[i];
         var s = start.Offset;

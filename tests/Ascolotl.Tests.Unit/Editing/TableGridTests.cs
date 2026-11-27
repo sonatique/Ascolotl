@@ -21,6 +21,28 @@ public class TableGridTests
         Assert.Equal(new[] { "| a | b", "| c | d" }, g.ToLines());
     }
 
+    [Theory]
+    [InlineData("|1|2|3", "| 1 | 2 | 3")]
+    [InlineData("| Version 2| Notes", "| Version 2 | Notes")]
+    [InlineData("| 10| 20", "| 10 | 20")]
+    [InlineData("|Name|Value", "| Name | Value")]
+    public void Parse_TextRightBeforeAPipe_IsContent(string row, string written)
+    {
+        var g = Parse(row);
+        Assert.Equal(new[] { written }, g.ToLines());
+    }
+
+    [Theory]
+    [InlineData("| a 2+^| b", 3, "| a 2+^| b")]
+    [InlineData("|2+| a", 3, "| 2+| a")]
+    [InlineData("| a h| b", 2, "| a h| b")]
+    public void Parse_SpecAfterWhitespaceOrFillingItsSegment_IsASpec(string row, int columns, string written)
+    {
+        var g = Parse(row);
+        Assert.Equal(columns, g.ColumnCount);
+        Assert.Equal(new[] { written }, g.ToLines());
+    }
+
     [Fact]
     public void Parse_ColSpan_CountsColumns()
     {
@@ -90,6 +112,14 @@ public class TableGridTests
     {
         var g = Parse("| a | b");
         Assert.False(g.MergeRight(0, 1));
+    }
+
+    [Fact]
+    public void MergeRight_PastARowSpanFromAbove_False()
+    {
+        var g = Parse("| a .2+| b | c", "| d | e"); // d in column 0, e in column 2: b holds column 1
+        Assert.False(g.MergeRight(1, 0));
+        Assert.Equal(new[] { "| a .2+| b | c", "| d | e" }, g.ToLines());
     }
 
     [Fact]

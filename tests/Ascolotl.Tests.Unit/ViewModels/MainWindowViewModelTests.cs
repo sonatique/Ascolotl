@@ -699,14 +699,14 @@ public sealed class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
-    public void AddRecentFile_CaseInsensitiveDedup()
+    public void AddRecentFile_DedupsAsTheFileSystemComparesNames()
     {
         var vm = CreateViewModel();
 
         vm.AddRecentFile("/tmp/Test.adoc");
         vm.AddRecentFile("/tmp/test.adoc");
 
-        Assert.Single(vm.RecentFiles);
+        Assert.Equal(OperatingSystem.IsLinux() ? 2 : 1, vm.RecentFiles.Count); // two files on Linux
         Assert.Equal("/tmp/test.adoc", vm.RecentFiles[0]);
     }
 
@@ -860,18 +860,45 @@ public sealed class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
-    public async Task Render_SourceMode_DoesNotTriggerRender()
+    public async Task Render_SourceMode_UpdatesTheOutline_NotThePage()
     {
         var vm = CreateViewModel();
         vm.NewDocumentCommand.Execute(null);
         vm.SetEditorModeCommand.Execute(EditorMode.Source);
-        await vm.PendingRenderTask; // the new tab's WYSIWYG render
-        _renderService.RenderCalled = 0;
+        await vm.PendingRenderTask;
+        var page = vm.SelectedDocument!.RenderedDocument;
 
-        vm.SelectedDocument!.SourceText = "= Hello";
-        await Task.Delay(50); // Give any async work time to run
+        vm.SelectedDocument.SourceText = "= Hello\n\n== Part\n";
+        await vm.PendingRenderTask;
 
-        Assert.Equal(0, _renderService.RenderCalled);
+        Assert.Equal(["Hello", "Part"], vm.OutlineItems.Select(i => i.Title));
+        Assert.Same(page, vm.SelectedDocument.RenderedDocument); // the hidden page is built when shown
+    }
+
+    [Fact]
+    public async Task Render_SwitchingSourceModeTabs_ShowsEachTabsOutline()
+    {
+        var vm = CreateViewModel();
+        vm.NewDocumentCommand.Execute(null);
+        var first = vm.SelectedDocument!;
+        vm.SetEditorModeCommand.Execute(EditorMode.Source);
+        first.SourceText = "= First\n";
+        await vm.PendingRenderTask;
+        vm.NewDocumentCommand.Execute(null);
+        vm.SetEditorModeCommand.Execute(EditorMode.Source);
+        vm.SelectedDocument!.SourceText = "= Second\n";
+        await vm.PendingRenderTask;
+        Assert.Equal(["Second"], vm.OutlineItems.Select(i => i.Title));
+
+        vm.SelectedDocument = first;
+        await vm.PendingRenderTask;
+        Assert.Equal(["First"], vm.OutlineItems.Select(i => i.Title));
+
+        foreach (var doc in vm.Documents) doc.MarkClean(); // closed without a question
+        await vm.CloseDocumentCommand.ExecuteAsync(first);
+        await vm.CloseDocumentCommand.ExecuteAsync(vm.SelectedDocument);
+        Assert.Empty(vm.Documents);
+        Assert.Empty(vm.OutlineItems);
     }
 
     [Fact]
@@ -1582,6 +1609,60 @@ public sealed class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public void ProjectFolder_ListsItsDocuments_PastFoldersItCannotRead()
+    {
+        var root = Directory.CreateTempSubdirectory("ascolotl-project-").FullName;
+        _tempDirs.Add(root);
+        File.WriteAllText(Path.Combine(root, "a.adoc"), "");
+        Directory.CreateDirectory(Path.Combine(root, "sub"));
+        File.WriteAllText(Path.Combine(root, "sub", "b.md"), "");
+        Directory.CreateDirectory(Path.Combine(root, ".git"));
+        File.WriteAllText(Path.Combine(root, ".git", "c.md"), "");
+        var locked = Directory.CreateDirectory(Path.Combine(root, "locked")).FullName;
+        File.WriteAllText(Path.Combine(locked, "d.adoc"), "");
+        if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(locked, UnixFileMode.None);
+        try
+        {
+            var vm = CreateViewModel();
+            vm.LoadProjectFolder(root);
+
+            Assert.Equal(string.Format(Ascolotl.Core.Resources.Strings.StatusFolderOpened, Path.GetFileName(root)), vm.StatusText);
+            var names = vm.ProjectRoots.SelectMany(n => n.Children.Select(c => c.Name).Prepend(n.Name)).ToList();
+            Assert.Contains("a.adoc", names);
+            Assert.Contains("b.md", names);
+            Assert.DoesNotContain("c.md", names);
+        }
+        finally
+        {
+            if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(locked, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        }
+    }
+
+    [Fact]
+    public async Task OpenDocument_PathsDifferingByCase_AreTwoTabsOnLinux()
+    {
+        var vm = CreateViewModel();
+        _fileService.OpenFileResult = ("/tmp/notes/Readme.adoc", "one");
+        await vm.OpenDocumentCommand.ExecuteAsync(null);
+        _fileService.OpenFileResult = ("/tmp/notes/README.adoc", "two");
+        await vm.OpenDocumentCommand.ExecuteAsync(null);
+
+        Assert.Equal(OperatingSystem.IsLinux() ? 2 : 1, vm.Documents.Count);
+        Assert.Equal(OperatingSystem.IsLinux() ? "two" : "one", vm.SelectedDocument!.SourceText);
+    }
+
+    [Fact]
+    public void SaveSession_WhileStartupIsOpeningTheTabs_KeepsTheSavedOne()
+    {
+        var vm = CreateViewModel();
+        vm.OpeningDocuments = true; // the window closed before the session's files were read
+
+        vm.SaveSession();
+
+        Assert.Equal(0, _sessionStore.SaveCalled);
+    }
+
+    [Fact]
     public void SaveSession_SkipsUntitledDocs()
     {
         var vm = CreateViewModel();
@@ -1745,6 +1826,28 @@ public sealed class MainWindowViewModelTests : IDisposable
 
         Assert.Equal("modified", _fileService.LastSavedContent);
         Assert.True(doc.IsDirty);
+        doc.SourceText = "modified"; // the typing undone: as saved
+        Assert.False(doc.IsDirty);
+    }
+
+    [Fact]
+    public void Document_EditedBackToItsSavedText_IsNotDirty_UnlessRecovered()
+    {
+        var doc = new DocumentViewModel();
+        doc.BeginLoad();
+        doc.SourceText = "saved";
+        doc.EndLoad();
+        doc.MarkClean();
+
+        doc.SourceText = "saved and more";
+        Assert.True(doc.IsDirty);
+        doc.SourceText = "saved";
+        Assert.False(doc.IsDirty);
+
+        doc.MarkUnsaved(); // recovered: the file holds other text
+        doc.SourceText = "saved!";
+        doc.SourceText = "saved";
+        Assert.True(doc.IsDirty);
     }
 
     [Fact]
@@ -1762,6 +1865,66 @@ public sealed class MainWindowViewModelTests : IDisposable
 
         Assert.Equal(1, _dialogService.ShowFileConflictCalled);
         Assert.Equal(0, _fileService.SaveFileCalled);
+    }
+
+    [Fact]
+    public async Task Save_WritesEveryLineEndAsTheFileHadThem()
+    {
+        var vm = CreateViewModel();
+        _fileService.OpenFileResult = ("/tmp/crlf.adoc", "= Title\r\n\r\nText.\r\n");
+        await vm.OpenDocumentCommand.ExecuteAsync(null);
+        var doc = vm.SelectedDocument!;
+        doc.SourceText += "\nNew paragraph.\n"; // as a block command adds lines
+
+        await vm.SaveDocumentCommand.ExecuteAsync(null);
+
+        Assert.Equal("= Title\r\n\r\nText.\r\n\r\nNew paragraph.\r\n", _fileService.LastSavedContent);
+        Assert.False(doc.IsDirty);
+    }
+
+    [Fact]
+    public async Task Save_ThroughASymlink_SeesTheTargetChange()
+    {
+        var vm = CreateViewModel();
+        var target = CreateTempFile("on disk");
+        var link = target + ".link.adoc";
+        try { File.CreateSymbolicLink(link, target); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return; } // Windows without Developer Mode
+        try
+        {
+            _fileService.OpenFileResult = (link, "on disk");
+            await vm.OpenDocumentCommand.ExecuteAsync(null);
+            var doc = vm.SelectedDocument!;
+            doc.SourceText = "my edits";
+            File.SetLastWriteTimeUtc(target, doc.LastKnownWriteTime!.Value.AddHours(1)); // another program wrote the file
+
+            await vm.SaveDocumentCommand.ExecuteAsync(null);
+
+            Assert.Equal(1, _dialogService.ShowFileConflictCalled);
+            Assert.Equal(0, _fileService.SaveFileCalled);
+        }
+        finally
+        {
+            File.Delete(link);
+        }
+    }
+
+    [Fact]
+    public async Task SaveAll_ConflictAnsweredCancel_DoesNotSayAllSaved()
+    {
+        var vm = CreateViewModel();
+        var path = CreateTempFile("on disk");
+        _fileService.OpenFileResult = (path, "on disk");
+        await vm.OpenDocumentCommand.ExecuteAsync(null);
+        var conflicting = vm.SelectedDocument!;
+        conflicting.SourceText = "my edits";
+        conflicting.LastKnownWriteTime = File.GetLastWriteTimeUtc(path).AddMinutes(-1); // changed on disk since
+        _dialogService.NextFileConflictResult = FileConflictResult.Cancel;
+
+        await vm.SaveAllCommand.ExecuteAsync(null);
+
+        Assert.True(conflicting.IsDirty);
+        Assert.NotEqual(Ascolotl.Core.Resources.Strings.StatusAllSaved, vm.StatusText);
     }
 
     [Fact]

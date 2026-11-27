@@ -155,6 +155,7 @@ public partial class MainWindow : Window
             _viewModel.SyntaxReference.PropertyChanged -= OnSyntaxReferenceChanged;
             _viewModel.SyntaxReference.ShowRequested -= ShowSyntaxReference;
             _viewModel.KeyboardShortcutsRequested -= ShowKeyboardShortcuts;
+            _viewModel.UndoRequested -= OnUndoRequested;
             _viewModel.ExportProfilesChanged -= RebuildExportMenu;
         }
 
@@ -171,6 +172,7 @@ public partial class MainWindow : Window
             _viewModel.SyntaxReference.PropertyChanged += OnSyntaxReferenceChanged;
             _viewModel.SyntaxReference.ShowRequested += ShowSyntaxReference;
             _viewModel.KeyboardShortcutsRequested += ShowKeyboardShortcuts;
+            _viewModel.UndoRequested += OnUndoRequested;
             RebuildRecentFilesMenu(_viewModel);
             UpdateEditorLayout(_viewModel.EditorMode);
             UpdateSidebarColumn();
@@ -230,7 +232,7 @@ public partial class MainWindow : Window
         {
             var item = new MenuItem
             {
-                Header = profile.Name,
+                Header = profile.Name.Replace("_", "__"), // "_" marks access keys in menu headers
                 Command = _viewModel.ExportWithProfileCommand,
                 CommandParameter = profile,
             };
@@ -584,7 +586,7 @@ public partial class MainWindow : Window
             recent.Items.Clear();
             foreach (var path in vm.RecentFiles)
             {
-                var item = new MenuItem { Header = path };
+                var item = new MenuItem { Header = path.Replace("_", "__") }; // "_" marks access keys in menu headers
                 item.Click += (_, _) => vm.OpenRecentFileCommand.Execute(path);
                 recent.Items.Add(item);
             }
@@ -714,6 +716,18 @@ public partial class MainWindow : Window
         return tool;
     }
 
+    /// <summary>Undo or redo as the keys do: in the block open on the page, with its own history, else
+    /// in the tab's source, whose history holds the page's changes too. Not in Read view, which edits nothing.</summary>
+    private void OnUndoRequested(bool redo)
+    {
+        if (_viewModel is not { } vm || vm.IsReadMode) return;
+        var editor = vm.InPlaceEditOpen
+            ? FindDescendant<PreviewView>(PreviewPane)?.GetVisualDescendants().OfType<TextEditor>().FirstOrDefault(e => !e.IsReadOnly)
+            : FindDescendant<SourceEditorView>(EditorPane) is { } source && source.DataContext == vm.SelectedDocument ? source.Editor : null;
+        if (redo) editor?.Redo();
+        else editor?.Undo();
+    }
+
     private void ShowKeyboardShortcuts()
     {
         if (_viewModel is { } vm) ShowTool(() => new KeyboardShortcutsWindow(vm.KeyboardShortcuts));
@@ -789,6 +803,13 @@ public partial class MainWindow : Window
             _viewModel.CommandPalette.Close();
             e.Handled = true;
         }
+        // Redo with Ctrl+Shift+Z in an editor too, as on the page; the editors know only Ctrl+Y.
+        else if (CommandKey.AsWritten(e.KeyModifiers) == (KeyModifiers.Control | KeyModifiers.Shift) && e.Key == Key.Z
+                 && (FocusManager?.GetFocusedElement() as Visual)?.FindAncestorOfType<TextEditor>(includeSelf: true) is { } focusedEditor)
+        {
+            focusedEditor.Redo();
+            e.Handled = true;
+        }
         // The page's changes are in the source's history, also while the source is hidden.
         // Not under an open block, whose own editor has its own history.
         else if (CommandKey.AsWritten(e.KeyModifiers) is KeyModifiers.Control or (KeyModifiers.Control | KeyModifiers.Shift) && e.Key is Key.Z or Key.Y
@@ -807,7 +828,7 @@ public partial class MainWindow : Window
         }
         // The rest of the menus' keys. A menu item's InputGesture only shows its key; both
         // menu sets show the same ones, so the hamburger's set is the one looked up.
-        else if ((e.KeyModifiers != KeyModifiers.None || e.Key is >= Key.F1 and <= Key.F24)
+        else if ((e.KeyModifiers != KeyModifiers.None || e.Key is >= Key.F1 and <= Key.F24) && !CommandKey.TypesWithAltGr(e)
                  && HamburgerMenuItem.GetLogicalDescendants().OfType<MenuItem>().FirstOrDefault(i => i.InputGesture?.Matches(e) == true)
                      is { Command: { } command } item)
         {

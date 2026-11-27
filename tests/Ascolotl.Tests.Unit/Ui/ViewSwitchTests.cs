@@ -1,5 +1,6 @@
 using Ascolotl.Core.Models;
 using Ascolotl.App.Views;
+using Ascolotl.App.Views.Assist;
 using Ascolotl.Core.Resources;
 using Ascolotl.Export;
 using System.Text;
@@ -82,6 +83,34 @@ public sealed class ViewSwitchTests
         Press(window, Key.Enter); // to edit: WYSIWYG, the block open
         Assert.Equal(EditorMode.Wysiwyg, vm.EditorMode);
         Assert.Equal("Para one.", BlockEditor(window)!.Text.TrimEnd());
+    }
+
+    [AvaloniaFact]
+    public void ReadView_OpensWebLinks_TheOtherViewsDont()
+    {
+        var (window, vm) = Open("https://example.com/page[Site]\n\nlink:file:///etc/passwd[Local]\n", EditorMode.Wysiwyg);
+        var opened = new List<Uri>();
+        Preview(window).LinkOpener = opened.Add;
+        void PressOn(string text)
+        {
+            // Raised on the link's text itself: the headless platform hit-tests no text.
+            var link = Preview(window).GetVisualDescendants().OfType<TextBlock>()
+                .First(t => t.IsEffectivelyVisible && PageSpelling.ShownText(t).Trim() == text);
+            var at = link.TranslatePoint(new Point(4, link.Bounds.Height / 2), window)!.Value;
+            link.RaiseEvent(new PointerPressedEventArgs(link, new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true), window, at, 0,
+                new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed), KeyModifiers.None));
+            Pump(window);
+            if (BlockEditor(window) is not null) Press(window, Key.Escape);
+        }
+
+        PressOn("Site"); // editing: the press edits, nothing opens
+        Assert.Empty(opened);
+
+        vm.EditorMode = EditorMode.Read;
+        Pump(window);
+        PressOn("Site");
+        PressOn("Local"); // a file: never opened from a document
+        Assert.Equal([new Uri("https://example.com/page")], opened);
     }
 
     [AvaloniaFact]
@@ -541,6 +570,31 @@ public sealed class ViewSwitchTests
         Assert.Equal("== Title\n\nZero.\nStill zero.\n\nOnetwo.\n\nThree.\n", Text()); // the document's line ends
     }
 
+    /// <summary>A line typed with Shift+Enter breaks the system's way in the block editor, the document
+    /// its own: Enter at the end still opens the new paragraph after the whole block.</summary>
+    [AvaloniaTheory]
+    [InlineData("\r\n")]
+    [InlineData("\n")]
+    public void EnterAtTheEnd_AfterALineBreak_KeepsTheBlockWhole(string newLine)
+    {
+        var (window, vm) = Open($"One.{newLine}{newLine}Two.{newLine}", EditorMode.Wysiwyg);
+        Preview(window).FocusPage();
+        Pump(window);
+        Assert.Equal("One.", OnBlock(window));
+
+        Press(window, Key.Enter);
+        Press(window, Key.End);
+        Press(window, Key.Enter, RawInputModifiers.Shift);
+        window.KeyTextInput("xy");
+        Press(window, Key.Enter);
+        Pump(window);
+
+        var text = vm.SelectedDocument!.SourceText;
+        Assert.StartsWith($"One.{newLine}xy", text);
+        Assert.True(text.IndexOf("New paragraph.", StringComparison.Ordinal) > text.IndexOf("xy", StringComparison.Ordinal));
+        Assert.EndsWith($"Two.{newLine}", text);
+    }
+
     [AvaloniaFact]
     public void HeadingKeysAndTurnInto_ChangeTheBlocksKind()
     {
@@ -632,6 +686,30 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
+    public void SelectedBlocks_StayWithTheirTab()
+    {
+        var (window, vm) = Open("A.\n\nB.\n\nC.\n", EditorMode.Wysiwyg);
+        var first = vm.SelectedDocument!;
+        Preview(window).FocusPage();
+        Pump(window);
+        Press(window, Key.Down);
+        Press(window, Key.Down, RawInputModifiers.Shift);
+        Assert.Equal(string.Format(Strings.StatusBlocksSelected, 2), vm.StatusText);
+
+        vm.NewDocumentCommand.Execute(null);
+        vm.SelectedDocument!.SourceText = "One.\n\nTwo.\n\nThree.\n";
+        vm.RequestRender(immediate: true);
+        Pump(window);
+        Preview(window).FocusPage();
+        Pump(window);
+
+        Press(window, Key.Delete); // the block in view only, none selected in the other tab
+        Pump(window);
+        Assert.Equal("Two.\n\nThree.\n", vm.SelectedDocument.SourceText);
+        Assert.Equal("A.\n\nB.\n\nC.\n", first.SourceText);
+    }
+
+    [AvaloniaFact]
     public void ShiftClickedBlocks_CopyAsTheirSourceAndAsHtml()
     {
         var (window, _) = Open("One.\n\nTwo.\n\n|===\n| a1 | b1\n|===\n", EditorMode.Wysiwyg);
@@ -692,6 +770,27 @@ public sealed class ViewSwitchTests
         Press(window, Key.Escape);
         Press(window, Key.C, Command); // the selection ended: the one block
         Assert.Equal("After.", TopLevel.GetTopLevel(window)!.Clipboard!.TryGetTextAsync().GetAwaiter().GetResult());
+    }
+
+    [AvaloniaFact]
+    public void FindInPagePreview_FindsEachMatchOnce()
+    {
+        var words = string.Join(' ', Enumerable.Repeat("filler", 60));
+        var (window, vm) = Open(string.Concat(Enumerable.Range(1, 40).Select(i => $"{words} marker{i} {words}\n\n")), EditorMode.Wysiwyg);
+        vm.PagePreview = true;
+        for (var i = 0; i < 250 && !window.GetVisualDescendants().OfType<TextBlock>().Any(t => PageSpelling.ShownText(t).Contains("marker40")); i++)
+        {
+            Thread.Sleep(20); // the pages laid out, off the UI thread
+            Pump(window);
+        }
+        Preview(window).FocusPage();
+        Press(window, Key.F, Command);
+        window.KeyTextInput("marker");
+        Pump(window);
+
+        // A paragraph cut by a page break is on both pages: still one match.
+        var count = window.GetVisualDescendants().OfType<TextBlock>().Single(t => t.Name == "FindCount").Text;
+        Assert.Equal(string.Format(Strings.FindCount, 1, 40), count);
     }
 
     [AvaloniaFact]
@@ -955,6 +1054,140 @@ public sealed class ViewSwitchTests
         Assert.Equal(moved, OnBlock(window)); // above the view's top: brought back into view, not swapped for another
         var n = int.Parse(moved!["Paragraph ".Length..^1]);
         Assert.Contains($"Paragraph {n}.\n\nParagraph {n - 2}.\n\nParagraph {n - 1}.", vm.SelectedDocument!.SourceText);
+    }
+
+    [AvaloniaFact]
+    public void EachTab_KeepsItsUndoHistory()
+    {
+        var (window, vm) = Open("First.\n", EditorMode.Source);
+        var first = vm.SelectedDocument!;
+        var editor = window.GetVisualDescendants().OfType<SourceEditorView>().Single().Editor;
+        editor.Document.Insert(editor.Document.TextLength, "Typed.\n");
+        Pump(window);
+        Assert.Equal("First.\nTyped.\n", first.SourceText);
+
+        vm.NewDocumentCommand.Execute(null);
+        Pump(window);
+        while (editor.CanUndo) editor.Undo(); // the new tab's own history only
+        Pump(window);
+        Assert.Equal("First.\nTyped.\n", first.SourceText);
+        vm.SelectedDocument = first;
+        Pump(window);
+
+        Assert.True(editor.CanUndo);
+        editor.Undo();
+        Pump(window);
+        Assert.Equal("First.\n", first.SourceText);
+    }
+
+    [AvaloniaFact]
+    public void UndoOnThePage_BackToTheSavedText_LeavesNothingToSave()
+    {
+        var (window, vm) = Open("One.\n\nTwo.\n", EditorMode.Wysiwyg);
+        Preview(window).FocusPage();
+        Pump(window);
+        Press(window, Key.Delete);
+        Assert.True(vm.SelectedDocument!.IsDirty);
+
+        Press(window, Key.Z, Command);
+        Assert.Equal("One.\n\nTwo.\n", vm.SelectedDocument.SourceText);
+        Assert.False(vm.SelectedDocument.IsDirty);
+        Press(window, Key.Y, Command);
+        Assert.True(vm.SelectedDocument.IsDirty);
+    }
+
+    [AvaloniaFact]
+    public void ANewParagraph_AndItsText_AreOneUndoStep_AndOneGivenUpIsNone()
+    {
+        var (window, vm) = Open("One.\n\nTwo.\n", EditorMode.Wysiwyg);
+        string Text() => vm.SelectedDocument!.SourceText;
+        window.GetVisualDescendants().OfType<SourceEditorView>().Single().Editor.Document.UndoStack.ClearAll(); // as opened
+        Preview(window).FocusPage();
+        Pump(window);
+
+        Press(window, Key.N, Command | RawInputModifiers.Shift);
+        window.KeyTextInput("Typed.");
+        Press(window, Key.Enter, Command);
+        Pump(window);
+        Assert.Equal("One.\n\nTyped.\n\nTwo.\n", Text());
+        Press(window, Key.Z, Command);
+        Assert.Equal("One.\n\nTwo.\n", Text()); // not the "New paragraph." placeholder
+        Press(window, Key.Y, Command);
+        Assert.Equal("One.\n\nTyped.\n\nTwo.\n", Text());
+        Press(window, Key.Z, Command);
+
+        Press(window, Key.N, Command | RawInputModifiers.Shift);
+        Press(window, Key.Escape); // given up
+        Pump(window);
+        Preview(window).FocusPage();
+        Press(window, Key.Z, Command);
+        Assert.Equal("One.\n\nTwo.\n", Text()); // nothing comes back
+        Assert.False(vm.SelectedDocument!.IsDirty);
+    }
+
+    [AvaloniaTheory]
+    [InlineData(EditorMode.Source)]
+    [InlineData(EditorMode.Wysiwyg)] // an open block's own editor
+    public void ShiftCtrlZ_RedoesInTheEditors(EditorMode mode)
+    {
+        var (window, _) = Open("One.\n", mode);
+        TextEditor editor;
+        if (mode == EditorMode.Source)
+        {
+            editor = window.GetVisualDescendants().OfType<SourceEditorView>().Single().Editor;
+            editor.TextArea.Focus();
+        }
+        else
+        {
+            Preview(window).FocusPage();
+            Pump(window);
+            Press(window, Key.Enter);
+            editor = BlockEditor(window)!;
+        }
+        editor.CaretOffset = 0;
+        window.KeyTextInput("abc");
+        Pump(window);
+        var typed = editor.Text;
+
+        Press(window, Key.Z, Command);
+        Assert.NotEqual(typed, editor.Text);
+        Press(window, Key.Z, Command | RawInputModifiers.Shift);
+        Assert.Equal(typed, editor.Text);
+    }
+
+    [AvaloniaFact]
+    public void EditMenu_UndoesAndRedoes_ThePageTheSourceAndAnOpenBlock()
+    {
+        var (window, vm) = Open("One.\n\nTwo.\n", EditorMode.Wysiwyg);
+        string Text() => vm.SelectedDocument!.SourceText;
+        MenuItem Item(string header) => window.FindControl<MenuItem>("HamburgerMenuItem")!.GetLogicalDescendants()
+            .OfType<MenuItem>().First(m => m.Header as string == header);
+        void Click(string header) { Item(header).RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent)); Pump(window); }
+        Preview(window).FocusPage();
+        Pump(window);
+
+        Press(window, Key.Delete); // on the page
+        Click(Strings.Undo);
+        Assert.Equal("One.\n\nTwo.\n", Text());
+        Click(Strings.Redo);
+        Assert.Equal("Two.\n", Text());
+        Click(Strings.Undo);
+
+        Press(window, Key.Enter); // in an open block, its own history
+        var block = BlockEditor(window)!;
+        block.CaretOffset = 0;
+        window.KeyTextInput("x");
+        Click(Strings.Undo);
+        Assert.Equal("One.", block.Text.TrimEnd());
+        Press(window, Key.Escape);
+
+        vm.EditorMode = EditorMode.Source; // in the source
+        Pump(window);
+        var source = window.GetVisualDescendants().OfType<SourceEditorView>().Single().Editor;
+        source.Document.Insert(0, "Zero.\n\n");
+        Click(Strings.Undo);
+        Assert.Equal("One.\n\nTwo.\n", Text());
+        Assert.Contains(vm.CommandPalette.AllCommands, c => c.Name == Strings.CommandUndo && c.Shortcut == "Ctrl+Z");
     }
 
     [AvaloniaFact]

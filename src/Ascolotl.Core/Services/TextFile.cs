@@ -24,6 +24,18 @@ public static class TextFile
 
     public static FileText Read(string path) => Decode(File.ReadAllBytes(path));
 
+    /// <summary>A text's line end, "\r\n" or "\n": its first one's, as most editors take it; null
+    /// without any.</summary>
+    public static string? NewLineOf(string text) =>
+        text.IndexOf('\n') is var i and >= 0 ? i > 0 && text[i - 1] == '\r' ? "\r\n" : "\n" : null;
+
+    /// <summary>The text with every line end written as <paramref name="newLine"/>; a lone CR stays.</summary>
+    public static string WithLineEnds(string text, string newLine)
+    {
+        var lf = text.Replace("\r\n", "\n");
+        return newLine == "\n" ? lf : lf.Replace("\n", newLine);
+    }
+
     public static async Task<FileText> ReadAsync(string path) => Decode(await File.ReadAllBytesAsync(path));
 
     public static FileText Decode(byte[] bytes)
@@ -70,6 +82,14 @@ public static class TextFile
         {
             return Utf8NoBom;
         }
+    }
+
+    /// <summary>When the file was last written (UTC), through symlinks: a link's own time stays
+    /// when its target changes.</summary>
+    public static DateTime WriteTime(string path)
+    {
+        var info = new FileInfo(path);
+        return (info.ResolveLinkTarget(returnFinalTarget: true) ?? info).LastWriteTimeUtc;
     }
 
     /// <summary>

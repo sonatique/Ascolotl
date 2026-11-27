@@ -36,7 +36,8 @@ public sealed class ExportService : IExportService
                 var parsed = DocumentParser.Parse(source, markdown, basePath, projectFolder: projectFolder);
                 if (FirstNetworkImage(parsed.Document, basePath) is { } image)
                     return ExportResult.Failure(string.Format(Strings.ExportNetworkImage, image));
-                // HTML and EPUB carry their diagrams inside; PDF and DocBook read the cached images.
+                // HTML and EPUB carry their diagrams inside; PDF reads the cached images, DocBook copies of them.
+                var imagesBefore = ImageBlocks(parsed.Document, new(ReferenceEqualityComparer.Instance));
                 DrawDiagramsAsync(parsed.Document, embed: format is ExportFormat.Html or ExportFormat.Epub, cancellationToken)
                     .GetAwaiter().GetResult(); // already on a worker thread
 
@@ -94,10 +95,16 @@ public sealed class ExportService : IExportService
                         });
                         break;
                     case ExportFormat.DocBook:
+                        CopyDiagramsBeside(parsed.Document, imagesBefore, outputPath);
                         new DocBookRenderer().Render(parsed.Document, ms, RenderOptions.Default);
                         break;
                     case ExportFormat.Epub:
-                        new EpubRenderer().Render(parsed.Document, ms, new EpubRenderOptions { CustomCss = styleCss, StemRenderer = Formulas.Renderer });
+                        new EpubRenderer().Render(parsed.Document, ms, new EpubRenderOptions
+                        {
+                            CustomCss = styleCss,
+                            StemRenderer = Formulas.Renderer,
+                            BaseDirectory = basePath, // the images found there go into the book
+                        });
                         break;
                     default:
                         return ExportResult.Failure(string.Format(Strings.ExportUnsupportedFormat, format));
@@ -186,13 +193,55 @@ public sealed class ExportService : IExportService
         diagrams.Apply(document, embed);
     }
 
+    private static HashSet<BlockImageNode> ImageBlocks(AstNode node, HashSet<BlockImageNode> found)
+    {
+        if (node is BlockImageNode image) found.Add(image);
+        foreach (var child in node.Children) ImageBlocks(child, found);
+        return found;
+    }
+
+    /// <summary>The diagrams drawn into the cache, copied into a folder beside <paramref name="outputPath"/>
+    /// and referred to there, so the file names no private path. True when one was.</summary>
+    private static bool CopyDiagramsBeside(AstNode parent, HashSet<BlockImageNode> before, string outputPath)
+    {
+        var copied = false;
+        for (var i = 0; i < parent.Children.Count; i++)
+        {
+            if (parent.Children[i] is not BlockImageNode image || before.Contains(image) || !Path.IsPathRooted(image.Target))
+            {
+                copied |= CopyDiagramsBeside(parent.Children[i], before, outputPath);
+                continue;
+            }
+            var folder = Path.GetFileNameWithoutExtension(outputPath) + "-diagrams";
+            var name = Path.GetFileName(image.Target);
+            var copy = Path.Combine(Path.GetDirectoryName(outputPath)!, folder, name);
+            Directory.CreateDirectory(Path.GetDirectoryName(copy)!);
+            File.Copy(image.Target, copy, overwrite: true);
+            parent.RemoveChildAt(i);
+            parent.InsertChild(i, new BlockImageNode
+            {
+                Target = folder + "/" + name,
+                Alt = image.Alt,
+                Title = image.Title,
+                Id = image.Id,
+                Reftext = image.Reftext,
+                Roles = image.Roles,
+                Source = image.Source,
+            });
+            copied = true;
+        }
+        if (copied) parent.InvalidateStructuralHash();
+        return copied;
+    }
+
     /// <summary>Windows sharing or lock violation: another program holds the file open.</summary>
     private static bool IsInUse(IOException ex) => (ex.HResult & 0xFFFF) is 32 or 33;
 
-    /// <summary>Folder images load from; never a network or device path (:imagesdir: \server would leak credentials).</summary>
+    /// <summary>Folder images load from; never a network or device path (:imagesdir: \server would leak credentials).
+    /// An unsaved document has no folder: the diagram cache then, as the renderer loads no image without one.</summary>
     private static string? ImageBase(string? basePath, string imagesDir)
     {
-        if (basePath is null) return null;
+        if (basePath is null) return Diagrams.CacheFolder;
         var dir = Path.Combine(basePath, imagesDir);
         return LocalIncludeReader.IsBlocked(dir, basePath) ? null : dir;
     }

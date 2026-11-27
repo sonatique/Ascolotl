@@ -67,6 +67,27 @@ public sealed class MenuModeTests
         Dispatcher.UIThread.RunJobs();
     }
 
+    [AvaloniaTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void FileExit_ClosesTheWindow(bool hamburger)
+    {
+        var (window, _) = Open(hamburger);
+        var closed = false;
+        window.Closed += (_, _) => closed = true;
+        if (Hamburger(window).IsVisible)
+            Hamburger(window).Open();
+        var file = Find(window, "_File");
+        file.Open();
+        Dispatcher.UIThread.RunJobs();
+
+        file.Items.OfType<MenuItem>().Single(i => (string?)i.Header == Ascolotl.Core.Resources.Strings.Exit)
+            .RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent));
+        Dispatcher.UIThread.RunJobs();
+
+        Assert.True(closed);
+    }
+
     /// <summary>Clicks View > Hamburger Menu with the View menu open, as a user does.</summary>
     private static void ToggleFromViewMenu(MainWindow window, MainWindowViewModel vm)
     {
