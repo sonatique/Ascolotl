@@ -48,6 +48,35 @@ public class WebsiteExportServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task Export_IntoAFolderAboveTheProject_CopiesItsFiles()
+    {
+        var project = Directory.CreateDirectory(Path.Combine(_out, "manual")).FullName;
+        Directory.CreateDirectory(Path.Combine(project, "img"));
+        File.WriteAllBytes(Path.Combine(project, "img", "logo.png"), [1, 2, 3]);
+        File.WriteAllText(Path.Combine(project, "guide.adoc"), "= Guide\n\nimage::img/logo.png[]\n");
+
+        var result = await new WebsiteExportService().ExportAsync(project, ["guide.adoc"], _out, CancellationToken.None);
+
+        Assert.True(result.IsSuccess, result.ErrorMessage);
+        Assert.True(File.Exists(Path.Combine(_out, "guide.html")));
+        Assert.True(File.Exists(Path.Combine(_out, "img", "logo.png")));
+    }
+
+    [Fact]
+    public async Task Export_IntoAFolderInsideTheProject_LeavesItsOwnPagesOut()
+    {
+        File.WriteAllText(Path.Combine(_root, "guide.adoc"), "= Guide\n");
+        var site = Path.Combine(_root, "site");
+        Directory.CreateDirectory(site);
+        File.WriteAllText(Path.Combine(site, "old.html"), "");
+
+        var result = await new WebsiteExportService().ExportAsync(_root, ["guide.adoc"], site, CancellationToken.None);
+
+        Assert.True(result.IsSuccess, result.ErrorMessage);
+        Assert.False(Directory.Exists(Path.Combine(site, "site")));
+    }
+
+    [Fact]
     public async Task Export_DoesNotCopyWhatALinkPointsTo()
     {
         var secret = Path.Combine(_out, "..", $"secret-{Guid.NewGuid():N}.txt");
