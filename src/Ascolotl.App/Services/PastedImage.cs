@@ -52,11 +52,13 @@ internal static partial class PastedImage
     public static (string Folder, string Prefix)? Place(string documentFolder, string documentText, bool markdown)
     {
         var imagesDir = markdown ? null : ImagesDir().Match(documentText) is { Success: true } m ? m.Groups[1].Value.Trim() : null;
-        var root = Path.GetFullPath(documentFolder).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        var root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(documentFolder)); // keeps C:\ and / whole
         var folder = Path.GetFullPath(Path.Combine(root, imagesDir ?? "images"));
         var names = Ascolotl.Core.Services.FilePaths.Comparison;
-        if (!(folder + Path.DirectorySeparatorChar).StartsWith(root + Path.DirectorySeparatorChar, names))
+        if (!Path.EndsInDirectorySeparator(folder)) folder += Path.DirectorySeparatorChar;
+        if (!folder.StartsWith(Path.EndsInDirectorySeparator(root) ? root : root + Path.DirectorySeparatorChar, names))
             return null;
+        folder = Path.TrimEndingDirectorySeparator(folder);
         return (folder, imagesDir is null ? "images/" : "");
     }
 

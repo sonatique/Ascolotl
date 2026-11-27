@@ -20,6 +20,15 @@ public class PastedImageTests
         Assert.Equal(prefix, place.Value.Prefix);
     }
 
+    [Fact]
+    public void Place_ForADocumentAtTheDrivesRoot_IsInsideIt()
+    {
+        var drive = Path.GetPathRoot(Path.GetTempPath())!; // C:\ or /
+        var place = PastedImage.Place(drive, "= Doc\n", markdown: false);
+        Assert.NotNull(place);
+        Assert.Equal(Path.Combine(drive, "images"), place.Value.Folder);
+    }
+
     [Theory]
     [InlineData(":imagesdir: ../elsewhere\n")]
     [InlineData(":imagesdir: ../doc-folder-other\n")] // a name that only starts like the folder
