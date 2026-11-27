@@ -30,7 +30,8 @@ no Ruby and no Java.
   opened from Explorer or the command line: the page to read, with no edit
   outline and no spelling marks. Text is selected with the mouse as in a word
   processor, across paragraphs and table cells (`Shift`+click extends it, a
-  double-click takes a word, `Ctrl+A` all), and copied formatted; `Enter`, or
+  double-click takes a word, `Ctrl+A` all), and copied formatted; web and mail
+  links open in the browser or mail program; `Enter`, or
   Edit block in the right-click menu, edits a block. Click a rendered block to edit its source in
   place (in Split, the source pane jumps there too), then apply with
   `Ctrl+Enter` or cancel with `Esc`. The source text stays the single source of

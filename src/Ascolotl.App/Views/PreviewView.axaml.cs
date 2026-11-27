@@ -116,6 +116,8 @@ public partial class PreviewView : UserControl
     private Control? _frozenEditSlot;
     // Guards a single subscription to the shared renderer's LinkClicked.
     private static bool _linkHandlerWired;
+    // The view whose links open: the renderer is shared, its event is not per view.
+    private static PreviewView? _linkView;
 
     // In-flight block-WYSIWYG edit: the rendered block visual has been
     // swapped for an in-place source editor. Null when not editing.
@@ -201,12 +203,18 @@ public partial class PreviewView : UserControl
         // OS-shell navigation while editing — a stray click on a link in
         // the preview shouldn't yank the user into a browser. The
         // click-to-source handler still runs and moves the editor caret to
-        // the link's source. Wired once: the renderer is shared/static, so
-        // multiple PreviewView instances must not each add a handler.
+        // the link's source. In Read view the link opens. Wired once: the
+        // renderer is shared/static, so multiple PreviewView instances must
+        // not each add a handler.
+        _linkView = this;
         if (!_linkHandlerWired)
         {
             _linkHandlerWired = true;
-            _avaloniaRenderer.LinkClicked += (_, args) => args.Handled = true;
+            _avaloniaRenderer.LinkClicked += (_, args) =>
+            {
+                args.Handled = true;
+                if (_linkView is { Reading: true } view) view.OpenLink(args.Url);
+            };
         }
 
         if (Application.Current is not null)
@@ -331,6 +339,18 @@ public partial class PreviewView : UserControl
     }
 
     private bool Reading => _mainVm?.EditorMode == EditorMode.Read;
+
+    /// <summary>Opens a web or mail link in the system's browser or mail program; any other link
+    /// (a file, another program's scheme, an anchor in the page) stays shut.</summary>
+    private void OpenLink(string url)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https" or "mailto")) return;
+        if (LinkOpener is { } open) open(uri);
+        else _ = TopLevel.GetTopLevel(this)?.Launcher.LaunchUriAsync(uri);
+    }
+
+    /// <summary>Opens links instead of the system's launcher (tests).</summary>
+    internal Action<Uri>? LinkOpener { get; set; }
 
     /// <summary>Read view: the keys scroll, select and copy; Enter or F2 edits the first block in view, in WYSIWYG.</summary>
     private bool ReadingKey(KeyEventArgs e, KeyModifiers mods)

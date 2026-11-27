@@ -86,6 +86,34 @@ public sealed class ViewSwitchTests
     }
 
     [AvaloniaFact]
+    public void ReadView_OpensWebLinks_TheOtherViewsDont()
+    {
+        var (window, vm) = Open("https://example.com/page[Site]\n\nlink:file:///etc/passwd[Local]\n", EditorMode.Wysiwyg);
+        var opened = new List<Uri>();
+        Preview(window).LinkOpener = opened.Add;
+        void PressOn(string text)
+        {
+            // Raised on the link's text itself: the headless platform hit-tests no text.
+            var link = Preview(window).GetVisualDescendants().OfType<TextBlock>()
+                .First(t => t.IsEffectivelyVisible && PageSpelling.ShownText(t).Trim() == text);
+            var at = link.TranslatePoint(new Point(4, link.Bounds.Height / 2), window)!.Value;
+            link.RaiseEvent(new PointerPressedEventArgs(link, new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true), window, at, 0,
+                new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed), KeyModifiers.None));
+            Pump(window);
+            if (BlockEditor(window) is not null) Press(window, Key.Escape);
+        }
+
+        PressOn("Site"); // editing: the press edits, nothing opens
+        Assert.Empty(opened);
+
+        vm.EditorMode = EditorMode.Read;
+        Pump(window);
+        PressOn("Site");
+        PressOn("Local"); // a file: never opened from a document
+        Assert.Equal([new Uri("https://example.com/page")], opened);
+    }
+
+    [AvaloniaFact]
     public void ReadView_DragSelectsText_AcrossParagraphsAndIntoATable()
     {
         var (window, _) = Open("Alpha beta.\n\nGamma delta.\n\n|===\n| a1 | b1\n| a2 | b2\n|===\n", EditorMode.Read);
