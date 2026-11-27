@@ -99,7 +99,12 @@ public sealed class ExportService : IExportService
                         new DocBookRenderer().Render(parsed.Document, ms, RenderOptions.Default);
                         break;
                     case ExportFormat.Epub:
-                        new EpubRenderer().Render(parsed.Document, ms, new EpubRenderOptions { CustomCss = styleCss, StemRenderer = Formulas.Renderer });
+                        new EpubRenderer().Render(parsed.Document, ms, new EpubRenderOptions
+                        {
+                            CustomCss = styleCss,
+                            StemRenderer = Formulas.Renderer,
+                            BaseDirectory = basePath, // the images found there go into the book
+                        });
                         break;
                     default:
                         return ExportResult.Failure(string.Format(Strings.ExportUnsupportedFormat, format));
